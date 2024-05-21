@@ -79,6 +79,9 @@
   - **查看版本库中所有分支的版本信息**：`git reflog`，信息以栈结构输出，命令后面可以加其他参数来控制输出内容。另一个命令`git log`默认是查看当前分支的版本信息，而且不包括已经被删除的提交和版本回退之后的提交。
 
   - **版本回退**：`git reset --hard 版本号`，版本号就是`commmitId`，可以不用写全，但至少要写前4位。一般只会查看版本信息而不会使用版本回退的功能，容易引发冲突，所以知道即可。
+  
+  - **还原**：`git restore`，恢复和撤销文件的更改。它会将版本库工作区还原到最新提交时的状态，暂存区中未提交的修改都丢弃。
+  
 
 ------
 
@@ -105,16 +108,16 @@
 >   ```ini
 >   # Compiled class file
 >   *.class
->   
+>     
 >   # Log file
 >   *.log
->   
+>     
 >   # BlueJ files
 >   *.ctxt
->   
+>     
 >   # Mobile Tools for Java (J2ME)
 >   .mtj.tmp/
->   
+>     
 >   # Package Files #
 >   *.jar
 >   *.war
@@ -123,7 +126,7 @@
 >   *.zip
 >   *.tar.gz
 >   *.rar
->   
+>     
 >   # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 >   hs_err_pid*
 >   # 以下是新加的内容
@@ -162,17 +165,6 @@
 
 ```txt
         -没有提交到本地仓库的删除操作可以通过命令直接恢复【git restore 文件名】
-
-    * 版本回退：当我们删了某个东西并提交到了本地仓库，如果想找回来，就得用版本回退功能；版本回退分两步：
-        1、查看当前分支上的时间点【git log [option]】，log后可以加参数：
-            -【--all】显示所有分支
-            -【--pretty=oneline】显示为一行
-            -【--abbrev-commit】更简短的输出
-            -【--graph】以图的形式输出
-        （【git log 时间点】表示只查看这个时间点之前的提交操作）
-        2、回退；【git reset --hard 版本号】（commit id可以不用写全，但至少要写前4位）
-        （注意：版本回退成功会丢失之后的时间点，此时如果还想返回到回退之前的时刻，怎么办呢？还是要拿到对应时间点的“commit id”，可以通过【git reflog】
-            拿到最新的“commit id”，然后再进行“版本回退”操作即可）
 
     * 如果我们就想将删除的文件恢复，还想不丢失时间点，就需要使用“还原”【git revert 版本号】，注意：这里的“版本号id”是指，还原到该时间点的提交操作之前；
         它等同于将该时间点之前的操作，又进行了提交，所以东西就回来了；
