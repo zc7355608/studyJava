@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>递归记时间</title>
+</head>
+<body>
+    <div></div>
+    <script>
+        function printTime(){
+            document.querySelector('div').innerHTML = new Date().toLocaleString()
+            setTimeout(printTime, 1000)
+        }
+        printTime()
+    </script>
+</body>
+</html>

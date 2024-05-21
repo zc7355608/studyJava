@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户订单信息</title>
+    <!-- 需求：用户输入商品价格和商品数量，以及收货地址，可以自动打印订单信息 -->
+    <style>
+        caption {
+            font-size: 30px;
+            font-weight: bold;
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+        table {
+            margin: 0 auto;
+            border-collapse: collapse;
+            height: 80px;
+            text-align: center;
+        }
+        td,th {
+            border: 1px solid black;
+        }
+        th {
+            padding: 5px 20px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const price = +prompt("请输入商品价格")
+        const num = +prompt("请输入购买数量")
+        const address = prompt("输入收货地址")
+
+        document.write(`<table>
+        <caption>订单确认</caption>
+        <thead>
+            <tr>
+                <th>商品名称</th>
+                <th>商品价格</th>
+                <th>商品数量</th>
+                <th>总价</th>
+                <th>收货地址</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>小米手机青春版</td>
+                <td>${price}元</td>
+                <td>${num}</td>
+                <td>${price*num}元</td>
+                <td>${address}</td>
+            </tr>
+        </tbody>
+    </table>`)
+    </script>
+</body>
+</html>

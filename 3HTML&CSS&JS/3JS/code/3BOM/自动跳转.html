@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>自动跳转页面</title>
+</head>
+<body>
+    <a href="https://www.baidu.com/">点击回主页(<span>5</span>秒后自动跳转)</a>
+</body>
+<script>
+    let i = 5
+    // 获取span元素
+    const span = document.querySelector('span')
+    // 开启定时器
+    let timerId = setInterval(function(){
+        i--
+        span.innerText = i
+        if(i===0){
+            // 关闭定时器
+            clearInterval(timerId)
+            location.href = "https://www.baidu.com/"
+        }
+    }, 1000)
+</script>
+</html>

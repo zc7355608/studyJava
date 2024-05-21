@@ -1,0 +1,463 @@
+1、取得每个部门最高薪水的人员名称
+	select max(sal) as maxsal,deptno from emp group by deptno;
+		+--------+--------+
+		| maxsal | deptno |
+		+--------+--------+
+		|   5000 |     10 |
+		|   3000 |     20 |
+		|   2850 |     30 |
+		+--------+--------+
+	select e.ename,t.* from emp e join (select max(sal) as maxsal,deptno from emp group by deptno)t on e.sal=t.maxsal and e.deptno=t.deptno;
+		+-------+--------+--------+
+		| ename | maxsal | deptno |
+		+-------+--------+--------+
+		| BLAKE |   2850 |     30 |
+		| SCOTT |   3000 |     20 |
+		| KING  |   5000 |     10 |
+		| FORD  |   3000 |     20 |
+		+-------+--------+--------+
+
+
+2、哪些人的薪水在部门的平均薪水之上
+	第一步，找出每个部门的平均薪水
+	select deptno,avg(sal) as avgsal from emp group by deptno;
+	+-------------+--------+
+	|  avgsal     | deptno |
+	+-------------+--------+
+	| 2916.666667 |     10 |
+	|        2175 |     20 |
+	| 1566.666667 |     30 |
+	+-------------+--------+
+	第二步
+	select e.ename,e.sal,e.deptno from emp e join (select deptno,avg(sal) as avgsal from emp group by deptno)t on e.deptno=t.deptno where e.sal>t.avgsal;
+	+-------+------+--------+
+	| ename | sal  | deptno |
+	+-------+------+--------+
+	| KING  | 5000 |     10 |
+	| JONES | 2975 |     20 |
+	| SCOTT | 3000 |     20 |
+	| FORD  | 3000 |     20 |
+	| ALLEN | 1600 |     30 |
+	| BLAKE | 2850 |     30 |
+	+-------+------+--------+
+
+
+3、取得部门中（所有人的）平均的薪资等级,每个部门薪水等级的平均数
+	第一步：找出每个人的薪资等级
+	mysql> select e.*,s.grade as salgrade from emp e join salgrade s on e.sal between s.losal and s.hisal order by e.deptno;
+	+-------+--------+-----------+------+------------+------+------+--------+----------+
+	| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL  | COMM | DEPTNO | salgrade |
+	+-------+--------+-----------+------+------------+------+------+--------+----------+
+	|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300 | NULL |     10 |        2 |
+	|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |        4 |
+	|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |        5 |
+
+	|  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000 | NULL |     20 |        4 |
+	|  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100 | NULL |     20 |        1 |
+	|  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000 | NULL |     20 |        4 |
+	|  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800 | NULL |     20 |        1 |
+	|  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975 | NULL |     20 |        4 |
+
+	|  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950 | NULL |     30 |        1 |
+	|  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500 |    0 |     30 |        3 |
+	|  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250 | 1400 |     30 |        2 |
+	|  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850 | NULL |     30 |        4 |
+	|  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600 |  300 |     30 |        3 |
+	|  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250 |  500 |     30 |        2 |
+	+-------+--------+-----------+------+------------+------+------+--------+----------+
+	select e.deptno,avg(s.grade) from emp e join salgrade s on e.sal between s.losal and s.hisal group by e.deptno;
+	+--------+--------------+
+	| deptno | avg(s.grade) |
+	+--------+--------------+
+	|     10 | 3.6667       |
+	|     20 | 2.8000       |
+	|     30 | 2.5000       |
+	+--------+--------------+
+
+
+
+	
+4、不准用分组函数（max），取得最高薪水
+	mysql> select * from emp order by sal desc limit 0,1;
+	+-------+-------+-----------+------+------------+------+------+--------+
+	| EMPNO | ENAME | JOB       | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
+	+-------+-------+-----------+------+------------+------+------+--------+
+	|  7839 | KING  | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+	+-------+-------+-----------+------+------------+------+------+--------+
+
+
+
+5、取得平均薪水最高的部门的部门编号
+	select t.* from (select avg(sal) as avgsal,deptno from emp group by deptno)t order by t.avgsal desc limit 0,1;
+	+-------------+--------+
+	| avgsal      | deptno |
+	+-------------+--------+
+	| 2916.666667 |     10 |
+	+-------------+--------+
+
+
+
+
+6、取得平均薪水最高的部门的部门名称
+	select m.*,d.dname from (select t.* from (select avg(sal) as avgsal,deptno from emp group by deptno)t order by t.avgsal desc limit 0,1) m join dept d on m.deptno=d.deptno;
+	+-------------+--------+------------+
+	| avgsal      | deptno | dname      |
+	+-------------+--------+------------+
+	| 2916.666667 |     10 | ACCOUNTING |
+	+-------------+--------+------------+
+
+
+
+7、求平均薪水的等级最低的部门的部门名称
+	第一步，求每个每个部门的平均薪水
+	select avg(sal) as avgsal, deptno from emp group by deptno;
+	+-------------+--------+
+	| avgsal      | deptno |
+	+-------------+--------+
+	| 2916.666667 |     10 |
+	|        2175 |     20 |
+	| 1566.666667 |     30 |
+	+-------------+--------+
+	第二步，每个部门平均薪水的等级
+	select t.*,s.grade from (select avg(sal) as avgsal, deptno from emp group by deptno) t join salgrade s on t.avgsal between s.losal and s.hisal;
+	+-------------+--------+-------+
+	| avgsal      | deptno | grade |
+	+-------------+--------+-------+
+	| 1566.666667 |     30 |     3 |
+	| 2916.666667 |     10 |     4 |
+	|        2175 |     20 |     4 |
+	+-------------+--------+-------+
+	第三步，排序，取一条数据
+	select t.*,s.grade from (select avg(sal) as avgsal, deptno from emp group by deptno) t join salgrade s on t.avgsal between s.losal and s.hisal order by s.grade limit 0,1;
+	+-------------+--------+-------+
+	| avgsal      | deptno | grade |
+	+-------------+--------+-------+
+	| 1566.666667 |     30 |     3 |
+	+-------------+--------+-------+
+	第四步，按照上面这个表和部门表做表连接，显示出部门名字
+	select m.*,d.dname from (select t.*,s.grade from (select avg(sal) as avgsal, deptno from emp group by deptno) t join salgrade s on t.avgsal between s.losal and s.hisal order by s.grade limit 0,1) m join dept d on m.deptno=d.deptno;
+	+-------------+--------+-------+-------+
+	| avgsal      | deptno | grade | dname |
+	+-------------+--------+-------+-------+
+	| 1566.666667 |     30 |     3 | SALES |
+	+-------------+--------+-------+-------+
+
+
+8、取得比普通员工（员工代码没有在mgr字段上出现的）的最高薪水还要高的领导人姓名
+	第一步，取得普通员工的最高薪水
+	select empno,ename,sal from emp where empno not in(select distinct mgr from emp where mgr is not null) order by sal desc;
+	+-------+--------+------+
+	| empno | ename  | sal  |
+	+-------+--------+------+
+	|  7499 | ALLEN  | 1600 |
+	|  7844 | TURNER | 1500 |
+	|  7934 | MILLER | 1300 |
+	|  7521 | WARD   | 1250 |
+	|  7654 | MARTIN | 1250 |
+	|  7876 | ADAMS  | 1100 |
+	|  7900 | JAMES  |  950 |
+	|  7369 | SMITH  |  800 |
+	+-------+--------+------+
+	最高薪水为：select max(sal) from emp where empno not in(select distinct mgr from emp where mgr is not null);
+	+----------+
+	| max(sal) |
+	+----------+
+	|  1600.00 |
+	+----------+
+	第二步，取得普通领导
+	select empno,ename from emp where empno in(select distinct mgr from emp where mgr is not null);
+	+-------+-------+------+
+	| empno | ename | sal  |
+	+-------+-------+------+
+	|  7566 | JONES | 2975 |
+	|  7698 | BLAKE | 2850 |
+	|  7782 | CLARK | 2450 |
+	|  7788 | SCOTT | 3000 |
+	|  7839 | KING  | 5000 |
+	|  7902 | FORD  | 3000 |
+	+-------+-------+------+
+	第三步
+	select empno,ename,sal from emp where empno in(select distinct mgr from emp where mgr is not null) and sal > (select max(sal) from emp where empno not in(select distinct mgr from emp where mgr is not null));
+	+-------+-------+------+
+	| empno | ename | sal  |
+	+-------+-------+------+
+	|  7566 | JONES | 2975 |
+	|  7698 | BLAKE | 2850 |
+	|  7782 | CLARK | 2450 |
+	|  7788 | SCOTT | 3000 |
+	|  7839 | KING  | 5000 |
+	|  7902 | FORD  | 3000 |
+	+-------+-------+------+
+
+
+
+9、取得薪水最高的前五名员工
+	select * from emp order by sal desc limit 0,5;
+	+-------+-------+-----------+------+------------+------+------+--------+
+	| EMPNO | ENAME | JOB       | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
+	+-------+-------+-----------+------+------------+------+------+--------+
+	|  7839 | KING  | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+	|  7788 | SCOTT | ANALYST   | 7566 | 1987-04-19 | 3000 | NULL |     20 |
+	|  7902 | FORD  | ANALYST   | 7566 | 1981-12-03 | 3000 | NULL |     20 |
+	|  7566 | JONES | MANAGER   | 7839 | 1981-04-02 | 2975 | NULL |     20 |
+	|  7698 | BLAKE | MANAGER   | 7839 | 1981-05-01 | 2850 | NULL |     30 |
+	+-------+-------+-----------+------+------------+------+------+--------+
+
+
+
+
+
+
+10、取得薪水最高的第6到第10名员工
+	select * from emp order by sal desc limit 5,5;
+	+-------+--------+----------+------+------------+------+------+--------+
+	| EMPNO | ENAME  | JOB      | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
+	+-------+--------+----------+------+------------+------+------+--------+
+	|  7782 | CLARK  | MANAGER  | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+	|  7499 | ALLEN  | SALESMAN | 7698 | 1981-02-20 | 1600 |  300 |     30 |
+	|  7844 | TURNER | SALESMAN | 7698 | 1981-09-08 | 1500 |    0 |     30 |
+	|  7934 | MILLER | CLERK    | 7782 | 1982-01-23 | 1300 | NULL |     10 |
+	|  7654 | MARTIN | SALESMAN | 7698 | 1981-09-28 | 1250 | 1400 |     30 |
+	+-------+--------+----------+------+------------+------+------+--------+
+
+
+
+
+
+
+11、取得最后入职的五名员工
+	select * from emp order by hiredate desc limit 0,5;
+	+-------+--------+---------+------+------------+------+------+--------+
+	| EMPNO | ENAME  | JOB     | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
+	+-------+--------+---------+------+------------+------+------+--------+
+	|  7876 | ADAMS  | CLERK   | 7788 | 1987-05-23 | 1100 | NULL |     20 |
+	|  7788 | SCOTT  | ANALYST | 7566 | 1987-04-19 | 3000 | NULL |     20 |
+	|  7934 | MILLER | CLERK   | 7782 | 1982-01-23 | 1300 | NULL |     10 |
+	|  7902 | FORD   | ANALYST | 7566 | 1981-12-03 | 3000 | NULL |     20 |
+	|  7900 | JAMES  | CLERK   | 7698 | 1981-12-03 |  950 | NULL |     30 |
+	+-------+--------+---------+------+------------+------+------+--------+
+
+
+
+	
+12、取得每个薪水等级有多少员工
+	第一步，取得每个员工的薪水等级
+	select e.*,s.grade from emp e join salgrade s on e.sal between s.losal and s.hisal;
+	+-------+--------+-----------+------+------------+------+------+--------+-------+
+	| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL  | COMM | DEPTNO | grade |
+	+-------+--------+-----------+------+------------+------+------+--------+-------+
+	|  7369 | SMITH  | CLERK     | 7902 | 1980-12-17 |  800 | NULL |     20 |     1 |
+	|  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950 | NULL |     30 |     1 |
+	|  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100 | NULL |     20 |     1 |
+	|  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250 |  500 |     30 |     2 |
+	|  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250 | 1400 |     30 |     2 |
+	|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300 | NULL |     10 |     2 |
+	|  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500 |    0 |     30 |     3 |
+	|  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600 |  300 |     30 |     3 |
+	|  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975 | NULL |     20 |     4 |
+	|  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850 | NULL |     30 |     4 |
+	|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |     4 |
+	|  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000 | NULL |     20 |     4 |
+	|  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000 | NULL |     20 |     4 |
+	|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |     5 |
+	+-------+--------+-----------+------+------------+------+------+--------+-------+
+	第二步
+	select t.grade,count(t.grade) from (select e.*,s.grade from emp e join salgrade s on e.sal between s.losal and s.hisal) t group by t.grade;
+	+-------+----------------+
+	| grade | count(t.grade) |
+	+-------+----------------+
+	|     1 |              3 |
+	|     2 |              3 |
+	|     3 |              2 |
+	|     4 |              5 |
+	|     5 |              1 |
+	+-------+----------------+
+
+
+14、列出所有员工及领导的姓名
+	列出所有领导的姓名：
+		select distinct mgr from emp where mgr is not null;
+		+------+
+		| mgr  |
+		+------+
+		| 7902 |
+		| 7698 |
+		| 7839 |
+		| 7566 |
+		| 7788 |
+		| 7782 |
+		+------+
+		select * from emp where empno in (select distinct mgr from emp where mgr is not null);
+		+-------+-------+-----------+------+------------+------+------+--------+
+		| EMPNO | ENAME | JOB       | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
+		+-------+-------+-----------+------+------------+------+------+--------+
+		|  7566 | JONES | MANAGER   | 7839 | 1981-04-02 | 2975 | NULL |     20 |
+		|  7698 | BLAKE | MANAGER   | 7839 | 1981-05-01 | 2850 | NULL |     30 |
+		|  7782 | CLARK | MANAGER   | 7839 | 1981-06-09 | 2450 | NULL |     10 |
+		|  7788 | SCOTT | ANALYST   | 7566 | 1987-04-19 | 3000 | NULL |     20 |
+		|  7839 | KING  | PRESIDENT | NULL | 1981-11-17 | 5000 | NULL |     10 |
+		|  7902 | FORD  | ANALYST   | 7566 | 1981-12-03 | 3000 | NULL |     20 |
+		+-------+-------+-----------+------+------------+------+------+--------+
+
+	列出所有员工：
+		select * from emp where empno not in (select distinct mgr from emp where mgr is not null);
+		+-------+--------+----------+------+------------+------+------+--------+
+		| EMPNO | ENAME  | JOB      | MGR  | HIREDATE   | SAL  | COMM | DEPTNO |
+		+-------+--------+----------+------+------------+------+------+--------+
+		|  7369 | SMITH  | CLERK    | 7902 | 1980-12-17 |  800 | NULL |     20 |
+		|  7499 | ALLEN  | SALESMAN | 7698 | 1981-02-20 | 1600 |  300 |     30 |
+		|  7521 | WARD   | SALESMAN | 7698 | 1981-02-22 | 1250 |  500 |     30 |
+		|  7654 | MARTIN | SALESMAN | 7698 | 1981-09-28 | 1250 | 1400 |     30 |
+		|  7844 | TURNER | SALESMAN | 7698 | 1981-09-08 | 1500 |    0 |     30 |
+		|  7876 | ADAMS  | CLERK    | 7788 | 1987-05-23 | 1100 | NULL |     20 |
+		|  7900 | JAMES  | CLERK    | 7698 | 1981-12-03 |  950 | NULL |     30 |
+		|  7934 | MILLER | CLERK    | 7782 | 1982-01-23 | 1300 | NULL |     10 |
+		+-------+--------+----------+------+------------+------+------+--------+
+
+
+
+15、列出受雇日期早于其直接上级的所有员工的编号，姓名，部门名称
+	第一步，列出所有员工的受雇日期
+	select empno,deptno,ename,hiredate,mgr from emp where mgr is not null;
+	+-------+--------+--------+------------+------+
+	| empno | deptno | ename  | hiredate   | mgr  |
+	+-------+--------+--------+------------+------+
+	|  7369 |     20 | SMITH  | 1980-12-17 | 7902 |
+	|  7499 |     30 | ALLEN  | 1981-02-20 | 7698 |
+	|  7521 |     30 | WARD   | 1981-02-22 | 7698 |
+	|  7566 |     20 | JONES  | 1981-04-02 | 7839 |
+	|  7654 |     30 | MARTIN | 1981-09-28 | 7698 |
+	|  7698 |     30 | BLAKE  | 1981-05-01 | 7839 |
+	|  7782 |     10 | CLARK  | 1981-06-09 | 7839 |
+	|  7788 |     20 | SCOTT  | 1987-04-19 | 7566 |
+	|  7844 |     30 | TURNER | 1981-09-08 | 7698 |
+	|  7876 |     20 | ADAMS  | 1987-05-23 | 7788 |
+	|  7900 |     30 | JAMES  | 1981-12-03 | 7698 |
+	|  7902 |     20 | FORD   | 1981-12-03 | 7566 |
+	|  7934 |     10 | MILLER | 1982-01-23 | 7782 |
+	+-------+--------+--------+------------+------+
+	第二步，列出所有领导的受雇日期
+	select empno,ename,hiredate from emp where empno in (select distinct mgr from emp where mgr is not null);
+	+-------+-------+------------+
+	| empno | ename | hiredate   |
+	+-------+-------+------------+
+	|  7566 | JONES | 1981-04-02 |
+	|  7698 | BLAKE | 1981-05-01 |
+	|  7782 | CLARK | 1981-06-09 |
+	|  7788 | SCOTT | 1987-04-19 |
+	|  7839 | KING  | 1981-11-17 |
+	|  7902 | FORD  | 1981-12-03 |
+	+-------+-------+------------+
+	第三步，将上面两张表进行表连接，第一张为主表
+	select t1.empno,t1.ename,t1.deptno from (select empno,deptno,ename,hiredate,mgr from emp where mgr is not null) t1
+	left join (select empno,ename,hiredate from emp where empno in (select distinct mgr from emp where mgr is not null)) t2
+	on (t1.hiredate < t2.hiredate) and (t1.mgr = t2.empno);
+	+-------+--------+--------+
+	| empno | ename  | deptno |
+	+-------+--------+--------+
+	|  7369 | SMITH  |     20 |
+	|  7499 | ALLEN  |     30 |
+	|  7521 | WARD   |     30 |
+	|  7566 | JONES  |     20 |
+	|  7654 | MARTIN |     30 |
+	|  7698 | BLAKE  |     30 |
+	|  7782 | CLARK  |     10 |
+	|  7788 | SCOTT  |     20 |
+	|  7844 | TURNER |     30 |
+	|  7876 | ADAMS  |     20 |
+	|  7900 | JAMES  |     30 |
+	|  7902 | FORD   |     20 |
+	|  7934 | MILLER |     10 |
+	+-------+--------+--------+
+
+
+16、列出部门名称和这些部门的员工信息，同时列出那些没有员工的部门
+	select d.deptno,d.dname,e.ename from dept d left join emp e on d.deptno=e.deptno;
+	+--------+------------+--------+
+	| deptno | dname      | ename  |
+	+--------+------------+--------+
+	|     10 | ACCOUNTING | CLARK  |
+	|     10 | ACCOUNTING | KING   |
+	|     10 | ACCOUNTING | MILLER |
+	|     20 | RESEARCH   | SMITH  |
+	|     20 | RESEARCH   | JONES  |
+	|     20 | RESEARCH   | SCOTT  |
+	|     20 | RESEARCH   | ADAMS  |
+	|     20 | RESEARCH   | FORD   |
+	|     30 | SALES      | ALLEN  |
+	|     30 | SALES      | WARD   |
+	|     30 | SALES      | MARTIN |
+	|     30 | SALES      | BLAKE  |
+	|     30 | SALES      | TURNER |
+	|     30 | SALES      | JAMES  |
+	|     40 | OPERATIONS | NULL   |
+	+--------+------------+--------+
+
+
+17、列出至少有5个员工的所有部门
+	select * from (select deptno,count(*) as total from emp group by deptno)t where t.total>=5;
+	+--------+-------+
+	| deptno | total |
+	+--------+-------+
+	|     20 |     5 |
+	|     30 |     6 |
+	+--------+-------+
+
+
+
+18、列出薪金比’SMITH‘多的所有员工信息
+	select * from emp where sal>(select sal from emp where ename='SMITH');
+	+-------+--------+-----------+------+------------+---------+---------+--------+
+	| EMPNO | ENAME  | JOB       | MGR  | HIREDATE   | SAL     | COMM    | DEPTNO |
+	+-------+--------+-----------+------+------------+---------+---------+--------+
+	|  7499 | ALLEN  | SALESMAN  | 7698 | 1981-02-20 | 1600.00 |  300.00 |     30 |
+	|  7521 | WARD   | SALESMAN  | 7698 | 1981-02-22 | 1250.00 |  500.00 |     30 |
+	|  7566 | JONES  | MANAGER   | 7839 | 1981-04-02 | 2975.00 |    NULL |     20 |
+	|  7654 | MARTIN | SALESMAN  | 7698 | 1981-09-28 | 1250.00 | 1400.00 |     30 |
+	|  7698 | BLAKE  | MANAGER   | 7839 | 1981-05-01 | 2850.00 |    NULL |     30 |
+	|  7782 | CLARK  | MANAGER   | 7839 | 1981-06-09 | 2450.00 |    NULL |     10 |
+	|  7788 | SCOTT  | ANALYST   | 7566 | 1987-04-19 | 3000.00 |    NULL |     20 |
+	|  7839 | KING   | PRESIDENT | NULL | 1981-11-17 | 5000.00 |    NULL |     10 |
+	|  7844 | TURNER | SALESMAN  | 7698 | 1981-09-08 | 1500.00 |    0.00 |     30 |
+	|  7876 | ADAMS  | CLERK     | 7788 | 1987-05-23 | 1100.00 |    NULL |     20 |
+	|  7900 | JAMES  | CLERK     | 7698 | 1981-12-03 |  950.00 |    NULL |     30 |
+	|  7902 | FORD   | ANALYST   | 7566 | 1981-12-03 | 3000.00 |    NULL |     20 |
+	|  7934 | MILLER | CLERK     | 7782 | 1982-01-23 | 1300.00 |    NULL |     10 |
+	+-------+--------+-----------+------+------------+---------+---------+--------+
+
+
+19、列出所有’CLERK‘（办事员）的姓名及其部门名称，部门的人数
+20、列出最低薪资大于1500的各种工作以及从事此工作的全部雇员人数
+21、列出在部门‘SALES’<销售部>工作的员工的姓名，假定不知道销售部的部门编号
+22、列出薪资高于公司平均薪资的所有员工，所在部门，上级领导，雇员的工资等级
+23、列出与’SCOTT‘从事相同工作的所有员工及部门名称
+24、列出薪资等于部门30中员工的薪资的其他员工的姓名和薪资
+25、列出薪资高于在部门30工作的所有员工的薪资的员工姓名和薪资，部门名称
+26、列出在每个部门工作的员工数量，平均工资和平均服务期限，没有员工的部门，部门人数是0
+27、列出所有员工的姓名、部门名称和工资
+28、列出所有部门的详细信息和人数
+29、列出各种工作的最低工资及从事此工作的雇员姓名
+30、列出各个部门的领导（MANAGER）的最低薪资
+31、列出所有员工的年工资，按年薪从低到高排序
+32、求出员工领导的薪水超过3000的员工名称与领导
+33、求出部门名称中，带S字符的部门员工的工资合计、部门人数
+34、给任职日期超过30年的员工加薪10%
+
+
+
+
+
+
+
+
+
+
+13、面试题：
+		有三个表：S(学生表),C(课程表),SC(学生选课表)
+		S(SNO,SNAME)代表(学号，姓名)
+		C(CNO,CHAME,CTEACHER)代表(课号，课名，教师)
+		SC(SNO,CNO,SCGRADE)代表(学号，课号，成绩)
+		问题：
+		1、找出没选过‘黎明’老师的所有学生姓名
+		2、列出2门以上（含2门）不及格学生姓名以及平均成绩
+		3、既学过1号课程又学过2号课所有学生的姓名。

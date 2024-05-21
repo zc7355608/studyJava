@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>9x9乘法表</title>
+    <style>
+        span {
+            display: inline-block;
+            width: 100px;
+            height: 30px;
+            padding-left: 15px;
+            line-height: 30px;
+            margin: 2px 2px;
+            border: 1px solid pink;
+            box-shadow: 2px 2px 3px pink;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        for(let i=1; i<=9; i++){
+            for(let j=1; j<=i; j++){
+                document.write(`<span>${i}✖${j}=${i*j}</span>`)
+            }
+            document.write('<br>')
+        }
+    </script>
+</body>
+</html>

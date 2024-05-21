@@ -1,0 +1,142 @@
+<!-- HTML5是新一代的HTML标准，14年10月由W3C完成标准的制定。H5目前有两个标准，
+一个W3C的，另一个是WHATWG的。H5广义上也指整个前端。
+
+关于H5的优势：
+    1、针对JS提供了更多可操作的接口
+    2、新增了一些语义化标签和全局属性
+    3、新增了多媒体标签来代替flash
+    4、更加侧重语义化，对SEO（搜索引擎优化）更友好
+    5、可移植性好，可以大量应用在移动设备上
+
+H5的兼容性：目前主流浏览器的新版本对H5都完全支持（IE9及以上才支持H5）
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>H5新增标签</title>
+</head>
+<body>
+<!-- 新增布局标签 -->
+    <!-- 都是一些有了语义的div而已 -->
+    <header>页头或区域头，可以有多个</header>
+    <footer>页脚，可以有多个</footer>
+    <nav>导航部分</nav>
+    <article>文章、评论、帖子杂志部分，强调独立性</article>
+    <section>文章或页面中的某段，某块，通常包含一个标题</section>
+    <aside>侧边栏</aside>
+
+<!--H5新增度量标签meter用于显示测量结果，通常用于显示磁盘使用量、投票数等不变的量，不支持IE，度量标签meter有一系列属性：
+        value：实际数值，可以是整数和小数，默认0
+        min：最小值，默认是0，自定义时不能小于0
+        max：最大值，默认是1，自定义不能小于min的值
+        low：较低值，当value小于low时，度量显示为红色，表示危险
+        high：较高值，当value大于low小于high，为黄色，表示正常
+        optimum最优的，优化的，最佳值，optimum80表示，80出现在hign和max之间，我认为该区间是最优区间，绿色显示，表示良好；
+-->
+	<span>手机电量</span><meter min="0" max="100" low="10" high="20" optimum="90" value="30"></meter>
+	<!--进度标签可以显示任务的进度，一般用于配合js动态的显示进度，该标签的value和max属性定义‘当前值’和‘最大值’-->
+	<span>进度</span><progress value="5" max="10"></progress>
+
+<!-- H5新增列表标签 -->
+    <!-- datalist配合输入框可以提示用户输入 -->
+    <span>喜欢吃的水果:</span><input list="fruits" name="fav-fruit" type="text"/>
+
+    <datalist id="fruits">
+      <option value="Apple">苹果</option>
+      <option value="Bananer">香蕉</option>
+      <option value="Orange">橙子</option>
+      <option value="Strawberry">草莓</option>
+    </datalist>
+
+    <!-- details和summary用于对名词解释或指定问题 -->
+    <details>
+        <summary>如何一夜暴富？</summary>
+        去尚硅谷学前端..
+    </details>
+    <details>
+        <summary>LOL</summary>
+        英雄联盟
+    </details>
+    <details style="border: 1px solid black; width: 140px;">
+        <summary>注意这里的细节</summary>
+        没有细节，干就完了
+    </details>
+
+<!-- 新增文本标签 -->
+    <!-- ruby和rt用于加拼音 -->
+    <ruby>
+        魑魅
+        <rt>chī mèi</rt><!--rt必须在后-->
+    </ruby>
+    <p>mark标签用于突出显示指定的文本内容，默认为<mark>黄色</mark>底色，建议用于显示搜索结果的关键字</p>
+
+<!--H5表单控件
+
+    #input控件新增的属性：
+        placeholder占位符，文字输入类表单控件都有该属性，文本域没有；
+        required表示必须的、要求的，加了该属性的控件必须要填写；
+        autofocus自动获取焦点；
+        autocomplete="on/off"自动完成，只有两个值，开启表示输入过的历史记录会有提示，文本框是默认开启的
+            （同时浏览器也要打开这个功能，谷歌是:设置--地址和其他信息--打开“保存并填写地址”，就可以用了）
+        pattern用于限定输入，值是正则表达式；
+
+    #新增input控件：
+        email邮箱，它是带有对邮箱格式的一些限制的输入框；
+        url网址，它是带有对网址格式的一些限制的输入框；
+        number数字，专门的数字输入框；step设置每次加2，它要求必须是2的倍数；min和max是最小值和最大值；
+        search搜索，它没有高级的校验，就是多了一个清除叉号；
+        tel电话，它在移动端输入时会调出系统专门的数字键盘；
+        range范围，它是一个拉动条，对应提交不同的数值；有max、min、value属性，表示最大值最小值和默认值；
+            缺点是range不可以实时显示此时调整的数值是多少；
+        color颜色选择器，可以提交颜色的16进制；
+        date日期，可以提交年月日，month提交年月，week提交年和星期；time提交时间，datetime-local提交日期加时间；
+（form上有个属性novalidate表示不验证，加上时里面所有的文本框的验证规则都不起作用了）
+-->
+    <form action="www.baidu.com">
+        <label for="user">请输入6位用户名:</label><input type="text" placeholder="用户名" id="user" name="user" required autofocus autocomplete="on" pattern="\w{6}">
+        <br>
+        <label for="pwd">密码:</label><input type="password" placeholder="密码" id="pwd" name="pwd" required autocomplete="on">
+        <br>
+        邮箱:<input type="email"><br>
+        主页:<input type="url"><br>
+        年龄:<input type="number" max="200" min="0" step="1"><br>
+        查询:<input type="search"><br>
+        电话:<input type="tel"><br>
+        亮度:<input type="range" max="100" min="0" value="20"><br>
+        颜色:<input type="color"><br>
+        日期:<input type="date"><br>
+        年月:<input type="month"><br>
+        年和星期:<input type="week"><br>
+        时间:<input type="time"><br>
+        日期加时间:<input type="datetime-local"><br>
+        <button>提交</button><!--这样写的button有提交功能-->
+    </form>
+
+<!-- H5新增媒体标签 -->
+    <!-- 新增视频标签video，要点播放必须加controls属性开启控制按钮，可设置宽高，muted属性开启静音，autoplay自动播放，loop循环播放；
+        目前大多浏览器都要求自动播放可以，但必须加上静音muted，否则不会自动播放；
+        有时你经常打开某个网页播放某个视频，浏览器会记录你此网页的“媒体参与度”，该值高了此时不静音自动播放也管用；
+    poster指定视频封面：不设置默认是第一帧；注意视频的宽高比要和封面图片的宽高比一样；
+    preload预加载：值可以是auto、none、metadate，auto是浏览器根据用户网速决定或浏览器默认值决定加载多少，metadate是获得视频的元数据时长等信息；
+    -->
+    <video src="../../static/小电影/小电影.mp4" width="500px" controls muted loop poster="../../static/img/封面.png" preload="auto"></video>
+
+    <!-- 新增音频标签audio，类似于上方video，也有controls、autoplay、muted、loop、preload，
+    不同之处在于自动播放只和媒体参与度有关，静不静音没关系；它的没有宽高属性以及poster封面。
+    -->
+    <audio src="../../static/小曲/小曲.mp3" controls loop></audio>
+
+<!-- H5的兼容性处理：对于ie8来说，许多h5的新标签如nav都不认识也不渲染，如何让它正确呈现在ie8中呢，
+    需要用script标签引入谷歌写的一个js文件：html5shiv.js，翻译过来叫h5免疫，让ie8也认识H5；
+    但这种方式也不太好，我正常的浏览器可以识别也用了这个js，我希望如果是ie8才引入，不是就不引入该js，
+    这样做：
+-->
+以下3行代码的意思是，仅ie9以下可见。其他浏览器只当作注释
+<!--[if lt ie 9]>
+<script src="./html5shiv.js"></script>
+<![endif]-->
+
+<!-- 但这个方式也不是万能的，它也处理不了像video audio这样的高级多媒体标签，ie8不能用；真正将兼容性问题处理完美用webpack打包工具 -->
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>动画</title>
+    <style>
+        div {
+            width: 130px;
+            height: 130px;
+            background-image: url('../../HTML/img/bike.png');
+            margin: 0 auto;
+            margin-top: 100px;
+            animation: bike 1s 0.5s steps(31) infinite;
+        }
+
+        @keyframes bike {
+            /* 开始帧 */
+            from {
+                background-position: 0px 0px;
+            }
+            /* 结束帧 */
+            to {
+                background-position: 0px -4030px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div></div>
+</body>
+</html>

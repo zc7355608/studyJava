@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>flex布局</title>
+    <style>
+        /* 重置样式 */
+        * { 
+        font-family: Arial; 
+        font-size: 14px; 
+        margin: 0; 
+        padding: 0; 
+        border: none; 
+        }
+        a { text-decoration: none; }
+        ul { list-style: none; }
+
+        /* 背景 */
+        body,html {
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            background-image: url('./css设计稿/flex布局图片/bg.jpg');
+            background-size: cover;
+        }
+
+        /* 头部导航 */
+        header {
+            height: 70px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 0px 20px;
+
+            /* 开启flex布局 */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header>ul {
+            display: flex;
+        }
+        header>ul a {
+            color: white;
+            font-size: 20px;
+            border: 1px solid white;
+            border-radius: 8px;
+            padding: 10px;
+            margin-right: 20px;
+        }
+        header>ul>li:last-child>a {
+            margin-right: 0px;
+        }
+
+        /* 内容区 */
+        .page-content {
+            height: calc(100vh - 70px);     /*数值和百分比都能写里面参与运算*/
+            display: flex;
+        }
+        .page-content .content-nav {
+            width: 1000px;
+            height: 300px;
+            margin: auto;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+        }
+        .page-content .item {
+            width: 180px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            transition: all 0.3s linear;
+        }
+        .page-content .item:hover {
+            box-shadow: 0px 0px 20px black;
+            cursor: pointer;
+        }
+        .content-nav span {
+            font-size: 20px;
+            color: white;
+        }
+        .content-nav>:nth-child(1) {
+            background-color: #595CA8;
+        }
+        .content-nav>:nth-child(2) {
+            background-color: #FF9D2E;
+        }
+        .content-nav>:nth-child(3) {
+            background-color: #01A6DE;
+        }
+        .content-nav>:nth-child(4) {
+            background-color: #015E91;
+        }
+        .content-nav>:nth-child(5) {
+            background-color: #1DC128;
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header>
+        <img src="./css设计稿/flex布局图片/logo.png" alt="尚硅谷">
+        <ul>
+            <li><a href="#">国内校区</a></li>
+            <li><a href="#">缅甸校区</a></li>
+            <li><a href="#">越南校区</a></li>
+            <li><a href="#">柬埔寨校</a></li>
+        </ul>
+    </header>
+
+    <!-- 内容区 -->
+    <div class="page-content">
+        <!-- 内容区中间大导航 -->
+        <div class="content-nav">
+            <!-- 里面导航项目 -->
+            <div class="item">
+                <img src="./css设计稿/flex布局图片/item1.png" alt="尚硅谷">
+                <span>我的邮箱</span>
+            </div>
+            <div class="item">
+                <img src="./css设计稿/flex布局图片/item2.png" alt="尚硅谷">
+                <span>云服务</span>
+            </div>
+            <div class="item">
+                <img src="./css设计稿/flex布局图片/item3.png" alt="尚硅谷">
+                <span>手机课堂</span>
+            </div>
+            <div class="item">
+                <img src="./css设计稿/flex布局图片/item4.png" alt="尚硅谷">
+                <span>微信服务</span>
+            </div>
+            <div class="item">
+                <img src="./css设计稿/flex布局图片/item5.png" alt="尚硅谷">
+                <span>在线客服</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

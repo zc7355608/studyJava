@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>字体图标</title>
+    <style>
+/* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
+/* @font-face {
+  font-family: 'iconfont';
+  src: url('http://at.alicdn.com/t/c/font_4435840_jfluh3q7whl.woff2?t=1708011047806') format('woff2'),
+       url('http://at.alicdn.com/t/c/font_4435840_jfluh3q7whl.woff?t=1708011047806') format('woff'),
+       url('http://at.alicdn.com/t/c/font_4435840_jfluh3q7whl.ttf?t=1708011047806') format('truetype');
+} */
+
+        /* 本地方式 */
+        @font-face {
+            font-family: 'iconfont';
+            /* 这三个文件是最终用到的字体文件 */
+            src: url('../../HTML/font/font3/iconfont.woff2?t=1707997547633') format('woff2'),
+                url('../../HTML/font/font3/iconfont.woff?t=1707997547633') format('woff'),
+                url('../../HTML/font/font3/iconfont.ttf?t=1707997547633') format('truetype');
+        }
+
+        .iconfont {
+            font-family: "iconfont" !important;
+            font-size: 200px;
+            font-style: normal;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+    </style>
+</head>
+<body>
+    <h1>字体图标</h1>
+    <span class="iconfont">&#xe602;</span>
+    <span class="iconfont">&#xe603;</span>
+    <i class="iconfont">&#xe604;</i>
+    <i class="iconfont">&#xe651;</i>
+    <i class="iconfont">&#xe656;</i><!--之前说过，i标签常用于表示说的话或字体图标，所以此时span也行i标签也行-->
+</body>
+</html>

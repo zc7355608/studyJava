@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>form表单</title>
+</head>
+
+<body>
+<!--
+	1、表单有什么用？
+		收集用户信息，做数据收集的。表单展现之后，用户填写表单，点击提交按钮提交数据给服务器；
+		使用form标签画表单，一个网页当中可以有多个form表单；
+	2、表单最终是需要提交数据给服务器的，form标签应该有一个action属性，该属性用来指定服务器地址：
+		action属性用来指定数据提交给哪个服务器，action属性和超链接的href属性一样，都可以向服务器发送请求（request）
+	3、http://192.168.111.3:8080/oa/save 这是请求路径，表单数据最终提交给：
+		192.168.111.3机器上的8080端口对应的oa资源中的save处
+	4、表单和超链接基本相同，区别是表单在跳转的同时，还会动态的提交数据给服务器
+	5、form里写了name属性的，才会提交给服务器
+		表单是以什么格式提交数据给服务器的？（非常重要，以后java开发就靠这个来解析数据了）
+			键值对格式：协议://URI?name=value&name=value..
+			http://localhost:8080/jd/login?name=value&name=value&name=value&name=value&...
+		HTTP协议规定的，必须以这种格式提交给服务器：URL?name=value&name=value...
+	6、method属性可以指定表单提交数据所使用请求的方式，默认是get请求方式提交表单；get通常是获取，post是提交数据；
+	7、enctype属性规定在将表单数据发送到服务器之前如何对其进行编码。只有method=“post”向S端提交数据时才能设置该属性。
+		该属性会在发送前对所有字符进行编码，值有3种，如果要上传一个文件必须设置enctype
+		为multipart/form-data且method为post方式；enctype属性值为编码方式，常用有3种：
+			application/x-www-form-urlencoded、multipart/form-data、text/plain;
+			第1种表示form使用url编码，用键值对的方式将数据进行编码提交，它是默认的，它就是get提交数据的编码方式；
+			第2种方式表示将数据以表单键值对的形式封装到请求体中发送给服务器，如果有file控件的话，就必须用该方式。
+				浏览器会把整个表单以控件为单位分割，并为每个部分加上控制信息；
+			第3种方式text/plain只将空格转换为+号，但不编码特殊字符，不进行URL编码；
+	8、（了解）fieldset和legend可以给表单里的控件分组
+-->
+	<form action="http://192.168.111.3:8080/oa/save">
+		<!--表单内是一个个的input输入域，type属性指定input输入域的类型，submit是一个提交按钮-->
+		<input type="submit" value="登录">
+	<!--type可以写：text文本框  password密码框  checkbox复选框  radio单选按钮  reset清空按钮 button普通按钮-->
+	<!-- button标签的type属性可以指定按钮类型(submit/reset/button)，如果它在form中默认type是submit，不在默认是button普通按钮 -->
+	</form>
+	<hr>
+
+<!--以下是一个form表单的例子：-->
+	<form>
+		<fieldset>
+			<legend>必填项</legend>
+			<!--readonly和disabled属性：
+			都是只能读不能该，但是readonly数据可以提交给服务器，disabled数据不会提交（即使有name属性，所以name属性可以不写）-->
+
+			<!--label标签用于设置，当鼠标单击该文本时，将光标定位到指定id的元素上，for指明id；该标签只包裹文本；该标签也可以包裹一个input和一些文本，此时不需要设置属性-->
+			<label for="user">用户名</label>
+			<input id='user' type="text" name="user" value="Curry" readonly><!--text一般不用写value属性，写了的话会有默认的值-->
+			<br>
+			<label for="pwd">密码</label>
+			<input id="pwd" type="password" name="pwd" placeholder="请输入密码"><!-- placeholder属性设置文本框内部提示的内容-->
+			<br>
+
+		</fieldset>
+
+		<fieldset>
+			<legend>选填项</legend>
+
+			<!--单选按钮必须指定value属性，checked是布尔属性，表示默认选上-->
+			<input type="radio" name="gender" value="1">男<!--单选按钮的name需要相同，且只提交一个name=value-->
+			<input type="radio" name="gender" value="0" checked>女
+			<br>
+
+			<!--checkbox多选框name也需要相同，且会提交多个name=value&name=value&... -->
+			<input type="checkbox" name="interest" value="smoke" checked>抽烟
+			<input type="checkbox" name="interest" value="drink">喝酒
+			<input type="checkbox" name="interest" value="fireHair" checked>烫头
+			<br>
+
+			<!--隐藏域：网页上看不到也不占地方，但是表单提交的时候数据会提交；如果在开发中，有需要提交给服务器的数据不想让用户看到，可以用隐藏域控件-->
+			<input type="hidden" name="userid" value="111" >
+
+			<!--textarea文本域，它没有value属性，用户填写的内容就是value-->
+			<label for="introduce">个人简介</label>
+			<textarea id="introduce" rows="10" cols="100" name="introduce"></textarea>
+			<br>
+
+			<!--下拉列表select和选项option：
+				select中的属性：multiple="multiple" 支持多选的 size设置显示条目个数，按住shift就可以多选了-->
+			学历
+			<select name="grade" multiple="multiple">
+				<option value="gz">高中</option>
+				<option value="dz">大专</option>
+				<option value="bk" selected>本科</option><!--selected默认选上-->
+				<option value="ss">硕士</option>
+			</select>
+			<br>
+
+		</fieldset>
+
+		<input type="submit" value="登录">&#160;&#160;&#160;&#160;&#160;
+		<input type="reset" value="清空"><!--reset是一个清空按钮，点reset可以将表单里用户填写的信息清空掉-->
+	</form>
+
+	<!--file控件的使用。multiple="multiple"表示支持上传多个文件，webkitdirectory directory表示支持文件夹的递归上传-->
+	<form action="www.baidu.com" method="post" enctype="multipart/form-data">
+		<input type="file" multiple="multiple" name="myMusic" webkitdirectory directory>
+		<input type="submit" value="提交">
+	</form>
+</body>
+
+</html>
