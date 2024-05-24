@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>条件渲染</title>
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    <div id="app">
+    </div>
+    <script>
+/*条件渲染v-if：
+    <img :src="imgPath1" v-if="条件1">
+    中间不能加任何东西，他们是配套使用的
+    <img :src="imgPath2" v-else-if="条件2">
+    <img :src="imgPath3" v-else>
+*/
+/*v-show指令：
+    它和v-if效果差不多，但是v-show是通过修改元素的css样式的display属性来做到显示和隐藏的，页面中还存在这个dom元素；
+    如果一个元素经常要隐藏显示，那么就用v-show，这样开销小
+*/
+/*v-for指令：
+    凡是一个标签需要在html中动态出现多次，那么就可以使用循环指令v-for来动态生成；
+    <ul>
+//这个vips可以是数组、对象、字符串，都可以进行遍历，对象不同前面的两个参数也不同；甚至还可以指定次数遍历，vips是一个数字变量
+        <li v-for="(vip,index) in/of vips">        
+            会员名:{{vip.name}}年龄:{{vip.age}}性别:{{vip.sex}}
+        </li>
+    </ul>
+*/
+        const vm = new Vue({
+            el : '#app',
+            data : {
+                msg : '条件渲染'
+            }
+        })
+    </script>
+</body>
+</html>

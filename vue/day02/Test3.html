@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>计算属性</title>
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    <div id="app">{{comMsg}}</div>
+    <script>
+/*
+什么是计算属性？
+    使用vue原有的属性（data中的key），经过一系列的计算/运算，得到了一个全新的属性，这就是“计算属性”；
+    这个全新的属性也有自己的属性名和属性值
+计算属性怎么用？
+    新加一个配置项：computed : {
+        计算属性1 : {
+            //set和get方法；当读取计算属性1时，get自动调用，当修改时，set自动调用
+            //实际上，第一次访问这个计算属性的时候，get会调用；当get方法关联的data中的数据修改后，调用计算属性时还会调用get；
+            //多次调用该属性会走缓存，效率较高
+            get(){return this.msg}
+            set(val){}
+        },
+        计算属性2 : {}
+    }
+    计算属性同样可以通过vm直接调用，但是不能通过vm.$data.计算属性1来访问计算属性，因为data中没有这个属性
+计算属性的作用？
+    1、代码得到了复用
+    2、代码更加便于维护了
+    3、代码的执行效率高了
+*/
+        const vm = new Vue({
+            el : '#app',
+            data : {
+                msg : 'hello Vue!'
+            },
+            computed : {
+                comMsg : {
+                    get(){
+                        return this.msg.split('').reverse().join('')
+                    },
+                    set(val){
+                        //怎么修改计算属性的值呢？comMsg属性的值取决于data中的msg的值变不变，所以：
+                        this.msg = val.split('').reverse().join('')
+                        //一般很少用set方法，一般计算属性只做数据的展示，只用get，所以如果不写set的话，计算属性的简写形式为：
+                        /*
+                        comMsg(){
+                            return this.msg.split('').reverse().join('')
+                        }
+                        */
+                    }
+                }
+            }
+        })
+    </script>
+</body>
+</html>

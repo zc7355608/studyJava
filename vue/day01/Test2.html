@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模板语句的数据来源之data配置项</title>
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script>
+        new Vue({
+            template : `<h1>电视剧名:{{name}}，上映时间{{releaseTime}}，主角是{{lead.name}}，年龄是{{lead.age}}，
+                其他演员包括：{{actors[0].name}}，{{actors[0].age}}岁；{{actors[1].name}}，{{actors[1].age}}岁
+                </h1>`,
+/*模板语句的数据来源：data配置项
+    data可以给模板语句提供数据来源，data的类型可以是：function和Object
+    （函数或对象，且对象必须是纯粹的{}对象，含有一个或多个键值对）
+data中的数据如何插入到模板语句中呢？{{}}胡子语法
+    这是Vue自己定义的一套语法，别的框架无法识别的
+*/
+            data : {
+                name : '狂飙',
+                releaseTime : '2023/01/01',
+                lead : {
+                    name : '高启强',
+                    age : 40
+                },
+                actors : [
+                    { 
+                        name : '安欣',
+                        age : 40
+                    },
+                    {
+                        name : '高启兰',
+                        age : 39
+                    }
+                ]
+            }
+        }).$mount('#app')
+    </script>
+</body>
+</html>

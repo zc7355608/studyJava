@@ -1,7 +1,5 @@
 # NodeJS
 
-------
-
 ## 入门
 
 - ### 什么是Node.JS？
@@ -434,21 +432,16 @@ server.listen(9000, () => {
 
 ## Nodejs的模块化
 
-> - 将一个复杂的项目，按照一定的规范拆分成多个文件，然后再将这些文件关联到一起，这个过程称之为**模块化**。
+> - 将一个复杂的项目，按照一定的规范拆分成多个文件，然后再将这些文件关联到一起，这个过程称之为**模块化**。其中拆分出来的每个文件都是一个模块，模块/文件内部的数据都是私有的。可以通过暴露的方式将模块（文件）内部的数据供其他模块来使用。模块化的好处：
 >
+>    1. 独立作用域，防止命名冲突
 >
-> - 其中拆分出来的每个文件就是一个模块，模块/文件内部的数据都是私有的。可以通过暴露的方式将模块/文件内部的数据供其他模块来使用。
+>    2. 高复用性，按需加载
 >
+>    3. 高维护性
 >
-> - 模块化的好处：
+> - Node默认用的是CommonJS的模块化规范。也支持其他模块规范如ES6的模块化。我们来看下怎么用：
 >
->   - 独立作用域，防止命名冲突
->
->   - 高复用性，按需加载
->
->   - 高维护性
->
-> - Node用的是CommonJS的模块化规范。并且还支持浏览器或其他JS运行时使用的模块标准。我们来看下怎么用：
 
 - #### 导出/暴露（module.exports）：
 
@@ -478,27 +471,25 @@ server.listen(9000, () => {
 
 - #### 注意事项（导入）：
 
-  > - 导入某个文件时，会将该文件中的全部代码立即执行一遍。（包括未暴露的）
+  > - 导入js文件时，会将该文件中的全部代码立即执行一遍。（包括未暴露的）导入js文件可省略后缀。
   >
   > - 对于自己创建的模块（js文件），路径建议写相对路径。并且为了和内置模块区分开，不能省略开头的`./`或`../`
   >
-  > - js文件和json文件，导入时文件后缀可以省略。（c/c++编写的.node文件也可以省略后缀，不过一般用不到）
-  >
-  > - 如果导入其他类型的文件，默认当作js文件来处理。
+  > - 如果导入的是其他类型的文件，默认也会当作js文件来处理，语法不是js则报错。
   >
   > - 也可以**导入文件夹**：
   >
   >   - 如果导入的是一个文件夹（将该目录当作npm包目录），会去该文件夹中找`package.json`文件，导入其中的`main`属性对应的文件。
-  >   - 如果main属性或该文件不存在，则会去目录中找`index.js`和`index.json`文件进行导入。
-  >
+  >  - 如果main属性或该文件不存在，则会去目录中找`index.js`和`index.json`文件进行导入。
+  > 
   >   （以上两种方式都没有，文件导入报错）
   >
   > - 导入内置模块时，直接写模块名，如前面导入的http模块：`require('http')`
   >
   > - 还可以用`require('包名')`来导入使用外部的第三方的代码包。（后面说）
   >
-
-- #### Node中使用ES6的模块化：
+  
+- #### Node中启用ES6的模块化规范：
 
   > Node默认使用CommonJS模块化规范，如需要使用ES6的模块化，需要在node项目根目录中的`package.json`文件中设置：
   >
@@ -1086,13 +1077,13 @@ server.listen(9000, () => {
   >
   > 1. 导包：`const session = require('express-session')`
   >
-  > 2. 通过`session()`函数返回的中间件，来，如：
+  > 2. 通过`session()`函数返回的中间件，来，如：（如果是全局中间件，那么每个请求过来都创建对应的session对象）
   >
   >    ```js
   >    app.use( session({
   >    	name: 'session-name',//这是服务器创建好session对象后，响应给浏览器的cookie的name，默认是connect.sid
   >        secret: 'itheima',//这是生成cookie的加密用的密钥（加盐），没这个密钥解不出来真正的cookie内容
-  >        saveUninitialized: false,//每一个请求过来，服务器内存中是否自动创建一个session对象
+  >        saveUninitialized: false,//只有在session对象发生了变化，硬盘中持久化的session数据才会变
   >        resave: true,//是否在每次请求时重新更新session的过期时间
   >        cookie: { maxAge: 300 * 1000, httpOnly: true }//设置响应的cookie的特性。maxAge是设置cookie的保存时间以及session的存活时间，5min不操作就退出登录；httpOnly会在Set-Cookie中，cookie内容的末尾加一个“;HttpOnly”，表示前端JS不能通过document.cookie来访问这个cookie，更安全，只能传输时使用。
   >    }) )
@@ -1102,7 +1093,7 @@ server.listen(9000, () => {
   >
   >    ```js
   >    app.post('/login', (req, reqp)=>{
-  >    	//登陆成功，创建session并在会话域中保存user对象
+  >    	//登陆成功，在本次请求的session对象中保存数据
   >    	req.session.user = {name:'张三', age:13}//类似Java中的req.getHttpSession()
   >        //销毁内存中的session对象：req.session.destroy()
   >    })
@@ -1233,6 +1224,57 @@ server.listen(9000, () => {
 >    ```
 >
 > 3. 在JSON文件所在的目录下执行命令：`json-server --watch db.json`，启动服务器，默认监听3000端口。浏览器地址栏输入http://localhost:3000/students，此时会返回students对应的数组数据（JSON串）
+
+------
+
+### md5加密：
+
+> md5是一个单向加密算法，可以将密码字符串进行加密，不可逆，相同字符串经过加密后的内容永远是一样的。使用：
+>
+> 1. 安装md5包并导入：`const md5 = require('md5')`
+> 2. 对密码加密：`console.log( md5('123456') )`
+
+------
+
+### 配置HTTPS证书：
+
+> https是http + SSL（Secure Sockets Layer 安全套接层），https可以加密http报文，所以它可以理解为安全的http协议。
+>
+> 配置HTTPS证书，首先得获取证书，在服务器上安装该工具，官网：https://certbot.eff.org/
+>
+> 操作流程：（必须在服务器端）
+>
+> 1. 官网中下载certbot工具：https://dl.eff.org/certbot-beta-installer-win_amd64.exe
+>
+> 2. 安装该工具，全部下一步
+>
+> 3. 管理员身份执行命令：`certbot certonly --standalone`，然后输入邮箱，两次yes，然后输入该服务器的域名，回车等待生成的证书文件。
+>
+> 4. 然后改主程序代码：
+>
+>    ```js
+>    //1、导入https模块
+>    const https = require('https')
+>    //2、创建服务对象的代码用https.createServer()去创建，第1个参数传配置对象
+>    let server = https.createServer({
+>        key: fs.readFileSync('证书文件privkey.pem的绝对路径'),
+>        cert: fs.readFileSync('证书文件cert.pem的绝对路径'),
+>        ca: fs.readFileSync('证书文件chain.pem的绝对路径')
+>    }, app)//app是express的web应用对象
+>    ```
+>
+> 5. 最后将代码中的服务端口改为https的默认端口443
+>
+> 此时80端口的http服务就不能访问了，如果希望都能访问，那么复制代码，创建两个服务对象即可。
+>
+> （证书的有效期是3个月，可以通过以下命令更新证书）
+>
+> ```shell
+> ## 一般更新，剩余有效期小于1个月使用
+> certbot renew
+> ## 强制更新，剩余有效期大于1个月使用
+> certbot --force-renewal
+> ```
 
 ------
 

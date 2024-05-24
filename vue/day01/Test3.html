@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>template配置项详解</title>
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    <div id="app">这个就没了</div>
+    <!--以下就是一个template，只有Vue框架才能看懂-->
+<!--
+    <div id="app">
+        <h1>{{name}}</h1>
+        <h1>{{age}}</h1>
+    </div>
+-->
+    <script>
+//Vue.config是Vue的全局配置对象，productionTip属性可以设置是否生成“生产提示信息”
+        Vue.config.productionTip = false;
+/*
+# vue-devtools是一个vue的开发工具，浏览器插件，使用它来调试vue程序很方便，我们去极简插件官网下载这个插件，
+    解压出来安装到浏览器插件中即可；
+# 我们按shitf+f5强行刷新下网页，我们发现一个提示信息404显示找不到favicon.ico文件，找一个vue图标重命名放在本地即可
+# vue开发工具中，如果一个vue组件引用的data中的数据项的值有中文开头，那么vue开发工具就无法定位到vue组件的根，解决
+    方式就是别以中文开头；
+# 在开发工具中可以随时更改data中的数据
+*/
+/*关于template配置项：
+    1、配置语句中的根标签只能有一个
+    2、只要data中的数据发生变化，模板语句一定会被重新编译
+    3、如果使用template配置项的话，指定挂载位置上的原来的dom元素会被替换掉
+    4、好消息：目前，我们可以不使用template来编写模板语句，可以直接挂载，挂载位置就是一个template，Vue可以找到并编译的
+    5、我们还可以不写$mount()函数，直接在Vue参数对象中配置“el配置项”，el被翻译为element，这种方式只能用css的格式来匹配了
+*/
+        new Vue({
+            // el : '#app',
+            //只有一个div根标签 
+            template : '<div><h1>{{name}}</h1><h1>{{age}}</h1></div>',
+            data : {
+                name : '1高启盛',
+                age : 30
+            }
+        }).$mount('#app')
+/*Vue实例和div容器的关系就像一夫一妻制，一个实例只能去管理一个容器，一个容器只能被一个实例接管，一对一
+*/
+    </script>
+</body>
+</html>

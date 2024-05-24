@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue的核心技术</title>
+    <script src="../js/vue.js"></script>
+</head>
+<body>
+    <script>
+/*第二章：Vue的核心技术
+模板语法之----插值语法{{}}
+    # {{这里到底可以写什么}}
+        1、data中声明的函数、变量、常量（为了方便沟通，我们常将data中声明的key叫做“变量的声明”，在容器的模板语法中引用就是变量的定义）
+        2、只要是合法的JS表达式就行（声明语句，控制语句都不行），JS表达式可以理解为，一个有返回值的语句
+        3、模板表达式都被放在“沙盒”中，它是只能访问全局变量的一个白名单，如Math和Date等；你不应该在模板表达式中试图访问用户定义的全局变量
+            白名单：Infinity,undefined,NaN,isFinite,isNaN,parseFloat,parseInt,decodeURI,decodeURIComponent,encodeURI,
+                    encodeURIComponent，Math,Number,Date,Array,Object,Boolean,String,RegExp,Map,Set,JSON,Intl,require
+*/
+/*模板语法之---指令语法：
+    # 什么是指令，指令是什么，有什么用？
+        指令的职责是：当表达式中的值改变时，将其产生的连带影响，响应式地作用与Dom
+    # Vue框架的所有指令都是以“v-”开始的
+    # 插值是写在{{}}里面的，而指令是以“html标签的属性”方式存在的，例如：<span 指令是写在这里的/>
+    # 虽然这个指令是以标签的属性存在的，但是这个指令浏览器是看不懂的，是需要先让Vue框架编译的，编译后才能给浏览器
+    # 指令的语法规则：
+        一个指令的完整写法：<HTML标签 v-指令名:参数=“表达式”></HTML标签>，参数和表达式不是必须的，
+        表达式可以是：常量、js表达式、vue所管理的XXX（js表达式就是一个值，它有返回值的）
+关于指令：
+    # v-once：
+        该指令标记的元素，只有在html刚打开时渲染一次，之后data改变后，Vue重新编译时并不会对该元素二次渲染
+    # v-if=“表达式”：
+        作用：表达式的结果必须是boolean类型，如果是true，这个指令所在的标签才会被渲染到浏览器中，也就是该标签才存在
+    # v-bind:参数=“表达式”：（很常用）
+        它是一个负责动态绑定的指令，它可以让某个html标签属性的值产生一个动态的效果，它的编译原理是：
+            编译前：
+                <HTML标签 v-bind:参数=“表达式”></HTML标签>
+            编译后：
+                <HTML标签 参数=“表达式的执行结果”></HTML标签>
+        注意：该指令的参数会被翻译为html的属性名，该指令的表达式结果会被翻译为参数的值；
+            表达式会关联data，当data发生改变后，表达式的执行结果就会发生变化，连带着html标签的属性的内容就会变；
+            虽然这个属性可以随便写，但是大部分情况下需要是html标签的属性名
+        v-bind的简写为：    :参数="表达式"
+        （凡是标签体当中的内容想要动态，需要使用插值语法，凡是标签体的属性想要动态，需要使用v-bind指令）
+    # v-model:参数=“表达式”：（很常用）
+        它和v-bind指令很相似，它们之间的区别是，v-bind是单向绑定，而v-model是双向绑定；
+        并且v-bind可以使用在任何元素上，而v-model只能使用在表单类元素的value参数上（input/select/textarea..），
+        为什么会有这个限制呢？因为表单类的元素才能给用户提供交互输入的界面；
+        用户将属性的value改了，那么data中的数据也改了，data数据改了那么属性的value也会变
+        v-model的简写为：   v-model="表达式"
+*/
+    </script>
+</body>
+</html>
