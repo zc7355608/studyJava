@@ -123,17 +123,195 @@ public class StudentServlet implements Servlet{
 }
 ```
 
+# JavaWeb
+
+- ## B/S结构的系统的通信原理
+
+  > 1. 用户在浏览器中输入网址（URL，网络地址，统一资源定位符）：http://www.baidu.com
+  > 2. 用户本地pc上的**域名解析器**进行域名解析，将www.baidu.com解析为具体的ip地址：110.242.68.3
+  > 3. 然后由浏览器通过网络发送HTTP协议的请求报文，在网络中找到对应的服务器中对应端口的程序，由该程序（Web服务器软件）将HTTP请求报文进行解析，找到请求的资源，通过网络响应给用户
+  > 4. 浏览器接收到服务器响应的代码（HTML\CSS\JS），渲染并显示页面
+  >
+  > 这其中最关键的就是服务器软件了，这个软件（程序）启动时会监听某个端口，等待用户通过网络协议（HTTP）与该端口的服务器程序进行数据的传输（通信）
+  >
+  > **HTTP协议：**它是W3C制定的一种**超文本传输协议**，是基于TCP的面向链接的**无状态**协议（每次请求-响应之间都是独立的，彼此不能共享数据）。HTTP协议又包括：HTTP请求协议、HTTP响应协议。简单来说就是，浏览器向WEB服务器之间传输的数据要遵循一套标准，这套标准中规定了数据传输的具体格式。
+  >
+  > **超文本：**不是普通txt文本，可以是任何类型的数据文件，如声音、图片、视频等各种格式的文件/数据，通过超文本协议可以传输几乎任何形式的数据。（通过MIME类型）
+  >
+  > **URI：**统一资源标识符，指向网络中某个资源。但是通过URI无法直接定位该资源，它只是资源在某台服务器上的唯一标识。
+  >
+  > **URL：**统一资源定位符。指向网络中某个资源的地址，可以通过网络定位到该资源，是网络中的绝对路径。通常由4部分组成：协议://ip或域名:端口号/URI
+  >
+  > **URI和URL的关系**：URL包括URI，`http://localhost:8080/servlet05/index.html`这是URL，`/servlet05/index.html`该URL服务器的URI
+
+------
+
+- ## HTTP协议
+
+  - ### HTTP请求协议（B->S）：
+
+    > HTTP请求协议包括4部分：请求行、请求头、空白行、请求体。常见的请求方式有GET请求和POST请求（还有其他的：DELETE、PUT、PATCH、HEAD、OPTIONS、TRACE），其中GET请求的请求体为空。
+
+    - **GET请求**：
+
+      ```ini
+      # 请求行，请求方式、url、请求协议
+      GET /servlet03/get?username=adfas&password=sdfsfa HTTP/1.1
+      # 请求头，包含双方通信过程中的控制信息
+      Host: localhost:8080
+      Connection: keep-alive
+      Upgrade-Insecure-Requests: 1
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36
+      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+      Referer: http://localhost:8080/servlet03/index.html
+      Accept-Encoding: gzip, deflate, br
+      Accept-Language: zh-CN,zh;q=0.9
+      # 空白行，为了和请求体中内容分开
+      # 请求体，GET请求的请求体为空
+      ```
+
+      > - 协议目前都是`HTTP/1.1`，增加了`Connection: keep-alive`字段，默认是持久连接的，可以提高网络利用率。只要客户端和服务端任意一端没有明确的断开TCP连接，就可以发送多次HTTP请求，不需要重新建立连接
+      > - GET请求虽然没有请求体，但也可以携带数据，数据放在url中，格式由服务器程序来定，一般是`url?key=value&key=value..`的形式
+
+    - **POST请求**：
+
+      ```ini
+      # 请求行，请求方式、url、请求协议
+      POST /servlet03/post HTTP/1.1
+      # 请求头，包含双方通信过程中的控制信息
+      Host: localhost:8080
+      Connection: keep-alive
+      Content-Length: 31
+      Cache-Control: max-age=0
+      Origin: http://localhost:8080
+      Upgrade-Insecure-Requests: 1
+      	# 这个请求头用于设置请求体数据的格式（MIME类型），很重要
+      Content-Type: application/x-www-form-urlencoded
+      User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36
+      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+      Referer: http://localhost:8080/servlet03/index.html
+      Accept-Encoding: gzip, deflate, br
+      Accept-Language: zh-CN,zh;q=0.9
+      # 空白行，为了和请求体中内容分开
+      # 请求体
+      username=gggg&password=asfasfas
+      ```
+
+  - ### HTTP响应协议（S->B）：
+
+    > 响应协议也包括4部分：状态行（响应行）、响应头、空白行、响应体。
+
+    ```ini
+    # 状态行，协议、响应状态码、状态描述信息
+    HTTP/1.1 200 ok
+    # 响应头
+    Content-Length: 154[数据量是多少]
+    Date: Fri, 24 Feb 2023 15:15:33 GMT
+    Keep-Alive: timeout=20[表示如果长连接一直不用的话，20秒就关掉]
+    Connection: keep-alive
+    Content-Type: text/html[告诉浏览器响应回来的是什么数据]
+    # 空白行，为了和请求体中内容分开
+    # 响应体
+    <!doctype html>
+    <html>
+        <head>
+        	<title>postServlet响应的页面</title>
+        </head>
+        <body>
+        	<h1>postServlet响应的页面</h1>
+        </body>
+    </html>
+    ```
+
+    > 状态码是HTTP协议中规定的响应状态号。不同的响应结果对应不同的状态码。常见的有：
+    >
+    > - 200：请求响应成功，正常结束
+    > - 301、302：服务器让浏览器进行重定向，重新访问一个url
+    > - 304：使用了本地缓存，请求没有走网络
+    > - 400：表示前端提交的数据格式有问题，和后端要求的数据格式对不上
+    > - 404：访问的资源不存在，前端错误。通常是因为你的路径写错了，或者服务器对应的资源没有启动成功
+    > - 405：前端发送的请求方式与后端请求的处理方式不一致。如：B发送请求是post，S处理请求是get
+    > - 500：后端服务器程序出现异常
+    >
+    > （一般2xx开头都是成功的，3xx开头是重定向的，4xx开头的是前端错误，5xx开头的是后端错误）
+
+  - ### 常见的请求头：
+
+    > 格式都是`key: value`，也可以自定义请求头
+    
+    ```ini
+    Host: localhost:8080[浏览器要请求的主机]
+    Date: xx[浏览器发送数据的请求时间]
+    Content-Type: text/html;charset=utf-8[携带数据的格式，值为MIME类型]
+    Connection: close/Keep-Alive[表示是否启用http1.1支持的长连接]
+    Upgrade-Insecure-Requests: 1[如果发现请求的服务器是https的，则自动将请求协议升级为https]
+    User-Agent: Nozilla/4.0(Com...)[告诉服务器用户请求浏览器的信息]
+    Referer: http://localhost:8080/test/abc.html[告诉服务器，我是被这个资源推荐来的]
+    Accept: text/html,image/*[告诉服务器，用户端浏览器可以接受什么类型数据]
+    Accept-Encoding: gzip,compress[用户浏览器可以接受的压缩格式]
+    Accept-Charaset: ISO-8859-1 [用户浏览器可以接受的字符编码]
+    Accept-Language: zh-cn[用户浏览器可以支持的语言]
+    IF-MODIFIED-Since: Tue,11Jul 2000 18:23:51[告诉服务器这缓存中有这个文件,该文件的最后修改时间是...]
+    Cookie: [HTTP请求发送时，会把保存在该请求域名下的所有cookie值一起发送给web服务器]
+    ```
+    
+
+  - ### MIME类型：
+
+    > - MIME (Multipurpose Internet Mail Extensions) 是**多用途互联网邮件扩展**，是描述消息内容类型的标准，用来表示文档、文件或字节流的性质和格式。HTTP协议之所以能够超文本传输，就是因为服务器中能够解析不同MIME类型的文件。
+    >
+    > - MIME 消息能包含文本、图像、音频、视频以及其他应用程序专用的数据。
+    >
+    > - 浏览器通常使用 MIME 类型（而不是文件扩展名）来确定如何处理URL，因此 Web 服务器在响应头中添加正确的 MIME 类型非常重要。如果配置不正确，浏览器可能会无法解析文件内容，网站将无法正常工作，并且下载的文件也会被错误处理。
+    >
+    > - MIME 类型通用结构：`[type]/[subtype]`
+    >   - MIME 的组成结构非常简单，由**类型**与**子类型**两个字符串中间用 **/** 分隔而组成，不允许有空格。
+    >   - type 表示可以被分多个子类的独立类别，subtype 表示细分后的每个类型。
+    >   - MIME类型大小写都行，但是传统写法都是小写。
+    > - 服务器通常通过设置响应头`Content-Type`来表明响应体的内容的媒体类型，浏览器会根据该响应头来决定如何处理响应体。
+    > - 常见的MIME类型：
+    >   - html：'text/html'
+    >   - css：'text/css'
+    >   - js：'text/javascript'
+    >   - png：'img/png'
+    >   - jpg：'img/jpeg'
+    >   - gif：'img/gif'
+    >   - mp4：'video/mp4'
+    >   - mp3：'audio/mpeg'
+    >   - json：'application/json'
+    > - 文本类型的默认值为：`text/plain`，表示普通文本txt
+    > - 未知的资源类型默认为：`application/octet-stream`（2进制字节流），当浏览器遇到这种类型，会对响应体进行独立存储，下载到本地。
+
+------
+
+- ## GET和POST请求
+
+  - ### get和post请求的区别：
+
+    > * get请求发送数据的时候，数据会挂在URL的后面，后面是一个“?”，问号后面是数据。这种方式发送的数据会显示在地址栏中（虽然会进行简单的URI编码，目的是将非ASCII字符进行替换，避免在传输过程中产生歧义或错误）
+    > * post是在请求体中发送数据，所以不会显示在地址栏上，数据更安全（格式也可以是“?key=value&..”）
+    > * get请求**只能发送普通字符串**，并且发送字符串长度有限制，不同浏览器长度限制不同。这个没有明确规范。（一般前后端交互的数据都是字符串）
+    > * post请求可以发送大数据量，理论上没有大小限制，并且可以发送任何类型的数据（所以文件上传一定要是post），但get请求的url是有长度限制的
+    > * W3C是这样说的：get请求用于从浏览器获取数据，post请求适合向浏览器提交数据
+    > * get请求是绝对安全的，因为get请求只是为了从服务器获取数据，不会影响到服务器安全；post请求是危险的，因为post请求是向服务器传输数据，如果这些数据通过走后门的方式进入到服务器中，服务器是很危险的；所以一般大部分选择拦截（监听）的是post请求
+    > * get请求支持缓存，post请求不支持缓存。任何一个get请求的响应结果都会被浏览器缓存起来，当下一次请求还是同样的url时，就不走网络了，直接从浏览器本地缓存中中找了。（缓存机制目的是为了提高用户的体验，一定时间后会失效，也可以被手动删除）
+
+  - ### get请求和post如何选择？
+
+    > 一般从服务器上获取数据都是get，如果是给服务器发送数据，建议post。所以大部分form表单提交，都是post方式提交。做文件上传，一定是post方式。其他情况可以get方式。
+
+  - ### 怎么向浏览器发送GET或POST请求？
+
+    > - HTML中发送get请求可以通过<a>、<img>、<iframe>、<form>、<script>、<style>等标签，发送POST请求只能通过<form>标签指定`method='post'`。
+    > - 前端还可以通过JS的`XMLHttprequest`（AJAX）发送请求，可以发送任意类型的HTTP请求。
+
+------
+
+- ## WEB服务器
+
+- 
+
 ```txt
-==========day01===================================================================================
-
-· 一个WEB系统的通信原理？步骤：
-	1、用户输入网址（URL）：http://www.baidu.com
-		什么是URL：网络上的，统一资源定位符
-	2、浏览器的域名解析器进行域名解析：http://110.242.68.3:80/index.html
-	3、浏览器在网络中找到对应的服务器，再连上对应的端口，由端口对应的web服务器软件将
-	用户指定的资源找到，通过网络返回给浏览器
-	4、浏览器接收到服务器返回的代码（HTML\CSS\JS），执行代码，显示效果
-
 · web服务器软件有吗：
 	有很多，都是别人开发好的，其中有：
 	Tomcat(Apache)：
@@ -821,155 +999,7 @@ HttpServlet抽象类中没有抽象方法）
 doPost()并没有任何实现（业务逻辑的代码只有自己知道怎么写），所以new出来的这个实例是没有意义的；一个实例，
 它不能做任何事情，所以为了防止我们做这种没有意义的事情，将其设置为抽象类是优雅的做法。
 -----------------------------------------------------------------------------------------------
-· 关于HTTP协议：（http1.1）
-	* 什么是HTTP协议？
-		- HTTP协议是W3C制定的一种超文本传输协议。超文本：不是普通文本，比如流媒体：声音图片视频...
-		通过超文本协议传输的数据很多样化
-		- 这种协议游走在B和S之间。B向S发送数据，要遵循一套协议（请求协议），S向B发送数据，也要
-		遵循一套协议（响应协议），都遵循这个协议，这样B和S就能够解耦合了
-
-	* 怎么查看HTTP协议的内容：浏览器F12，找到网络，通过net网络面板查看（控制台、源代码、元素、网络）
-------------------------------------------------------------------------------------------------
-· HTTP请求协议（B->S）：
-	包括4部分：
-	请求行、请求头、空白行、请求体
-	- 请求协议具体报文：
-		GET请求：
-			请求行-->	GET /servlet03/get?username=adfas&password=sdfsfa HTTP/1.1
-			请求头-->	Host: localhost:8080
-						Connection: keep-alive
-						Upgrade-Insecure-Requests: 1
-						User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36
-						Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
-						Referer: http://localhost:8080/servlet03/index.html
-						Accept-Encoding: gzip, deflate, br
-						Accept-Language: zh-CN,zh;q=0.9
-			空白行-->
-			请求体-->
-
-		POST请求：
-			请求行-->	POST /servlet03/post HTTP/1.1
-			请求头-->	Host: localhost:8080
-						Connection: keep-alive
-						Content-Length: 31
-						Cache-Control: max-age=0
-						Origin: http://localhost:8080
-						Upgrade-Insecure-Requests: 1
-						Content-Type: application/x-www-form-urlencoded
-						User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36
-						Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
-						Referer: http://localhost:8080/servlet03/index.html
-						Accept-Encoding: gzip, deflate, br
-						Accept-Language: zh-CN,zh;q=0.9
-			空白行-->
-			请求体-->username=gggg&password=asfasfas（post请求提交的数据格式不变，在请求体中）
-
-	- 请求行（三部分组成）：
-		* 请求方式：get/post/delete/put/head/options/trace（共7个）
-		* URI：/servlet03/get?username=adfas&password=sdfsfa
-			- 什么是URI？
-				统一资源标识符。代表网络中某个资源的名字，但是通过URI是无法定位资源的
-			- 什么是URL？
-				统一资源定位符。代表网络中某个资源，同时在网络中可以定位到该资源的
-			- URI和URL有什么区别？
-				URI：资源标识的要求和规范；
-				URL：它是资源定位的具体实现；
-				通常不区分它们，可以暂时理解为：URL是URI的一种具体实现
-				http://localhost:8080/servlet03/index.html 这是URL
-				/servlet03/index.html 这是URI
-		* 协议版本号：HTTP/1.1
-	- 请求头：
-		包括请求的主机、主机的端口、浏览器信息、平台信息、cookie..等等信息
-	- 空白行：区分请求头和请求体
-	- 请求体：向服务器发送的具体数据
-
-* 常见的请求头：
-	Host: localhost:8080[浏览器要请求的主机]
-
-	Date: xx[浏览器发送数据的请求时间]
-
-	Connection: close/Keep-Alive[表示是否启用http1.1支持的长连接]
-
-	Upgrade-Insecure-Requests: 1[如果发现请求的服务器是https的，则自动将请求协议升级为https]
-
-	User-Agent: Nozilla/4.0(Com...)[告诉服务器用户请求浏览器的信息]
-
-	Accept: text/html,image/*[告诉服务器，浏览器可以什么类型文件]
-
-	Referer: http://localhost:8080/test/abc.html[告诉服务器，我是被这个资源推荐来的]
-
-	Accept-Encoding: gzip,compress[用户浏览器可以接受的压缩格式]
-
-	Accept-Charaset: ISO-8859-1 [用户浏览器可以接受的字符编码]
-
-	Accept-Language: zh-cn[用户浏览器可以支持的语言]
-
-	IF-MODIFIED-Since: Tue,11Jul 2000 18:23:51[告诉服务器这缓存中有这个文件,该文件的最后修改时间是...]
-
-	Cookie: [HTTP请求发送时，会把保存在该请求域名下的所有cookie值一起发送给web服务器]
-
-* 怎么向浏览器发送get请求或post请求？
-	目前为止，只有一种情况可以发送post，其他一律发送get请求。就是：是用form表单，并且form表单中的method
-	指定为post方式；在浏览器直接输入URL属于get请求，在浏览器点击超链接也属于get请求
-
-* get和post有什么区别？
-	* get请求发送数据的时候，数据会挂在URL的后面，后面是一个“?”，问号后面是数据，这种方式；
-		发送的数据会显示在地址栏中（get在请求行上发送数据）
-	* post是在请求体中发送数据，不会显示在地址栏上（请求行上）；但数据格式都是“?key=value&..”的格式；
-	* get请求只能发送普通字符串，并且发送字符串长度有限制，不同浏览器长度限制不同。这个没有明确规范
-	* post请求可以发送大数据量，理论上没有大小限制，并且可以发送任何类型的数据(文件上传一定要是post)
-	* W3C是这样说的：get请求用于从浏览器获取数据，post请求适合向浏览器传输数据/文件
-	* get请求是绝对安全的，因为get请求只是为了从服务器获取数据，不会影响到服务器安全；post请求是危险的，
-		因为post请求是向服务器传输数据，如果这些数据通过走后门的方式进入到服务器中，服务器是很危险的；
-		一般大部分选择拦截（监听）的是post；
-	* get请求支持缓存，post请求不支持缓存；任何一个get请求的响应结果都会被浏览器缓存起来，保存在浏览器缓存中；
-		每一个get请求都有一个对应的响应结果在浏览器缓存中存在；
-	* 实际上，你只要发送get请求，浏览器就先去缓存里找，找不到才从服务器获取。就算浏览器关了缓存也还在；
-		缓存机制目的是为了提高用户的体验（缓存一定时间后会失效，也可以被使用者手动删除）
-
-* get请求和post如何选择？
-	·如果是从浏览器上获取数据，建议get，如果是给浏览器发送数据，建议post
-	·大部分form表单提交，都是post
-	·做文件上传，一定是post。因为上传的数据大多都不是普通文本
-	·其他情况可以get
--------------------------------------------------------------------------------------------------
-· HTTP响应协议（S->B）：
-	包括4部分：
-	状态行(响应行)、响应头、空白行、响应体
-	- 响应协议具体报文：
-		状态行-->	HTTP/1.1 200 ok
-		响应头-->	Content-Length: 154[数据量是多少]
-				   Date: Fri, 24 Feb 2023 15:15:33 GMT
-				   Keep-Alive: timeout=20[表示如果长连接一直不用的话，20秒就关掉]
-				   Connection: keep-alive
-				   Content-Type: text/html[告诉浏览器响应回来的是什么数据]
-		空白行-->
-		响应体-->	<!doctype html>
-					<html>
-					<head>
-						<title>postServlet响应的页面</title>
-					</head>
-					<body>
-						<h1>postServlet响应的页面</h1>
-					</body>
-					</html>
-	- 状态行：三部分组成：
-		* 第一部分：协议版本号（HTTP/1.1）
-		* 第二部分：状态码（HTTP协议中规定的响应状态号。不同的响应结果对应不同的状态码）
-			- 200：请求响应成功，正常结束；
-			- 302：服务器让浏览器进行重定向，重新访问一个url；
-			- 304：使用了本地缓存，请求没有走网络；
-			- 400：表示前端提交的数据格式有问题，和后端的数据格式对不上；
-			- 404：访问的资源不存在；前端错误，通常是因为你的路径写错了，或者服务器对应的资源没有启动成功；
-			- 405：“前端发送的请求方式”与“后端请求的处理方式”不一致导致的；如：B发送请求是post，S处理请求是get；
-			- 500：资源找到了，但是服务器端的程序出现异常；
-		（一般2xx开头都是成功的，3xx开头都是重定向的，4xx开头的前端浏览器的错误，5xx开头的是后端程序的错误导致的）
-		* 第三部分：状态的描述信息
-			ok：表示成功
-			not found：资源找不到
-	- 响应头：响应的内容长度、时间、内容类型等等之类的
-	- 空白行：用来分隔响应头和响应体的
-	- 响应体：就是响应的正文内容，这些内容是一个长字符串，被浏览器解释之后展示出来
+* 
 
 ------------关于后面springmvc中要用的DefaultServlet-----------------------------------------------------
 

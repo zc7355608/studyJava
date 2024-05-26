@@ -423,3 +423,7 @@ int update(Car car);
 })
 Car selectById(Long id);
 ```
+
+![image-20240526180321558](./assets/image-20240526180321558.png)
+
+![image-20240526181210818](./assets/image-20240526181210818.png)
