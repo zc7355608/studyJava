@@ -395,9 +395,9 @@
     >   - `t.getTime()`
     >   - `new Date()`
     >   - `Date.now()`：这是内置构造器Date中的静态方法now，它只能获取当前的时间戳。
-  
+
   - Array：数组对象中的常用实例方法。
-  
+
     > -  `arr.forEach(function(item, index){})`：遍历数组，没有返回值且无法修改数组。
     >
     > - `arr.map(function(item,index){ return ele+'像素'})`：遍历数组，返回新数组。不同于`forEach()`的是它可以在原数组的基础上做数组值的拼接。
@@ -406,8 +406,9 @@
     > - `arr.find(function(item,index){ return item.color==='blue' })`：返回数组中满足条件的第一个元素
     > - `arr.every(function(item,index){ return item>=10 })`：如果数组所有元素都符合条件，返回true
     > - `arr.some(function(item,index){ return item>=10 })`：数组只要有一个元素符合条件，就返回true
-  
+
   - Number：实例方法`num.toFixed(3)`会将数字型对象num保留3位小数，返回一个字符串
+
 
 ------
 
@@ -573,11 +574,28 @@
   > 以前遍历对象只能用`forin`，现在我们可以使用`Object`构造函数里面的静态方法：
   >
   > - `Object.keys(obj)`：返回obj的所有属性，字符串数组
+  >
   > - `Object.values(obj)`：返回obj的所有属性值，数组
+  >
   > - `Object.assign(o1,o2)`：对象合并，将o2的内容合并到o1，属性重名o2会覆盖o1
+  >
   > - `Object.is(o1,o2)`：判断两个对象是否完全相等，和`===`有点像，不同的是`Object(NaN,NaN)`是`true`
-  > - `Object.setPrototypeOf(o1,o2)`：设置原型对象。将o1的原型设置为o2
-  > - `Object.getPrototype(obj)`：获取obj对象的原型
+  >
+  > - `Object.setPrototypeOf(o1,o2)`：单独设置某个对象原型对象，将o1的原型设置为o2。一般不用。
+  >
+  > - `Object.getPrototype(obj)`：获取obj对象的原型，推荐使用该方式获取对象的原型。
+  >
+  > - `Object.defineProperty(obj,'属性名',{配置})`：方法可以给对象定义属性（加/改），返回此对象。配置对象这样写：
+  >
+  >   ```js
+  >   {
+  >       value: 属性值,
+  >       enumerable: true,//是否可以被遍历，默认false不行
+  >       writable: true,//是否可以被修改，默认false不行
+  >       configuration: true//该属性是否可以被配置和删除，默认false不行
+  >       //也可以设置get(){}或set(){}方法，此时调用该属性实际上是执行的方法
+  >   }
+  >   ```
 
 - #### JS的面向对象：
 
