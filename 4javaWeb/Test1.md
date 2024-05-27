@@ -255,9 +255,8 @@ public class StudentServlet implements Servlet{
     Cookie: [HTTP请求发送时，会把保存在该请求域名下的所有cookie值一起发送给web服务器]
     ```
     
-
   - ### MIME类型：
-
+  
     > - MIME (Multipurpose Internet Mail Extensions) 是**多用途互联网邮件扩展**，是描述消息内容类型的标准，用来表示文档、文件或字节流的性质和格式。HTTP协议之所以能够超文本传输，就是因为服务器中能够解析不同MIME类型的文件。
     >
     > - MIME 消息能包含文本、图像、音频、视频以及其他应用程序专用的数据。
@@ -309,109 +308,89 @@ public class StudentServlet implements Servlet{
 
 - ## WEB服务器
 
-- 
+  > - 之前我们学JavaSE，可以通过`ServertSocket`和`Socket`套接字来编写一个简单的Web服务器，监听端口处理浏览器发送的请求，并做出响应。
+  > - 但这只是简单的请求和响应，一个标准的WEB服务器需要做很多事情。如果这些代码都让我们自己来一行行写，那做WEB开发就太复杂了，还没开始写具体的业务就写了大量的、复杂的代码。
+  > - 其实这些重复的，和业务无关的代码都有人帮我们写好了，我们直接用即可。目前比较流行的开源服务器有很多，如：
+  >   - Apache Tomcat（Catalina）：它是Apache软件基金会的开源、免费、轻量级的WEB服务器，用纯Java语言开发，体积小运行速度快，实现了javaEE的Servlet、JSP等少量JavaEE规范。由于是Java写的程序，所以要想运行，必须先有JRE，配置环境变量JAVAHOME
+  >   - jetty：最轻量级的免费Web服务器，当然功能要少于tomcat一些，同样是由Java编写。
+  >   - JBOSS：Java语言编写的应用服务器。
+  >   - WebLogic（应用服务器）
+  >   - WebSphere（应用服务器）
+  >   - Apache：C语言编写的WEB服务器，开源，只支持静态解析
+  >   - Nginx：C语言编写的WEB服务器
+  > - 所以我们做WEB开发就用别人写好的WEB服务器即可。我们只需要将编写的WEB项目放在服务器上（部署），当服务器启动时用户就可以访问服务器上的资源了。我们只需要面向接口编程（类似JDBC），专注于业务的实现。
+  > - WEB开发属于JavaEE，JavaEE完全包含JavaSE。而JavaME只有一小部分的JavaSE，是轻量级的做嵌入式开发的库。这3个Java规范可以互相衔接使用。
+
+- ## Tomcat
+
+  > Tomcat也被称为Web容器、Servlet容器。因为我们放在Tomcat中的项目代码中，主要是编写大量的Servlet类，用于处理过来的HTTP请求，运行是要依靠Tomcat服务器的，主方法都在服务器代码中，启动服务器就是执行`main`方法。
+
+  - ### Tomcat的安装和卸载：
+
+    > 直接去Tomcat的官网下载，解压到指定目录下即可，目录最好别带空格、中文。删除目录即卸载。
+
+  - ### 关于Tomcat软件的目录：
+
+    > - `bin`：存放Tomcat服务器的“命令”，如：启动Tomcat，关闭Tomcat等
+    > - `conf`：存放Tomcat服务器的“配置文件”，如：server.xml文件中可以配置端口号，默认8080；web.xml文件可以配置欢迎页，等等..
+    > - `lib`：Tomcat服务器的核心程序的依赖库文件。因为Tomcat是java写的，所以这里存放jar包。这里放的jar包会被webapps目录下部署的所有WEB项目共享。
+    > - `logs`：存放Tomcat服务器的“日志文件”的目录，如：启动信息，log方法的日志文件等
+    > - `temp`：Tomcat服务器的临时目录，存储“临时文件”
+    > - `webapps`：存放大量的web应用（web app），一个目录就是一个web应用项目
+    > - `work`：用来存放JSP文件翻译之后的java文件以及java再编译之后的class文件
+
+  - ### Tomcat的启动和关闭：
+
+    > - 启动：执行安装目录bin下的`startup.bat`。
+    >
+    >   > 原理：
+    >   >
+    >   > - xxx.bat文件是windows系统专用的可执行程序，是batch批处理文件，这种文件中存放大量的DOS命令，执行bat文件就相当于批量的执行dos命令，也就相当于执行了exe文件。
+    >   >
+    >   > - bin目录下还有startup.sh，这个文件在windows中无法执行，是linux系统专用的shell文件，在linux中执行.sh文件就是执行了大量的shell命令，类似于windows的.bat文件和dos命令tomcat服务器提供了bat和shell文件，充分说明这个tomcat服务器的通用性。
+    >   >
+    >   > - 打开startup.bat文件可以看到：执行这个文件，主要是去CATALINA_HOME环境变量中去找catalina.bat文件，通过该文件来启动tomcat。而catalina.bat文件是如何启动的呢？其中有这样一行配置：MAINCLASS=org.apache.catalina.startup.Bootstrap，这个类就是java程序的main方法所在的类，启动tomcat就是执行java程序的main方法。知道了这层关系，那么我们尝试去启动startup.bat，报错了：说找不到CATALINA_HOME环境变量，所以找不到catalina.bat文件。配置CATALINA_HOME之后再执行，还是报错：说找不到JAVA_HOME。因为Tomcat服务器配置好了，但是由于它是java写的，所以需要Java的支持，电脑上虽然装好了JDK可以运行java程序了，但是你没有告诉Tomcat去哪里找jre运行tomcat它的程序；于是想要启动Tomcat服务器，还需要配置JAVA_HOME，让tomcat能找到Java。
+    >   > - 因此我们**需要配置JAVA_HOME和CATALINA_HOME两个环境变量**。
+    >   > - 控制台中文乱码，修改`conf/logging.properties`中的配置为`java.util.logging.ConsoleHandler.encoding=GBK`即可
+    >   > - 测试是否配置成功：启动Tomcat服务器，打开浏览器，输入：`http://127.0.0.1:8080` ，如果出现了Tomcat页面说明配置成功
+    >
+    > - 关闭：
+    >
+    >   1. 正常关闭，执行安装目录bin下的`shutdown.bat`，或键盘输入Ctrl + C
+    >   2. 直接叉掉命令框，属于强制关闭，不推荐
+
+  - ### Tomcat的配置：
+
+    > - Tomcat服务默认监听8080端口，修改的话在`conf/server.xml`中：
+    >
+    >   ```xml
+    >   <Connector port="8080" protocol="HTTP/1.1"
+    >                  connectionTimeout="20000"
+    >                  redirectPort="8443" />
+    >   ```
+    >
+    > - 项目一般完成后会打成war包，放在webapps目录下，该目录下的war包会在启动时自动被解压加载。
+
+------
+
+- ## 实现一个web应用
+
+  - ### 第一个web程序：
+
+    > 1. 找到CATALINA_HOME\webapps目录（所有的webapp要放在此目录下，否则Tomcat服务器找不到，这是规定），在该目录下新建一个oa目录，这个oa就是这个web项目（webapp）的名字。
+    > 2. 在oa下新建资源文件，例如：index.html，在其中编写前端代码。（html的路径中，可以省略：协议、ip、端口，直接以"/项目名"开始，这就是一个绝对路径，缺省的3个会以当前页面的协议ip端口补上）
+    > 3. 启动Tomcat服务器，打开浏览器输入：`http://localhost:8080/oa/index.html`
+
+  - ### web程序的开发流程：
+
+    > 当用户在浏览器地址栏输入路径访问web服务器上对应的资源，一个路径就代表一个资源。这个资源可能是
+    > 一个静态资源（index.html），也可能是一个动态资源（java代码）。但这个请求的url路径不能随便整，必须按照后端服务器程序中规定的来。而且开发web程序需要遵守对应的规范，Servlet就是JavaEE的规范之一，我们按照这个规范来开发的应用可以放在任何支持该JavaEE规范的服务器上，不只是Tomcat
+
+------
+
+
 
 ```txt
-· web服务器软件有吗：
-	有很多，都是别人开发好的，其中有：
-	Tomcat(Apache)：
-		开源、免费、轻量级的web服务器，apache公司用纯java语言开发的，体积小运行速度快，又叫catalina
-		只实现了javaEE的Servlet + JSP两个核心规范。要想运行，必须先有jre，再配置环境变量：JAVAHOME、PATH..
-	jetty：最轻量级的免费Web服务器，当然功能要少于tomcat一些；
-	JBOSS(应用服务器)
-	WebLogic(应用服务器)
-	WebSphere(应用服务器)
-	...
-
-· 应用服务器和web服务器的关系？
-	1、应用服务器实现了JavaEE的所有规范（JavaEE有13个不同的规范）
-	2、web服务器只实现了JavaEE中的Servlet + JSP两个核心的规范，体积较小
-	3、"应用服务器"是包含"web服务器"的
-	4、JBOSS服务器中内嵌了一个Tomcat服务器
-（JavaEE完全包含了JavaSE，它是专门做web开发的库；JavaME包含一小部分JavaSE，是轻量级的做嵌入式开发的库，它们3个可以互相衔接使用）
-
-· 关于Tomcat服务器目录：
-	bin：存放Tomcat服务器的“命令文件”，如：启动Tomcat，关闭Tomcat等命令
-	conf：存放Tomcat服务器的“配置文件”，如：server.xml文件中可以配置端口号，默认8080；web.xml文件可以配置欢迎页，等等..
-	lib：Tomcat服务器的“核心程序”目录，因为Tomcat是java写的，所以这里存放jar包；这里的jar包会被webapps目录下的所有程序共享；
-	logs：存放Tomcat服务器的“日志文件”的目录，如：启动信息，log方法的日志文件等，后面会讲到
-	temp：Tomcat服务器的临时目录，存储“临时文件”
-	webapps：存放大量的web应用（web app，一个webapp就是一个项目）
-	work：用来存放JSP文件翻译之后的java文件以及java再编译之后的class文件
-
-· 启动Tomcat服务器：
-	# Tomcat的bin目录下有一个文件：startup.bat，通过它可以启动Tomcat服务器
-		* xxx.bat文件：它是windows系统专用的，batch批处理文件，这种文件中存放大量的DOS命令；
-		执行bat文件就相当于批量的执行dos命令
-
-		* startup.sh，这个文件在windows中无法执行，是linux系统专用的shell文件，在linux
-		中执行.sh文件就是执行了大量的shell命令，类似于windows的.bat文件和dos命令
-
-		* tomcat服务器提供了bat和shell文件，充分说明这个tomcat服务器的通用性
-
-	# 打开startup.bat文件得出，执行这个文件，主要是去CATALINAHOME中去找catalina.bat文件，通过该文件来启动tomcat；
-	而catalina.bat文件是如何启动的呢？其中有这样一行配置：MAINCLASS=org.apache.catalina.startup.Bootstrap，这个类
-	就是java程序的main方法所在的类，启动tomcat就是执行java程序的main方法；
-	# 知道了这层关系，那么我们尝试去启动startup.bat，报错了：它说找不到此文件。将path环境变量配置好之后再执行，继续报错：
-	说找不到CATALINA_HOME环境变量，所以找不到catalina.bat文件。继续配置CATALINA_HOME之后再执行，还是报错：说找不到JAVA_HOME。
-	# 为啥？因为Tomcat服务器配置好了，但是由于它是java写的，所以需要Java的支持，电脑上虽然装好了JDK可以运行java程序了，
-	但是你没有告诉Tomcat去哪里找jre运行tomcat它的程序；于是想要启动Tomcat服务器，还需要配置JAVA_HOME，让tomcat能找到Java
-
-· 配置Tomcat服务器需要配哪些环境变量？
-	1、JAVA_HOME=Java的家（要让tomcat能找到Java）
-	2、CATALINA_HOME=tomcat的家（要让startup.bat能够找到tomcat的catalina.bat来运行main程序）
-	上面哥俩有了，那么你的path环境变量还按原来的方式写就很low，能不能用一下以上俩配置？可以：
-	3、Path=%JAVA_HOME%\bin;%CATALINA_HOME%\bin（jdk的环境变量和tomcat的环境变量）
-
-· 最后：
-	启动Tomcat：startup | startup.bat
-	关闭Tomcat：stopup | stopup.bat（shutdown.bat文件重命名为stopup.bat，为什么，因为和关机命令shutdown冲突）
-
-· 测试是否配置成功：启动Tomcat服务器，打开浏览器，输入：http://127.0.0.1:8080 ，如果出现了Tomcat页面说明配置成功
-
-· 实现一个web小应用：
-	第一步：找到CATALINA_HOME\webapps目录
-		因为所有的webapp要放在此目录下，否则Tomcat服务器找不到，这是规定
-	第二步：在CATALINA_HOME\webapps目录下新建一个目录：oa
-		这个oa就是webapp的名字
-	第三步：在oa下新建资源文件，例如：index.html
-		在index.html中编写前端代码
-	第四步：启动Tomcat服务器
-	第五步：打开浏览器，输入：http://localhost:8080/oa/index.html
-（注意：html界面的路径中，可以省略：协议、ip、端口号，直接以"/项目名"开始，这就是一个绝对路径，后面说原因）
-
-=====day02================================================================================================
-
-
-· 访问这个页面：http://localhost:8080/oa/index.html
-	可以展示一个用户列表界面。但是这个用户列表页面是写死在HTML文件当中的，这种资源我们称为“静态资源”；
-	怎么能变成动态资源，显然需要链接数据库
-
-· 链接数据库需要用到JDBC技术，也就是说需要编写Java程序连接数据库，数据库中有多少条记录，页面上就显示多少
-	条记录。这种技术被称为“动态网页技术”。（动态网页技术并不是说页面中有flash动画，是说页面中的数据
-	是动态的，是根据数据库中的数据条数而变化的）
--------------------------------------------------------------------------------------------------------
-· 要做到以上，首先要了解web程序的开发流程：
-	当用户在浏览器地址栏输入路径访问web服务器上对应的资源，一个路径就代表一个资源。这个资源可能是
-	一个静态资源（http://localhost:8080/oa/index.html） ，也可能是一个动态资源（java小程序）：
-	http://localhost:8080/oa/userLogin，一个路径对应web服务器上的一个动态的程序；
-	那么这个资源的路径可以随便整吗？http://localhost:8080/oa/xxx/aaa/xx/pp 显然不可以，
-	如果这个路径随便整的话，那么写好的java程序换到另一个web服务器上（jetty）可能就运行不了了，
-	因此所有的web服务器厂商做的服务器都需要遵守一些规范，而Servlet就是JavaEE制定的一套规范之一，
-	我们就按照这个规范来学习去开发webapp
-
-· 在整个BS结构中，有哪些人参与进去了？
-	-浏览器/客户端的开发团队（Google、FireFox、IE...）
-	-web服务器/应用服务器的开发团队（Tomcat、jetty...）
-	-DB server的开发团队（Oracle、Mysql、SQLServer）
-	-WebApp的开发团队（Java程序员）
-
-· 角色和角色之间需要遵守哪些规范、协议？
-	-用户的浏览器Browser和Web服务器之间数据传输的规范/协议：HTTP协议（超文本传输协议）
-	-WebApp开发者需要和Web服务器之间制定一套规范：javaEE规范之一，Servlet规范
-		Servlet作用：让WebApp和Web服务器之间解耦合
-	-WebApp开发者和数据库厂商之间的规范：JDBC
-
 · Servlet本质：
 	通过分析：
 		对于程序员来说，只需要做两件事：

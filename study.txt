@@ -6,4 +6,5 @@ RabbitMQ-->RocketMQ --> ActiveMQ-->Dubbo -->盈利宝项目-->SpringCloud-->S
 ------------------慢慢看-------------------------------------
 #尚硅谷宋红康mysql
 #尚硅谷maven高级详解
-#老杜java中部p97
+#老杜java中部p126
+#老杜java下部【p136-p165】
