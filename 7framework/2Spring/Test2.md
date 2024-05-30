@@ -187,22 +187,24 @@
     > 抽象工厂模式相对于工厂方法模式的区别在于：工厂方法模式是针对一个产品系列的，而抽象工厂模式是针对多个产品系列的，就是将weaponFactory又进行了一层抽象而已。即工厂方法模式是一个产品系列一个工厂类，而抽象工厂模式是多个产品系列一个工厂类。
     > 特点：抽象工厂模式是所有形态的工厂模式中最为抽象和最具一般性的一种形态。抽象工厂模式是指当有多个抽象角色时，使用的一种工厂模式。抽象工厂模式可以向客户端提供一个接口，使客户端在不必指定产品的具体的情况下，创建多个产品族中的产品对象。它有多个抽象产品类，每个抽象产品类可以派生出多个具体产品类，一个抽象工厂类，可以派生出多个具体工厂类，每个具体工厂类可以创建多个具体产品类的实例。每一个模式都是针对一定问题的解决方案，工厂方法模式针对的是一个产品等级结构；而抽象工厂模式针对的是多个产品等级结果。
     > 抽象工厂中也是包含4个角色：
-    > 	● 抽象产品角色
-    > 	● 具体产品角色
+    >
+    > ​	● 抽象产品角色
+    >
+    > ​	● 具体产品角色
     >
     > ​	● 抽象工厂角色
     >
     > ​	● 具体工厂角色
 
     *新添加了水果产品族：*
-
+    
     ```java
     public abstract class Fruit {
         //所有果实都有一个成熟周期
         public abstract void ripeCycle();
     }
     ```
-
+    
     ```java
     public class Orange extends Fruit{
         @Override
@@ -211,7 +213,7 @@
         }
     }
     ```
-
+    
     ```java
     public class Apple extends Fruit{
         @Override
@@ -222,7 +224,7 @@
     ```
 
     > 抽象工厂角色：（AbstractFactory）
-
+    
     ```java
     public abstract class AbstractFactory {
         public abstract Weapon getWeapon(String type);
@@ -231,7 +233,7 @@
     ```
 
     > 具体工厂角色：（WeaponFactory、FruitFactory）
-
+    
     ```java
     public class WeaponFactory extends AbstractFactory{
     
@@ -254,7 +256,7 @@
         }
     }
     ```
-
+    
     ```java
     public class FruitFactory extends AbstractFactory{
         @Override
@@ -278,7 +280,7 @@
     ```
 
     > 测试代码：
-
+    
     ```java
     public class Test {
         @Test
@@ -300,7 +302,7 @@
         }
     }
     ```
-
+    
     ```txt
     抽象工厂模式的优缺点：
     ● 优点：当一个产品族中的多个对象被设计成一起工作时，它能保证客户端始终只使用同一个产品族中的对象。
@@ -313,7 +315,7 @@
 
 > Spring为Bean提供了多种实例化方式，即为Bean对象的创建提供了多种方案，这样更加灵活。通常包括4种方式：
 >
-> - （默认）通过无参构造
+> - （默认）通过无参构造实例化。（要求必须存在无参构造器）
 > - 通过<bean>标签的`factory-method`属性，简单工厂模式实例化
 > - 通过<bean>标签的`factory-bean`属性，工厂方法模式实例化
 > - 通过Spring提供的`FactoryBean`接口实例化，本质也是工厂方法模式实例化
@@ -338,7 +340,7 @@
   2. 然后就可以通过<bean>标签的**factory-method**属性将对象实例化方式改为**简单工厂模式**实例化：（class属性值是工厂类）
 
      ```xml
-     <bean id="userBean" class="com.itheima.bean.UserFactory" factory-method="get"/>
+     <bean id="user" class="com.itheima.bean.UserFactory" factory-method="get"/>
      ```
 
 - ##### 通过factory-bean实例化：（本质上是通过**工厂方法模式**进行的实例化）
@@ -395,7 +397,7 @@
   > 直接通过bean标签的class属性指定UserFactoryBean类，最终实例化的就是User对象：
 
   ```xml
-  <bean id="userBean" class="com.itheima.bean.UserFactoryBean"/>
+  <bean id="user" class="com.itheima.bean.UserFactoryBean"/>
   ```
 
   > 这种方式和上面那种本质上是一回事，就是通过上方factory-bean实例化的方式演变过来的，它也会先创建factory-bean对象，通过调用该对象的实例方法来创建一个bean；
@@ -462,33 +464,27 @@
 
 - ##### 什么是Bean的生命周期：
 
-  ```txt
-  ·其实Spring就是一个管理Bean对象的工厂（容器）。它负责对象的创建，对象的销毁等。
-  ·所谓Bean的生命周期就是：spring容器中Bean对象从创建开始到最终销毁的整个过程。
-  ·什么时候创建Bean对象？
-  ·创建Bean对象的前后会调用什么方法？
-  ·Bean对象什么时候销毁？
-  ·Bean对象的销毁前后调用什么方法？
-  ```
+  > - 其实Spring就是一个管理Bean对象的工厂（容器）。它负责对象的创建，对象的销毁等。
+  > - 所谓Bean的生命周期就是：spring容器中Bean对象从创建开始到最终销毁的整个过程。
+  > - 什么时候创建Bean对象？
+  > - 创建Bean对象的前后会调用什么方法？
+  > - Bean对象什么时候销毁？
+  > - Bean对象的销毁前后调用什么方法？
 
 - ##### 为什么要知道Bean的生命周期：
 
-  ```txt
-  生命周期的本质是：在哪个时间节点上，调用了哪个Bean类的哪个方法。我们需要充分的了解在这个生命线上，都有哪些特殊的时间节点。
-  只有我们知道了特殊的时间节点都在哪，到时我们才可以确定代码写到哪。
-  我们可能需要在某个特殊的时间点上执行一段特定的代码，这段代码就可以放到这个节点上。当生命线走到这里的时候，自然会被调用。
-  ```
+  > - 生命周期的本质是：在哪个时间节点上，调用了哪个Bean类的哪个方法。我们需要充分的了解在这个生命线上，都有哪些特殊的时间节点。只有我们知道了特殊的时间节点都在哪，到时我们才可以确定代码写到哪。
+  > - 因为我们可能需要在某个特殊的时间点上执行一段特定的代码，这段代码就可以放到这个节点上。当生命线走到这里的时候，自然会被调用。
 
-- ##### Bean的生命周期之5步：
+- ##### Bean的生命周期之5步（粗略）：
 
-  ```txt
-  Bean生命周期可以粗略的划分为五大步：
-  	·第1步：实例化Bean
-  	·第2步：Bean属性赋值
-  	·第3步：初始化Bean
-  	·第4步：使用Bean
-  	·第5步：销毁Bean
-  ```
+  > Bean生命周期可以粗略的划分为五大步：
+  >
+  > - 第1步：实例化Bean
+  > - 第2步：属性赋值
+  > - 第3步：初始化Bean
+  > - 第4步：使用Bean
+  > - 第5步：销毁Bean
 
   > 我们写代码来试一下：编写一个User类
 
@@ -547,11 +543,9 @@
   3、<bean>标签的init-method属性指定初始化方法，destroy-method属性指定销毁方法。
   ```
 
-- ##### Bean的生命周期之7步：
+- ##### Bean的生命周期之7步（细分）：
 
-  ```txt
-  在以上的5步中，第3步是初始化Bean。还可以在初始化Bean前后做点事情，加入“Bean后处理器”即可。步骤如下：
-  ```
+  > 在以上的5步中，第3步是初始化Bean。还可以在初始化Bean前后做点事情，加入“Bean后处理器”即可。步骤如下：
 
   1. 编写一个类实现**BeanPostProcessor**类，并且重写before和after方法：
 
@@ -572,31 +566,30 @@
      }
      ```
 
-  2. 在xml文件中配置**Bean后处理器**：
+  2. 在bean.xml文件中配置**Bean后处理器**：
 
      ```xml
-     <!-- 配置Bean后处理器。这个bean后处理器将作用于当前配置文件中所有的bean -->
+     <!-- 配置Bean后处理器。这个bean后处理器将对当前配置文件中的所有bean多加2个生命周期 -->
      <bean class="com.itheima.bean.LogBeanPostProcessor"/>
      ```
 
-- ##### Bean生命周期之10步（了解）：
+- ##### Bean生命周期之10步（最详细）：
 
-  ```txt
-  就是在上面7步的基础上，又加了3步。分别是：
-  	·bean后处理器的before方法执行之前，判断bean是否实现了Aware相关的接口，并执行接口方法。
-  	·bean后处理器的before方法执行之后，判断bean是否实现了InitializingBean接口，并执行接口方法
-  	·bean的destory销毁方法执行前，判断bean是否实现了DisposableBean接口，并执行接口方法。
+  > 就是在上面7步的基础上，又加了3步。分别是：
+  >
+  > - bean后处理器的before方法执行之前，判断bean是否实现了Aware相关的接口，并执行接口方法
+  > - bean后处理器的before方法执行之后，判断bean是否实现了InitializingBean接口，并执行接口方法
+  > - bean的销毁之前，判断bean是否实现了DisposableBean接口，并执行接口方法
+  >
+  > Aware相关的3个接口包括：BeanNameAware、BeanClassLoaderAware、BeanFactoryAware
+  >
+  > - 当Bean实现了BeanNameAware，Spring会将beanId传递给该Bean的setBeanName(String name)方法
+  > - 当Bean实现了BeanClassLoaderAware，Spring会将加载该Bean的类加载器传递给该Bean的setBeanClassLoader()方法
+  > - 当Bean实现了BeanFactoryAware，Spring会将该Bean对象对应的工厂对象传递给该方法setBeanFactory(BeanFactory beanFactory)
   
-  Aware相关的3个接口包括：BeanNameAware、BeanClassLoaderAware、BeanFactoryAware
-  	·当Bean实现了BeanNameAware，Spring会将Bean的名字传递给该Bean的setBeanName(String name)方法。
-  	·当Bean实现了BeanClassLoaderAware，Spring会将加载该Bean的类加载器传递给该Bean的
-  		setBeanClassLoader(ClassLoader classLoader)方法。
-  	·当Bean实现了BeanFactoryAware，Spring会将Bean工厂对象传递给该Bean的setBeanFactory(BeanFactory beanFactory)
-  ```
-
-  > 代码：
-
-  ```java
+> 代码：
+  
+```java
   public class User implements InitializingBean, DisposableBean, BeanNameAware, BeanClassLoaderAware, BeanFactoryAware {
       private String name;
   
@@ -641,8 +634,8 @@
       }
   }
   ```
-
-  ![image-20240401155751749](./assets/image-20240401155751749.png)
+  
+![image-20240401155751749](./assets/image-20240401155751749.png)
 
 ------
 
@@ -655,7 +648,7 @@
 
 - ##### 自己new的对象如何让Spring管理：
 
-  > 有些时候可能会遇到这样的需求：某个java对象是我们自己new的，然后我们希望这个对象被Spring容器管理，可以这样做：
+  > 有些时候可能会遇到这样的需求，某个java对象是我们自己new的，然后我们希望这个对象被Spring容器管理。可以这样做：
 
   ```java
   @Test
@@ -668,7 +661,7 @@
       DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
       // 注册Bean（beanId不会和配置文件中的beanId发生冲突）
       factory.registerSingleton("userBean", user);
-      // 从spring容器中获取bean
+      // 通过上面new的工厂对象来获取bean
       User userBean = factory.getBean("userBean", User.class);
       System.out.println(userBean);
   }
@@ -683,32 +676,32 @@
 
 ###### 像这种循环依赖的情况spring能够应付的了吗？我们需要分情况来说明：
 
-- **singleton**下的**set注入**产生的循环依赖：这种情况下的循环依赖是**没问题**的。无论哪个bean，有一个singleton就行。原理是：
+- **singleton**的**set注入**产生的循环依赖：这种情况下的循环依赖是**没问题**的（无论哪个bean，有一个singleton就行）。原理是：
 
-  ```txt
-  因为这种方式可以做到，将“实例化Bean”和“给Bean属性赋值”这两个动作分开去完成。
-  实例化Bean的时候调用无参数构造方法来完成。此时先不给属性赋值，先将该“单例”Bean对象“曝光”给外界；然后再对曝光的Bean对象的属性进行赋值操作（调用setter）。
-  核心原因是：两个步骤是完全可以分离开去完成的。
-  注意：只有scope是singleton的bean对象，才会使用“曝光”机制。这也是为什么，在set注入时，我们的bean标签的顺序可以随便写。
-  ```
+  > 因为这种方式可以做到，将“实例化Bean”和“给Bean属性赋值”这两个动作分开去完成。
+  > 实例化Bean的时候调用无参数构造方法来完成。此时先不给属性赋值，先将该“单例”Bean对象“曝光”给外界；然后再对曝光的Bean对象的属性进行赋值操作（调用setter）。
+  > 核心原因是：两个步骤是完全可以分离开去完成的。
+  > 注意：只有scope是singleton的bean对象，才会使用“曝光”机制。这也是为什么，在set注入时，我们的bean标签的顺序可以随便写。
 
 - **其他情况下都会出现异常**
 
 - prototype下的set注入产生的循环依赖：会出现异常。因为两个对象都是singleton的，有很多个。
+
 - singleton下的**构造注入产生的循环依赖**：一定会出现异常。根本原因是，构造注入是创建对象的同时进行的赋值，两个步骤没有分开，根本没法曝光。
 
 - Spring解决循环依赖的机理：
 
-  ```txt
-  那么在Spring框架底层源码级别上是如何实现的呢？如下，在DefaultSingletonBeanRegistry类中，有这三个重要的Map集合：
-  	private final Map<String, Object> singletonObjects：一级缓存，存储的都是单例的、已经赋过值的bean对象。
-  	private final Map<String, Object> earlySingletonObjects：二级缓存，存储的是早期的单例bean对象，没赋值。
-  	private final Map<String, ObjectFactory<?>> singletonFactories：三级缓存，存储的是单例的工厂对象，
-  		每一个都有对应的单例bean，它们是创建bean的BeanFactory对象。
-  
-  再分析源码，从源码中可以看到，spring会先从一级缓存中获取Bean，如果获取不到，则从二级缓存中获取Bean，如果二级缓存还是获取不到，则从三级缓存中获取之前曝光的ObjectFactory对象，通过ObjectFactory对象创建该单例Bean对象，然后立马将该bean放在了二级缓存中（没赋值）。这样在set赋值阶段就可以从这里拿到该对象进行赋值，就解决了循环依赖的问题。
-  ```
+  > 那么在Spring框架底层源码级别上是如何实现的呢？如下，在DefaultSingletonBeanRegistry类中，有这三个重要的Map集合：
+  >
+  > - private final Map<String, Object> singletonObjects：一级缓存，存储的都是单例的、已经赋过值的bean对象
+  > - private final Map<String, Object> earlySingletonObjects：二级缓存，存储的是早期的单例bean对象，没赋值
+  > - private final Map<String, ObjectFactory<?>> singletonFactories：三级缓存，存储的是单例的工厂对象，每一个都有对应的单例bean，它们是创建bean的实例BeanFactory对象。
+  >
+  > 再分析源码，从源码中可以看到，spring会先从一级缓存中获取Bean，如果获取不到，则从二级缓存中获取Bean，如果二级缓存还是获取不到，则从三级缓存中获取之前曝光的ObjectFactory对象，通过ObjectFactory对象创建该单例Bean对象，然后立马将该bean放在了二级缓存中（没赋值）。这样在set赋值阶段就可以从这里拿到该对象进行赋值，就解决了循环依赖的问题。
 
 - **总结**：
 
   > Spring只能解决**setter**注入的**单例**bean之间的循环依赖。ClassA依赖ClassB，ClassB又依赖ClassA，形成依赖闭环。Spring在创建ClassA对象后，不需要等给属性赋值，直接将其曝光到bean缓存当中。在解析ClassA的属性时，又发现依赖于ClassB，再次去获取ClassB，当解析ClassB的属性时，又发现需要ClassA的属性，但此时的ClassA已经被提前曝光加入了正在创建的bean的缓存中，则无需创建新的的ClassA的实例，直接从缓存中获取即可。从而解决循环依赖问题。
+
+------
+

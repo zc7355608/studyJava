@@ -1,128 +1,3 @@
-> HelloServlet.java
-
-```java
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.ServletConfig;
-import java.io.*;
-
-public class HelloServlet implements Servlet{
-	//共5个方法
-	public void init(ServletConfig config) throws ServletException{
-	}
-	public void service(ServletRequest request, ServletResponse response) throws ServletException, java.io.IOException{
-		System.out.println("Hello Servlet!");
-		/*怎么将一个信息输出到浏览器上？
-			需要使用ServletResponse接口：response
-			表示响应：从服务器向浏览器发送数据
-		*/
-		//可以设置响应的内容类型
-		response.setContentType("text/html");//注意：这行代码必须设置在拿到流之前
-
-		PrintWriter out = response.getWriter();//这个流不需要close和flush，tomcat帮我们做了，手动关闭的话更好
-		out.print("hello Servlet, you are my love!");
-		out.print("<h1>hello</h1>");//这行代码最终还是会原样显示，不会呈现html代码的形式
-
-	}
-	public String getServletInfo(){
-		return "";
-	}
-	public ServletConfig getServletConfig(){
-		return null;
-	}
-	public void destroy(){
-	}
-}
-```
-
-> StudentServlet.java
-
-```java
-import jakarta.servlet.Servlet;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.ServletConfig;
-import java.io.*;
-import java.sql.*;
-
-public class StudentServlet implements Servlet{
-	//共5个方法
-	public void init(ServletConfig config) throws ServletException{
-	}
-	public void service(ServletRequest request, ServletResponse response) throws ServletException, java.io.IOException{
-		response.setContentType("text/html");
-		PrintWriter out = response.getWriter();
-		//编写jdbc代码，连接数据库，查询所有员工信息
-		Connection conn = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try{
-			//注册驱动
-			Class.forName("com.mysql.jdbc.Driver");
-			//获取连接
-			String url = "jdbc:mysql://localhost:3306/test?useSSL=true&characterEncoding=utf8";
-			String username = "root";
-			String password = "a123456789";
-			conn = DriverManager.getConnection(url, username, password);
-			//预编译数据库操作对象
-			String sql = "select ename, sal from emp;";
-			ps = conn.prepareStatement(sql);
-			//执行sql语句
-			rs = ps.executeQuery();
-			//处理查询结果集
-			while(rs.next()){
-				String ename = rs.getString("ename");
-				String sal = rs.getString("sal");
-				out.print(ename +":"+ sal +"<br/>");//响应给B端
-			}
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			//从小到大释放资源
-			if(rs != null){
-				try{
-					rs.close();
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-			if(ps != null){
-				try{
-					ps.close();
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-			if(conn != null){
-				try{
-					conn.close();
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-			if(out != null){
-				try{
-					out.close();
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	public String getServletInfo(){
-		return "";
-	}
-	public ServletConfig getServletConfig(){
-		return null;
-	}
-	public void destroy(){
-	}
-}
-```
-
 # JavaWeb
 
 - ## B/S结构的系统的通信原理
@@ -319,11 +194,11 @@ public class StudentServlet implements Servlet{
   >   - Apache：C语言编写的WEB服务器，开源，只支持静态解析
   >   - Nginx：C语言编写的WEB服务器
   > - 所以我们做WEB开发就用别人写好的WEB服务器即可。我们只需要将编写的WEB项目放在服务器上（部署），当服务器启动时用户就可以访问服务器上的资源了。我们只需要面向接口编程（类似JDBC），专注于业务的实现。
-  > - WEB开发属于JavaEE，JavaEE完全包含JavaSE。而JavaME只有一小部分的JavaSE，是轻量级的做嵌入式开发的库。这3个Java规范可以互相衔接使用。
+  > - WEB开发要遵循JavaEE规范，JavaEE完全包含JavaSE。而JavaME只有一小部分的JavaSE，是轻量级的做嵌入式开发的库。这3个Java规范可以互相衔接使用。
 
 - ## Tomcat
 
-  > Tomcat也被称为Web容器、Servlet容器。因为我们放在Tomcat中的项目代码中，主要是编写大量的Servlet类，用于处理过来的HTTP请求，运行是要依靠Tomcat服务器的，主方法都在服务器代码中，启动服务器就是执行`main`方法。
+  > Tomcat也被称为Web容器、Servlet容器。因为部署在Tomcat中的项目代码，主要是编写大量的Servlet类，用于处理过来的HTTP请求。Servlet程序运行是要依靠Tomcat服务器的，主方法都在服务器代码中，启动服务器就是执行`main`方法。
 
   - ### Tomcat的安装和卸载：
 
@@ -373,9 +248,9 @@ public class StudentServlet implements Servlet{
 
 ------
 
-- ## 实现一个web应用
+- ## 关于Web应用
 
-  - ### 第一个web程序：
+  - ### Tomcat中的第一个程序：
 
     > 1. 找到CATALINA_HOME\webapps目录（所有的webapp要放在此目录下，否则Tomcat服务器找不到，这是规定），在该目录下新建一个oa目录，这个oa就是这个web项目（webapp）的名字。
     > 2. 在oa下新建资源文件，例如：index.html，在其中编写前端代码。（html的路径中，可以省略：协议、ip、端口，直接以"/项目名"开始，这就是一个绝对路径，缺省的3个会以当前页面的协议ip端口补上）
@@ -384,213 +259,160 @@ public class StudentServlet implements Servlet{
   - ### web程序的开发流程：
 
     > 当用户在浏览器地址栏输入路径访问web服务器上对应的资源，一个路径就代表一个资源。这个资源可能是
-    > 一个静态资源（index.html），也可能是一个动态资源（java代码）。但这个请求的url路径不能随便整，必须按照后端服务器程序中规定的来。而且开发web程序需要遵守对应的规范，Servlet就是JavaEE的规范之一，我们按照这个规范来开发的应用可以放在任何支持该JavaEE规范的服务器上，不只是Tomcat
+    > 一个静态资源（index.html），也可能是一个动态资源（java代码）。但这个请求的url路径不能随便整，必须按照后端服务器程序中规定的来。而且开发web程序需要遵守对应的规范，Servlet就是JavaEE的规范之一，我们按照这个规范来开发的应用可以放在任何支持Servlet规范的服务器上，不只是Tomcat
 
 ------
 
+- ## Servlet规范
 
+  > Servlet是Java提供的一门动态Web资源开发技术，是JavaEE的规范之一。其实就是一个接口，每一个实现了Servlet接口的Java类，都可以去处理HTTP请求了。Servlet规范是Web服务器和JavaWeb程序之间的桥梁。实现了该规范的Web服务器和按照该规范开发的Web程序可以做到解耦合，这样写的代码换到其他Web服务器（实现了Servlet规范的）上也可以部署和运行。
+
+  - ### Servlet规定了哪些内容：
+
+    > - 一个Web程序的类文件（class文件）和资源文件（img、html等资源）应该以什么样的目录结构放在服务器程序目录中。一个合格的JavaWeb程序的目录应该是怎样的。
+    > - 规范了一些Java的接口和类，程序员需要面向这个接口编程，以此为基础来处理用户的请求。
+    > - 请求路径和Java程序之间的对应关系应该怎么做。
+
+  - ### JavaWeb程序的目录：（运行程序目录结构）
+
+    ```ini
+    xx项目
+    	其他的静态资源
+    	WEB-INF（重要）
+    		classes（必须）
+    		lib（必须）
+    		web.xml（必须）
+    ```
+
+    > - 该xx项目目录的结构如上，该目录要放在webapps目录下
+    > - 其中动态资源需要放在`WEB-INF`目录中，该目录下的资源是是到保护的，只能通过编写的程序来跳转，直接发送请求是访问不到的。
+    > - 静态资源放在任意其他目录中。
+    > - `classes`目录中的是字节码文件，以及程序运行所需要的配置文件
+    > - `lib`目录是项目运行所依赖的第三方程序jar包
+    > - `web.xml`是JavaWeb项目的配置文件（核心），用于对项目的Servelt类进行配置
+
+  - ### 关于JavaEE规范（了解）：
+
+    > - JavaEE规范包括（不完全）：JDBC和数据源、JSP、Servlet、JNDI、XML、JMS、JTA、JPA、JTS、RMI、IDL、JavaMail、EJB、JAF..等等。
+    >
+    > - JavaEE目前的最高版本是JavaEE8，JavaEE被Oracle捐给了Apache了，Apache把JavaEE改名了，叫做JakartaEE。以后就没有JavaEE了，以后都叫做JakartaEE。所以JavaEE8之后的版本“JavaEE9”不再是javaEE9了，叫做JakartaEE9。JavaEE8之前对应的包名是javax，现在最新规范的包都是jakarta
+    > - Tomcat10用的是JakartaEE9规范，如果你的项目包用的javax的包，那么就无法部署在Tomcat10+版本上了，只能部署在9版本上，或者将源代码所有包重新导包。
+    > - 21版本之前的IDEA会识别不了tomcat10，因为目录结构变了，因此tomcat10必须使用高版本的idea
+    > - Tomcat通常会跟随Java EE规范的更新而更新，以支持最新的Servlet和JSP规范。因此Tomcat的每个版本通常都与JavaEE的某个版本相关联，但并不是一一对应。
+
+  - ### 第一个Servlet程序（Web项目）：
+
+    > 1. webapps目录下新建一个项目目录，起名crm（crm就是项目的根），名字随意
+    >
+    > 2. （必须）在crm目录下新建一个目录`WEB-INF`，名字和位置都是固定的，不能改。
+    >
+    > 3. （必须）WEB-INF下新建一个目录`classes`，里面存放编译好的字节码文件。
+    >
+    > 4. （必须）在WEB-INF下新建一个目录`lib`，存放用到的第三方依赖jar包。这个不是必须的，但如果用到了第三方的jar包，且这个jar包没在tomcat的lib目录中的话，就得放在WEB-INF的lib目录下。如jdbc驱动。（tomcat的lib目录下的所有jar包，所有的webapp都共享，是WEB容器级别的）
+    >
+    > 5. （必须）在WEB-INF下新建一个文件`web.xml`。它是一个webapp的核心配置文件，一个合法的javaWeb应用必须包含这个文件。该文件中描述了url路径和Servlet之间的对应关系。先从tomcat自带的webapp下复制一个，后面直接用开发工具生成：
+    >
+    >    ```xml
+    >    <?xml version="1.0" encoding="UTF-8"?>
+    >    <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+    >      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    >      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+    >                  https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+    >      version="5.0" metadata-complete="true">
+    >    </web-app>
+    >    ```
+    >
+    > 6. 编写Java代码实现Servlet接口：HelloServlet.java
+    >
+    >    ```java
+    >    import jakarta.servlet.Servlet;
+    >    import jakarta.servlet.ServletException;
+    >    import jakarta.servlet.ServletRequest;
+    >    import jakarta.servlet.ServletResponse;
+    >    import jakarta.servlet.ServletConfig;
+    >    import java.io.*;
+    >    
+    >    public class HelloServlet implements Servlet{
+    >    	//共5个方法
+    >    	public void init(ServletConfig config) throws ServletException{}
+    >    	public void service(ServletRequest request, ServletResponse response) throws ServletException, java.io.IOException{
+    >    		System.out.println("Hello Servlet!");
+    >    /*怎么将一个信息输出到浏览器上？
+    >        需要使用ServletResponse接口：response
+    >        表示响应：从服务器向浏览器发送数据
+    >    */
+    >    		//可以设置响应的内容类型。注意：必须在获取输出流之前设置才有用
+    >    		response.setContentType("text/html");
+    >            //这个流不需要close和flush，tomcat帮我们做了
+    >    		PrintWriter out = response.getWriter();
+    >            //往响应流中写数据
+    >    		out.print("<h1>Hello Servlet!</h1>");
+    >    	}
+    >    	public String getServletInfo(){	return ""; }
+    >    	public ServletConfig getServletConfig(){ return null; }
+    >    	public void destroy(){}
+    >    }
+    >    ```
+    >
+    > 7. 在web.xml中对HelloServlet进行配置（注册Servlet）：每一个Servlet都需要在该文件中进行注册
+    >
+    >    ```xml
+    >    <!--servlet描述信息-->
+    >    <servlet>
+    >        <servlet-name>名字随便写，但是要一样</servlet-name>
+    >        <!--这个位置必须是带有包名的完整类名-->
+    >        <servlet-class>HelloServlet</servlet-class>
+    >    </servlet>
+    >    <!--servlet映射信息-->
+    >    <servlet-mapping>
+    >        <servlet-name>名字随便写，但是要一样</servlet-name>
+    >        <!--这里需要配置访问该Servlet的路径，这个路径后面会详细说明-->
+    >        <url-pattern>/abc</url-pattern>
+    >    </servlet-mapping>
+    >    ```
+    >
+    > 8. 该程序要想编译通过，必须将Servlet接口所在的jar包添加到classpath中，让类加载器能找到Servlet接口。但是Serlvet不在JDK中，因为Servlet不是javaSE了，是javaEE。去哪里找这个接口的jar包呢？
+    >
+    >    - 首先：Servlet接口是Sun/Oracle提供的，并且Tomcat服务器实现了Servlet规范，Tomcat服务器要用到Servlet接口，所以Tomcat服务器中应该有这个接口。
+    >    - 我们找到Tomcat的lib，该目录下有一个`servlet-api.jar`，接口在这里。
+    >    - 所以将该路径添加到classpath，javac编译`HelloServlet.java`，然后将编译好的字节码文件放在`classes`目录中，启动Tomcat即可。
+    >
+    > 9. 打开浏览器，在浏览器地址栏上输入URL：`http://127.0.0.1:8080/crm/abc`，这样请求就会被服务器转给HelloServlet进行处理，并完成响应。所以Servlet本质就是处理请求的。
+
+  - ### 关于后端的URL路径：
+
+    > 网络路径也分为绝对路径和相对路径：
+    >
+    > - **相对路径**：不以`/`开头的都是相对路径。它以当前地址栏上的url的同级目录为基路径，拼接该相对路径后形成绝对路径去找目标资源。（同样：`./`表示当前路径，`../`表示当前资源的上一层）相对路径的优点是灵活，缺点是不稳定，容易受到用户浏览器的url的影响。
+    > - **绝对路径**：以`/`开头的都是绝对路径。绝对路径可以是带协议ip端口的，也可以不带，此时默认是当前地址栏的协议ip和端口。它通过固定的url去找目标资源。绝对路径的优点是稳定，缺点是不灵活。尤其是项目上下文（项目名crm），它会经常变化。如果项目上下文变了，可能会导致项目中使用绝对路径的地方都会受到影响，导致资源找不到。
+    >
+    > 那我们开发中，资源的路径写相对还是绝对呢？如果是绝对。那么项目名变了不就出问题了吗，这样做：
+    >
+    > - 在HTML中通过`head>base>href`来设置相对路径的基路径，如：`/项目名/`，不让其以当前url为基路径了。这样页面中所有的资源的相对路径，都会拼接上这个基路径，把相对路径变成一个绝对路径，项目名变的话，每个页面中只需要改这一点就行了。
+    > - 但这还不够完美，如果HTML很多，也很麻烦。通常我们开发中会这样做（上线才换成上面的方式）：由于我们一个服务器中通常只跑一个项目，所以项目名直接不给了，IDEA中热部署时项目名设置为`/`，此时项目中的路径统一用绝对路径的写法
+
+  - ### 过程详解：（以下这个过程很粗糙，省略了一些步骤）
+
+    > - 用户输入URL：`http://127.0.0.1:8080/crm/abc`
+    > - Tomcat接收请求，截取路径：`/crm/abc`
+    > - Tomcat找到`crm`项目，在`web.xml`文件中查找`/abc`对应的Servlet是HelloServlet，通过反射机制创建对象，将请求和响应报文封装成请求和响应对象req和resp，传进去调用service方法。
+
+  - ### （了解）：
+
+    > 其实项目名可以和部署目录`webapps`下的文件名不同，不过配置起来比较复杂，知道即可。
+
+------
+
+- ## Idea中开发Web项目
+
+  > 上面的方式编写代码很麻烦，不方便我们测试和排错，以后用idea工具开发webapp，使用：
+
+  1. 新建
 
 ```txt
-· Servlet本质：
-	通过分析：
-		对于程序员来说，只需要做两件事：
-		-编写一个类实现Servlet接口
-		-将编写的类配置到配置文件中，在配置文件中：指定“请求路径”和“类名”的对应关系
-	注意：
-		这个配置文件的“文件名”和“路径”不能乱来，Servlet规范固定好了，在Tomcat中服务器写死了；
-		文件名、路径都是SUN公司制定的Servlet规范中的明细
-	严格意义上来说Servlet并不只是一个接口：
-		Servlet规范中规定了：
-		*一个合格的WebApp应该是一个怎样的目录结构
-		*一个合格的WebApp应该有一个怎样的配置文件
-		*一个合格的WebApp配置文件应该放在哪里
-		*一个合格的WebApp中的java程序放在哪里
-	Tomcat服务器要遵循Servlet规范，javaWEB程序员也要遵守这个规范，这样编写的程序才能和web服务器解耦合
-
-
-====day03=================================================================================================
-
-
-· Servlet规范是一个什么规范？
-	遵循Servlet规范的webApp，这个webApp就可以放在不同的web服务器上运行，因为其他的web服务器也是遵循Servlet规范的
-
-· Servlet规范包括什么呢？
-	*规范了哪些接口
-	*规范了哪些类
-	*规范了一个web应用中应该有哪些配置文件
-	*规范了一个web应用中配置文件的名字
-	*规范了一个web应用中配置文件存放的路径
-	*规范了一个web应用中配置文件的内容
-	*规范了一个合法有效的web应用它的目录结构应该是怎样的
-	.....
---------------------------------------------------------------------------------------
-· 开发一个带有Servlet（java小程序）的webApp（重点）
-	开发步骤：
-	1、webapps目录下新建一个项目目录，起名crm（crm就是项目的根），名字随意
-
-	2、（必须）在webapp的根下新建一个目录：WEB-INF
-		注意：这个是必须的，目录名字是Servlet规范中规定的，必须一模一样，必须的必须
-
-	3、（必须）WEB-INF下新建一个目录：classes
-		注意：这是必须的，这里放的一定是java的字节码文件class文件
-
-	4、（必须）在WEB-INF下新建一个目录：lib
-		注意：这个不是必须的。但如果一个webapp需要第三方的jar包的话，这个jar包在tomcat的
-		lib目录中没有的话，就得放到webappWEB-INF的lib目录下，名字必须是lib。
-		例如jdbc的jar包，就必须放在这个目录下
-		（tomcat的lib目录下的所有jar包，也就是Java类，所有的webapp都共享）
-
-	5、（必须）在WEB-INF下新建一个文件：web.xml
-		注意：这个是必须的，它是一个webapp的核心配置文件，一个合法的webapp必须包含这个文件。这个
-		配置文件中描述了请求路径和Servlet之间的对照关系
-		注意：这个配置文件最好从别的webapp中拷贝，最好别手写。没必要，tomcat的webapps目录下就有
-		如：<?xml version="1.0" encoding="UTF-8"?>
-			<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
-			  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-			  xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
-					      https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
-			  version="5.0" metadata-complete="true">
-			</web-app>
-
-	6、编写一个Java程序，这个Java程序也不能随便写，必须实现Servlet接口
-		-Servlet不在JDK中（因为Servlet不是javaSE了，是javaEE）
-		-Servlet接口是Sun/Oracle提供的
-		-Tomcat服务器实现了Servlet规范，所以Tomcat服务器需要使用Servlet接口，那么Tomcat服务器中
-		应该有这个接口。Tomcat的lib目录下有一个servlet-api.jar
-		解压这个文件之后，你会找到一个：jakarta.servlet.Servlet.class
-
-	注意：你的java源码不管在哪里写都可以，只要把编译好的class字节码放在classes目录下就行；那么：
-	怎么让你的源码编译通过呢，你用到了别人呢写的jar包Servlet，所以需要在classpath中配置：
-	Tomcat中的lib下的servlet-api.jar
-
-	7、编译好的class文件放在classes之后，在web.xml编写配置信息，让“请求路径”和“servlet”类名相匹配，
-		这一步的专业术语叫：在web.xml文件中“注册”Servlet类
-			<!--servlet描述信息-->
-			<servlet>
-				<servlet-name>名字随便写，但是要一样</servlet-name>
-				<!--这个位置必须是带有包名的完整类名-->
-				<servlet-class>HelloServlet</servlet-class>
-			</servlet>
-
-			<!--servlet映射信息-->
-			<servlet-mapping>
-				<servlet-name>名字随便写，但是要一样</servlet-name>
-				<!--这里需要一个路径，这个路径后面再说，目前先以斜杠‘/’开头-->
-				<url-pattern>/fsa/saf/asfd/sfd</url-pattern>
-			</servlet-mapping>
-		注意：每一个实现servlet的class文件都要注册到xml文件中，以上代码都要写一份
-
-	8、启动Tomcat服务器，cmd中输入startup.bat然后回车
-
-	9、打开浏览器，在浏览器地址栏上输入一个URL，这个url必须根据刚才xml文件中地址来的：
-	http://127.0.0.1:8080/crm/fsa/saf/asfd/sfd
-		-浏览器上的请求路径不能随便写，这个路径必须是：协议 + ip + 端口 + 项目名 + url-pattern路径
-		-但是这个路径很复杂怎么办？可以使用超链接
-		-以后就不需要我们编写main方法了，Tomcat负责调用main方法，服务启动的时候执行的就是main
-		我们程序员只需要编写servlet接口的实现类，然后将其注册到web.xml文件中即可
-	（注意index.html必须放在和WEB-INF同级的目录中）
-
-/*关于路径问题：（分为相对路径和绝对路径）
-
-·相对路径：不以/开头的都是相对路径。它以当前资源所在路径，作为出发点（基路径）去找目标资源；相对是相对于浏览器当前url的同级目录中来找；
-	./表示当前资源的路径，../表示当前资源的上一层路径；规则是：将目前资源的所在路径，拼接给出的相对路径，形成完整的url去找资源；
-	缺点：相对路径的起点会受到用户浏览器的url的影响。
-
-·绝对路径：以/开头的都是绝对路径。以固定的位置作为出发点去找目标资源；不同项目中的固定出发点可能不同，可以自己测试下；
-	在tomcat的javaweb项目中，该固定位置是“协议://ip:端口号/”，也就是/会被替换成这个；
-	缺点：绝对路径需要补充“项目名”，也就是项目上下文，难在这个东西会经常变化。
-
-（重点）我们通常这样做：用head>base>href来设置相对路径的基路径。通常写“/项目名/”，这样页面中所有的资源的相对路径，
-都会拼接上这个基路径，把相对路径变成一个绝对路径，项目名变只需要改这一个标签的值就行了。
-（还不完美，href还得我们改，解决办法：通常我们一个服务器只部署一个项目，所以项目名直接不给了，idea中部署上下文路径直接给/就行了，
-我们项目中的路径统一用绝对路径的写法）
-*/
-
-· 总结：一个合法的webapp目录结构应该是怎样的？
-	xx项目xx
-		----WEB-INF
-			|-------classes		（必须）
-			|-------lib			（必须）
-			|-------web.xml		（必须）
-		---static
-			|---css
-			|---javascript
-			|---image
-		---page
-			|---index.html
-		....
-
-· 从浏览器发送请求，到web服务器调用Servlet中的方法，是怎样的一个过程（以下这个过程很粗糙，省略了一些步骤）
-	- 用户输入URL，或者点击超链接：http://127.0.0.1:8080/crm/fsa/saf/asfd/sfd
-	- 然后Tomcat接收请求，截取路径：/crm/fsa/saf/asfd/sfd
-	- Tomcat找到crm项目，Tomcat在web.xml文件中查找/fsa/saf/asfd/sfd对应的servlet是：
-		<servlet-class>HelloServlet</servlet-class>
-	- Tomcat通过反射机制创建HelloServlet对象，多态的方式创建
-	- Tomcat调用对象中的service方法
-
-· 其实url中端口号后面的“项目上下文路径/项目名”，它可以和部署目录/webapp下的文件名不同，不过以下配置起来比较复杂，idea中好弄；
-	项目也不是必须放在webapp目录下，可以是电脑上任意位置的文件，但需要配置：在tomcat的conf下创建Catalina/localhost目录，
-	在里面准备一个"项目名.xml"文件，里面写：
-	<Context path="项目上下文路径/项目名" docBase="在电脑的哪个位置"/>
-	目前path的名字要和xml的文件名，还有docBase的文件名保持一致，否则要设置更多；
---------------------------------------------------------------------------------------------------
-(关于JavaEE规范的版本)
-JavaEE目前的最高版本是JavaEE8，JavaEE被Oracle捐给了Apache了，Apache把JavaEE改名了，叫做JakartaEE
-以后就没有JavaEE了，以后都叫做JakartaEE。所以JavaEE8之后的版本“JavaEE9”不再是原来的9了，叫做JakartaEE9
-JavaEE8之前对应的Servlet类名是：javax.servlet.Servlet
-JakartaEE9对应的Servlet类名是：jakarta.servlet.Servlet
-如果你之前的项目还是使用javax.servlet.Servlet，那么你的项目就无法部署在Tomcat10+版本上了，只能部署在9版本上了
-（并且21版本之前的idea会识别不了tomcat10，因为目录结构变了，因此tomcat10必须使用高版本的idea）
-Tomcat通常会跟随Java EE规范的更新而更新，以支持最新的Servlet和JSP规范。因此，Tomcat的每个版本通常都与JavaEE的
-某个版本相关联，但并不是一一对应的关系
--------------------------------------------------------------------------------------------------------
-解决Tomcat服务器在DOS命令窗口中的乱码问题（dos是GBK）
-将CATALINA_HOME/conf/logging.properties文件中的：java.util.logging.ConsoleHandler.encoding修改为GBK即可
-------------------------------------------------------------------------------------------------------
-在Java Web应用程序中，HTML文件如果放在WEB-INF文件夹，那么这些html不能直接被外部访问，只可以被内部跳转，
-因为WEB-INF是Web应用程序的配置和组件的私有区域，受保护的，不是直接对用户开放的。将HTML文件放在WEB-INF文件夹里
-会导致它们无法直接通过Web浏览器访问，因为WEB-INF文件夹内的内容被设计为在应用程序内部使用，而不是直接对用户公开。
------------------------------------------------------
-
-java程序在html中响应一段html代码：
-	public void service(ServletRequest request, ServletResponse response) throws ServletException, java.io.IOException{
-		//这个会输出到catalina控制台信息中，不会响应在web页面上，因为主程序是tomcat
-		System.out.println("Hello Servlet!");
-		/*
-		怎么将一个信息输出到浏览器上？
-			需要使用ServletResponse接口：response
-			表示响应：从服务器向浏览器发送数据
-		*/
-		//可以设置响应流的内容类型
-		response.setContentType("text/html");//注意：这行代码必须设置在拿到流之前
-/*
-	响应报文里响应头的Content-Type是设置响应内容的“MIME类型”的，也叫媒体类型/响应类型，用来告诉浏览器响应文件的类型，
-浏览器会根据这个MIME类型来决定用什么方式解析响应内容；
-	默认情况下访问.html文档我们并没有设置这个，那B怎么知道响应的二进制数据是html文档呢？
-	在tomcat配置文件web.xml中，几乎记录了所有文件类型对应的MIME类型，MIME类型决定了响应时要给Content-Type赋的值；
-不设置的话默认也是text/html，当作响应的是html文档；通常我们都应该设置响应头的Content-Type，不知道的话就去tomcat的
-conf目录下的web.xml中找就行了；设置响应头：resp.setHeader("Content-Type", "text/html");
-由于它很重要，所以做成了单独的方法；后面post请求上传文件，也有Content-Type；
-*/
-
-		PrintWriter out = response.getWriter();//获取响应流，这个流不需要close，tomcat帮我们做了
-		out.print("hello Servlet!");
-		out.print("<h1>hello</h1>");//设置响应内容类型为html后，这行代码就会以html代码的形式响应给浏览器然后解析
-		/*
-		out.print()方法用于，将各种数据类型的内容自动以“字符串”形式输出到客户端，且会自动调用flush()刷新缓冲区；
-			它可以输出任意数据类型，如字符串、数字、对象等。
-		out.write()方法用于，向输出流直接写入“字符”，不会进行任何类型转换；如果不是字符串需要手动转换为字符形式输出，
-			且不会自动刷新缓冲区，需要手动调用flush()或待缓冲区满才会刷新。通常用于输出字符数据，如文本、HTML等。
-		总之，print更方便、自动化，适合输出各种数据类型的内容；而write方法更灵活，需要手动控制数据类型转换和缓冲区刷新，适合输出字符数据。
-		*/
-	}
-
-在Servlet中连接数据库：
-	sevice方法中编写jdbc代码，编写完成之后要配置web.xml文件，再将配置好再将jdbc的jar包放在lib下
-
 ---------------------------------------------------------------------------------------
 
-上面的方式写程序很麻烦，以后使用idea工具快速开发webapp
+
 	1、新建一个空的Project，再新建一个Module(java)，命名为：web01
 	2、让Module变成JavaEE的模块：（让module的格式符合webapp/Servlet规范）
 		打开项目结构，选中模块点加号，选web Application，剩下的基本不动确定即可；（tomcat10必须是web.xml版本5.0）

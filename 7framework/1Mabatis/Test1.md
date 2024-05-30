@@ -6,12 +6,9 @@
 
 ###### 框架(framework)
 
-```txt
-·Java中的常用的框架：SSM三大框架：Spring+SpringMVC+MyBatis，SpringBoot、SpringCloud等；
-·框架其实就是对通用代码的封装，是别人提前写好了一堆接口和类，我们可以在做项目的时候直接引入这些接口和类（引入框架），
-    基于这些现有的接口和类进行开发，可以大大提高效率；
-·框架一般都是以jar包的形式存在的，因为这些东西其实就是别人写好的一堆Java代码；
-```
+> - Java中的常用的框架：SSM三大框架：Spring+SpringMVC+MyBatis，SpringBoot、SpringCloud等
+> - 框架其实就是对通用代码的封装，是别人提前写好了一堆接口和类，我们可以在做项目的时候直接引入这些接口和类（引入框架），基于这些现有的接口和类进行开发，可以大大提高效率
+> - 框架一般都是以jar包的形式存在的，因为这些东西其实就是别人写好的一堆Java代码
 
 ###### 三层架构：表现层、服务层、持久层；MyBatis其实就是将持久层（jdbc的代码）进行了通用代码的高级封装而已
 
@@ -19,49 +16,44 @@
 
 #### SSM三大框架：Spring、SpringMVC、MyBatis
 
-```txt
-Spring：项目大管家，负责整个项目所有对象的创建以及维护对象和对象之间的关系
-SpringMVC：将MVC模式体现的淋漓尽致，在这个基础上开发的项目一定是用了MVC架构模式的，SpringMVC框架已经把MVC架构给你搭建出来了
-MyBatis：DAO层框架，jdbc代码封装（MyBatis/Spring Data/Hibernate）
-```
+> - Spring：项目大管家，负责整个项目所有对象的创建以及维护对象和对象之间的关系
+> - SpringMVC：将MVC模式体现的淋漓尽致，在这个基础上开发的WEB项目一定是用了MVC架构模式的，SpringMVC框架已经把MVC架构给你搭建出来了
+> - MyBatis：DAO层框架，jdbc代码封装（MyBatis/Spring Data/Hibernate）
 
 ###### 为什么需要MyBatis呢？因为jdbc有不足的地方：
 
-```txt
-1、sql语句写死到java代码中了，改SQL的话就要改Java代码，不灵活。。违背开闭原则OCP。
-2、如果表字段很多，用set给?传值且将数据封装到JavaBean中都是非常繁琐的，需要写大量的、重复的代码，代码不美观很冗余。
-3、将结果集封装成Java对象是繁琐的。
-```
+> 1. sql语句写死到java代码中了，改SQL的话就要改Java代码，不灵活。。违背开闭原则OCP。
+> 2. 如果表字段很多，用set给?传值且将数据封装到JavaBean中都是非常繁琐的，需要写大量的、重复的代码，代码不美观很冗余。
+> 3. 将结果集封装成Java对象是繁琐的。
 
 ###### 这些能不能自动化？？？可以，通过MyBatis可以做到。
 
 #### MyBatis：
 
-##### MyBatis SQL Mapper Framework for Java（MyBatis SQL映射框架for Java），之前叫ibatis，它相较于jdbc的优点：
-
-```txt
-·支持定制化 SQL、存储过程、基本映射以及高级映射
-·避免了几乎所有的 JDBC 代码中手动设置参数以及获取结果集
-·支持XML开发，也支持注解式开发。[为了保证sql语句的灵活，所以mybatis大部分是采用XML方式开发]
-·将接口和 Java 的 POJOs(Plain Ordinary Java Object，简单普通的Java对象)映射成数据库中的记录
-·体积小好学：两个jar包，两个XML配置文件
-·完全做到sql解耦合
-·提供了基本映射标签
-·提供了高级映射标签
-·提供了XML标签，支持动态SQL的编写
-```
+> MyBatis SQL Mapper Framework for Java（MyBatis SQL映射框架for Java），之前叫ibatis，它相较于jdbc的优点：
+>
+> - 支持定制化 SQL、存储过程、基本映射以及高级映射
+> - 避免了几乎所有的 JDBC 代码中手动设置参数以及获取结果集
+> - 支持XML开发，也支持注解式开发
+> - 将接口和 Java 的 POJOs(Plain Ordinary Java Object，简单普通的Java对象)映射成数据库中的记录
+> - 体积小好学：两个jar包，两个XML配置文件
+> - 完全做到sql解耦合
+> - 提供了基本映射标签
+> - 提供了高级映射标签
+> - 提供了XML标签，支持动态SQL的编写
 
 ###### ORM(对象关系映射)
 
-```txt
-O（Object）：JVM中的Java对象
-R（Relational）：关系型数据库
-M（Mapping）：将JVM中的Java对象映射到数据库表中的一行记录，或是将数据库表中一行记录映射成JVM中的一个Java对象
-* MyBatis框架就是一个ORM框架，它可以做什么？它可以：Java对象 <----> 数据库表中的一条记录
-* MyBatis是一个半自动化的ORM，因为MyBatis中的SQL语句需要程序员自己来写
-* Hibernate是一个全自动化的ORM。使用Hibernate框架的时候，不需要程序员手动编写SQL，可以通过调方法自动生成，
-    所以它是全自动化的ORM框架；
-```
+> O（Object）：JVM中的Java对象
+> R（Relational）：关系型数据库
+> M（Mapping）：将JVM中的Java对象映射到数据库表中的一行记录，或是将数据库表中一行记录映射成JVM中的一个Java对象
+>
+> * MyBatis框架就是一个ORM框架，它可以做什么？它可以：Java对象 <----> 数据库表中的一条记录
+> * MyBatis是一个半自动化的ORM，因为MyBatis中的SQL语句需要程序员自己来写
+> * Hibernate是一个全自动化的ORM。使用Hibernate框架的时候，不需要程序员手动编写SQL，可以通过调方法自动生成，它是全自动化的ORM框架
+>
+> 目前市场上的ORM框架有（按照使用比例）：Mybatis、MybatisPlus、Spring Data JPA、Hibernate...，大部分都是Mybatis，所以我们用它。
+
 ![image-20240327203832869](./assets/image-20240327203832869.png)
 
 ![image-20240327203910803](C:\Users\22737\AppData\Roaming\Typora\typora-user-images\image-20240327203910803.png)
@@ -72,28 +64,27 @@ M（Mapping）：将JVM中的Java对象映射到数据库表中的一行记录�
 
 ###### 工具：
 
-```txt
-    工具版本：idea2023.3.2
-    Navicat Premium：16
-    mysql：8.0.36
+> 开发工具：IDEA2023.3.2
+> Navicat Premium：16
+> mysql：8.0.36
+> jdk：17
 
-    依赖：
-    MyBatis：3.5.10
-    mysql驱动：8.0.30
-    jdk：17
-    junit：5.10.2
-```
+###### 依赖包：
+
+> MyBatis：3.5.10
+> mysql驱动：8.0.30
+> junit：5.10.2
 
 ###### 准备数据库表：(使用navicat for mysql工具建表)
 
 ```txt
 汽车表t_car，字段包括：
-    id：主键（自增）【bigint】
-    car_num：汽车编号【varchar(255)】
-    brand：品牌【varchar(255)】
-    guide_price：厂家指导价【decimal类型，专门为财务数据准备的类型】
-    produce_time：生产时间【char(10)，年月日即可，'2022-10-11'】
-    car_type：汽车类型（燃油车、电车、氢能源）【varchar(255)】
+id：主键（自增）【bigint】
+car_num：汽车编号【varchar(255)】
+brand：品牌【varchar(255)】
+guide_price：厂家指导价【decimal类型，专门为财务数据准备的类型】
+produce_time：生产时间【char(10)，年月日即可，'2022-10-11'】
+car_type：汽车类型（燃油车、电车、氢能源）【varchar(255)】
 ```
 
 ![image-20240327204827203](./assets/image-20240327204827203.png)
@@ -110,7 +101,7 @@ M（Mapping）：将JVM中的Java对象映射到数据库表中的一行记录�
 
 ##### 1、在resources目录下创建一个mybatis的核心配置文件：mybatis-config.xml，内容如下：（也可以去mybatis官网拷贝）
 
-###### （框架一般都有核心配置文件；文件名和存放位置都不是必须的，不过一般都是mybatis-config在类路径下，这是规范）
+###### （框架一般都有核心配置文件；Mybatis的核心配置文件用于配置连接数据库的数据库、帐号、密码等公共信息。文件名和存放位置都不是必须的，不过一般都是mybatis-config在类路径下，1个就够了，这是规范）
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
@@ -132,13 +123,10 @@ M（Mapping）：将JVM中的Java对象映射到数据库表中的一行记录�
 </configuration>
 ```
 
-###### mybatis中有两个核心的配置文件，都在resources下：
+###### mybatis中有两种配置文件，都放在resources下：
 
-```txt
-第一个就是：mybatis-config.xml，该配置文件是mybatis的全局配置信息，只有一个；最好就用这个名字，也可以改。
-（后面spring整合开发可以没有该文件，配置全放在spring配置文件中）
-第二个配置文件叫：XxxxMapper.xml，该配置文件专门用来编写SQL语句的，一个表一个。如：UserMapper.xml对应t_user表
-```
+> 1. Mybatis的核心配置文件`mybatis-config.xml`，该配置文件是mybatis链接数据库的全局配置，只有一个。名字和路径可以随意。一般不改就这个。（后面spring整合开发可以没有该文件，常用配置全放在Spring配置文件中）
+> 2. SQL语句配置文件`XxxxMapper.xml`，该配置文件专门用来编写SQL语句的，一个表一个。如：UserMapper.xml对应t_user表
 
 ##### 2、在resources下编写CarMapper.xml配置文件：（重点，里面是sql）
 
@@ -147,10 +135,8 @@ M（Mapping）：将JVM中的Java对象映射到数据库表中的一行记录�
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="safsafdas">
-    <!--其中这个namespace先随便写-->
-    <!--我们在里面编写SQL语句：（先来个固定的sql）
-        id是这条sql语句的唯一表示，这个id就代表了这条sql语句；sql语句最后结尾可以不加分号“;” -->
+<mapper namespace="abc"><!--1个namespace代表了1个Mappper文件，目前先随便写不重复即可-->
+    <!--我们在里面编写SQL语句，先来个固定的sql。id是sql的唯一标识，代表了这条sql语句（sql语句结尾可以不加分号“;”）-->
     <insert id="insertCar">
         insert into t_car(id,car_num,brand,guide_price,produce_time,car_type)
         values(null,'1003','梅赛德斯奔驰',55.00,'2022-06-01','燃油车')
@@ -158,32 +144,34 @@ M（Mapping）：将JVM中的Java对象映射到数据库表中的一行记录�
 </mapper>
 ```
 
-##### 3、将CarMapper.xml配置文件关联到mybatis-config.xml核心配置文件中：（告诉MyBatis你的sql在哪）
+##### 3、将CarMapper.xml配置文件关联到mybatis-config.xml核心配置文件中，告诉MyBatis你的sql在哪：
 
 ```xml
 <!--mybatis-config.xml默认从当前所在的类路径下开始找资源-->
 <mappers>
-    <!--resource表示从类的根路径下开始找资源，还有其他后面再说-->
+    <!--resource表示从类路径下开始找资源，还有其他后面再说-->
     <mapper resource="CarMapper.xml"/>
 </mappers>
 ```
 
-##### 4、用junit5编写mybatis测试程序：（insert语句就用SqlSession对象的insert方法，方法参数是sqlId，其他的也类似）
+##### 4、用junit5编写mybatis测试程序：（insert语句就用SqlSession对象的insert方法，参数是sqlId，其他的也类似）
 
 ```java
 @Test
 public void testFirst() throws FileNotFoundException {
-//创建一个StringSessionFactoryBuilder对象，创建该对象目的是，通过它的build方法去解析mybatis核心配置文件，然后将其中信息封装到SqlSessionFactory对象中
+	//创建一个StringSessionFactoryBuilder对象，创建该对象目的是，通过它的build方法去解析mybatis核心配置文件，
+    //然后用其中的链接数据库的信息，创建SqlSessionFactory对象，该对象是用来操作数据库的
     SqlSessionFactoryBuilder factoryBuilder = new SqlSessionFactoryBuilder();
-    SqlSessionFactory factory = factoryBuilder.build(Thread.currentThread().getContextClassLoader().getResourceAsStream("mybatis-config.xml"));
-//        SqlSession对象类似于JDBC中的Connection对象
+    //Resources.getResourceAsStream是从类路径下找资源，是一个Mybatis提供的加载资源的工具类，当然也可以用其他方式加载文件流
+    SqlSessionFactory factory = factoryBuilder.build(Resources.getResourceAsStream("mybatis-config.xml"));
+	//SqlSession对象类似于JDBC中的Connection对象，openSession(true)表示conn.setAutoCommit(true)，默认false没有开启
     SqlSession sqlSession = factory.openSession();
-//        执行sql。这个"insertCar"必须是sql的id
+	//执行sql。参数"insertCar"是sql的id，如果多个mapper文件的id重复，前面要加上namespace，如：abc.insertCar
     int count = sqlSession.insert("insertCar");
     System.out.println("插入几条数据：" + count);
-//        提交
+	//提交，默认没有开启自动提交
     sqlSession.commit();//同样也有sqlSession.rollback()方法
-//        关闭资源
+	//关闭资源，也就是关闭链接对象Connection
     sqlSession.close();
 }
 ```
@@ -192,45 +180,25 @@ public void testFirst() throws FileNotFoundException {
 
 ![image-20240327201316030](./assets/image-20240327201316030.png)
 
-
-
 ###### 关于以上代码的说明：
 
-```txt
-·在mybatis中，负责执行sql语句的对象叫：SqlSession；
-·SqlSession是专门执行sql语句的，是一个java程序和数据库之间的一次会话，需要关闭；多次操作数据库，就得有多个sqlsession；
-·要想获取SqlSession对象，必须先获取SqlSessionFactory对象，通过SqlSessionFactory工厂的openSession()来生产一个SqlSession对象；每次操作数据库都用新的对象；
-·怎么获取SqlSessionFactory对象呢？需要首先获取SqlSessionFactoryBuilder对象，通过该对象的build方法，传进去一个
-    InputStream流来获取，流里面是mybatis的核心配置文件；一般情况下是一个数据库对应一个SqlSessionFactory对象，该对象一般不会扔掉。而SqlSessionFactoryBuilder对象就临时拿来解析核心配置文件，用完就扔；
-·怎么获取SqlSessionFactoryBuilder对象呢？直接new；
-·java程序和mysql程序之间建立了通信，所以最后记得关闭会话，也可以说是释放资源：sqlSession.close();
-·mybatis配置文件中，目前采用的事务管理器是JDBC，默认是不自动提交的，需要手动提交：sqlSession.commit();
-·如果sqlSessionFactory.openSession(true)时传入了一个true，那么底层会执行conn.setAutoCommit(true)，没有关闭自动提交，
-此时执行一个sql就直接提交了；所以不建议这样做，不安全；默认false是关闭了自动提交的。
-```
+> - SqlSession是专门执行sql语句的，是一个Java程序和数据库之间的一次会话（链接），需要关闭。多次操作数据库，就得openSession()开启多次数据库会话（链接）。
+> - 要获取SqlSession对象，必须先获取SqlSessionFactory对象。该对象是数据库对象，数据库会话（链接）的工厂，通过SqlSessionFactory工厂的openSession()来生产一个SqlSession对象，每操作数据库都要通过数据库对象来获取会话（链接）对象。
+> - SqlSessionFactory对象的获取需要用到Mybatis配置文件的信息去链接数据库，所以需要SqlSessionFactoryBuilder对象的build方法去解析配置文件获取该对象。每个该对象对应一个数据库，一旦获取就不要轻易让JVM回收了，因为要经常用，通常该对象一直在堆中存在。而SqlSessionFactoryBuilder对象用它解析完配置文件信息后，该对象就没用了，一般放在局部作用域直接回收。
+> - mybatis配置文件中，目前采用的事务管理器是JDBC（后面我们事务会交给Spring容器管理），默认不自动提交，需要手动提交：sqlSession.commit();
+> - 如果sqlSessionFactory.openSession(true)时传入了一个true，那么底层会执行conn.setAutoCommit(true)开启自动提交，此时执行一个sql就直接提交了，相当于覆盖了全局的事务管理JDBC方式。不建议这样做，不安全，所以openSession()方法默认是false不自动提交的。
 
 ###### 还有一些小细节：
 
-```txt
-·获取流也可以用Resources.getResourceAsStream()方法来获取，是一个Mybatis工具类，以下方式都可以，它底层也是用的以下的方式：
-	java.lang包下的ClassLoader类加载器的静态方法：ClassLoader.getSystemClassLoader()来获取classpath的类加载器，
-    然后使用类加载器的getResourceAsStream("")方法来获取一个流，返回inputstream，参数URL默认从src下开始找（类路径下），
-    也就是maven项目里的java包下
-	（也可以用，Thread.currentThread().getContextClassLoader().getResourceAsStream("mybatis-config.xml")
-    来获取系统当前的类加载器）
-·CarMapper.xml配置文件里的mapper标签
-    <mapper resource="CarMapper.xml"/>
-    标签里面这个resource属性：它是以类路径src下加载资源的；值如果是url，那么就以计算机中的绝对路径的方式加载资源的，
-    并且绝对路径前要加上：file:///绝对路径，如：file:///d:/CarMapper.xml
-    建议使用resource，url这种方式不太好，因为绝对路径的方式移植性太差；还可以用class属性的方式，这个后面会讲；
-·关于Mapper文件中的namespace属性：翻译为“命名空间”，这个命名空间主要是为了防止sqlId冲突的；核心配置文件中如果关联多个Mapper	文件，为了防止sql语句的id冲突，通常每个Mapper文件都有不同的namespace，用namespace.sqlId就可以防止冲突；
-```
+> - CarMapper.xml配置文件里的<mapper resource="CarMapper.xml"/>标签中的resource属性，它是从类路径src下找资源的
+> - 值还可以是url，以本地计算机中的绝对路径的方式加载资源的，并且绝对路径前要加上【file:///绝对路径】，如：file:///d:/CarMapper.xml。因为无论哪种操作系统，采用的文件协议都是file协议。
+> - 建议使用resource，url这种方式不太好，因为绝对路径的方式移植性太差。还有其他加载mapper文件的属性，后面说
 
 ------
 
-###### 我们想看到mybatis具体执行的sql语句，或执行细节怎么办？
+###### 我们想看到mybatis具体执行的sql语句，或执行细节怎么办？用日志框架来打印程序运行时的一些信息。
 
-#### 引入logback日志框架：
+#### 引入logback日志框架：（之后我们在Spring中引入，而不是Mybatis）
 
 - ##### 可以启用mybatis中集成的日志组件，只需要在mybatis-config.xml文件中添加以下配置即可：
 
@@ -256,7 +224,7 @@ public void testFirst() throws FileNotFoundException {
      </dependency>
      ```
 
-  2. 类路径下新建logback.xml文件（必须），内容为：
+  2. 类路径下新建logback.xml文件（文件名和路径必须的），内容为：
 
      ```xml
      <?xml version="1.0" encoding="UTF-8"?>
@@ -337,7 +305,7 @@ MyBatis中的占位符有两种，#{}和${}，前者底层是PreparedStatement�
 parameterType用于指定传进来的参数类型，
 ```
 
-###### 这里用#{}，parameterType属性用于指定传过来的参数类型，虽然可以省略，mybatis可以自动识别参数，但是还是建议显示的加上；给占位符传值这里先使用Map<String,Object>类型，取值写map的key：（这里map的key必须是String；还可以用其他类型传值）
+###### 这里用#{}，parameterType属性用于指定传过来的参数类型，虽然可以省略，mybatis可以自动识别参数，但是还是建议显示的加上；给占位符传值这里先使用Map<String,Object>类型（map的key必须是String），取值写map的key：
 
 ```xml
 <update id="updateCar" parameterType="java.util.Map">
@@ -510,4 +478,6 @@ public void testUtil() {
   Car{id=2, carNum='101', brand='宝马520Li', guidePrice=45.0, produceTime='2022-11-11', carType='燃油车'}
   Car{id=3, carNum='1004', brand='马自达', guidePrice=22.8, produceTime='2019-10-03', carType='电动车'}
   ```
+
+------
 

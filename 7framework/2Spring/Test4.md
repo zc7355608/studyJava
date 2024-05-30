@@ -722,3 +722,5 @@ Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术
 
 *一般你的new ClassPathXmlApplicationContext("spring.xml");里面那个就是主的配置文件*
 
+------
+

@@ -55,7 +55,7 @@
   >
   > 其他用：@Component
   >
-  > （注意：是类上使用，接口不需要被spring管理，只有可以new的类才需要被spring管理）
+  > （注意：是类上使用，接口、静态工具类、抽象类不需要被Spring管理去实例化，只有可以new的**无状态**类才需要被spring管理）
 
 - ##### Spring注解的使用：
 
@@ -116,7 +116,7 @@
 
 - ##### 使用注解来注入：（这些注解负责给Bean属性赋值）
 
-  > 要使用这些注解，需要在spring配置文件中配置标签`<context:annotaion-config>`。如果配置了上面的包扫描标签，那么该标签可以省略。
+  > 要使用这些注解，需要在spring配置文件中配置标签`<context:annotaion-config>`。如果配置了上面的包扫描标签，那么该标签可以省略。所以了解即可。
 
   - @Value：注入简单类型。它可以出现在属性上、setter方法上、构造方法的形参上。
 
@@ -162,7 +162,7 @@
 
 - ##### 全注解式开发：
 
-  > 所谓的全注解开发就是，不再使用spring核心配置文件了，写一个配置类来代替配置文件。
+  > 所谓的全注解开发就是，不再使用spring核心配置文件了，写一个配置类来代替配置文件。（配置类用`@Configuration`注解标注）
 
   ```java
   //@Configuration注解表示该类是spring核心配置类，下面使用@ComponentScan注解来替代扫描包的标签
@@ -413,7 +413,7 @@
 
   - 代理类
   - 目标类
-  - 代理类和目标类的公共接口：用户在使用代理类时就像在使用目标类，不被用户所察觉，所以代理类和目标类要有共同的行为，也就是实现共同的接口。
+  - 代理类和目标类的公共接口（或公共父类）：用户在使用代理类时就像在使用目标类，不被用户所察觉，所以代理类和目标类要有共同的行为，也就是实现共同的接口（或父类）。
 
 - #### 代理模式的类图：
 
@@ -426,7 +426,7 @@
 
 ###### 代理模式在代码实现上，包括两种形式：静态代理和动态代理
 
-- ##### 静态代理：
+- #### 静态代理：
 
   > 现在有这样一个接口和实现类：
 
@@ -499,15 +499,10 @@
 
   > 这种通过继承来实现的方式虽然可以解决，但是存在两个问题：
   >
-  > ​	问题1：假设系统中有100个这样的业务类，需要提供100个子类，源代码要写太多了，类爆炸。
-  >
-  > ​	问题2：由于采用了继承的方式，导致代码之间的耦合度较高。而且之前写好的，创建Service对象的代码，
-  >
-  > ​		都要修改为创建子类对象。
-  >
-  > 所以这种方案也不可取。
+  > 1. 假设系统中有100个这样的业务类，需要提供100个子类，源代码要写太多了，类爆炸。
+  > 2. 由于采用了继承的方式，导致代码之间的耦合度较高。而且之前写好的，创建Service对象的代码，都要修改为创建子类对象。也要改代码。所以这种方案也不可取。
 
-  > 方案3：使用代理模式（这里先采用静态代理，为OrderService接口提供一个代理类）
+  > 方案3：使用代理模式（这里先采用静态代理，写一个代理类也实现OrderService接口）
 
   ```java
   public class OrderServiceProxy implements OrderService{ // 代理对象
@@ -545,56 +540,50 @@
 
   > 方案3的优点：符合OCP开闭原则，由于采用的是关联关系（实现），所以程序的耦合度相比于继承要低很多。所以这种方案是被推荐的。测试：
   >
-
-  ```java
-  public class Client { //用户来使用代理模式
-      public static void main(String[] args) {
-          // 创建目标对象
-          OrderService target = new OrderServiceImpl();
-          // 创建代理对象。将目标传给代理
-          OrderService proxy = new OrderServiceProxy(target);
-          // 调用代理对象的代理方法
-          proxy.generate();
-          proxy.modify();
-          proxy.detail();
-      }
-  }
-  ```
-
-  > 以上就是代理模式中的静态代理，其中OrderService接口是代理类和目标类的公共接口。OrderServiceImpl是目标类。OrderServiceProxy是代理类。
-
-  *大家思考一下：如果系统中业务接口很多，一个接口对应一个代理类，显然也是不合理的，同样会导致类爆炸。怎么解决这个问题？*
-
-  *动态代理可以解决。因为在动态代理中可以在内存中动态的为我们生成代理类的字节码。代理类不需要我们写了，类爆炸解决了，而且代码只需要写一次，代码也会得到复用。*
-
-- ##### 动态代理：
-
-  > 在程序运行阶段，在内存中动态生成代理类，被称为动态代理，目的是为了减少代理类的源代码数量，解决代码复用的问题。
-  > 在内存当中动态生成类的技术常见的包括：
-  > 	● JDK动态代理技术：**只能代理接口**。
-  > 	● CGLIB动态代理技术：CGLIB(Code Generation Library)是一个开源项目。是一个强大的，高性能，高质量的Code生成
+  > ```java
+  > public class Client { //用户来使用代理模式
+  >     public static void main(String[] args) {
+  >         // 创建目标对象
+  >         OrderService target = new OrderServiceImpl();
+  >         // 创建代理对象。将目标传给代理
+  >         OrderService proxy = new OrderServiceProxy(target);
+  >         // 调用代理对象的代理方法
+  >         proxy.generate();
+  >         proxy.modify();
+  >         proxy.detail();
+  >     }
+  > }
+  > ```
   >
-  > ​		类库，它可以在运行期扩展Java类与实现Java接口。它既可以代理接口，又可以代理类，**底层是通过继承的方式实现**
+  > 这就是静态代理，其中OrderService接口是代理类和目标类的公共接口。OrderServiceImpl是目标类。OrderServiceProxy是代理类。
+
+  *思考一下：如果系统中业务接口很多，一个接口要写一个代理类，显然工作量也很大，也会导致类爆炸。怎么解决这个问题？*
+
+  *动态代理可以解决。因为在动态代理中可以在内存中动态的为我们生成代理类的字节码。代理类不需要我们写了，类爆炸解决了，而且代码只需要写一次，代码也会得到复用，不需要大量的工作。*
+
+- #### 动态代理：
+
+  > 在程序运行阶段，在内存中动态生成代理类，去完成动态代理。动态代理是为了减少代理类的源代码数量，解决代码复用的问题。
+  > 常见的，可以在程序运行时，在内存中动态生成类可以用反射机制，不过麻烦。常用的动态代理的类库有：
   >
-  > ​		的。性能比JDK的动态代理要好。（底层有一个小而快的字节码处理框架ASM）
-  > ​	● Javassist动态代理技术：Javassist是一个开源的分析、编辑和创建Java字节码的类库。是由东京工业大学的数学和计算机
-  >
-  > ​		科学系的 Shigeru Chiba （千叶 滋）所创建的。它已加入了开放源代码JBoss 应用服务器项目，通过使用Javassist对
-  >
-  > ​		字节码操作为JBoss实现动态"AOP"框架。
-  >
-  > 这里我们只看cglib和jdk动态代理，因为spring底层就是它们2结合用的：（还用上面的目标类OrderServiceImpl和公共接口OrderService）
+  > - JDK动态代理技术：**只能代理接口**。
+  > - CGLIB动态代理技术：CGLIB(Code Generation Library)是一个开源项目。是一个强大的，高性能，高质量的Code生成类库，它可以在运行期扩展Java类与实现Java接口。它既可以代理接口，又可以代理类，**底层是通过继承的方式实现**的。性能比JDK的动态代理要好。（底层有一个小而快的字节码处理框架ASM）
+  > - Javassist动态代理技术：Javassist是一个开源的分析、编辑和创建Java字节码的类库。是由东京工业大学的数学和计算机科学系的Shigeru Chiba （千叶 滋）所创建的。它已加入了开放源代码JBoss 应用服务器项目，通过使用Javassist对字节码操作为JBoss实现动态"AOP"框架
   
-  - **JDK动态代理**：（**只能代理接口**）之前我们写静态代理的时候，除了目标类和公共接口，还写了代理类的代码OrderServiceProxy。但是现在我们不需要了，这个代码对应的字节码文件，靠程序运行期间自动生成，我们直接写用户端的测试程序：
+  > 看下cglib和jdk如何实现动态代理，Spring的AOP底层就是用的它们俩：（还用上面的目标类OrderServiceImpl和公共父接口OrderService）
+  
+  - **JDK动态代理**：（**只能代理接口**）之前我们写静态代理的时候，除了目标类和公共接口，还写了代理类OrderServiceProxy。但是现在我们不需要了，这个类的代码我们通过JDK提供的方法，在程序运行时通过反射机制自动生成。我们直接写客户端程序来使用JDK动态代理：
   
     ```java
     public class Client {
         public static void main(String[] args) {
-            // 第一步：创建目标对象
+            // 1、创建目标对象
             OrderService target = new OrderServiceImpl();
-            // 第二步：创建代理对象。这里用jdk自带的反射包下的Proxy类的静态方法来生成字节码并装载入jvm
-            OrderService orderServiceProxy = Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(), 调用处理器对象);
-            // 第三步：调用代理对象的代理方法
+            // 2、创建代理类对象。用JDK反射包下的Proxy类的静态方法来动态生成代理类
+            OrderService orderServiceProxy = Proxy.newProxyInstance(target.getClass().getClassLoader(),
+                                                                    target.getClass().getInterfaces(),
+                                                                    调用处理器对象);
+            // 3、调用代理对象的代理方法
             orderServiceProxy.detail();
             orderServiceProxy.modify();
             orderServiceProxy.generate();
@@ -602,18 +591,14 @@
     }
     ```
   
-    > 以上第2行的创建代理对象的代码是需要大家理解的，它做了两件事：
+    > `java.lang.reflect.Proxy`是JDK的一个类。通过这个类可以在运行时动态生成代理类。关于newProxyInstance()方法的3个参数：
     >
-    > - 第1件事：在内存中生成了代理类的字节码
-    > - 第2件事：创建代理对象
+    > 1. 创建该代理类所使用的类加载器。反射机制动态生成类是通过Java的类加载器来完成的，所以要指定类加载器
+    > 2. 目标类和代理类的公共父接口（数组）。代理类和目标类需要实现相同的父接口，所以要指定代理类需要实现哪些接口
     >
-    > Proxy类全名：java.lang.reflect.Proxy。这是JDK提供的一个类（所以称为JDK动态代理）。主要是通过这个类在内存中生成代理类的字节码。其中newProxyInstance()方法有三个参数：
+    > - **调用处理器（java.lang.reflect.InvocationHandler）**。由于代理类中的增强代码需要我们写，所以我们需要编写一个类实现该接口去写增强代码，然后将该对象传进来。**之后生成的代理对象，在每次调用代理方法时，实际上是调用的接口的`invoke()`方法，并将目标类的目标方法做为参数传进去**
     >
-    > - 第1个参数：类加载器。在内存中生成了字节码，要想执行这个字节码，也是需要先把这个字节码加载到内存当中的。所以要指定使用哪个类加载器加载。
-    > - 第2个参数：接口类型。代理类和目标类实现相同的接口，所以要通过这个参数告诉JDK动态代理生成的类要实现哪些接口。
-    > - 第3个参数：**调用处理器**。这是一个JDK动态代理规定的接口，接口全名：java.lang.reflect.**InvocationHandler**。显然这是一个回调接口，也就是说调用这个接口中方法的程序已经写好了，就差这个接口的实现类了。
-    >
-    > 所以接下来我们要写一下java.lang.reflect.InvocationHandler接口的实现类，并且实现接口中的invoke方法，代码如下：
+    > 所以接下来我们要写一下`java.lang.reflect.InvocationHandler`接口的实现类，实现接口中的invoke方法。如：
   
     ```java
     public class TimerInvocationHandler implements InvocationHandler {
@@ -623,13 +608,16 @@
     }
     ```
   
-    > 这个invoke方法上有3个参数：
+    > invoke方法上有3个参数：
     >
-    > - 第1个参数：Object proxy。代理对象。设计这个参数只是为了后期的方便，如果想在invoke方法中使用代理对象的话，尽管通过这个参数来使用。
-    > - 第2个参数：Method method。目标对象的目标方法。
-    > - 第3个参数：Object[] args。目标方法调用时要传的参数。
+    > - 参数1：Object proxy。代理对象，就是上面的orderServiceProxy。设计这个参数是为了后期的方便，如果想在invoke方法中使用代理对象的话，尽管通过这个参数来使用。
+    > - 参数2：Method method。目标对象的目标方法。
+    > - 参数3：Object[] args。目标方法的参数。
     >
-    > 我们将来肯定是要调用“目标方法”的，但要用反射调用目标方法的话，需要“目标对象”的存在，“目标对象”从哪儿来呢？我们可以给TimerInvocationHandler提供一个有参构造，通过这个构造方法进去“目标对象”，代码如下：
+  
+    > 我们将来肯定是在invoke中调用“目标方法”的，但是要用反射调用目标方法的话，需要“目标对象”的存在，“目标对象”从哪儿来呢？
+    >
+    > 我们可以给TimerInvocationHandler提供一个有参构造，通过这个构造方法进去“目标对象”，代码如下：
   
     ```java
     public class TimerInvocationHandler implements InvocationHandler {
@@ -645,7 +633,7 @@
     }
     ```
   
-    > 有了目标对象我们就可以在invoke()方法中调用目标方法了。代码如下：
+    > 有了目标对象，我们就可以在invoke()方法中调用目标方法来完成代码的增强了。如下：
   
     ```java
     public class TimerInvocationHandler implements InvocationHandler {
@@ -657,20 +645,20 @@
         }
         //这个invoke方法在每次调用代理对象的代理方法时，都会调用invoke方法并将目标对象的目标方法作为参数传进去
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            // 目标执行之前增强。
+            // ---------前增强------------
             long begin = System.currentTimeMillis();
             // 调用目标对象的目标方法
             Object retValue = method.invoke(target, args);
-            // 目标执行之后增强。
+            // ---------后增强------------
             long end = System.currentTimeMillis();
             System.out.println("耗时"+(end - begin)+"毫秒");
-            // 一定要记得返回哦。
+            // 目标方法的执行结果在这里返回，否则代理方法将没有返回结果
             return retValue;
         }
     }
     ```
   
-    > 到此为止，调用处理器就完成了。接下来，应该继续完善Client程序：（将上面Client类的代码里的【调用处理器】改为new TimerInvocationHandler(target)即可）
+    > 到此为止，调用处理器（代理类）就完成了。接下来写Client程序完成动态代理的测试：
   
     ```java
     public class Client {
@@ -678,9 +666,10 @@
             // 创建目标对象
             OrderService target = new OrderServiceImpl();
             // 创建代理对象
-            OrderService orderServiceProxy = (OrderService) Proxy.newProxyInstance(target.getClass().getClassLoader(),target.getClass().getInterfaces(),new TimerInvocationHandler(target));
-    
-            // 调用代理对象的代理方法。每次调用代理对象的代理方法，都会调用“调用处理器”的invoke()方法，并根据不同的方法传进去不同的目标对象的目标方法作为参数
+            OrderService orderServiceProxy = (OrderService) Proxy.newProxyInstance(target.getClass().getClassLoader(),
+                                                                                  target.getClass().getInterfaces(),
+                                                                                   new TimerInvocationHandler(target));
+            // 调用代理对象的代理方法。在每次调用代理方法时，实际上是调用的接口的`invoke()`方法，并将目标类的目标方法做为参数传进去
             orderServiceProxy.detail();
             orderServiceProxy.modify();
             orderServiceProxy.generate();
@@ -688,11 +677,10 @@
     }
     ```
   
-    > 我们可以看到，不管有多少个目标接口和目标类，这个TimerInvocationHandler接口只需要写一次。代码得到了复用。
+    > 我们可以看到，不管有多少个目标接口和目标类，增强代码TimerInvocationHandler只需要写一次，代码得到了复用。
     >
-    > 而且最重要的是，以后程序员只需要关注核心业务的编写了，像这种统计时间的代码根本不需要关注。因为这种统计时间的代码只需要在调用处理器中编写一次即可。
   
-  - **CGLIB动态代理**：（和javassist一样，jdk9之后，第三方的代理的使用需要在运行时加两个参数）CGLIB既可以代理接口，又可以代理类。**底层采用继承**（方案2）的方式实现。所以被代理的目标类**不能使用final修饰**。
+  - **CGLIB动态代理**：（和javassist一样，jdk9之后，第三方的代理的使用需要在运行时加两个参数）CGLIB既可以代理接口，又可以代理类。**底层采用继承**（方案2）的方式实现。所以被代理的目标类**不能被final修饰**
   
     1. 使用第三方的工具，首先需要引入依赖jar包：
   
@@ -715,30 +703,29 @@
                enhancer.setSuperclass(OrderServiceImpl.class);
                // 设置回调接口
                enhancer.setCallback(方法拦截器对象);
-               // 生成源码，编译class，加载到JVM，并创建代理对象
+               // 动态生成代理类对象
                OrderServiceImpl orderServiceProxy = (OrderServiceImpl)enhancer.create();
        
+               // 调用代理对象的代理方法。实际上每次调用的方法拦截器的`intercept()`方法，并将目标类的目标方法做为参数传进去
                orderServiceProxy.login();
                orderServiceProxy.logout();
            }
        }
        ```
-  
-       > 和JDK动态代理原理差不多，在CGLIB中需要提供的不是InvocationHandler，而是：net.sf.cglib.proxy.MethodInterceptor接口的实现类对象。而实现该接口需要重写intercept方法，该方法有4个参数：
+       
+       > 类似JDK动态代理，CGLIB中需要提供的不是InvocationHandler，而是：`net.sf.cglib.proxy.MethodInterceptor`接口的实现类对象，在该类中写增强代码。而实现该接口需要重写intercept方法，该方法有4个参数：
        >
-       > ​	参数1：目标对象
-       >
-       > ​	参数2：目标方法
-       >
-       > ​	参数3：目标方法调用时的实参
-       >
-       > ​	参数4：代理方法
-       >
-       > 完善intercept代码：
-  
+       > - 参数1：目标对象
+       > - 参数2：目标方法
+       > - 参数3：目标方法的实参
+       > - 参数4：代理方法
+       
+       > intercept()中编写增强代码：
+       
        ```java
        public class TimerMethodInterceptor implements MethodInterceptor {
-           public Object intercept(Object target, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+           public Object intercept(Object target, Method method, Object[] objects, MethodProxy methodProxy)
+               																		throws Throwable {
                // 前增强
                long begin = System.currentTimeMillis();
                // 调用目标
@@ -746,12 +733,12 @@
                // 后增强
                long end = System.currentTimeMillis();
                System.out.println("耗时" + (end - begin) + "毫秒");
-               // 一定要返回
+               // 返回目标方法的执行结果
                return retValue;
            }
        }
        ```
-  
+       
        > 最后将Client程序的【方法拦截器对象】替换为【new TimerMethodInterceptor()】即可。
        >
        > 对于高版本的JDK，如果使用CGLIB，需要在启动项中添加两个启动参数：

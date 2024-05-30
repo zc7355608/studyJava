@@ -4,7 +4,7 @@
 
 ## Thymeleaf简介
 
-> Thymeleaf 是适用于 Web 和独立环境的现代服务器端 的Java **模板引擎**，它够渲染 HTML，XML，JavaScript，CSS 甚至纯文本。它与 JSP，Velocity，FreeMarker 等模板引擎类似，也可以轻易地与 Spring MVC 等 Web 框架集成。
+> Thymeleaf 是适用于 Web 和独立环境的现代服务器端 的Java的**模板引擎**，它够渲染 HTML，XML，JavaScript，CSS 甚至纯文本。它与 JSP，Velocity，FreeMarker 等模板引擎类似，也可以轻易地与 Spring MVC 等 Web 框架集成。
 >
 > 与其它模板引擎相比，Thymeleaf 最大的特点是**动静结合**，它的语法都以html的属性方式出现，即使不启动 Web 应用进行数据渲染，也可以直接在浏览器中打开并正确显示模板页面，只是标签的一些属性浏览器不认识不处理而已。
 >
