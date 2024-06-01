@@ -1177,6 +1177,8 @@ server.listen(9000, () => {
 
 > `npm i moment`安装包导入后，通过`moment('')`函数传进去一个字符串，返回`Moment`对象，调用该对象的`toDate()`方法，可以得到一个`Date`类型对象。也可以传进去一个`Date`对象，返回的同样是`Monment`对象，调用它的`format('YYYY-MM-DD')`方法即可将日期格式化为字符串。
 
+> moment功能很强大，所以体积也大，如果只想用最简单的日期解析的功能，可以用`dayjs`。它是一个轻量级的处理时间和日期的JS库，和moment的用法完全一致。
+
 ------
 
 #### json-server包的使用：

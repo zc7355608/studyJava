@@ -268,6 +268,8 @@
    >
    > - `javascript:void(0);`
    > - 也可以写：`javascript:;`
+   >
+   > （javascript:表示后面是JS表达式而不是链接地址）
 
 9. ### JS的作用域：
 
