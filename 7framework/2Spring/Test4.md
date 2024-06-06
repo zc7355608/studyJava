@@ -1,158 +1,190 @@
 ### 面向切面编程AOP
 
-> IoC使软件组件松耦合。AOP让你能够捕捉系统中经常使用的功能，把它转化成**组件**。
+> - IoC使软件组件松耦合。AOP让你能够捕捉系统中经常使用的功能，把它转化成**组件**。
+> - AOP（Aspect Oriented Programming）：面向切面编程，面向方面编程。（AOP是一种编程技术）
+>   - AOP是对OOP的补充延伸，底层使用的就是动态代理来实现的。
+>   - Spring的AOP使用的动态代理技术是：JDK动态代理 + CGLIB动态代理。
+>   - Spring在这两种动态代理中灵活切换，如果是代理接口，会默认使用JDK动态代理，如果要代理某个类，这个类没有实现接口，就会切换使用CGLIB。当然，你也可以强制通过一些配置让Spring只使用CGLIB。
 
-```txt
-AOP（Aspect Oriented Programming）：面向切面编程，面向方面编程。（AOP是一种编程技术）
-AOP是对OOP的补充延伸。
-AOP底层使用的就是动态代理来实现的。
-Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术。Spring在这两种动态代理中灵活切换，如果是代理接口，会默认使用JDK动态代理，如果要代理某个类，这个类没有实现接口，就会切换使用CGLIB。当然，你也可以强制通过一些配置让Spring只使用CGLIB。
-```
+- #### 交叉业务：
 
-- #### AOP介绍：
-
-  > 一般一个系统当中都会有一些系统服务，例如：日志、事务管理、安全等。这些系统服务被称为：**交叉业务**
+  > - 一般一个系统当中都会有一些系统服务，例如：日志、事务管理、安全等。这些系统服务被称为：**交叉业务**
   >
-  > 这些**交叉业务**几乎是通用的，不管你是做银行账户转账，还是删除用户数据。日志、事务管理、安全，这些都是需要做的。
   >
-  > 如果在每一个业务处理过程当中，都掺杂这些交叉业务代码进去的话，存在两方面问题：
+  > - 这些**交叉业务**几乎是通用的，不管你是做银行账户转账，还是删除用户数据。日志、事务管理、安全，这些都是需要做的。
   >
-  > - 第一：交叉业务代码在多个业务流程中反复出现，显然这个交叉业务代码没有得到复用。并且修改这些交叉业务代码的话，需要修改多处。
-  > - 第二：程序员无法专注核心业务代码的编写，在编写核心业务代码的同时还需要处理这些交叉业务。
   >
-  > 使用AOP可以很轻松的解决以上问题。请看下图，可以帮助你快速理解AOP的思想：
+  > - 如果在每一个业务处理过程当中，都掺杂这些交叉业务代码进去的话，存在以下问题：
+  >
+  >   1. 交叉业务代码在多个业务流程中反复出现，显然这个交叉业务代码没有得到复用。
+  >   2. 如果要修改这些交叉业务代码的话，所有地方都需要修改，强耦合的。
+  >   3. 程序员无法专注核心业务代码的编写，在编写核心业务代码的同时还需要处理这些交叉业务。
+  >
+  > - 使用AOP可以很轻松的解决以上问题。请看下图，可以帮助你快速理解AOP的思想：
 
   ![image-20240403205748721](./assets/image-20240403205748721.png)
 
-  > **用一句话总结AOP：AOP将与核心业务无关的代码独立的抽取出来，形成一个独立的组件，然后以横向交叉的方式应用到各个业务流程当中的过程被称为AOP。**
-  >
-  > 使用AOP有如下优点：
-  >
-  > ​	1：代码复用性增强。
-  >
-  > ​	2：代码易维护。
-  >
-  > ​	3：使开发者更关注业务逻辑。
+- #### 使用AOP的优势：
 
-- #### AOP的七大术语：
-
-  - **切点 Pointcut**：切点本质上就是方法。你要将增强代码切入到哪个方法上，这个要进行切入的方法就是切点。（一个切点有多个连接点）
-
-  - **连接点 Joinpoint**：增强代码连接到，切点方法的哪个位置，这个位置就是连接点。连接点也可以是发生异常的位置或finally等位置。
-
-  - **通知 Advice**：通知又叫增强，就是具体你要织入的方法代码。通知根据连接点的位置，又分为以下几种：
-    - 前置通知Before
-    
-    - 后置通知AfterReturning
-    
-    - 环绕通知Around
-    
-    - 异常通知AfterThrowing
-    
-    - 最终通知After
-    
-  - **切面 Aspect**：就是**切点 + 通知**。位置加增强代码就是切面。
-  
-  - 织入 Weaving：把通知应用到目标位置上的过程。
-  
-  - 代理对象 Proxy：一个目标对象被织入通知后产生的新对象。
-  
-  - 目标对象 Target：被织入通知的对象。
-  
-  ###### 通过下图，大家可以很好的理解AOP的相关术语：
-  
-  ![image-20240403210629172](./assets/image-20240403210629172.png)
-  
-- #### 切点表达式：
-
-  切点表达式用来定义，通知（Advice）在哪些方法（切点）上切入。切点表达式的语法格式：
-
-  ```txt
-  execution([访问控制权限修饰符] 返回值类型 [全限定类名]方法名(形式参数列表) [异常])
-  	访问控制权限修饰符：可选项，没写，就是4个权限都包括，写public就表示只包括公开的方法。
-  	返回值类型：必填项，*表示返回值类型任意。
-  	全限定类名：可选项，2个点“..”代表当前包以及子包下的所有类，省略时表示所有的类。
-  	方法名：必填项，“*”表示所有方法，“set*”表示所有以set开头的方法。
-  	形式参数列表：必填项，()表示没有参数的方法，(..)表示参数类型和个数任意，(*)只有一个任意参数，(*,String)匹配两个参数的				方法，第一个参数任意类型，第二个参数String类型。
-  	异常：可选项，省略时表示任意异常类型。
-  ------------------------
-  execution(public * com.powernode.mall.service.*.delete*(..))表示service包下所有的类中以delete开始的所有方法。
-  execution(* com.powernode.mall..*(..))表示mall包下所有的类的所有的方法。
-  execution(* *(..))表示所有类的所有方法。
-  ```
-
-- #### 关于Spring对AOP的实现：
-
-  > Spring对AOP的实现包括以下3种方式：
+  > - 为了解决以上问题，我们可以通过代理模式的思想，在指定位置加入增强代码即可。这就是AOP的底层实现。
   >
-  > - **方式1：Spring框架结合AspectJ框架实现的AOP，基于注解方式。**
-  > - **方式2：Spring框架结合AspectJ框架实现的AOP，基于XML方式。**
-  > - 方式3：Spring框架自己实现的AOP，基于XML配置方式。（了解）
+  > - **用一句话总结AOP：AOP将与核心业务无关的代码独立的抽取出来，形成一个独立的组件，然后以横向交叉的方式应用到各个业务流程当中的过程被称为AOP。**
   >
-  > 实际开发中，都是Spring+AspectJ来实现AOP。所以我们重点学习第一种和第二种方式。
-  >
-  > 什么是AspectJ？
-  >
-  > ​	它是Eclipse组织的一个支持AOP的框架。AspectJ框架是独立于Spring框架之外的一个框架，Spring框架用了AspectJ框架。
-  >
-  > AspectJ项目起源于帕洛阿尔托（Palo Alto）研究中心（缩写为PARC）。该中心由Xerox集团资助，Gregor Kiczales领导，从1997年开始致力于AspectJ的开发，1998年第一次发布给外部用户，2001年发布1.0 release。为了推动AspectJ技术和社团的发展，PARC在2003年3月正式将AspectJ项目移交给了Eclipse组织，因为AspectJ的发展和受关注程度大大超出了PARC的预期，他们已经无力继续维持它的发展。
-  >
-  > 使用spring的AOP：
+  > - 使用AOP有如下优点：
+  >   1. 代码复用性增强。
+  >   2. 代码易维护。
+  >   3. 使开发者更关注业务逻辑。
+  > - 接下来我们看下，如何使用Spring中的AOP。
 
-  使用该功能前，除了已有的spring-aop依赖，还要引入spring-aspects依赖：（还要添加aop的命名空间）
+- #### AOP的相关概念：
 
-  ```xml
-  <!--spring aspects依赖-->
-  <dependency>
-    <groupId>org.springframework</groupId>
-    <artifactId>spring-aspects</artifactId>
-    <version>6.0.18</version>
-  </dependency>
-  ```
+  > 使用AOP之前，我们先来看下AOP的相关概念：
+
+  - ##### AOP的七大术语：
+
+    > - **切点 Pointcut**：切点本质上就是方法。你要将增强代码放到哪个方法上，这个要进行切入的方法就是切点。（一个切点有多个连接点）
+    > - **连接点 Joinpoint**：增强代码连接到，切点方法的前还是后哪个位置，这个位置就是连接点。连接点也可以是发生异常的位置或finally等位置。
+    > - **通知 Advice**：通知又叫增强，就是具体你要织入的方法代码。通知根据连接点的位置，又分为以下几种：
+    >   - 前置通知`@Before`
+    >
+    >   - 后置通知`@AfterReturning`
+    >
+    >   - 环绕通知`@Around`
+    >
+    >   - 异常通知`@AfterThrowing`
+    >
+    >   - 最终通知`@After`
+    > - **切面 Aspect**：就是**切点 + 通知**。（位置 + 增强代码 = 切面）
+    > - 织入 Weaving：把通知应用到目标位置上的过程。
+    > - 代理对象 Proxy：一个目标对象被织入通知后产生的新对象。
+    > - 目标对象 Target：被织入通知的对象。
+
+    ###### 通过下图，大家可以很好的理解AOP的相关术语：
+
+    ![image-20240403210629172](./assets/image-20240403210629172.png)
+
+  - ##### 切点表达式：
+
+    > 切点表达式用来定义，通知（Advice）在哪些方法（切点）上切入。切点表达式的语法：
+    >
+    > - `execution([访问控制权限修饰符] 返回值类型 [全限定类名]方法名(形式参数列表) [异常])`
+    >
+    > 其中：
+    >
+    > - 方法的访问控制权限修饰符：可选项，没写，就是4个权限都包括，写public就表示只包括公开的方法。
+    > - 返回值类型：必填项，`*`表示返回值类型任意。
+    > - 全限定类名：可选项，2个点`..`代表当前包以及子包下的所有类，省略时表示所有的类。
+    > - 方法名：必填项，`*`表示所有方法，`set*`表示所有以set开头的方法。
+    > - 形式参数列表：必填项，`()`表示没有参数的方法，`(..)`表示参数类型和个数任意，`(*)`一个任意类型参数，`(*,String)`匹配两个参数的方法，第1个参数任意类型，第2个参数String
+    > - 异常：可选项，省略时表示任意异常类型。
+    >
+    > 例如：
+    >
+    > ```java
+    > execution(public * com.powernode.mall.service.*.delete*(..))//表示service包下所有的类中以delete开始的所有方法
+    > execution(* com.powernode.mall..*(..))//表示mall包下所有的类的所有的方法
+    > execution(* *(..))//表示所有类的所有方法
+    > ```
+
+- #### Spring对AOP的实现：
+
+  - Spring对AOP的实现包括以下2种方式：
+
+    - **方式1：Spring框架结合AspectJ框架实现的AOP，基于注解方式。**
+
+    - **方式2：Spring框架结合AspectJ框架实现的AOP，基于XML方式。**
+
+  - 什么是AspectJ？
+
+    > - 它是Eclipse组织的一个支持AOP的框架。AspectJ框架是独立于Spring框架之外的一个框架，Spring框架用了AspectJ框架。
+    > - AspectJ项目起源于帕洛阿尔托（Palo Alto）研究中心（缩写为PARC）。该中心由Xerox集团资助，Gregor Kiczales领导，从1997年开始致力于AspectJ的开发，1998年第一次发布给外部用户，2001年发布1.0 release。为了推动AspectJ技术和社团的发展，PARC在2003年3月正式将AspectJ项目移交给了Eclipse组织，因为AspectJ的发展和受关注程度大大超出了PARC的预期，他们已经无力继续维持它的发展。
+
+  - 使用Spring的AOP：
+
+    > 使用该功能前，除了已有的spring-aop依赖，还要引入spring-aspects依赖：（还要添加aop的命名空间）
+    >
+    > ```xml
+    > <!--spring aspects依赖-->
+    > <dependency>
+    > 	<groupId>org.springframework</groupId>
+    > 	<artifactId>spring-aspects</artifactId>
+    > 	<version>6.0.18</version>
+    > </dependency>
+    > ```
 
 - #### 基于注解方式的AOP的使用：
 
-  1. 定义目标类以及目标方法：
+  > 首先：我们有一个目标类以及目标方法：
+  >
+  > ```java
+  > // 目标类
+  > @Service
+  > public class OrderService {
+  >     // 目标方法
+  >     public void generate(){
+  >         System.out.println("订单已生成！");
+  >     }
+  > }
+  > ```
+
+  1. 用`@Aspect`注解**定义一个切面类**（类似于代理类）：（这里的目标类和切面类都纳入了Spring容器的管理，它们上面都添加了`@Service`注解，并在spring配置文件中配置了组件扫描）
 
      ```java
-     // 目标类
-     @Service
-     public class OrderService {
-         // 目标方法
-         public void generate(){
-             System.out.println("订单已生成！");
-         }
-     }
-     ```
-  
-  2. 定义切面类：（目标类和切面类都需要纳入spring容器的管理，所以在它们上面都添加`@Service`注解，并在spring配置文件中设置组件扫描）
-  
-     ```java
-     // 切面类
+     // 声明当前类是一个切面类
      @Aspect
      @Service
-     public class MyAspect {}
+     public class MyAspect {}//切面中有通知和切点
      ```
 
-  4. 在切面类中添加通知代码（增强方法），并在方法上配置注解，注解的值是String的切点表达式：
+  2. 在**切面类中编写通知**（增强）代码，并在增强代码的方法上**配置切点**注解`@Before`，指定切入位置：（类似代理方法）
 
      ```java
-     // 切面类
+     // 切面类，切面 = 通知 + 切点
      @Aspect
      @Component
      public class MyAspect {
-         // @Before表示该通知方法是前置通知，连接到切点的前面。值是切点表达式，表示织入代码的位置，织入的切点位置。
+         // @Before表示该通知是前置通知，即连接点是方法（切点）的前面。值是切点表达式，指定切点，也就是织入的位置
          @Before("execution(* com.itheima.service.OrderService.*(..))")
-         // 这就是需要增强的代码（通知）。
-         public void advice(JoinPoint jp){
+         public void advice(JoinPoint jp){//JoinPoint连接点参数可以拿到，通知连接位置的信息
              System.out.println("我是一个通知");
          }
-         //通知+切点=切面
      }
      ```
-  
-  5. 在spring配置文件中启用自动代理：
-  
+
+     > - 这些通知方法中都可以写一个参数`JoinPoint`，这就是连接点，里面有很多方法可以用。如：获取目标方法名等。
+     >
+     > - 其中**环绕通知**`@Around`的方法中的参数是`ProceedingJoinPoint`表示进行连接点：
+     >
+     >   ```java
+     >   @Around("execution(* com.itheima.service.OrderService.*(..))")
+     >   public void aroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+     >       System.out.println("环绕通知开始");
+     >       // 执行目标方法。
+     >       proceedingJoinPoint.proceed();
+     >       System.out.println("环绕通知结束");
+     >   }
+     >   ```
+     >
+     > - **返回通知**可以通过`returning`属性去定义，将返回值传给方法中的哪个参数：
+     >
+     >   ```java
+     >   @AfterReturning(pointcut="myPointCut()",returning="objeeeee")
+     >   //注意那串eeeee了吗，那是为了引起你的注意，告诉你这两个命名须一致。
+     >   public void myAfterReturning(JoinPoint point,Object objeeeee) {}
+     >   ```
+     >
+     > - **异常通知**可以通过`throwing`属性去定义，将异常对象传给方法中的哪个参数：
+     >
+     >   ```java
+     >   @AfterThrowing(pointcut="myPointCut()",throwing="eeeee")
+     >   public void myAfterThrowing(JoinPoint point,Exception eeeee) {
+     >   //注意那串eeeee了吗，那是为了引起你的注意，告诉你这两个命名须一致。
+     >       System.out.println("——————异常通知————"+eeeee.getMessage());
+     >   }
+     >   ```
+
+  3. 在spring配置文件中**开启AOP的自动代理**：
+
      ```xml
      <?xml version="1.0" encoding="UTF-8"?>
      <beans xmlns="http://www.springframework.org/schema/beans"
@@ -168,38 +200,24 @@ Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术
          <aop:aspectj-autoproxy proxy-target-class="true"/>
      </beans>
      ```
-  
-     > 开启自动代理之后，凡事带有@Aspect注解的bean都会生成代理对象。proxy-target-class="true"表示采用cglib动态代理。false表示采用jdk动态代理。默认值是false。但即使写成false，当没有接口的时候，也会自动选择cglib动态生成代理类。
-  
+
+     > 开启自动代理之后，凡事带有`@Aspect`注解的bean类都会生成代理对象。`proxy-target-class="true"`表示采用cglib动态代理。false表示采用JDK动态代理。默认值是false。（但即使写成false，当没有接口的时候，也会自动选择cglib动态生成代理类）
+
   ###### 通知类型包括：
-  
-  ```txt
-  ● 前置通知：@Before 目标方法执行之前的通知
-  ● 后置通知：@AfterReturning 目标方法执行之后的通知
-  ● 环绕通知：@Around 在目标方法前后添加通知。它是最大的范围，包住了其他的通知。
-  ● 异常通知：@AfterThrowing 发生异常之后执行的通知
-  ● 最终通知：@After 放在finally语句块中执行的通知
-  注意：出现异常之后，后置通知和环绕通知的结束部分是不会执行的
-  ```
-  
-  ###### 这些通知方法中都可以写一个参数`JoinPoint`，这就是连接点，里面有很多方法可以用。如：获取目标方法名等。其中环绕通知`@Around`的方法中传的是参数`ProceedingJoinPoint proceedingJoinPoint`表示进行连接点；后置通知有第二个参数`Object ret`接收返回值；异常通知第二个参数为异常对象：
-  
-  ```java
-  @Around("execution(* com.itheima.service.OrderService.*(..))")
-  public void aroundAdvice(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
-      System.out.println("环绕通知开始");
-      // 执行目标方法。
-      proceedingJoinPoint.proceed();
-      System.out.println("环绕通知结束");
-  }
-  ```
-  
-  ###### 切面的先后顺序：
-  
-  > 我们知道，业务流程当中不一定只有一个切面，可能有的切面控制事务，有的记录日志，有的进行安全控制，如果多个切面的话，顺序如何控制：**可以使用@Order注解来标识切面类，为@Order注解的value指定一个整数型的数字，数字越小，优先级越高**。
-  
+
+  > - 前置通知：`@Before`目标方法执行之前的通知
+  > - 返回通知：`@AfterReturning`目标方法执行正常执行完毕return返回之后的通知
+  > - 环绕通知：`@Around`在目标方法前后添加通知。它是最大的范围，包住了其他的通知。
+  > - 异常通知：`@AfterThrowing`发生异常之后执行的通知
+  > - 最终通知：`@After`放在finally语句块中执行的通知
+  > - 注意：出现异常之后，后置通知和环绕通知的结束部分是不会执行的
+
+  ###### 多个切面的执行顺序：
+
+  > 我们知道，业务流程当中不一定只有一个切面，可能有的切面控制事务，有的记录日志，有的进行安全控制，如果多个切面的话，顺序如何控制：可以使用`@Order`注解来标识切面类，为@Order注解的value指定一个整数型的数字，**数字越小，优先级越高**。
+
   ###### 优化使用切点表达式：可以将切点表达式单独的定义出来，在需要的位置引入即可。如下：
-  
+
   ```java
   // 切面类
   @Component
@@ -219,25 +237,27 @@ Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术
       }
   }
   ```
-  
-  ###### 全注解式开发AOP：在配置类上使用@EnableAspectJAutoProxy(proxyTargetClass = true)注解，来代替核心配置文件中的标签。
+
+  ###### 全注解式开发AOP：
+
+  > 在配置类上使用`@EnableAspectJAutoProxy(proxyTargetClass = true)`注解，来代替核心配置文件中的标签。
 
 ------
 
-- ##### 基于XML的AOP的使用（了解）：
+- #### 基于XML的AOP的使用（了解）：
 
-  1. 编写目标类
+  > 首先：我们有一个目标类以及目标方法：
+  >
+  > ```java
+  > // 目标类
+  > public class VipService {
+  >     public void add(){
+  >         System.out.println("保存vip信息。");
+  >     }
+  > }
+  > ```
 
-     ```java
-     // 目标类
-     public class VipService {
-         public void add(){
-             System.out.println("保存vip信息。");
-         }
-     }
-     ```
-
-  2. 编写切面类，并且编写通知方法：
+  1. **编写切面类和通知**：（和上面类似，只是没有用注解标注了，也没有切点了）
 
      ```java
      // 负责计时的切面类
@@ -252,7 +272,7 @@ Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术
      }
      ```
 
-  3. 编写spring配置文件：
+  2. **将切面类配置到XML中**：
 
      ```xml
      <?xml version="1.0" encoding="UTF-8"?>
@@ -270,19 +290,20 @@ Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术
      
          <!-- aop功能的配置 -->
          <aop:config>
-             <!-- 配置切点 -->
-             <aop:pointcut id="p1" expression="execution(* com.itheima.service.VipService.*(..))"/>
-             <!-- 配置切面，引用切面类。切面 = 通知 + 切点 -->
+             <!-- 配置切面。将该单例bean对象配置为切面，切面 = 通知 + 切点 -->
              <aop:aspect ref="timerAspect">
                  <!-- 在切面类内部，将方法配置为环绕通知，指定通知的切点 -->
                  <aop:around method="time" pointcut-ref="p1"/>
+                 <!-- 配置切点 -->
+     			<aop:pointcut id="p1" expression="execution(* com.itheima.service.VipService.*(..))"/>
              </aop:aspect>
-             <!-- aop标签里还可以用<aop:advisor>标签直接引入通知bean。通常该bean需要实现某些接口 -->
+     
+             <!-- 该aop:config标签里还可以用<aop:advisor>直接引入切面bean。通常该bean需要实现某些接口 -->
          </aop:config>
      </beans>
      ```
 
-- ##### AOP的实际案例：事务处理
+- #### AOP的小案例：事务处理
 
   > 项目中的事务控制是在所难免的。在一个业务流程当中，可能需要多条DML语句共同完成，为了保证数据的安全，这多条DML语句要么同时成功，要么同时失败。这就需要添加事务控制的代码。而很多业务类中的很多个业务方法都是需要控制事务的，而控制事务的代码又是固定的格式，这种和业务逻辑没有任何关系的重复代码统称为“**交叉业务**”。
   >
@@ -584,28 +605,36 @@ Spring的AOP使用的动态代理是：JDK动态代理 + CGLIB动态代理技术
   ```
 
   > 测试代码：
+  >
+  > ```java
+  > @RunWith(SpringJUnit4ClassRunner.class)			//这是junit4的注解，表示将该测试类放在Spring容器中去管理
+  > @ContextConfiguration("classpath:spring.xml")	//这是spring的注解，用于指定spring配置文件的类路径
+  > //或者用这个注解代替以上两个：@SpringJUnitConfig(locations = "classpath:spring.xml")
+  > public class SpringTest {
+  >     @Autowired
+  > 	private User user;
+  > 
+  >     @Test
+  >     public void testFirst(){
+  >     	//下面这2行代码就可以不写了
+  >         //ApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+  >         //Object userBean = applicationContext.getBean("userBean");
+  >         System.out.println(user);
+  >     }
+  > }
+  > ```
 
-  ```java
-  @RunWith(SpringJUnit4ClassRunner.class)			//这是junit的注解
-  @ContextConfiguration("classpath:spring.xml")	//这是spring的注解，用于指定spring配置文件的类路径
-  //或者用这个注解代替以上两个：@SpringJUnitConfig(locations = "classpath:spring.xml")
-  public class SpringTest {
-      @Autowired
-  	private User user;
-  
-      @Test
-      public void testFirst(){
-      	//下面这2行代码就可以不写了
-          //ApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
-          //Object userBean = applicationContext.getBean("userBean");
-          System.out.println(user);
-      }
-  }
-  ```
+  > 如果此时有多个测试类，那么每个类上都要加这两个注解，很麻烦，可以将这两个注解写到一个单独的类上。然后其他测试类都`extends`继承该类即可。这样其他测试类就不需要添加这两个注解了：
+  >
+  > ```java
+  > @RunWith(SpringJUnit4ClassRunner.class)
+  > @ContextConfiguration("classpath:spring.xml")
+  > public class BaseTest{}
+  > ```
 
 - ##### Spring6对JUnit5的支持：
 
-  上面的**@RunWith(SpringJUnit4ClassRunner.class)**替换为：**@ExtendWith(SpringExtension.class)**即可。
+  > 如果是JUnit5，上面的`@RunWith(SpringJUnit4ClassRunner.class)`替换为：`@ExtendWith(SpringExtension.class)`即可。
 
 ------
 

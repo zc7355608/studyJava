@@ -77,17 +77,15 @@
 
 ###### 准备数据库表：(使用navicat for mysql工具建表)
 
-```txt
-汽车表t_car，字段包括：
-id：主键（自增）【bigint】
-car_num：汽车编号【varchar(255)】
-brand：品牌【varchar(255)】
-guide_price：厂家指导价【decimal类型，专门为财务数据准备的类型】
-produce_time：生产时间【char(10)，年月日即可，'2022-10-11'】
-car_type：汽车类型（燃油车、电车、氢能源）【varchar(255)】
-```
-
-![image-20240327204827203](./assets/image-20240327204827203.png)
+> 汽车表t_car，字段包括：
+> id：主键（自增）【bigint】
+> car_num：汽车编号【varchar(255)】
+> brand：品牌【varchar(255)】
+> guide_price：厂家指导价【decimal类型，专门为财务数据准备的类型】
+> produce_time：生产时间【char(10)，年月日即可，'2022-10-11'】
+> car_type：汽车类型（燃油车、电车、氢能源）【varchar(255)】
+>
+> ![image-20240327204827203](./assets/image-20240327204827203.png)
 
 ###### 使用navicat for mysql工具向t_car表中插入两条数据，如下：
 
@@ -190,8 +188,8 @@ public void testFirst() throws FileNotFoundException {
 
 ###### 还有一些小细节：
 
-> - CarMapper.xml配置文件里的<mapper resource="CarMapper.xml"/>标签中的resource属性，它是从类路径src下找资源的
-> - 值还可以是url，以本地计算机中的绝对路径的方式加载资源的，并且绝对路径前要加上【file:///绝对路径】，如：file:///d:/CarMapper.xml。因为无论哪种操作系统，采用的文件协议都是file协议。
+> - CarMapper.xml配置文件里的`<mapper resource="CarMapper.xml"/>`标签中的resource属性，它是从类路径src下找资源的
+> - 值还可以是url，以本地计算机中的绝对路径的方式加载资源的，并且绝对路径前要加上【file:///绝对路径】，如：`file:///d:/CarMapper.xml`。因为无论哪种操作系统，采用的文件协议都是file协议。
 > - 建议使用resource，url这种方式不太好，因为绝对路径的方式移植性太差。还有其他加载mapper文件的属性，后面说
 
 ------
@@ -300,12 +298,9 @@ public class SqlSessionUtil {
 
 ###### 我们之前在Mapper文件中将sql写死了，接下来用占位符的方式写sql：
 
-```txt
-MyBatis中的占位符有两种，#{}和${}，前者底层是PreparedStatement，后者底层是Statement会存在SQL注入的风险；除了特殊需求，一般都用#{}
-parameterType用于指定传进来的参数类型，
-```
+> MyBatis中的占位符有两种，`#{}`和`${}`，前者底层是PreparedStatement，后者底层是Statement会存在SQL注入的风险；一般都用`#{}`
 
-###### 这里用#{}，parameterType属性用于指定传过来的参数类型，虽然可以省略，mybatis可以自动识别参数，但是还是建议显示的加上；给占位符传值这里先使用Map<String,Object>类型（map的key必须是String），取值写map的key：
+###### 这里用#{}，parameterType属性用于指定传过来的参数类型，虽然可以省略，mybatis可以自动识别参数，但是还是建议显示的加上增加可读性；给占位符传值这里先使用Map<String,Object>类型（map的key必须是String），取值写map的key：
 
 ```xml
 <update id="updateCar" parameterType="java.util.Map">

@@ -1,3 +1,4 @@
+webpack
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 JavaSE> -->MySQL-->JDBC -->htmlcssjs-->[Vue]-->  JavaWeb -->Ajax -->Maven入门篇-->Maven进阶篇-->MyBatis-->Spring-->SpringMVC-> Linux--> - > Git-->SpringBoot3 -->Redis7 -->Spring Security--> MyBatis Plus-->动力云客-->动力恒合仓储项目 -->  
@@ -8,3 +9,9 @@ RabbitMQ-->RocketMQ --> ActiveMQ-->Dubbo -->盈利宝项目-->SpringCloud-->S
 #尚硅谷maven高级详解
 #老杜java中部p126
 #老杜java下部【p136-p165】
+尚硅谷git
+尚硅谷javaWeb
+尚硅谷前端前置课
+尚硅谷前端工程化
+黑马node
+尚硅谷mongo

@@ -317,7 +317,7 @@
 >
 > - （默认）通过无参构造实例化。（要求必须存在无参构造器）
 > - 通过<bean>标签的`factory-method`属性，简单工厂模式实例化
-> - 通过<bean>标签的`factory-bean`属性，工厂方法模式实例化
+> - 通过<bean>标签的`factory-bean`和`factory-method`属性，工厂方法模式实例化
 > - 通过Spring提供的`FactoryBean`接口实例化，本质也是工厂方法模式实例化
 
 - ##### 通过构造方法实例化：
@@ -588,7 +588,7 @@
   > - 当Bean实现了BeanFactoryAware，Spring会将该Bean对象对应的工厂对象传递给该方法setBeanFactory(BeanFactory beanFactory)
   
 > 代码：
-  
+
 ```java
   public class User implements InitializingBean, DisposableBean, BeanNameAware, BeanClassLoaderAware, BeanFactoryAware {
       private String name;
@@ -633,8 +633,8 @@
           System.out.println("5.销毁Bean");
       }
   }
-  ```
-  
+```
+
 ![image-20240401155751749](./assets/image-20240401155751749.png)
 
 ------
@@ -644,7 +644,7 @@
   > Spring是根据Bean的作用域scope属性的值，来选择对bean的管理方式。
   >
   > - 对于singleton的Bean，Spring 能够精确地知道该Bean何时被创建，何时初始化完成，以及何时被销毁。
-  > - 而对于prototype的Bean，Spring 只负责创建，当容器创建了 Bean 的实例后，Bean 的实例就交给程序员来管理，Spring 容器将不再跟踪其生命周期。相当于bean的生命周期只到**使用Bean**这一步，后面2个销毁阶段就没有了。
+  > - 而对于prototype的Bean，Spring 只负责创建，当容器创建了 Bean 的实例后，Bean 的实例就交给程序员来管理，Spring 容器将不再跟踪其生命周期。相当于bean的生命周期只到**getBean()使用Bean**这一步，后面2个销毁阶段就没有了。
 
 - ##### 自己new的对象如何让Spring管理：
 

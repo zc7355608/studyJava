@@ -587,7 +587,7 @@
   >
   > - `Object.getPrototype(obj)`：获取obj对象的原型，推荐使用该方式获取对象的原型。
   >
-  > - `Object.defineProperty(obj,'属性名',{配置})`：方法可以给对象定义属性（加/改），返回此对象。配置对象这样写：
+  > - `Object.defineProperty(obj,'属性名',{配置})`：方法可以给对象定义属性（加/改/细节限制），返回此对象。配置项这样写：
   >
   >   ```js
   >   {
@@ -595,7 +595,7 @@
   >       enumerable: true,//是否可以被遍历，默认false不行
   >       writable: true,//是否可以被修改，默认false不行
   >       configuration: true//该属性是否可以被配置和删除，默认false不行
-  >       //也可以设置get(){}或set(){}方法，此时调用该属性实际上是执行的方法
+  >       //也可以设置get(){}或set(){}方法，此时该属性实际上是虚拟属性，调用该属性实际上是执行的方法
   >   }
   >   ```
 

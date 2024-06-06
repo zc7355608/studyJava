@@ -118,7 +118,7 @@
 
   > 要使用这些注解，需要在spring配置文件中配置标签`<context:annotaion-config>`。如果配置了上面的包扫描标签，那么该标签可以省略。所以了解即可。
 
-  - @Value：注入简单类型。它可以出现在属性上、setter方法上、构造方法的形参上。
+  - `@Value`：注入简单类型。它可以出现在属性上、setter方法上、构造方法的形参上。
 
     ```java
     @Value("20")
@@ -126,7 +126,7 @@
     //没有给属性提供setter方法或构造器，仍然可以完成属性赋值。因为spring在某些情况下会使用反射等机制来绕过限制
     ```
 
-  - @Autowired和@Qualifier：
+  - `@Autowired`和`@Qualifier`：
 
     - `@Autowired`注解可以用来注入非简单类型。译为：自动连线的或自动装配的。单独使用`@Autowired`注解，默认**根据类型**装配。该注解可以出现在：构造方法上、方法上、形参上、属性上、注解上。甚至**当只有一个有参构造时，Autowired注解还可以省略**。
 
@@ -134,7 +134,7 @@
 
     - `@Autowired`和`@Qualifier`联合使用可以根据名字进行自动装配，此时必须在`@Qualifier`注解中指定Bean的Id
 
-  - @Resource：它也可以完成非简单类型的注入，那么和上面两个注解的区别是什么呢？
+  - `@Resource`：它也可以完成非简单类型的注入，那么和上面两个注解的区别是什么呢？
 
     > - `@Resource`注解是JDK扩展包中的，属于JDK的一部分，所以该注解是标准注解，更加具有通用性。而`@Autowired`是Spring框架中的。
     > - `@Resource`注解默认是根据名称装配byName，未指定name时，使用属性名作为name。通过name找不到的话会自动byType装配。底层也是通过反射机制。不依赖构造器和setter
@@ -304,7 +304,7 @@
       JdbcTemplate jdbcTemplate = applicationContext.getBean("jdbcTempleteBean", JdbcTemplate.class);
       // 执行select
       String sql = "select count(*) from t_car";
-      Integer count = jdbcTemplate.queryForObject(sql, int.class);//这里用Integer.class也可以
+      Integer count = jdbcTemplate.queryForObject(sql, int.class);//Integer.class也可以
       System.out.println("总记录条数：" + count);
   }
   ```
@@ -401,7 +401,7 @@
 
 ------
 
-### GoF之代理模式
+### GoF之代理模式（数据代理）
 
 > 代理模式是GoF23种设计模式之一，属于结构型设计模式。代理模式的作用是：为其他对象提供一种代理，以控制对这个对象的访问。在某些情况下，一个客户不想或者不能直接引用一个对象，此时可以通过一个称之为“代理”的第三者来实现间接引用。代理对象可以在客户端和目标对象之间起到中介的作用，并且可以通过代理对象去掉客户不应该看到的内容和服务或者添加客户需要的额外服务。 通过引入一个新的对象来实现对真实对象的操作或者将新的对象作为真实对象的一个替身，这种实现机制即为代理模式，通过引入代理对象来间接访问一个对象，这就是代理模式的模式动机。
 >
@@ -502,7 +502,7 @@
   > 1. 假设系统中有100个这样的业务类，需要提供100个子类，源代码要写太多了，类爆炸。
   > 2. 由于采用了继承的方式，导致代码之间的耦合度较高。而且之前写好的，创建Service对象的代码，都要修改为创建子类对象。也要改代码。所以这种方案也不可取。
 
-  > 方案3：使用代理模式（这里先采用静态代理，写一个代理类也实现OrderService接口）
+  > 方案3：使用静态代理（先采用静态代理，写一个代理类实现OrderService接口）
 
   ```java
   public class OrderServiceProxy implements OrderService{ // 代理对象
@@ -538,23 +538,26 @@
   }
   ```
 
-  > 方案3的优点：符合OCP开闭原则，由于采用的是关联关系（实现），所以程序的耦合度相比于继承要低很多。所以这种方案是被推荐的。测试：
+  > 方案3的优点：符合OCP开闭原则，由于采用的是关联关系（实现），所以程序的耦合度相比于继承要低很多。所以这种方案是被推荐的。
+
+  > 测试代码：
   >
   > ```java
   > public class Client { //用户来使用代理模式
-  >     public static void main(String[] args) {
-  >         // 创建目标对象
-  >         OrderService target = new OrderServiceImpl();
-  >         // 创建代理对象。将目标传给代理
-  >         OrderService proxy = new OrderServiceProxy(target);
-  >         // 调用代理对象的代理方法
-  >         proxy.generate();
-  >         proxy.modify();
-  >         proxy.detail();
-  >     }
+  >  public static void main(String[] args) {
+  >      // 创建目标对象
+  >      OrderService target = new OrderServiceImpl();
+  >      // 创建代理对象。将目标传给代理
+  >      OrderService proxy = new OrderServiceProxy(target);
+  >      // 调用代理对象的代理方法
+  >      proxy.generate();
+  >      proxy.modify();
+  >      proxy.detail();
+  >  }
   > }
   > ```
   >
+
   > 这就是静态代理，其中OrderService接口是代理类和目标类的公共接口。OrderServiceImpl是目标类。OrderServiceProxy是代理类。
 
   *思考一下：如果系统中业务接口很多，一个接口要写一个代理类，显然工作量也很大，也会导致类爆炸。怎么解决这个问题？*
@@ -572,7 +575,9 @@
   
   > 看下cglib和jdk如何实现动态代理，Spring的AOP底层就是用的它们俩：（还用上面的目标类OrderServiceImpl和公共父接口OrderService）
   
-  - **JDK动态代理**：（**只能代理接口**）之前我们写静态代理的时候，除了目标类和公共接口，还写了代理类OrderServiceProxy。但是现在我们不需要了，这个类的代码我们通过JDK提供的方法，在程序运行时通过反射机制自动生成。我们直接写客户端程序来使用JDK动态代理：
+  - **JDK动态代理**：（**只能代理接口**）之前我们写静态代理的时候，除了目标类和公共接口，还写了代理类OrderServiceProxy。但是现在我们不需要了，这个类的代码我们通过JDK提供的方法，在程序运行时通过反射机制自动生成。
+  
+    > 直接写客户端程序来使用JDK动态代理：
   
     ```java
     public class Client {
@@ -591,12 +596,11 @@
     }
     ```
   
-    > `java.lang.reflect.Proxy`是JDK的一个类。通过这个类可以在运行时动态生成代理类。关于newProxyInstance()方法的3个参数：
+    > `java.lang.reflect.Proxy`是JDK的一个类。通过这个类可以在运行时动态生成代理类。关于`newProxyInstance()`的参数：
     >
-    > 1. 创建该代理类所使用的类加载器。反射机制动态生成类是通过Java的类加载器来完成的，所以要指定类加载器
-    > 2. 目标类和代理类的公共父接口（数组）。代理类和目标类需要实现相同的父接口，所以要指定代理类需要实现哪些接口
-    >
-    > - **调用处理器（java.lang.reflect.InvocationHandler）**。由于代理类中的增强代码需要我们写，所以我们需要编写一个类实现该接口去写增强代码，然后将该对象传进来。**之后生成的代理对象，在每次调用代理方法时，实际上是调用的接口的`invoke()`方法，并将目标类的目标方法做为参数传进去**
+    > - 参数1：创建该代理类所使用的类加载器。反射机制动态生成类是通过Java的类加载器来完成的，所以要指定类加载器
+    > - 参数2：目标类和代理类的公共父接口（数组）。代理类和目标类需要实现相同的父接口，所以要指定代理类需要实现哪些接口
+    > - 参数3：**调用处理器（java.lang.reflect.InvocationHandler）**。由于代理类中的增强代码需要我们自己写，所以我们需要编写一个类实现该接口去写增强代码，然后将该对象传进来。**之后生成的代理对象，在每次调用代理方法时，实际上是调用的接口的`invoke()`方法，并将代理方法名和参数传了进去，然后invoke中就可以通过反射机制去调用目标对象的目标方法，并在前后加上自定义的增强代码**
     >
     > 所以接下来我们要写一下`java.lang.reflect.InvocationHandler`接口的实现类，实现接口中的invoke方法。如：
   
@@ -658,7 +662,7 @@
     }
     ```
   
-    > 到此为止，调用处理器（代理类）就完成了。接下来写Client程序完成动态代理的测试：
+    > 接下来写Client程序测试JDK动态代理：
   
     ```java
     public class Client {
@@ -669,7 +673,7 @@
             OrderService orderServiceProxy = (OrderService) Proxy.newProxyInstance(target.getClass().getClassLoader(),
                                                                                   target.getClass().getInterfaces(),
                                                                                    new TimerInvocationHandler(target));
-            // 调用代理对象的代理方法。在每次调用代理方法时，实际上是调用的接口的`invoke()`方法，并将目标类的目标方法做为参数传进去
+    		//在每次调用代理方法时，实际上是调用的接口的`invoke()`方法，并将代理方法名和参数传了进去，然后invoke中就可以通过反射机制去调用目标对象的目标方法，并在前后加上自定义的增强代码
             orderServiceProxy.detail();
             orderServiceProxy.modify();
             orderServiceProxy.generate();
@@ -706,7 +710,7 @@
                // 动态生成代理类对象
                OrderServiceImpl orderServiceProxy = (OrderServiceImpl)enhancer.create();
        
-               // 调用代理对象的代理方法。实际上每次调用的方法拦截器的`intercept()`方法，并将目标类的目标方法做为参数传进去
+               // 调用代理对象的代理方法。
                orderServiceProxy.login();
                orderServiceProxy.logout();
            }
@@ -729,7 +733,9 @@
                // 前增强
                long begin = System.currentTimeMillis();
                // 调用目标
-               Object retValue = method.invoke(target, objects);
+               Object retValue = methodProxy.invokeSuper(target, objects)
+               // 也可以用这种方式来调用，不过推荐用上面的方式
+               //Object retValue = method.invoke(target, objects);
                // 后增强
                long end = System.currentTimeMillis();
                System.out.println("耗时" + (end - begin) + "毫秒");

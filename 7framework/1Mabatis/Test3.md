@@ -12,12 +12,14 @@
 
 - #### 多个参数：
 
-  - 如果需要给sql传多个参数，但是sqlSession对象的方法只能传单个Object类型的参数（map、pojo），怎么办？我们可以将多个参数封装到一个**Map<String,Object>**集合里，指定map集合的key为String型的arg1、arg2..，将map集合作为参数传给sqlSession对象的方法中；此时mapper文件中用arg0、arg1...来取map中的数据就行了。
+  > 如果需要给sql传多个参数，但是sqlSession的方法只能传单个参数（map、pojo）怎么办？
+
+  - 我们可以将多个参数封装到一个`Map<String,Object>`集合里，指定map集合的key为String型的arg1、arg2..，将map集合作为参数传给sqlSession对象的方法中；此时mapper文件中用arg0、arg1...来取map中的数据就行了。
 
   - 但是现在我们自己不写Mapper实现类了，直接用Mybatis生成的，它底层的原理和上面一样。mybatis会帮我们将接口中传过来的多个参数，先进行处理。它底层会创建一个**map<String,Object>**，将接口的多个参数封装到这个map中，并且该map的key是**#{arg0}**、#{arg1}...或**#{param1}**、#{param2}..这样的形式*（注意：如果是mybatis3.4.2之前的版本，要用#{0}和#{1}这种方式取出来）*
 
-  - 但是它的这种方式的可读性太差，能不能自定义map的key？可以，在参数前用**@param**注解。相当于告诉mybatis，我的这些个参数，存到map中时，用我给这个key来存：
-
+  - 但是它的这种方式的可读性太差，能不能自定义map的key？可以，在参数前用`@param()`注解。相当于告诉mybatis，我的这些个参数，存到map中时，用我给这个key来存：
+  
     ```java
     List<Student> selectByNameAndAge(@Param(value="name") String name, @Param("age") int age);
     ```

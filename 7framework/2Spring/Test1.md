@@ -62,7 +62,7 @@
   >
   > 但是还没有完全面向接口编程，我们还是在代码中自己new对象了：private UserService userService = new UserServiceImpl();
   >
-  > 但是如果我们不自己new对象，不就发生空指针异常了吗？所以我们现在的核心问题就是：**谁来负责对象的创建**，以及**谁负责把创建好的对象赋值给变量（属性）**。
+  > 但是如果我们不自己new对象，不就发生空指针异常了吗？所以我们现在的核心问题就是：**谁来负责对象的创建**，以及**谁负责把创建好的对象赋值给变量（属性）**。也就是谁来维护对象之间的关系。
   >
   > 如果将这两个问题解决了，那么我们的代码就能在做到高扩展、解耦合的同时，又符合OCP开闭原则。
 
@@ -388,15 +388,11 @@
     <bean id="userServiceBean" class="com.itheima.service.UserService">
         <!-- 通过property标签，将userDao属性引用上userDaoBean对象 -->
         <property name="userDao" ref="userDaoBean"/>
-        <!-- 并且property标签的ref属性也可以是标签的方式 -->
-    <!-- <property name="userDao"> -->
-    <!--	<ref bean="userDaoBean"/> -->
-    <!-- </property> -->
     </bean>
     ```
-
+    
   - **构造注入（spring官方推荐，但存在循环依赖问题）**：它是基于构造方法实现的。创建该对象时会通过构造方法创建，创建的同时给属性赋值，new对象和赋值是一个动作。而set注入是分开的。使用方式：
-
+  
     ```java
     public class UserService {
         private UserDao userDao;
@@ -406,7 +402,7 @@
         }
     }
     ```
-
+  
     ```xml
     <bean id="userDaoBean" class="com.itheima.dao.UserDao"/>
     <bean id="userServiceBean" class="com.itheima.service.UserService">
@@ -420,7 +416,7 @@
     </bean>
     ```
     
-
+  
 - #### set注入专题：
 
   - **注入外部bean**：上面set注入的例子中，就是注入了外部bean标签，这种方式很常用，也可以注入内部bean。
@@ -430,14 +426,16 @@
     ```xml
     <bean id="userServiceBean" class="com.itheima.service.UserService">
         <property name="userDao">
-            <!-- 这种方式bean不能写id属性了 -->
+            <!-- 方式1，bean不能写id了 -->
         	<bean class="com.itheima.dao.UserDao"/>
+    		<!-- 方式2 -->
+    		<!-- <ref bean="userDaoBean"/> -->
         </property>
     </bean>
     ```
 
   - **注入简单类型**：我们之前在进行注入的时候，属性是赋值了一个对象。也可以赋值简单类型，不是ref了，用value。如：
-
+  
     ```xml
     <bean id="userBean" class="com.itheima.bean.User">
         <property name="age" value="10">
@@ -447,7 +445,7 @@
     ```
 
     > ###### 那么spring中的简单类型包括哪些呢？
-
+  
     ```txt
     通过源码分析得知，简单类型包括：
         ● 基本数据类型以及他们对应的包装类
@@ -462,7 +460,7 @@
         ● Class
         ● 另外还包括以上类型对应的数组类型
     ```
-
+  
     > **注意**：其中的一些虽然是简单类型，比如`Date`类型，如果把`Date`当做简单类型的话，日期字符串格式不能随便写。格式必须符合`Date`的`toString()`方法格式。显然这就比较鸡肋了。如果我们将一个这样格式的日期字符串"2010-10-11"给value，spring是无法直接赋值给`Date`类型的属性的。
     >
     > 还有`URL`类型。spring6之后，当注入的是URL，那么这个url字符串是会进行有效性检测的。如果是一个存在的url，那就没问题。如果不存在则报错。
@@ -470,7 +468,7 @@
     > 那这就比较鸡肋了，所以**一般这种类型我们还是选择当作复杂类型用ref来赋值**。
 
     ###### 例如：给User对象的birth属性赋Date类型值
-
+  
     ```xml
     <bean id="userBean" class="com.itheima.bean.User">
         <property name="birth" ref="dateBean"/>
@@ -484,7 +482,7 @@
     ```
 
   - **级联属性赋值（了解）**：我们有一个Student类，类中有Clazz类型的属性clazz，Clazz类中有String类型的name属性。这种一个对象的属性关联了另一个对象的情况下，怎么给这个clazz属性赋值呢？通过级联属性赋值：
-
+  
     ```xml
     <bean id="studentBean" class="com.itheima.beans.Student">
         <!-- 要点1：以下两行配置的顺序不能颠倒 -->
@@ -597,14 +595,14 @@
     >
     > - 使用xml的实体符号代替。这里不再赘述，可以参考html。
   
-  - **p命名空间注入**：这种方式是为了简化配置，少写代码。底层基于setter方法，p是property，所以必须提供setter方法；并且需要在XML头部信息中添加p命名空间的配置信息【xmlns:p="http://www.springframework.org/schema/p"】
+  - **p命名空间注入**：这种方式是为了简化配置，少写代码。底层**基于setter注入**，p是property，所以必须提供setter方法；并且需要在XML头部信息中添加p命名空间的配置信息【xmlns:p="http://www.springframework.org/schema/p"】
   
     ```xml
     <!-- 如果是非简单类型注入，后面加-ref -->
     <bean id="peopleBean" class="com.itheima.beans.People" p:name="zs" p:age="14" p:family-ref="familyBean"/>
     ```
   
-  - **c命名空间注入**：类似p命名空间注入，底层基于构造器，c是constructor，所以必须提供有参构造器；而且也需要在XML头部信息中添加c命名空间的配置信息【xmlns:p="http://www.springframework.org/schema/c"】
+  - **c命名空间注入**：类似p命名空间注入，底层**基于构造注入**，c是constructor，所以必须提供有参构造器；而且也需要在XML头部信息中添加c命名空间的配置信息【xmlns:p="http://www.springframework.org/schema/c"】
   
     ```xml
     <bean id="peopleBean" class="com.itheima.beans.People" c:_0="zs" c:age="20" c:_2-ref="familyBean"/>

@@ -76,7 +76,7 @@
 
 ###### 当然，还有其他属性。对于连接池来说，以上几个属性比较重要
 
-#### MyBatis配置文件中还可以引入外部的properties属性配置文件：(在用的地方通过${}来使用)
+#### MyBatis配置文件中还可以引入外部的properties属性配置文件：(配置文件的其他地方通过${}来用)
 
 ```xml
 <!-- 引入外部属性资源文件，类似于Mapper，resource是类路径引入，url是绝对路径引入 -->
@@ -385,7 +385,10 @@ public class CarMapperTest {
 
 ```java
 CarMapper carMapper = sqlSession.getMapper(CarMapper.class);//将来返回的mapper对象会放在spring容器中，这行代码也不用写了
-carMapper.add();carMapper.delete();carMapper.select()...//直接调用接口中的方法即可，底层实现类还是调用的Sqlsession对象的方法
+//直接调用接口中的方法即可，底层实现类还是调用的Sqlsession对象的方法
+carMapper.add();
+carMapper.delete();
+carMapper.select();
 ```
 
 *我们用javassist写GenerateDao时用到了两个参数：SqlSession和接口，所以上面也需要这两个对象才可以生成Mapper实现类*
