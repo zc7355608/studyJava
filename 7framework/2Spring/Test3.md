@@ -118,7 +118,7 @@
 
   > 要使用这些注解，需要在spring配置文件中配置标签`<context:annotaion-config>`。如果配置了上面的包扫描标签，那么该标签可以省略。所以了解即可。
 
-  - `@Value`：注入简单类型。它可以出现在属性上、setter方法上、构造方法的形参上。
+  - `@Value`：注入简单类型。它可以出现在属性上、setter方法上、构造方法的形参上。（也可以用来获取`.properties`文件中的内容）
 
     ```java
     @Value("20")
@@ -136,9 +136,9 @@
 
   - `@Resource`：它也可以完成非简单类型的注入，那么和上面两个注解的区别是什么呢？
 
-    > - `@Resource`注解是JDK扩展包中的，属于JDK的一部分，所以该注解是标准注解，更加具有通用性。而`@Autowired`是Spring框架中的。
+    > - `@Resource`注解是JDK扩展包中的，属于JDK的一部分，所以它是标准注解，更加通用。而`@Autowired`是Spring框架中的。
     > - `@Resource`注解默认是根据名称装配byName，未指定name时，使用属性名作为name。通过name找不到的话会自动byType装配。底层也是通过反射机制。不依赖构造器和setter
-    > - `@Resource`注解只能在属性上、setter方法上。而`@Autowired`可以在属性、setter方法、构造方法、构造方法参数上，都可以。
+    > - `@Resource`注解只能在属性上、setter()上。而`@Autowired`可以在属性、setter方法、构造方法、构造方法参数上，都可以。
     > - `@Resource`注解属于JDK扩展包，所以不在JDK当中，需要额外引入以下依赖：（高于JDK11或低于JDK8都需要引入）
     
     ```xml
@@ -154,9 +154,9 @@
 
     ```xml
     <dependency>
-      <groupId>javax.annotation</groupId>
-      <artifactId>javax.annotation-api</artifactId>
-      <version>1.3.2</version>
+        <groupId>javax.annotation</groupId>
+        <artifactId>javax.annotation-api</artifactId>
+        <version>1.3.2</version>
     </dependency>
     ```
 
@@ -246,7 +246,7 @@
       // 注意：
       //update方法有两个参数：第1个参数是要执行的SQL语句（会有占位符），第2个参数是可变长参数，用于给占位符传值
       String sql = "insert into t_car values(null,?,?,?,?,?)";
-      int count = jdbcTemplate.update(sql, "102", "奔驰", 32.00, "2021-09-22", "燃油车");
+      int count = jdbcTemplate.update(sql, "102", "奔驰", 32.00, "2021-09-22", "燃油车");//或直接传Object[]
       System.out.println("插入的记录条数：" + count);
   }
   ```
@@ -538,7 +538,7 @@
   }
   ```
 
-  > 方案3的优点：符合OCP开闭原则，由于采用的是关联关系（实现），所以程序的耦合度相比于继承要低很多。所以这种方案是被推荐的。
+  > 方案3的优点：符合OCP开闭原则，由于采用的是关联关系（实现），所以程序的耦合度相比于继承要低很多。故该方案被推荐。
 
   > 测试代码：
   >

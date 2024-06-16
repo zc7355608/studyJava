@@ -126,7 +126,7 @@
 
        遍历用list指令：`<#list users as user>下标:${user?index}，元素:${user}，姓名:${user.name}</#list>`，也可以指定倒序输出：`users?reverse`
 
-       集合或数组中如果有对象类型，那么就通过user.的方式
+       xxxxxxxxxx <!-- 日期格式化 --><p th:text="${#dates.format(user.birth,'yyyy-MM-dd HH:mm')}"></p>html
 
     5. **Map集合**：对应遍历集合中的所有key和所有value的方法，遍历map有两种方式keys和values：
 
@@ -173,4 +173,6 @@
     - 算数运算符：`+ - * / %`
     - 逻辑运算符：`&& || !`
     - 比较运算符：`gt`或`>`，`lt`或`<`，`gte`或`>=`，`lte`或`<=`，`==`或`!=`
+
+------
 

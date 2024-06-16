@@ -24,7 +24,7 @@
     List<Student> selectByNameAndAge(@Param(value="name") String name, @Param("age") int age);
     ```
   
-  - 如果形参是单个，数组、Collection、List类型的，Mybatis同样会封装到map中，取用`#{array}、#{collection}、#{list}`取，取到的就是这个对象本身，不过建议手动加`@Param()`注解指定map中的键名
+  - 如果形参是**单个**，数组、Collection、List类型的，Mybatis同样会封装到map中，取用`#{array}、#{collection}、#{list}`取，取到的就是这个对象本身，不过建议手动加`@Param()`注解指定map中的键名
   
 
 ------
@@ -54,32 +54,30 @@
 
     ***使用这种方式的前提是***：pojo类的属性名遵循Java的驼峰命名规范，数据库表的字段名遵循SQL的命名规范。
 
-    ```txt
-    Java命名规范：首字母小写，后面每个单词首字母大写，遵循驼峰命名方式；
-    SQL命名规范：全部小写，单词之间采用下划线分割；
-    ```
-
-  - **resultMap结果映射**：在sql语句的mapper文件中通过配置<resultMap>结果映射标签，然后在<select>标签中添加resultMap属性，值是<resultMap>标签的id：
+    > - Java命名规范：首字母小写，后面每个单词首字母大写，遵循驼峰命名方式；
+    > - SQL命名规范：全部小写，单词之间采用下划线分割；
+  
+  - **resultMap结果映射**：在sql语句的mapper文件中通过配置`<resultMap>`结果映射标签，然后在`<select>`标签中添加resultMap属性，值是`<resultMap>`标签的id：
 
     ```xml
     <!-- resultMap:
         id：这个结果映射的标识，作为select标签的resultMap属性的值。
         type：结果集要映射成Java的什么类型。可以使用别名 -->
     <resultMap id="selectAllResultMap" type="Car">
-      <!-- 对象的唯一标识，官方解释是：为了提高mybatis的性能。建议写上 -->
-      <id column="id" property="id"/>
-      <result column="car_num" property="carNum"/>
-      <!-- 当属性名和数据库列名一致时，可以省略，但建议都写上 -->
-      <result column="brand" property="brand"/>
-      <result column="guide_price" property="guidePrice"/>
-      <result column="produce_time" property="produceTime"/>
-      <!-- javaType用来指定属性的类型，可以用别名。jdbcType用来指定列类型。这俩一般都可以省略 -->
-      <result column="car_type" property="carType" javaType="string" jdbcType="VARCHAR"/>
+    	<!-- 对象的唯一标识，官方解释是：为了提高mybatis的性能。建议写上 -->
+    	<id column="id" property="id"/>
+    	<result column="car_num" property="carNum"/>
+    	<!-- 当属性名和数据库列名一致时，可以省略，但建议都写上 -->
+    	<result column="brand" property="brand"/>
+    	<result column="guide_price" property="guidePrice"/>
+    	<result column="produce_time" property="produceTime"/>
+    	<!-- javaType用来指定属性的类型，可以用别名。jdbcType用来指定列类型。这俩一般都可以省略 -->
+    	<result column="car_type" property="carType" javaType="string" jdbcType="VARCHAR"/>
     </resultMap>
     
     <!-- resultMap属性的值必须和resultMap标签中id属性值一致，建议命名为sqlid+ResultMap -->
     <select id="selectAll" resultMap="selectAllResultMap">
-      select * from t_car
+    	select * from t_car
     </select>
     ```
 

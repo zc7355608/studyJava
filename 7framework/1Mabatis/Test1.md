@@ -14,15 +14,15 @@
 
 ![image-20240327202908848](./assets/image-20240327202908848.png)
 
-#### SSM三大框架：Spring、SpringMVC、MyBatis
+#### SSM三大框架：Spring、Spring MVC、MyBatis
 
 > - Spring：项目大管家，负责整个项目所有对象的创建以及维护对象和对象之间的关系
-> - SpringMVC：将MVC模式体现的淋漓尽致，在这个基础上开发的WEB项目一定是用了MVC架构模式的，SpringMVC框架已经把MVC架构给你搭建出来了
+> - Spring MVC：将MVC模式体现的淋漓尽致，在这个基础上开发的WEB项目一定是用了MVC架构模式的，Spring MVC框架已经把MVC架构给你搭建出来了
 > - MyBatis：DAO层框架，jdbc代码封装（MyBatis/Spring Data/Hibernate）
 
 ###### 为什么需要MyBatis呢？因为jdbc有不足的地方：
 
-> 1. sql语句写死到java代码中了，改SQL的话就要改Java代码，不灵活。。违背开闭原则OCP。
+> 1. sql语句写死到java代码中了，改SQL的话就要改Java代码，不灵活，违背开闭原则OCP。
 > 2. 如果表字段很多，用set给?传值且将数据封装到JavaBean中都是非常繁琐的，需要写大量的、重复的代码，代码不美观很冗余。
 > 3. 将结果集封装成Java对象是繁琐的。
 
@@ -180,8 +180,8 @@ public void testFirst() throws FileNotFoundException {
 
 ###### 关于以上代码的说明：
 
-> - SqlSession是专门执行sql语句的，是一个Java程序和数据库之间的一次会话（链接），需要关闭。多次操作数据库，就得openSession()开启多次数据库会话（链接）。
-> - 要获取SqlSession对象，必须先获取SqlSessionFactory对象。该对象是数据库对象，数据库会话（链接）的工厂，通过SqlSessionFactory工厂的openSession()来生产一个SqlSession对象，每操作数据库都要通过数据库对象来获取会话（链接）对象。
+> - `SqlSession`是专门执行sql语句的，是一个Java程序和数据库之间的一次会话（链接），需要关闭。多次操作数据库，就得openSession()开启多次数据库会话（链接）。
+> - 要获取SqlSession对象，必须先获取`SqlSessionFactory`对象。该对象是数据库对象，数据库会话（链接）的工厂，通过SqlSessionFactory工厂的openSession()来生产一个SqlSession对象，每操作数据库都要通过数据库对象来获取会话（链接）对象。
 > - SqlSessionFactory对象的获取需要用到Mybatis配置文件的信息去链接数据库，所以需要SqlSessionFactoryBuilder对象的build方法去解析配置文件获取该对象。每个该对象对应一个数据库，一旦获取就不要轻易让JVM回收了，因为要经常用，通常该对象一直在堆中存在。而SqlSessionFactoryBuilder对象用它解析完配置文件信息后，该对象就没用了，一般放在局部作用域直接回收。
 > - mybatis配置文件中，目前采用的事务管理器是JDBC（后面我们事务会交给Spring容器管理），默认不自动提交，需要手动提交：sqlSession.commit();
 > - 如果sqlSessionFactory.openSession(true)时传入了一个true，那么底层会执行conn.setAutoCommit(true)开启自动提交，此时执行一个sql就直接提交了，相当于覆盖了全局的事务管理JDBC方式。不建议这样做，不安全，所以openSession()方法默认是false不自动提交的。

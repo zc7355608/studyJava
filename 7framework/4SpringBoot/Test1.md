@@ -18,35 +18,33 @@
   > - 直接植入产品环境下的使用功能。如度量指标、健康检查、扩展配置，无需动态代理及xml配置。
   > - 对web应用做了简化，开箱即用。
 
-------
-
 - ### Spring Boot工程的创建方式：
 
   1. ##### 方式1（https://start.spring.io）：需要联网。使用springboot提供的初始化器。url向导的方式，一步步完成springboot项目的创建。
 
-    > - 通过idea新建Spring Initializr工程，语言选java，type是maven，设置jdk和语言版本以及打包方式jar。点击next选择要用的springboot的版本（这里用3.2.5），下面是选择springboot工程的父工程中的所有依赖，选择spring web依赖创建。
-    >
-    > - 生成的文件中有.mvn目录以及HTLP.md、mvnw、mvnw.cmd这3个文件，它们是增强版的maven的一些工具，可以删掉
-    >
-    >
-    > - 该地址是国外地址访问很慢，idea构建时也可以指定使用国内的url进行springboot项目初始化https://start.springboot.io
-    >
-    > （还可以直接浏览器输入该地址，然后网页中设置项目，最后生成代码下载到本地，再用idea导入也可以）
-    >
-    > - src中有启动程序`DemoApplication`以及测试启动程序`DemoApplicationTests`，resources下的`static`目录是存放静态资源的，`templates`是视图模板目录，`application.properties`是springboot的配置文件。
+     - 通过idea新建Spring Initializr工程，语言选java，type是maven，设置jdk和语言版本以及打包方式jar。点击next选择要用的springboot的版本（这里用3.2.5），下面是选择springboot工程的父工程中的所有依赖，选择spring web依赖创建。
+  
+     - 生成的文件中有.mvn目录以及HTLP.md、mvnw、mvnw.cmd这3个文件，它们是增强版的maven的一些工具，可以删掉
+  
+  
+     - 该地址是国外地址访问很慢，idea构建时也可以指定使用国内的url进行springboot项目初始化https://start.springboot.io
+  
+     （还可以直接浏览器输入该地址，然后网页中设置项目，最后生成代码下载到本地，再用idea导入）
+  
+     - src中有启动程序`DemoApplication`以及测试启动程序`DemoApplicationTests`，resources下的`static`目录是存放静态资源的，`templates`是视图模板目录，`application.properties`是springboot的配置文件。
 
-    ![image-20240422231442242](./assets/image-20240422231442242.png)
+     ![image-20240422231442242](./assets/image-20240422231442242.png)
 
-    > - pom文件中有parent标签，所有的springboot项目都是该GAV的子项目，springboot的父项目只是帮你管理springboot所用到的依赖和插件的。
-    >
-    >
-    > - 其中我们导入的这个spring-boot-starter-web依赖，它关联了springmvc的以及以下的依赖：
+     - pom文件中有parent标签，所有的springboot项目都是该GAV的子项目，springboot的父项目只是帮你管理springboot所用到的依赖和插件的。
+  
+  
+     - 其中我们导入的这个spring-boot-starter-web依赖，它关联了springmvc的以及以下的依赖：
 
-    ![image-20240422231902624](./assets/image-20240422231902624.png)
+       ![image-20240422231902624](./assets/image-20240422231902624.png)
 
-    > - springboot项目还默认引入了spring-boot-starter-test依赖：(可有可无)
+     - springboot项目还默认引入了spring-boot-starter-test依赖：(可有可无)
 
-    ![image-20240422231953723](./assets/image-20240422231953723.png)
+       ![image-20240422231953723](./assets/image-20240422231953723.png)
 
   2. ##### 方式2：通过创建普通的maven项目，然后在pom文件中，将parent标签写上（必须），引入spring-boot-starter-web起步依赖（无版本号），resources下创建springboot的配置文件和启动类即可。
 
@@ -67,7 +65,7 @@
 - ### 关于第一个程序的细节
 
 
-> 我们发现springboot项目自带了一个类`DemoApplication`（名字可以改），而且无论是jar还是web应用，该类里面都有该类和该main方法。springboot应用是根据从这个main方法处开始执行的。类上有个注解`@SpringBootApplication`，该注解标注的类称为**主启动类**，该main方法为**主启动方法**。我们先看下这个注解的作用，为什么它标注的类就是主启动类呢？
+> 
 
 - ### 关于@SpringBootApplication（springboot应用）：
 
@@ -202,4 +200,6 @@ public @interface SpringBootApplication{...}
 ### 在Springboot中，使用Spring的ApplicationContext核心接口
 
 > 主启动方法中，有一个静态方法`SpringApplication.run()`，该方法的返回值类型是`ConfigurableApplicationContext`，它是ApplicationContext的子接口，所以我们要使用spring容器，就通过该方法的返回值即可。
+
+------
 

@@ -279,17 +279,21 @@
 
 - ###### 被Spring管理的类必须是自定义的吗，别人写好的jar包中的类可以吗？
 
-  > 可以。在spring配置文件中配置的bean可以是任意类，只要这个类不是抽象的，并且提供了无参数构造方法。
+  > 可以。在Spring配置文件中的bean可以是任意类，只要这个类不是抽象的，并且提供了无参数构造方法。
 
 - ###### getBean()方法返回的类型是Object，如果访问子类的特有属性和方法时，还需要手动向下转型，有其它办法可以解决这个问题吗？
 
-  > //通过类型和id获取bean
-  >
-  > User user = applicationContext.getBean("userBean", User.class);
-  >
-  > //还可以只通过类型获取：（注意该类型bean在容器中只能有一个）
-  >
-  > User user = applicationContext.getBean(User.class);
+  > 通过类型和id获取bean
+
+  ```java
+  User user = applicationContext.getBean("userBean", User.class);
+  ```
+
+  > 只通过类型获取：（注意该类型bean在容器中只能有一个）
+
+  ```java
+  User user = applicationContext.getBean(User.class);
+  ```
 
 - ###### ClassPathXmlApplicationContext是从类路径中加载配置文件，如果没有在类路径当中，又应该如何加载配置文件呢？
 
@@ -444,29 +448,26 @@
     </bean>
     ```
 
-    > ###### 那么spring中的简单类型包括哪些呢？
-  
-    ```txt
-    通过源码分析得知，简单类型包括：
-        ● 基本数据类型以及他们对应的包装类
-        ● CharSequence及其子类，包括String
-        ● Number及其子类
-        ● Date及其子类
-        ● Enum及其子类
-        ● URI
-        ● URL
-        ● Temporal及其子类
-        ● Locale
-        ● Class
-        ● 另外还包括以上类型对应的数组类型
-    ```
+    > 通过源码分析得知，简单类型包括：
+    >
+    > - 基本数据类型以及他们对应的包装类
+    > - CharSequence及其子类，包括String
+    > - Number及其子类
+    > - Date及其子类
+    > - Enum及其子类
+    > - URI
+    > - URL
+    > - Temporal及其子类
+    > - Locale
+    > - Class
+    > - 另外还包括以上类型对应的数组类型
   
     > **注意**：其中的一些虽然是简单类型，比如`Date`类型，如果把`Date`当做简单类型的话，日期字符串格式不能随便写。格式必须符合`Date`的`toString()`方法格式。显然这就比较鸡肋了。如果我们将一个这样格式的日期字符串"2010-10-11"给value，spring是无法直接赋值给`Date`类型的属性的。
     >
     > 还有`URL`类型。spring6之后，当注入的是URL，那么这个url字符串是会进行有效性检测的。如果是一个存在的url，那就没问题。如果不存在则报错。
     >
     > 那这就比较鸡肋了，所以**一般这种类型我们还是选择当作复杂类型用ref来赋值**。
-
+  
     ###### 例如：给User对象的birth属性赋Date类型值
   
     ```xml
@@ -480,7 +481,7 @@
         <constructor-arg index="2" value="11"/>
     </bean>
     ```
-
+  
   - **级联属性赋值（了解）**：我们有一个Student类，类中有Clazz类型的属性clazz，Clazz类中有String类型的name属性。这种一个对象的属性关联了另一个对象的情况下，怎么给这个clazz属性赋值呢？通过级联属性赋值：
   
     ```xml
@@ -496,7 +497,7 @@
     	name属性，必须先获取到clazz属性，通过clazz才能给它的name赋值，所以clazz没有getter方法肯定不行 -->
     ```
   
-  - **注入数组**：用<array>标签
+  - **注入数组**：用`<array>`标签
   
     ```xml
     <bean id="person" class="com.itheima.beans.Person">
@@ -510,7 +511,7 @@
     </bean>
     ```
   
-  - **注入List集合**：用<list>标签
+  - **注入List集合**：用`<list>`标签
   
     ```xml
     <bean id="peopleBean" class="com.itheima.beans.People">
@@ -526,7 +527,7 @@
     </bean>
     ```
   
-  - **注入Set集合**：用<set>标签
+  - **注入Set集合**：用`<set>`标签
   
     ```xml
     <bean id="peopleBean" class="com.itheima.beans.People">
@@ -544,7 +545,7 @@
     </bean>
     ```
   
-  - **注入Map集合**：用<map>标签和<entry>标签
+  - **注入Map集合**：用`<map>`标签和`<entry>`标签
   
     ```xml
     <bean id="peopleBean" class="com.itheima.beans.People">
@@ -560,7 +561,7 @@
     </bean>
     ```
   
-  - **注入Properties集合**：用<props>标签和<prop>标签
+  - **注入Properties集合**：用`<props>`标签和`<prop>`标签
   
     ```xml
     <bean id="peopleBean" class="com.itheima.beans.People">
@@ -643,14 +644,14 @@
 
   > Spring还可以完成自动化注入，称为**自动装配**。它可以根据**名字**进行自动装配，也可以根据**类型**进行自动装配。**底层都是setter注入**。
 
-  - *根据名字自动装配*：<bean>标签中添加`autowire="byName"`属性，表示通过名字自动装配。要求：**被注入的bean的id需要和属性名保持一致**。
-  - *根据类型自动装配*：<bean>标签中加`autowire="byType"`属性，表示通过类型自动装配。此时如果spring容器内有两个类型一样的bean会报错，所以这种方式**要求被注入的bean是唯一的**。
+  - *根据名字自动装配*：`<bean>`标签中添加`autowire="byName"`属性，表示通过名字自动装配。要求：**被注入的bean的id需要和属性名保持一致**。
+  - *根据类型自动装配*：`<bean>`标签中加`autowire="byType"`属性，表示通过类型自动装配。此时如果spring容器内有两个类型一样的bean会报错，所以这种方式**要求被注入的bean是唯一的**。
 
 ------
 
 - #### Spring引入外部属性配置文件：
 
-  ###### 在spring配置文件中引入**context命名空间**，然后通过`<context:property-placeholder>`的location属性指定文件的类路径即可：（数据用${}来取；如果是配置类用`@PropertyResource("classpath:jdbc.properties")`注解即可）
+  ###### 在spring配置文件中引入**context命名空间**，然后通过`<context:property-placeholder>`的location属性指定文件的类路径即可：（数据用${}来取；如果是配置类用`@PropertySource("classpath:jdbc.properties")`注解即可）
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>
@@ -660,7 +661,7 @@
          xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                              http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
   
-      <context:property-placeholder location="jdbc.properties"/>
+      <context:property-placeholder location="classpath:jdbc.properties"/>
   
       <bean id="dataSource" class="com.itheima.beans.MyDataSource">
           <property name="driver" value="${driver}"/>
@@ -696,17 +697,15 @@
 
 - **其它scope（了解）**：scope属性的值不止两个，它一共包括8个选项：
 
-  ```txt
-  ● singleton：默认的，单例。
-  ● prototype：原型。每调用一次getBean()方法则获取一个新的Bean对象。或每次注入的时候都是新对象。
-  ● request：一个请求对应一个Bean。（仅限于WEB应用）
-  ● session：一个会话对应一个Bean。（仅限于在WEB应用）
-  ● global session：portlet应用中专用的。如果在Servlet的WEB应用中使用global session的话，和session一个效果。（portlet和servlet都是规范。servlet运行在servlet容器中，例如Tomcat。portlet运行在portlet容器中）（仅限于在WEB应用）
-  ● application：一个应用对应一个Bean。（仅限于在WEB应用）
-  ● websocket：一个websocket生命周期对应一个Bean。（仅限于在WEB应用）
-  ● 自定义scope：很少用
-  ```
-
+  > - `singleton`：默认的，单例。
+  > - `prototype`：原型。每调用一次getBean()方法则获取一个新的Bean对象。或每次注入的时候都是新对象。
+  > - `request`：一个请求对应一个Bean。（仅限于WEB应用）
+  > - `session`：一个会话对应一个Bean。（仅限于在WEB应用）
+  > - `global session`：portlet应用中专用的。如果在Servlet的WEB应用中使用global session的话，和session一个效果。（portlet和servlet都是规范。servlet运行在servlet容器中，例如Tomcat。portlet运行在portlet容器中）（仅限于在WEB应用）
+  > - `application`：一个应用对应一个Bean。（仅限于在WEB应用）
+  > - `websocket`：一个websocket生命周期对应一个Bean。（仅限于在WEB应用）
+  > - **自定义scope**：很少用
+  
   > 接下来我们自定义一个Scope，线程级别的Scope，在同一个线程中，获取的Bean都是同一个。跨线程则是不同的对象：（以下内容作为了解）
 
   1. 自定义Scope类，实现Scope接口。（spring内置了线程范围的Scope类【org.springframework.context.support.SimpleThreadScope】，直接拿来用，不用自己写了。

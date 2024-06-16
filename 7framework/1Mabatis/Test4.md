@@ -21,13 +21,13 @@
 
 - ##### 缓存的使用：
 
-  - **一级缓存**：默认开启，不需要做任何配置。只要使用同一个SqlSession对象执行同一条DQL语句，就会走缓存；手动清空一级缓存用**sqlSession.clearCache();**
+  - **一级缓存**：默认开启，不需要做任何配置。只要使用同一个SqlSession对象执行同一条DQL语句，就会走缓存；手动清空一级缓存用`sqlSession.clearCache();`
   - **二级缓存**：二级缓存的范围是在SqlSessionFactory内，也就是数据库范围，使用二级缓存需要同时具备以下几个条件：
-    1. 核心配置文件中，全局开启二级缓存（默认）：<setting name="cacheEnabled" value="true"/>，此时所有使用了二级缓存的Mapper文件都会缓存查询到的对象。该配置默认就是true，无需设置。
-    2. 在需要使用二级缓存的SqlMapper.xml文件中添加配置：<cache/>
+    1. 核心配置文件中，全局开启二级缓存（默认）：`<setting name="cacheEnabled" value="true"/>`，此时所有使用了二级缓存的Mapper文件都会缓存查询到的对象。该配置默认就是true，无需设置。
+    2. 在需要使用二级缓存的SqlMapper.xml文件中添加配置：`<cache/>`
     3. 使用二级缓存的pojo对象必须是可序列化的，也就是必须实现`Serializable`接口。
     4. SqlSession对象`close()`关闭或`submit()`提交之后，一级缓存中的数据才会被写入到二级缓存当中，此时二级缓存才可用。
-  - 缓存标签<cache/>中可以出现的属性：（二级缓存中可以配置很多属性）
+  - 缓存标签`<cache/>`中可以出现的属性：（二级缓存中可以配置很多属性）
     - `flushInterval`（刷新间隔）：二级缓存的刷新时间间隔，单位毫秒；如果没有设置，就代表不刷新缓存，只要内存足够大，会一直会向二级缓存中缓存数据，直到执行了增删改。
     - `size`：设置二级缓存中最多可存储的java对象数量，默认值1024个Java对象。
     - `eviction`（驱逐）：指定从缓存中删除某个对象时所使用的淘汰算法，默认采用LRU策略。策略有以下几种：
@@ -50,9 +50,9 @@
   >    ```xml
   >    <!--mybatis集成ehcache的组件-->
   >    <dependency>
-  >      <groupId>org.mybatis.caches</groupId>
-  >      <artifactId>mybatis-ehcache</artifactId>
-  >      <version>1.2.2</version>
+  >        <groupId>org.mybatis.caches</groupId>
+  >        <artifactId>mybatis-ehcache</artifactId>
+  >        <version>1.2.2</version>
   >    </dependency>
   >    ```
   >

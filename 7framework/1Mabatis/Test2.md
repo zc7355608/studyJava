@@ -23,30 +23,31 @@
 </configuration>
 ```
 
-- MyBatis的核心配置文件是dtd约束，文件的根标签是<configuration>，配置都在该标签中配置
+- MyBatis的核心配置文件是dtd约束，文件的根标签是`<configuration>`，配置都在该标签中配置
 
-- **<environments>**环境标签，里面配置多个数据库环境<environment>，default属性：表示默认使用的是哪个环境，值是环境标签<environment>的id。也可以在SqlSessionFactoryBuilder对象的build()方法解析配置文件时，第2个参数指定使用配置文件中的环境id。
+- `<environments>`环境标签，里面配置多个数据库环境`<environment>`，`default`属性：表示默认使用的是哪个环境，值是环境标签`<environment>`的id。也可以在SqlSessionFactoryBuilder对象的build()方法解析配置文件时，第2个参数指定使用配置文件中的环境id。
 
-- **<environment>**标签配置具体的数据库环境（**主要包括**：**事务管理器的配置** + **数据源的配置**），一个**SqlSessionFactory**对应一个数据库，一个数据库对应一个<environment>环境标签
+- `<environment>`标签配置具体的数据库环境（**主要包括**：**事务管理器的配置** + **数据源的配置**），一个`SqlSessionFactory`对应一个数据库，一个数据库对应一个`<environment>`环境标签
 
-  - **<transactionManager>**标签用于配置该数据库环境的事务管理器，通过type属性指定事务管理器具体使用什么方式，可选值两个：
-  - **JDBC**：使用JDBC原生的事务管理机制。底层通过**conn.setAutoCommit(false);**关闭了全局的自动提交，所以需要手动提交**sqlSession.commit();**，但是注意：如果配置了JDBC来管理事务，那么就不要写**sqlSessionFactory.openSession(true)**
+  - `<transactionManager>`标签用于配置该数据库环境的事务管理器，通过type属性指定事务管理器具体使用什么方式，可选值两个：
+  - **JDBC**：使用JDBC原生的事务管理机制。底层通过`conn.setAutoCommit(false);`关闭了全局的自动提交，所以需要手动提交`sqlSession.commit();`，但是注意：如果配置了JDBC来管理事务，那么就不要写`sqlSessionFactory.openSession(true)`
     
   - **MANAGED（默认）**：交给第三方容器（如Spring）来管理事务，MyBatis不管了。此时如果没有第三方来管理，那么事务就处于没人管的状态，默认**执行一条DML语句就提交一次**。（注意：如果你正在使用 Spring + MyBatis，则没有必要配置事务管理器，因为Spring会使用自带的事务管理器来覆盖Mybatis中的配置）
   
-- **<dataSource>**指定该数据库环境使用的**数据源**，也就是连接数据库的信息，type属性的可选值3个（根据不同的值，内部的property标签可以写不同的name属性，通常都有`driver、url、username、password`）：
-    - **UNPOOLED**：不使用数据库连接池技术，每一次openSession()都创建一个新的Connection连接对象
+- `<dataSource>`指定该数据库环境使用的**数据源**，也就是连接数据库的信息，type属性的可选值3个（根据不同的值，内部的property标签可以写不同的name属性，通常都有`driver`、`url`、`username`、`password`）：
+    
+  - **UNPOOLED**：不使用数据库连接池技术，每一次openSession()都创建一个新的Connection连接对象
   - **POOLED**：使用mybatis自己的数据库连接池（数据源），openSession()是从数据源中获取链接，关闭时将连接还给数据源而不是关闭
     - **JNDI**：使用第三方web容器中的数据库连接池，当然只有web项目中才可以设置为JNDI；这种方式给了我们可以使用第三方连接池的接口。如果想使用dbcp、c3p0、druid（德鲁伊）等，需要使用这种方式
   
-  - <dataSource>内部的<property>标签通过name和value属性来进行**数据库连接池**的配置
+    - `<dataSource>`内部的`<property>`标签通过name和value属性来进行**数据库连接池**的配置
+    
+- `<mappers>`在mappers标签中可以配置多个sql映射文件（Mapper文件）的路径。
 
-- <mappers>在mappers标签中可以配置多个sql映射文件（Mapper文件）的路径。
+  - `<mapper>`标签通过配置不同的属性，来引入某个Mapper文件。
 
-  - <mapper>标签通过配置不同的属性，来引入某个Mapper文件。
-
-    - resource属性：使用的相对于类路径的方式
-    - url属性：使用绝对路径的方式，如果是本地绝对路径，前面需要加*file:///*
+    - `resource`属性：使用的相对于类路径的方式
+    - `url`属性：使用绝对路径的方式，如果是本地绝对路径，前面需要加`file:///`
 
     （mapper中还有其他属性值，后面再说）
 
@@ -54,7 +55,7 @@
 
 ------
 
-#### 如果在<dataSource>标签中使用了Mybatis中的连接池，那么<property>标签中的name属性就可以这样写：（其他的连接池这些也都能设置，只是名字不同而已）
+#### 如果在`<dataSource>`标签中使用了Mybatis中的连接池，那么`<property>`标签中的`name`属性就可以这样写：（其他的连接池这些也都能设置，只是名字不同而已）
 
 ```xml
 <dataSource type="POOLED">
@@ -76,7 +77,7 @@
 
 ###### 当然，还有其他属性。对于连接池来说，以上几个属性比较重要
 
-#### MyBatis配置文件中还可以引入外部的properties属性配置文件：(配置文件的其他地方通过${}来用)
+#### MyBatis配置文件中还可以引入外部的properties属性配置文件：(Mybatis配置文件的其他地方通过${}来用)
 
 ```xml
 <!-- 引入外部属性资源文件，类似于Mapper，resource是类路径引入，url是绝对路径引入 -->
@@ -405,8 +406,8 @@ carMapper.select();
 
      ```xml
      <typeAliases>
-       <!-- typeAlias可以写多个，type属性指定类型；alias属性指定别名，省略的话默认别名就是简类名Car，不分大小写 -->
-       <typeAlias type="com.itheima.pojo.Car" alias="Car"/>
+     	<!-- typeAlias可以写多个，type属性指定类型；alias属性指定别名，省略的话默认别名就是简类名Car，不分大小写 -->
+         <typeAlias type="com.itheima.pojo.Car" alias="Car"/>
      </typeAliases>
      ```
 
@@ -414,7 +415,7 @@ carMapper.select();
 
      ```xml
      <typeAliases>
-       <package name="com.itheima.pojo"/><!-- 该标签同样可以有多个 -->
+     	<package name="com.itheima.pojo"/><!-- 该标签同样可以有多个 -->
      </typeAliases>
      ```
      
@@ -428,9 +429,9 @@ carMapper.select();
 
      ```xml
      <mappers>
-       <mapper class="com.itheima.dao.CarMapper"/>
-       <mapper class="com.itheima.dao.BlogMapper"/>
-       <mapper class="com.itheima.dao.PostMapper"/>
+         <mapper class="com.itheima.dao.CarMapper"/>
+         <mapper class="com.itheima.dao.BlogMapper"/>
+         <mapper class="com.itheima.dao.PostMapper"/>
      </mappers>
      ```
      
@@ -438,7 +439,7 @@ carMapper.select();
    
      ```xml
      <mappers>
-       <package name="com.itheima.dao"/>
+     	<package name="com.itheima.dao"/>
      </mappers>
      ```
    
