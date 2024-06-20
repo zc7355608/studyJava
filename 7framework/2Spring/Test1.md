@@ -649,9 +649,9 @@
 
 ------
 
-- #### Spring引入外部属性配置文件：
+- #### Spring引入外部`.properties`文件：
 
-  ###### 在spring配置文件中引入**context命名空间**，然后通过`<context:property-placeholder>`的location属性指定文件的类路径即可：（数据用${}来取；如果是配置类用`@PropertySource("classpath:jdbc.properties")`注解即可）
+  ###### 在spring配置文件中引入**context命名空间**，然后通过`<context:property-placeholder>`的location属性指定文件的类路径即可：（数据用`${}`来取；如果是配置类用`@PropertySource("classpath:jdbc.properties")`注解即可）
 
   ```xml
   <?xml version="1.0" encoding="UTF-8"?>

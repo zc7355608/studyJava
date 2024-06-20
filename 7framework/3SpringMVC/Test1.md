@@ -553,7 +553,7 @@
 
 - ##### 访问静态资源：（处理静态视图资源，不经过视图解析器，无法访问WEB-INF下的资源）
 
-  > 在之前学的servlet中，我们没有说为什么url可以直接访问WEB-INF外的静态资源。实际上，Tomcat帮我们内置了一个处理静态资源的Servlet，在它的web.xml中有一个写好的Servlet叫`DefaultServlet`，它启动时就初始化了，urlpattern设置的是`/`，所以会处理所有的未映射的资源（除了jsp，jsp是servlet，所以会自动注册在web.xml中）。它可以配置一些初始化参数，如：input表示读的资源的最大值，fileEncoding表示读静态资源所采用的编码方式。
+  > 在之前学的Servlet中，我们没有说为什么url可以直接访问WEB-INF外的静态资源。实际上，Tomcat帮我们内置了一个处理静态资源的Servlet，在它的web.xml中有一个写好的Servlet叫`DefaultServlet`，它启动时就初始化了，urlPattern设置的是`/`，所以会处理所有的未映射的资源（除了jsp，jsp是servlet，所以会自动注册在web.xml中）。它可以配置一些初始化参数，如：input表示读的资源的最大值，fileEncoding表示读静态资源所采用的编码方式。
 
   > 当项目中将`DispatcherServlet`的urlPattern设置为`/`，那么它就覆盖了Tomcat的默认的DefaultServlet，此时访问静态资源一定会出问题（动态资源没问题，因为@RequestMapping注解设置了动态资源的映射关系）。那怎么办呢？
 
@@ -1284,7 +1284,7 @@ public class UserController {
   >           // 创建 Spring 应用程序上下文
   >           AnnotationConfigWebApplicationContext springContext = new AnnotationConfigWebApplicationContext();
   >           springContext.register(SpringConfig.class);
-  >     
+  >         
   >           // 配置 Spring MVC 的中央调度器 DispatcherServlet
   >           AnnotationConfigWebApplicationContext mvcContext = new AnnotationConfigWebApplicationContext();
   >           //让SpringMVC容器拿到ServletContext对象
@@ -1293,7 +1293,7 @@ public class UserController {
   >           ServletRegistration.Dynamic servlet = servletContext.addServlet("dispatcherServlet", new DispatcherServlet(mvcContext));
   >           servlet.setLoadOnStartup(1);
   >           servlet.addMapping("/");
-  >     
+  >         
   >           // 配置字符编码过滤器
   >           FilterRegistration.Dynamic filter = servletContext.addFilter("characterEncodingFilter", CharacterEncodingFilter.class);
   >           filter.setInitParameter("encoding", "UTF-8");

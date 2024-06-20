@@ -64,8 +64,8 @@
   >             xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
   >             updateCheck="false">
   >        <!--磁盘存储:将缓存中暂时不使用的对象,转移到硬盘,类似于Windows系统的虚拟内存-->
-  >        <diskStore path="e:/ehcache"/>
-  >      
+  >        <diskStore path="d:/ehcache"/>
+  >         
   >        <!--defaultCache：默认的管理策略-->
   >        <!--eternal：设定缓存的elements是否永远不过期。如果为true，则缓存的数据始终有效，如果为false那么还要根据timeToIdleSeconds，timeToLiveSeconds判断-->
   >        <!--maxElementsInMemory：在内存中缓存的element的最大数目-->
@@ -79,15 +79,14 @@
   >        <!--LRU：Least Recently Used(最近最少使用). (ehcache 默认值).缓存的元素有一个时间戳，当缓存容量满了，而又需要腾出地方来缓存新的元素的时候，那么现有缓存元素中时间戳离当前时间最远的元素将被清出缓存-->
   >        <defaultCache eternal="false" maxElementsInMemory="1000" overflowToDisk="false" diskPersistent="false"
   >                      timeToIdleSeconds="0" timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU"/>
+  >       </ehcache>
+  >    ```
   >    
-  >    </ehcache>
-  >    ```
-  >
-  > 3. 在需要使用此缓存的Mapper.xml文件中用type属性设置：
-  >
-  >    ```xml
+  >3. 在需要使用此缓存的Mapper.xml文件中用type属性设置：
+  > 
+  >   ```xml
   >    <cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
-  >    ```
+  >   ```
 
 ------
 
@@ -300,12 +299,12 @@
 
 ------
 
-### MyBatis中使用PageHelper分页插件（重要）
+### MyBatis中使用`PageHelper`分页插件（重要）
 
-> 我们正常写分页功能时，都是要向后端发送【页码】和【每页显示条数】这2数据的，后端获取之后，将表中所有数据通过limit截取后返回。假设每页显示pageSize条，第pageNum页的数据应该怎么用limit来获取呢？可以这样：`startIndex = (pageNum - 1) * pageSize`
+> 我们正常写分页功能时，都是要向后端发送`页码`和`每页显示条数`这两个数据的。后端获取之后，将表中所有数据通过`limit`截取后返回。假设每页显示`pageSize`条，第`pageNum`页的数据应该怎么写`limit`来获取呢？可以这样：`startIndex = (pageNum - 1) * pageSize`
 >
 
-###### 获取数据不难，难的是获取分页相关的数据比较难。此时可以借助mybatis的PageHelper插件
+###### 获取数据不难，难的是获取分页相关的数据比较难。此时可以借助`PageHelper`插件：
 
 > PageHelper是别人写好的一个插件，可以在MyBatis中更方便的使用分页查询，不局限于用`limit`拼接进sql进行分页。并且它的性能也很不错。使用时注意：**Mapper中的sql语句不要加;分号**，因为分页插件底层是，在原来SQL语句的基础上通过拼SQL完成的。
 

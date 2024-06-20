@@ -439,7 +439,7 @@
 
 ### BFC：
 
-> - BFC的官方定义：浮动、绝对定位元素、不是块盒子的块容器（如inline-blocks、table-cells和table-captions），以及overflow属性的值除visible以外的块盒，将为其内容建立新的“块格式上下文”。
+> - BFC的官方定义：浮动、绝对定位元素、不是块盒子的块容器（如`inline-blocks`、`table-cells`和`table-captions`），以及`overflow`属性的值除`visible`以外的块盒，将为其内容建立新的“块格式上下文”。
 >
 > - MDC上对于BFC的描述：块格式上下文（BFC）是web页面的可视CSS渲染的一部分，是块盒子的布局过程发生的区域，也是浮动元素与其他元素交互的区域。
 >
@@ -451,11 +451,11 @@
 >   3. 元素开启BFC后，内部子元素就算浮动，**自身高度也不会塌陷**
 >
 > - 默认开启BFC的元素有：
->   - 根元素<html>
+>   - 根元素`<html>`
 >   - 浮动元素
 >   - 绝对定位、固定定位的元素
 >   - 行内块元素
->   - 表格相关的标签，<tr>、<table>、<tbody>、<caption>
+>   - 表格相关的标签，`<tr>、<table>、<tbody>、<caption>`
 >   - `overflow`的值不为`visible`的“块元素”
 >   - 伸缩项目
 >   - 多列容器

@@ -367,7 +367,12 @@
               ps.setInt(1, 6);
               ResultSet rs = ps.executeQuery();
               if (rs.next()) {
-                  car = new Car(rs.getLong("id"), rs.getString("car_num"), rs.getString("brand"), rs.getDouble("guide_price"), rs.getString("produce_time"), rs.getString("car_type"));
+                  car = new Car(rs.getLong("id"),
+                                rs.getString("car_num"),
+                                rs.getString("brand"),
+                                rs.getDouble("guide_price"),
+                                rs.getString("produce_time"),
+                                rs.getString("car_type"));
               }
               return car;
           }

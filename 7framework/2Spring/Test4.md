@@ -531,19 +531,19 @@
     > 什么是事务的传播行为？
     > 	在service类中有a()方法和b()方法，a()方法上有事务代码，b()方法上也有事务代码，当a()方法执行过程中调用了b()方法。当b()方法执行时发生异常，没有提交的话，a()方法中的事务会提交吗？它们两个的事务之间是如何传递的？合并到一个事务里？还是开启一个新的事务？这就是事务的传播行为。
     >
-    > 事务传播行为在spring框架中被定义为枚举类型：Propagation，一共有7个值对应7种传播行为：
-    > 	- REQUIRED：支持当前事务，如果不存在就新建一个(默认)【没有就新建，有就加入】
-    > 	- SUPPORTS：支持当前事务，如果当前没有事务，就以非事务方式执行【有就加入，没有就不管了】
-    > 	- MANDATORY：必须运行在一个事务中，如果当前没有事务正在发生，将抛出一个异常【有就加入，没有就抛异常】
-    > 	- REQUIRES_NEW：开启一个新的事务，如果一个事务已经存在，则将这个存在的事务挂起
+    > 事务传播行为在spring框架中被定义为枚举类型：`Propagation`，一共有7个值对应7种传播行为：
+    > 	- `REQUIRED`：支持当前事务，如果不存在就新建一个(默认)【没有就新建，有就加入】
+    > 	- `SUPPORTS`：支持当前事务，如果当前没有事务，就以非事务方式执行【有就加入，没有就不管了】
+    > 	- `MANDATORY`：必须运行在一个事务中，如果当前没有事务正在发生，将抛出一个异常【有就加入，没有就抛异常】
+    > 	- `REQUIRES_NEW`：开启一个新的事务，如果一个事务已经存在，则将这个存在的事务挂起
     > 		【不管有没有，直接开启一个新事务，开启的新事务和之前的事务不存在嵌套关系，之前事务被挂起】
-    > 	- NOT_SUPPORTED：以非事务方式运行，如果有事务存在，挂起当前事务【不支持事务，存在就挂起】
-    > 	- NEVER：以非事务方式运行，如果有事务存在，抛出异常【不支持事务，存在就抛异常】
-    > 	- NESTED：如果当前正有一个事务在进行中，则该方法应当运行在一个嵌套式事务中。被嵌套的事务可以独立于外层事务
+    > 	- `NOT_SUPPORTED`：以非事务方式运行，如果有事务存在，挂起当前事务【不支持事务，存在就挂起】
+    > 	- `NEVER`：以非事务方式运行，如果有事务存在，抛出异常【不支持事务，存在就抛异常】
+    > 	- `NESTED`：如果当前正有一个事务在进行中，则该方法应当运行在一个嵌套式事务中。被嵌套的事务可以独立于外层事务
     > 		进行提交或回滚。如果外层事务不存在，行为就像REQUIRED一样。【有事务的话，就在这个事务里再嵌套一个
     > 		完全独立的事务，嵌套的事务可以独立的提交和回滚。没有事务就和REQUIRED一样】。
     >
-    > 在代码中设置事务的传播行为：@Transactional(propagation = Propagation.REQUIRED)
+    > 在代码中设置事务的传播行为：`@Transactional(propagation = Propagation.REQUIRED)`
 
 
   - ###### 事务隔离级别：
@@ -560,7 +560,7 @@
 
   - ###### 事务超时：
 
-    > @Transactional(timeout = 10)设置事务的超时时间为10秒。如果超过10秒该事务中**所有的DML语句**还没有执行完毕的话，最终事务会回滚。默认值-1，表示没有时间限制。
+    > `@Transactional(timeout = 10)`设置事务的超时时间为10秒。如果超过10秒该事务中**所有的DML语句**还没有执行完毕的话，最终事务会回滚。默认值-1，表示没有时间限制。
     >
     > 如果最后一条DML语句后面很有很多业务逻辑，这些业务代码执行的时间不被计入超时时间。
     >
@@ -569,19 +569,19 @@
 
   - ###### 只读事务：
 
-    > @Transactional(readOnly = true)将当前事务设置为只读事务，在该事务执行过程中，**只允许select语句执行**，delete insert update均不可执行。该特性的作用是：**启动spring的优化策略。提高select语句执行效率。**
+    > `@Transactional(readOnly = true)`将当前事务设置为只读事务，在该事务执行过程中，**只允许select语句执行**，delete insert update均不可执行。该特性的作用是：**启动Spring的优化策略。提高select语句执行效率。**
     >
     > 如果该事务中确实没有增删改操作，建议设置为只读事务。
 
 
   - ###### 设置出现哪些异常回滚事务：
 
-    > @Transactional(rollbackFor = RuntimeException.class)表示只有发生RuntimeException异常才会回滚。
+    > `@Transactional(rollbackFor = RuntimeException.class)`表示只有发生`RuntimeException`异常才会回滚。
 
 
   - ###### 设置出现哪些异常不回滚事务：
 
-    > @Transactional(noRollbackFor = NullPointerException.class)表示发生NullPointerException异常的话不回滚，其他异常才回滚。
+    > `@Transactional(noRollbackFor = NullPointerException.class)`表示发生`NullPointerException`异常的话不回滚，其他异常才回滚。
 
 ------
 
@@ -986,7 +986,7 @@
   > 测试代码：
   >
   > ```java
-  > @RunWith(SpringJUnit4ClassRunner.class)			//这是junit4的注解，表示不用原生junit进行测试了，用该类测试
+  > @RunWith(SpringJUnit4ClassRunner.class)			//这是junit4的注解，表示不用原生的junit了，用指定类进行单元测试
   > @ContextConfiguration("classpath:spring.xml")	//这是Spring的注解，用于指定Spring配置文件的类路径
   > //或者用这个注解代替以上两个：@SpringJUnitConfig(locations = "classpath:spring.xml")
   > public class SpringTest {
