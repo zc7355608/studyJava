@@ -957,18 +957,16 @@ public class UserController {
 
 ------
 
-### 异常处理器
+### 异常处理
 
-##### 什么是异常处理器：
+##### 关于异常处理器：
 
-> Spring MVC在`处理器方法`执行过程中出现了异常，可以采用`异常处理器`进行应对。当处理器方法执行过程中出现了异常，跳转到对应的视图，在视图上展示友好错误信息。类似于Tomcat提供的404、405等错误页，Spring MVC框架可以自定义异常处理的流程。
+> Spring MVC在控制器层的`处理器方法`执行过程中如果出现了异常，就可以采用`异常处理器`进行应对。当处理器方法执行过程中出现了异常，跳转到对应的视图，在视图上展示友好错误信息。类似于Tomcat提供的404、405等错误页，Spring MVC框架可以自定义异常跳转的视图页。
 
-> Spring MVC为异常处理提供了一个接口：`HandlerExceptionResolver`，它的核心方法是：`resolveException()`，用来编写具体的异常处理方案。返回值`ModelAndView`，表示异常处理完之后跳转到哪个视图，视图中也可以添加数据。
->
-> `HandlerExceptionResolver` 接口有两个常用的默认实现：
->
-> - `DefaultHandlerExceptionResolver`（默认使用该异常处理器）
-> - `SimpleMappingExceptionResolver`
+> - Spring MVC为异常处理提供了一个接口：`HandlerExceptionResolver`，它的核心方法是：`resolveException()`，用来编写具体的异常处理方案。返回类型是`ModelAndView`，表示异常处理完之后跳转到哪个视图携带什么数据。
+> - `HandlerExceptionResolver` 接口有两个常用的默认实现：
+>   - （默认）`DefaultHandlerExceptionResolver`
+>   - `SimpleMappingExceptionResolver`
 
 ##### 默认的异常处理器`DefaultHandlerExceptionResolver`：
 
@@ -986,7 +984,9 @@ public class UserController {
 > - XML配置
 > - 注解方式
 
-- XML配置文件方式：在spring.xml中配置`SimpleMappingExceptionResolver`类
+- XML配置文件方式：
+
+  > 在`springmvc.xml`中配置`SimpleMappingExceptionResolver`类：
 
   ```xml
   <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
@@ -1016,10 +1016,14 @@ public class UserController {
   </html>
   ```
 
-- 注解方式：在控制器类上使用注解`@ControllerAdvice`，然后在处理器方法上使用`@ExceptionHandler`注解标注一个异常处理器，最后**开启注解驱动**
+- 注解方式：
 
+  > 1. 编写一个全局控制器类，类上使用`@ControllerAdvice`注解标注，表示这是一个处理异常的控制器类。
+  > 2. 然后在其中写处理不同异常的处理器方法，方法上用`@ExceptionHandler(异常)`注解标注这是一个处理异常的处理器方法。
+  > 3. 最后在XML中加上**注解驱动**标签即可。
+  
   ```java
-  @ControllerAdvice //它包括了@Controller注解
+  @ControllerAdvice //它包括了@Controller注解，并且可以指定扫描包的范围
   public class ExceptionController {
       //不同的异常走不同的处理器方法。注解的默认值是根据方法的形参类型来确定的。
       @ExceptionHandler(ClassCastException.class)
@@ -1035,7 +1039,7 @@ public class UserController {
   }
   ```
 
-> 对于没有被捕获的异常，可以在`web.xml`中通过配置`<error-page>`标签来设置处理方式，不至于服务器报错。
+> 对于没有被捕获的异常，可以在`web.xml`中通过配置`<error-page>`标签来设置处理方式，不至于服务器报错停掉。
 
 ------
 
@@ -1284,7 +1288,7 @@ public class UserController {
   >           // 创建 Spring 应用程序上下文
   >           AnnotationConfigWebApplicationContext springContext = new AnnotationConfigWebApplicationContext();
   >           springContext.register(SpringConfig.class);
-  >         
+  >                 
   >           // 配置 Spring MVC 的中央调度器 DispatcherServlet
   >           AnnotationConfigWebApplicationContext mvcContext = new AnnotationConfigWebApplicationContext();
   >           //让SpringMVC容器拿到ServletContext对象
@@ -1293,7 +1297,7 @@ public class UserController {
   >           ServletRegistration.Dynamic servlet = servletContext.addServlet("dispatcherServlet", new DispatcherServlet(mvcContext));
   >           servlet.setLoadOnStartup(1);
   >           servlet.addMapping("/");
-  >         
+  >                 
   >           // 配置字符编码过滤器
   >           FilterRegistration.Dynamic filter = servletContext.addFilter("characterEncodingFilter", CharacterEncodingFilter.class);
   >           filter.setInitParameter("encoding", "UTF-8");

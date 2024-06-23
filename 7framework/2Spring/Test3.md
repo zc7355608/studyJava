@@ -192,7 +192,7 @@
 
 > JdbcTemplate是Spring提供的一个JDBC模板类，是对JDBC的封装，简化JDBC代码。接下来我们简单来学习一下，使用JdbcTemplate完成增删改查。（当然，你也可以让Spring集成其它的ORM框架，MyBatis、Hibernate等）
 
-###### 环境准备：
+###### xxxxxxxxxx <!-- 日期格式化 --><p th:text="${#dates.format(user.birth,'yyyy-MM-dd HH:mm')}"></p>html
 
 - 数据库表：（还是mybatis中用的t_car表）
 

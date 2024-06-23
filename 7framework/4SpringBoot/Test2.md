@@ -167,7 +167,7 @@
 
 ------
 
-## Spring Boot整合Swagger2
+## Spring Boot2整合Swagger2
 
 > 由于Spring Boot能够快速开发、便携部署等特性，通常在使用Spring Boot构建Restful接口应用时考虑到多终端的原因（这些终端会共用很多底层业务逻辑），因此我们会抽象出这样一层来服务于多个终端。对于不同的终端共用这一套API接口时，它们都需要使用（后端提供的）一套API接口文档。后端人员需要根据该层接口来编写对应的API接口文档，文档中描述了接口的地址、所需参数、返回结果等信息。这里我们就借助**API文档构建工具**Swagger2来实现API接口文档的生成。
 
@@ -462,7 +462,7 @@ class Springboot001ApplicationTests {
 - `@CacheEvict`：放在**删除**数据的方法上。当调用该方法删除数据库数据时，会自动删除集合中对应的缓存对象。`allEntries`删除集合中所有的缓存，`beforeInvocation`调用方法之前删除缓存。
 - `@Caching`：该注解用于组合以上的注解。
 
-### Spring Boot集成EhCache：
+### Spring Boot集成EhCache步骤：
 
 1. 添加EhCache依赖：
 
@@ -575,6 +575,125 @@ class Springboot001ApplicationTests {
 5. 要缓存的JavaBean对象实现序列化接口。
 
 ###### 接下来就可以在service层的方法上添加对应的注解，将对象进行缓存了
+
+------
+
+## Spring Boot中使用定时任务框架Quartz
+
+> 在日常项目的运行中，我们总会有周期执行某个任务的需求。这种定时任务可以采用JDK自带的Timer类，也可以直接在Spring Boot中使用自带的Spring Task（通过在启动类上添加`@EnableScheduling`注解，定时任务上加`@Scheduled`注解来实现）。但遗憾的是Spring Task不支持分布式环境，所以我们这里介绍另一个强大的定时任务框架**Quartz**在Spring Boot中的集成。
+
+1. 添加Quartz依赖：
+
+   ```xml
+   <dependency>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-starter-quartz</artifactId>
+   </dependency>
+   ```
+
+2. 定义任务：
+
+   > 如何在Quartz中定义一个定时任务呢？
+   >
+   > 编写定时任务类`TaskJob`，实现（quartz框架的）`Job`接口并重写`excute()`方法，在其中实现编写要执行的定时任务。这样的一个类会被Quartz认为是一个定时任务。
+
+   ```java
+   public class TaskJob implements Job {
+       private Logger logger = LoggerFactory.getLogger(TaskJob.class);
+       @Override
+       public void execute(JobExecutionContext context) throws JobExecutionException {
+           //这里面写你要定时执行的代码
+           DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+           LocalDateTime now = LocalDateTime.now();
+           logger.info("执行了定时任务，时间是："+ pattern.format(now) + "，该任务是由"+ context.getTrigger().getKey().getName() +"触发的");
+       }
+   }
+   ```
+
+3. 创建调度配置类：
+
+   > 创建`JobDetail`实例放在Spring容器中，并定义它的触发器`Trigger`注册到`scheduler`中，启动scheduler开始调度。
+
+   ```java
+   //Quartz的配置类，用于配置(写好的)定时任务
+   @Configuration
+   public class QuartzConfig {
+       //将定时任务封装为JobDetail实例放在容器中，里面包含了该定时任务的细节和执行策略
+       @Bean
+       public JobDetail jobDetail(){
+           return JobBuilder.newJob(TaskJob.class).storeDurably().build();
+       }
+       //配置Trigger触发器，也就是配置调度任务的参数。一个触发器可以触发（配置）多个定时任务
+       @Bean
+       public Trigger trigger1(){
+           //里面有对应的scheduler定时器，用于配置何时调用该触发器中的这些任务
+           SimpleScheduleBuilder scheduleBuilder = SimpleScheduleBuilder.simpleSchedule()
+                   //每1秒执行1次
+                   .withIntervalInSeconds(1)
+                   //永久重复一直执行
+                   .repeatForever();
+           return TriggerBuilder.newTrigger()
+               	//配置该触发器的名字和所属组
+                   .withIdentity("trigger1", "group1")
+               	//配置该触发器的触发时间
+                   .withSchedule(scheduleBuilder)
+               	//也可以直接用cron表达式，不用scheduler
+   //                .withSchedule(CronScheduleBuilder.cronSchedule("0/5 * * * * ? *"))
+               	//将定时任务注册到该触发器中，可以注册多个
+                   .forJob(jobDetail())
+                   .build();
+       }
+   }
+   ```
+
+------
+
+## Spring Boot中的全局异常处理和事务控制
+
+- ### 事务：
+
+  > 在使用Jdbc做为数据库访问技术时，Spring Boot框架**默认定义**了基于jdbc的PlatformTransactionManager接口实现的DataSourceTransactionManager，并且**做了自动配置**。只需要加上相关注解（`@Transactional`）开启事务控制即可。
+
+- ### 全局异常处理：
+
+  > - 一般在做项目开发时，我们希望将所有service层抛到controller层的异常都集中处理一下（全局异常处理），如异常打印、转发到不同页面、封装不同的HTTP状态码等。之所以我们要做全局异常处理，因为我们开发的应用是面向于用户的，程序中任何一个小疏忽都可能导致用户流失，而程序出现异常往往是无法避免的。所以如何减少程序异常对用户体验的影响呢？其实就是对相应的异常进行捕获，跳转到友好的提示页面并展示经过处理的信息。而我们在每个地方都catch捕获一下会使代码很乱不好统一处理。所以全局异常处理很重要。
+  > - 在Spring MVC中我们通过`@ControllerAdvice`、`@ExceptionHandler(异常)`注解或XML进行全局异常处理。而Spring Boot中没有XML了，所以只保留了Spring MVC中的注解方式来进行的全局异常的处理。
+  
+
+------
+
+## Spring Boot的数据校验Validation
+
+> 在WEB项目中，对于前端提交过来的数据，后端接口要做的第一件事就是对数据进行合法性校验（虽然前端通过JS验证过了），确保数据合法后再进行后续的操作。Spring Boot中提供了数据校验模块，通过该模块可以很方便的完成数据的校验，就不用自己写大量重复的代码了。
+
+> Java中数据校验也有对应的一套规范：JSR303。JSR303是一项标准并没有具体的实现，它规定了一些校验注解（如`@Null`、`@NotNull`、`@Pattern`等），位于`jakarta.validation.constraints`包下（JSR349是其升级版，添加了一些新特性）。该规范的具体实现有：
+>
+> - **Hibernate Validation**：它是JSR303的实现，并且增加了其他的注解。如：`@Email`、`@Length`、`@Range`等。
+> - **Spring Validation**：它对**Hibernate Validation**进行了二次封装，对于开发者来说使用起来更加方便。它是Spring MVC模块的其中之一。
+
+###### Spring Validation的相关注解：（在pojo类的属性上加，可以加多个）
+
+> - `@AssertFalse`和`@AssertTrue`：该值可以为`null`或`true/false`
+> - `@Email`：必须是邮件格式
+> - `@Max`和`@Min`：限制最大值和最小值
+> - `@NotNull`：不能为`null`
+> - `@NotBlank`：不能为`null`或空字符串
+> - `@NotEmpty`：不能为`null`且集合数组的大小不能为0
+> - `@Size`：数组或集合的大小必须在该范围内
+> - `@Length`：长度必须在指定范围内
+
+###### 使用：
+
+1. 添加`spring-boot-starter-validation`的依赖：（由于该依赖在`spring-boot-starter-web`中就有，所以可以跳过该步骤）
+
+   ```xml
+   <dependency>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-starter-validation</artifactId>
+   </dependency>
+   ```
+
+2. 在控制器方法参数前加`@Valid`注解（前提是该参数对应的pojo类中已经添加了验证注解）。验证失败时后端会抛出`BindException`
 
 ------
 
