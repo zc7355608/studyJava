@@ -12,11 +12,11 @@
 
   > 一个HTML文件中，定义了多个Vue的组件，这就属于**非单文件组件**。用法：
 
-  1. 定义组件：通过`Vue.extend({})`可以定义一个Vue的组件并返回，参数中的配置对象类似vm中的。注意：
+  1. 定义组件：在JS中通过`Vue.extend({})`可以定义一个Vue的组件并返回，参数中的配置对象类似vm中的。注意：
 
      > - 组件定义时，不能出现`el`配置项。因为最终所有的组件都要被vm对象所管理，由vm来决定服务于哪个Vue模版（容器）。
      >
-     > - `data`只能用函数式写法。因为对象式写法多个组件会共用这个data对象，组件之间数据不独立；而函数式写法会返回一个新的data对象，多个组件之间用的data互不影响。
+     > - `data`只能用函数式写法。因为对象式写法多个组件实例会共用这个data对象，数据不独立；而函数式写法会返回一个新的data对象，多个组件实例用的data互不影响。
      >
      > - 组件中通过`template`配置项来配置组件的模版（**组件模版**）：
      >
@@ -46,7 +46,7 @@
   
      > 这种方式属于局部注册，用的较多，但是如果其他vm对象想用必须也得配置components去进行局部注册。此时可以用**全局注册**，这样其他所有vm对象接管的Vue容器中都可以编写该组件对应的组件标签了：`Vue.component('组件名', 组件)`
   
-  3. 使用组件：在vm对象接管的Vue容器中编写**组件标签**，该标签会被Vue渲染替换为组件中的定义好的**组件模版**。
+  3. 使用组件：在vm对象接管的Vue容器中编写**组件标签**，该标签会被Vue解析并替换为组件中的定义好的**组件模版**。
   
      ```html
      <div id="root">
@@ -62,16 +62,16 @@
   > - 组件标签也可以使用单标签，但是**需要Vue脚手架环境的支持**。
   > - 组件定义时可以使用`name: 'abc'`配置项，指定组件在开发者工具中呈现的名字。（只是在Vue工具中显示，其他地方没变）
   > - **定义组件可以简写**：`const school = Vue.extend({})`简写为`const school = {}`，注册组件的时候会自动调用该对象的`Vue.extend({})`
-  > - 组件也可以嵌套，在组件注册其他组件，编写`components`配置项就可以了（注意组件的定义顺序）。通常会有一个管理所有组件的根组件，叫app组件。
+  > - 组件也可以嵌套，在组件中注册其他组件，编写`components`配置项就可以了（注意组件的定义顺序）。通常会有一个管理所有组件的根组件，叫app组件。
   
   ##### 关于`VueComponent`：
   
   > 1. 通过`Vue.extend({})`定义的school组件，本质上是一个名为`VueComponent`的构造函数。该构造函数不是程序员定义的，而是由`Vue.extend()`生成的。**注意**：每次调用`Vue.extend({})`定义一个组件时，返回的都是一个**全新的**`VueComponent`的构造器。
-  > 2. 我们只需要写`<school></school>`标签，Vue解析时会帮我们创建school组件的**组件实例对象（vc）**，即Vue帮我们执行的：`new VueComponent({配置对象})`
+  > 2. 我们只需要写`<school></school>`标签，Vue解析模板时会帮我们创建school组件的**组件实例对象（vc）**，即Vue帮我们执行的：`new VueComponent({配置对象})`
   > 4. 关于组件配置中的`this`：
   >    - 在`new Vue({})`的配置项中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是vm对象。
   >    - 而在`Vue.extend({})`定义组件的配置中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是`VueComponent`构造的**组件实例对象**（小型的vm对象vc）。
-  > 5. vm对象上的`$children`是一个`VueComponent`类型（组件实例对象）的数组，保存了vm实例上注册的所有组件。
+  > 5. vm对象上的`$children`是一个`VueComponent`类型（组件实例对象）的数组，保存了在该vm实例上注册的所有组件实例vc。
   
   ##### 一个重要的关系：
   
@@ -79,23 +79,24 @@
   
 - ## 单文件组件（常用）
 
-  > 每个组件分别定义在了一个`.vue`文件中，这就属于单文件组件。使用：
+  > 每个组件分别定义在了一个`.vue`文件中（必须），这就属于单文件组件。使用：
   
   ##### 首先要知道：
   
-  > - 这种`.vue`文件浏览器是不能识别的，也就是不能直接在浏览器环境中运行。我们需要将这个`.vue`文件经过webpack工具处理成`.js`文件，才可以引入到HTML中使用：
-  >   - 我们可以选择手动用webpack搭建工作流对`.vue`文件进行处理，但这种方式麻烦，且处理的结果（工作流）不一定是最好的。
-  >   - 通常我们会选择使用**Vue官方提供的脚手架**。就是Vue团队通过webpack给打造完的工作流，直接用就行。
+  > 这种`.vue`文件浏览器是不能识别的，也就是不能直接在浏览器环境中运行。我们需要将这个`.vue`文件经过webpack工具处理成`.js`文件，才可以引入到HTML中使用：
+  >
+  > - 我们可以选择手动用**webpack**搭建工作流对`.vue`文件进行处理，但这种方式麻烦，且处理的结果（工作流）不一定是最好的。
+  > - 通常我们会选择使用**Vue官方提供的脚手架**。就是Vue团队通过webpack给打造完的工作流，直接用就行。
   
   ##### 单文件组件的使用：
   
-  1. 先新建一个`.vue`文件（**定义组件**），该单文件组件的文件名，同样遵循上面的组件名规范，我们一般用大写的方式：
+  1. 先新建一个`.vue`文件（**定义组件**），该文件的名字同样遵循上面的组件名规范，一般用大写的方式：
   
      > `School.vue`：（VS Code安装插件：Vetur，作者Pine Wu）
   
      ```vue
      <template>
-     	<!-- 组件的结构，也就是HTML。template配置项中怎么写，这里就怎么写，并且我们知道外部的template标签不会影响结构 -->
+     	<!-- 组件的结构，也就是HTML。这里写的template标签就相当于写在了template配置项中 -->
          <div class="demo">
          	<h2>学校:{{name}}</h2>
          	<h2>地址:{{address}}</h2>
@@ -104,7 +105,7 @@
      </template>
      <script>
      	//组件的交互（JS脚本）。注意最后一定要暴露一下该组件，因为vue文件最终会翻译为js文件，不暴露其他JS中没法引入该组件
-         export default {//这里要省略Vue.extend()，用简写的形式，否则还需要导入Vue文件
+         export default {//这里省略Vue.extend()，用简写的形式，否则还需要导入Vue文件
              name: 'School',//这里最好和文件名保持一致
              data(){
                  return {
@@ -119,18 +120,18 @@
              }
          }
      </script>
-     <style scoped>
+     <style scoped>/* style标签中的是该组件的样式，最终这些都会被JS代码动态添加到HTML的style标签中 */
      	/* 组件的样式CSS，如果不加scoped，那么多个组件整合时，最终样式会混合在一起，本组件的样式可能会污染其他组件 */
          /* App组件中不要加scoped */
          .demo {
              background-color: orange;
-         }/* 就是通过给组件最外层的div加了个特殊的唯一的标签属性，然后通过该属性选择器和其他的CSS选择器配合使用 */
-     /* 另外还有lang属性，值可以是css、less、stylus，表示里面用是less写的样式。但是需要Vue脚手架要局部安装less-loader */
+         }/* scoped底层就是给该组件模板最外层的div上加一个唯一的属性，然后通过属性选择器和CSS选择器配合完成只给该组件加样式 */
+     /* 另外还有lang属性，值可以是css、less、stylus，表示里面用是less写的样式。但是需要Vue脚手架项目中局部安装less-loader */
      </style>
      ```
   
-     > - 之前说过，一个Vue组件中包含了HTML、CSS、JS，也就分别对应了单文件组件中的3个标签`<template>`、`<style>`、`<script>`
-     > - 最后一定要将组件暴露下。因为最终所有的`.vue`文件都会编译为JS文件，其他JS中要用该组件所以要暴露一下该组件对象。
+     > - 之前说过，一个Vue组件中包含了HTML、CSS、JS，也就分别对应了单文件组件中的3个标签`<template>`、`<style>`、`<script>`，最终这个`.vue`文件还是会被翻译为一个`.js`文件。
+     > - 最后一定要将该配置对象进行暴露。因为最终所有的`.vue`文件都会编译为JS文件，其他JS文件中要用到这个配置对象。
   
      > 再写一个App组件，它管理其他所有的组件，是根组件。`App.vue`：
      >
@@ -144,28 +145,26 @@
      > <script>
      >    //引入其他文件中的子组件
      >    import School from './School.vue'
-     > 
-     >    export default {
+     > export default {
      >         name: 'App',
      >         //注册组件
      >         components: { School }
      >     }
-     > </script>
+     >    </script>
      > <style></style>
      > ```
-  
-  2. `main.js`入口文件中，将根组件App注册到vm对象上，让Vue实例对象管理起来App组件对象：
+     
+  2. `main.js`入口文件中，将根组件App注册到vm对象上，让Vue实例对象管理起来App组件：
   
      ```js
      import App from './App.vue'
-     
      new Vue({
          el: '#root',
          template: `<App></App>`,
-         components: {App}
+         components: { App }
      })
      ```
-  
+     
   3. `index.html`中引入该`main.js`入口文件即可：
   
      ```html
@@ -175,6 +174,7 @@
          <meta charset="UTF-8">
          <meta name="viewport" content="width=device-width, initial-scale=1.0">
          <title>主页</title>
+         <!-- 引入vue -->
          <script src="./js/vue.js"></script>
      </head>
      <body>
@@ -190,23 +190,23 @@
 
 # 使用Vue脚手架
 
-> 上面单文件组件如果不用Vue脚手架进行编译的话，是无法直接运行的。
+> 上面单文件组件如果不用Vue脚手架进行编译的话，是无法直接运行的。因为vue文件还没被编译为JS文件。
 
 - ### 初始化Vue脚手架
 
   > Vue脚手架（Vue CLI）全称是：Vue命令行接口（Vue Command Line Interface）工具，是Vue官方提供的标准化开发工具（开发平台）。简单来说，Vue脚手架就是一个基于Vue框架进行快速开发的完整系统。它包括一个图形化的项目管理界面和一套完整的脚手架工具，帮助开发者快速搭建Vue项目。脚手架工具目前的最新版本是4.X（一般用最新的），地址https://cli.vuejs.org/zh/
 
-  1. 通过npm工具，**全局安装Vue脚手架工具**：`npm i -g @vue/cli`，然后命令行执行`vue`来查看是否安装成功。
+  1. （仅第一次使用）通过npm工具，**全局安装Vue脚手架工具**：`npm i -g @vue/cli`，然后命令行执行`vue`来查看是否安装成功。
 
-  2. **切换到你要创建项目的目录，使用Vue的命令创建Vue脚手架的项目**：`vue create vue_test`，然后选择Vue2版本。（创建的项目其实就是创建脚手架环境，只是其中给你准备了一个HelloWorld的项目）
+  2. 在你要创建项目的目录下，**使用Vue脚手架的命令创建Vue项目**：`vue create vue_test`，然后选择Vue2版本。（创建的项目其实就是创建脚手架环境，只是其中给你准备了一个HelloWorld的项目（该npm项目会初始化为一个本地git仓库））
 
-  3. 接下来cd切换到项目目录下，执行`npm run serve`，它就开始编译HelloWorld项目的代码了，而且会启动这个项目对应的服务。在浏览器中输入url即可完成对HelloWorld项目的访问了：
+  3. 接下来cd切换到项目目录下，执行`npm run serve`，它就开始编译运行内置的HelloWorld项目的代码了，并且会启动这个项目对应的服务（修改源码自动重启服务）。在浏览器中输入url即可完成对HelloWorld项目的访问了：
 
      ![image-20240605134041103](./assets/image-20240605134041103.png)
 
 - ### 脚手架相关文件的相关说明
 
-  - `package.json`：通过查看其中的`scripts`配置项，我们知道刚才执行的`npm run serve`其实是执行了`vue-cli-service serve`，该命令会部署项目文件并启动一个服务器。`vue-cli-service build`是所有代码写完后，将前端工程化的源代码`.vue`文件，编译为JS文件，并且将组件中`<template>`标签里的**Vue模版**进行了编译。`lint`中是进行语法检查（很少用）。
+  - `package.json`：通过查看其中的`scripts`配置项，我们知道刚才执行的`npm run serve`其实是执行了`vue-cli-service serve`，该命令会部署项目文件并启动一个服务器。`vue-cli-service build`是所有代码写完后，将前端工程化的源代码`.vue`文件，编译为JS文件，并且将组件中`<template>`标签里的**Vue模版**进行了编译。`lint`中是通过`eslint`工具进行语法检查（很少用）。
 
     ```json
     "scripts": {
@@ -252,16 +252,15 @@
               components: { School }
           }
       </script>
-      <style>
-      </style>
+      <style></style>
       ```
+      
+    - assets目录：该目录中存放前端开发环境下的（需要被打包的）静态资源文件。（打包前用的静态资源）
+    
+    - components目录：里面存放（App组件所管理的）所有的子组件`.vue`文件。
+    
+  - public目录中：（存放不需要打包的静态资源）
   
-    - assets目录：该目录中存放前端开发环境下的静态资源文件。（打包前用的静态资源）
-  
-    - components目录：里面存放（App组件所管理的）所有的子组件。
-  
-  - public目录中：
-
     - `favicon.ico`：网页的图标
     - `index.html`：网站首页，里面没有引入任何文件，只有一个`<div id="app"></div>`（以后我们开发的都是单页面应用）
   
@@ -270,7 +269,7 @@
   > 用我们的`App.vue`替换掉脚手架中的，将`Student.vue`放在components目录中即可。
   
   ###### 可能我们会有一些疑问：
-
+  
   > 1. 凭什么main.js是入口文件？
   >
   >    答：这是在Vue的脚手架中配置好了的。
