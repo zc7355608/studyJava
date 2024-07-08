@@ -149,9 +149,9 @@ axios({
 
 ------
 
-### jQuery的fetch函数发送AJAX请求：
+### 通过JS的fetch函数发送AJAX请求：
 
-> 通过JS的全局函数`fetch()`也可以发送AJAX请求，它是`XMLHttpRequest`的升级版。用法：
+> 通过JS的全局函数`fetch()`也可以发送AJAX请求，它是`XMLHttpRequest`的升级版（在一些旧的浏览器上不能用）。用法：
 
 ```js
 fetch('url?name=value..',{

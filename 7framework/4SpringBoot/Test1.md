@@ -40,7 +40,7 @@
 
           ![image-20240422231442242](./assets/image-20240422231442242.png)
 
-        - `pom`文件中有`<parent>`标签。该标签是必须的，所有的Spring Boot项目都是该父项目的子项目，由该父项目帮你管理Spring Boot所用到的依赖和插件的版本。
+        - `pom`文件中有`<parent>`标签。该标签是必须的，所有的Spring Boot项目都是该父项目的子项目，由该父项目帮你管理Spring Boot应用所有用到的依赖和插件的版本。
   
           ```xml
           <parent>
@@ -109,7 +109,7 @@
   
   - 运行结果：
   
-    xxxxxxxxxx <!-- 日期格式化 --><p th:text="${#dates.format(user.birth,'yyyy-MM-dd HH:mm')}"></p>html
+    ![aa](./assets/aa.png)
 
 ------
 
@@ -119,37 +119,38 @@
 
     - Spring Boot程序必须要继承`spring-boot-starter-parent`，因为该项目的pom文件中定义了所有依赖的jar包的版本，继承该模块可以避免多个依赖使用相同技术时出现版本冲突。
 
-    - 也可以不继承，直接将`spring-boot-dependencies`导入到`<dependencyManagement>`中自己管理所有jar包的版本，效果相同：
+      > 也可以不继承，直接将`spring-boot-dependencies`导入到`<dependencyManagement>`中自己管理jar包的版本，效果相同：
+      >
+      > ```xml
+      > <dependencyManagement>
+      >     <dependencies>
+      >         <dependency>
+      >             <groupId>org.springframework.boot</groupId>
+      >             <artifactId>spring-boot-dependencies</artifactId>
+      >             <version>3.2.4</version>
+      >             <type>pom</type>
+      >             <scopt>import</scopt>
+      >         </dependency>
+      >     </dependencies>
+      > </dependencyManagement>
+      > ```
 
-      ```xml
-      <dependencyManagement>
-          <dependencies>
-              <dependency>
-                  <groupId>org.springframework.boot</groupId>
-                  <artifactId>spring-boot-dependencies</artifactId>
-                  <version>3.2.4</version>
-                  <type>pom</type>
-                  <scopt>import</scopt>
-              </dependency>
-          </dependencies>
-      </dependencyManagement>
-      ```
-
-    - 所以对于Spring Boot应用的依赖，我们一般不指定依赖的版本号，这样使用的就是`<parent>`中定好的无冲突的版本。如果发生了坐标错误，再手动指定版本。
+    - 所以对于Spring Boot应用的依赖，我们一般不指定依赖的版本号，这样使用的就是`<parent>`中定好的无冲突的版本。如果发生了坐标错误（parent中没有管理该依赖），再手动指定版本。
 
   - #### starter：
 
-    - 我们应该首选使用Spring Boot的`starter`依赖，这种起步依赖中包含了Spring整合用的配置类，只引入该依赖就能直接用，不需要再进行额外的配置，实现了快速配置。（如果不想用它默认的配置，也可以在`.yml`文件中指定`starter`的配置）
-    - 并且每个不同的`starter`根据功能的不同，通常又包含多个其他依赖。根据依赖传递，这一个`starter`其实是一堆依赖，减少了依赖配置。
-
+    - 我们应该首选使用Spring Boot的`starter`**起步依赖**，这种起步依赖中包含了Spring整合该模块用到的配置类，只引入该依赖就能直接用，不需要再进行额外的配置，实现了快速配置。（如果不想用它默认的配置，也可以在`.yml`文件中指定`starter`的配置）
+    - 并且每个`starter`根据功能的不同，又包含多个其他依赖。根据依赖传递，这一个`starter`其实是一堆依赖，减少了依赖的配置。
+    - 其实`starter`有两种：一种是`spring-boot-starter-xxx`的Spring Boot自己的依赖，还有一种是`xxx-spring-boot-starter`第三方整合Spring Boot提供的依赖。
+  
   - #### 引导类：（`Springboot002Application`主启动类）
-
-    - 在我们的启动程序中，`SpringApplication.run(Springboot001Application.class, args);`的返回值就是Spring容器对象`ApplicationContext`，它就是启动了一个Spring容器。
+  
+    - 在我们的启动程序中，`SpringApplication.run(Springboot001Application.class, args);`的返回值就是Spring容器对象`ApplicationContext`，就是它启动了一个Spring容器。
   
     - 被`@SpringBootApplication`注解所标注的类叫引导类（主启动类）。该注解组合了以下3个注解：
   
       > `@SpringBootApplication`：
-  
+      >
       > ```java
       > @Target({ElementType.TYPE})
       > @Retention(RetentionPolicy.RUNTIME)
@@ -158,60 +159,60 @@
       > @SpringBootConfiguration
       > @EnableAutoConfiguration
       > @ComponentScan(
-      >        excludeFilters = {@Filter(
-      >        	type = FilterType.CUSTOM,
-      >        	classes = {TypeExcludeFilter.class}
-      >     ), @Filter(
-      >        	type = FilterType.CUSTOM,
-      >        	classes = {AutoConfigurationExcludeFilter.class}
-      >     )}
+      >     excludeFilters = {@Filter(
+      >     	type = FilterType.CUSTOM,
+      >     	classes = {TypeExcludeFilter.class}
+      >  ), @Filter(
+      >     	type = FilterType.CUSTOM,
+      >     	classes = {AutoConfigurationExcludeFilter.class}
+      >  )}
       > )
       > public @interface SpringBootApplication{...}
       > ```
   
-      1. `@SpringBootConfiguration`：类似于`@Configuration`。以前的全注解方式的SSM整合开发，不就是加载配置类吗，这个启动类就是一个配置类。并且可以在该启动类中进行Spring Boot框架的配置以及Bean的配置。
+      1. `@SpringBootConfiguration`：类似于`@Configuration`。以前的全注解方式的SSM整合开发，不就是Tomcat在启动时加载配置类吗，这个启动类就是一个配置类。可以在该启动类中进行Spring Boot框架的配置以及Bean的配置。
       2. `@EnableAutoConfiguration`：启用自动配置。通过加载`starter`中大量的自动配置类，完成Spring Boot项目的自动配置。
       3. `@ComponentScan`：包扫描。Spring Boot容器会自动进行包扫描。它默认对，该注解所在类的**所在包下的所有包进行注解扫描**，所以**建议启动类放在主包下面**。
   
-      > 所以引导类就是Spring Boot工程的执行入口，运行main()方法就是启动项目。运行后会初始化Spring容器，扫描并初始化bean。
+      > 所以引导类就是Spring Boot工程的执行入口，运行main()方法就是启动项目。运行后会初始化Spring容器，扫描并初始化Bean。
   
   - #### 内嵌Tomcat：
   
-    > - 在引入的`spring-boot-starter-web`依赖中，传递了这样一个依赖：
-    >
-    >   ```xml
-    >   <dependency>
-    >       <groupId>org.springframework.boot</groupId>
-    >       <artifactId>spring-boot-starter-tomcat</artifactId>
-    >       <version>3.2.4</version>
-    >       <scope>compile</scope>
-    >   </dependency>
-    >   ```
-    >
-    > - 该依赖中又包含了`tomcat-embed-core`内嵌的tomcat核心。因此之所以能够直接运行程序，就是因为程序中有内嵌的tomcat。
-    >
-    > - 它的工作原理是，将Tomcat服务器做为对象运行，并将该对象交给Spring容器管理。
-    >
-    > - 如果想换其他服务器如Jetty，就可以先去掉这个依赖`spring-boot-starter-tomcat`，加上Jetty服务器的依赖即可：
-    >
-    >   ```xml
-    >   <dependency>
-    >       <groupId>org.springframework.boot</groupId>
-    >       <artifactId>spring-boot-starter-web</artifactId>
-    >       <exclusions>
-    >           <exclusion>
-    >               <groupId>org.springframework.boot</groupId>
-    >               <artifactId>spring-boot-starter-tomcat</artifactId>
-    >           </exclusion>
-    >       </exclusions>
-    >   </dependency>
-    >   <dependency>
-    >       <groupId>org.springframework.boot</groupId>
-    >       <artifactId>spring-boot-starter-jetty</artifactId>
-    >   </dependency>
-    >   ```
-    >
-    > - Spring Boot中内置了3款服务器：Tomcat（默认）、Jetty、Undertow
+    1. 在引入的`spring-boot-starter-web`依赖中，传递了这样一个依赖：
+    
+      ```xml
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-tomcat</artifactId>
+          <version>3.2.4</version>
+          <scope>compile</scope>
+      </dependency>
+      ```
+    
+    2. 该依赖中又包含了`tomcat-embed-core`内嵌的tomcat核心。因此之所以能够直接运行程序，就是因为程序中有内嵌的tomcat。
+    
+    3. 它的工作原理是，将Tomcat服务器做为对象运行，并将该对象交给Spring容器管理。
+    
+    4. 如果想换其他服务器如Jetty，就可以先去掉这个依赖`spring-boot-starter-tomcat`，加上Jetty服务器的依赖即可：
+    
+      ```xml
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-tomcat</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-jetty</artifactId>
+      </dependency>
+      ```
+    
+    > 内嵌Tomcat服务器是Spring Boot辅助功能之一。原理是将Tomcat作为对象运行，并将该对象交给Spring容器管理。在Spring Boot中内置了3款服务器：Tomcat（默认）、Jetty、Undertow。Jetty是一款更轻量级的服务器，但它的负载性能远不如Tomcat。
 
 ------
 
@@ -228,15 +229,18 @@
   }
   ```
 
-  > 或者直接在配置文件中关闭：`spring.main.banner-mode=off`。其他的像`banner.txt`的位置等都可以在该文件中配置。
+  > 或者直接在配置文件中关闭：`spring.main.banner-mode=off`。（其他的像`banner.txt`的位置等都可以在该文件中配置）
 
 - ### 关于Spring Boot的核心配置文件`application.properties | yml | yaml`：
 
-  > Spring Boot应用默认会去类路径`resources`下获取全局配置文件`application.properties`或`application.yml | yaml`，**文件名和位置都是必须的，可以有多个**，冲突时`.properties` > `.yml` > `.yaml`，并且里面的配置会进行整合。我们可以通过配置文件来修改Spring Boot项目的默认配置，配置文件中的内容也可以自定义。
-
-  - ###### application.properties：（这里面的配置，是和你用什么技术（starter）有关的。你要没用某个starter，那么里面的某个配置就不生效）
-
-    ```yaml
+  > - 可以通过Spring Boot的配置文件来修改项目的默认配置。Spring Boot应用默认会去类路径`resources`下获取全局配置文件`application.properties`或`application.yml | yaml`，可以有多个，里面的配置会进行整合。如果发生冲突时，优先级遵循`.properties > .yml > .yaml`。
+  > - Spring Boot的核心配置文件的文件名和位置不是必须的，可以通过**设置程序启动参数来修改**：`--spring.config.name=myconfig`，修改文件路径：`--spring.config.location=classpath:/ebank/config.properties,classpath:/a/b.properties,...`（多个后面的生效）
+  
+  - ###### application.properties：
+  
+    > Spring Boot中**导入对应的starter依赖后**，配置文件中就提供了对应的配置属性。如：（配置文件中的内容也可以自定义）
+  
+    ```properties
     ## 项目启动端口号
     server.port=8081
     ## 设置项目的上下文路径
@@ -247,96 +251,112 @@
     spring.datasource.name=root
     spring.datasource.password=a123456789
     ```
-
+  
   - ###### application.yml | yaml：（主流格式）
-
-    > - 这种以`.yml`或`.yaml`结尾的也是一种配置文件。它是一种比较直观的、容易被电脑识别的一种**数据序列化格式**，容易与脚本语言进行交互，支持不同编程语言的导入，有很好的可阅读性，且具有一定的结构。所以说它通常用来做配置文件。
-    >
-    > - 这种文件的内容格式为`key: value`，中间以**冒号和空格**分开。它以空格来表示层级关系（不能用Tab键），大小写敏感，一般都用**短横线风格**的**小写字母**做为key，如：
-    >
-    >   ```yaml
-    >   server:
-    >     port: 8081
-    >     servlet:
-    >       context-path: /myboot
-    >   spring:
-    >     datasource:
-    >       driver-class-name: com.mysql.cj.jdbc.Driver
-    >   ```
-    >
-    > - 一个key可以对应多个值（数组），用换行和短横线表示：
-    >
-    >   ```yaml
-    >   hobby:
-    >     - game
-    >     - music
-    >     - sleep
-    >   # 或者
-    >   hobby: [game,music,sleep]
-    >   ```
-    >
-    >   对象数组：
-    >
-    >   ```yaml
-    >   hobby:
-    >     - game1: heishenhua
-    >       price: 268
-    >     - game2: csgo
-    >       price: 0
-    >   # 或者
-    >   hobby:
-    >     - 
-    >       game1: heishenhua
-    >       price: 268
-    >     - 
-    >       game2: csgo
-    >       price: 0
-    >   # 或者
-    >   hobby: [{game1:csgo,price:11},{game2:lol,price:101}]
-    >   ```
-    >
-    > - 字面值表示方式：
-    >
-    >   - 布尔值：TRUE | true | True
-    >   - 实数：3.14 | 3.342324e+5
-    >   - 整型数：12（也支持2、8、16进制数）
-    >   - 空值：~（用它来表示null值）
-    >   - 字符串：Hello | "Hello"（双引号可加可不加，如果需要使用转义字符，那么就需要加双引号）
-    >   - 日期：2013-12-23（日期必须用yyyy-MM-dd格式）
-    >   - 日期时间：2013-12-23T12:02:31+08:00（日期和时间之间用T链接，最后使用+跟上时区）
+  
+    - 这种以`.yml`或`.yaml`结尾的也是一种配置文件。它是一种比较直观的、容易被电脑识别的一种**数据序列化格式**，容易与脚本语言进行交互，支持不同编程语言的导入，有很好的可阅读性，且具有一定的结构。所以说它通常用来做配置文件。
+    
+    - 这种文件的内容格式为`key: value`，中间以**冒号和空格**分开。它以空格来表示层级关系（不能用Tab键），大小写敏感，一般都用**短横线风格**的**小写字母**做为key，如：
+    
+      ```yaml
+      server:
+        port: 8081
+        servlet:
+          context-path: /myboot
+      spring:
+        datasource:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+      ```
+    
+    - 值还可以是数组，换行加短横线表示：
+    
+      ```yaml
+      hobby:
+        - game
+        - music
+        - sleep
+      # 简写形式
+      hobby: [game,music,sleep]
+      ```
+    
+      对象数组：
+    
+      ```yaml
+      hobby:
+        - game1: heishenhua
+          price: 268
+        - game2: csgo
+          price: 0
+      # 或
+      hobby:
+        - 
+          game1: heishenhua
+          price: 268
+        - 
+          game2: csgo
+          price: 0
+      # 简写形式
+      hobby: [{game1:csgo,price:11},{game2:lol,price:101}]
+      ```
+    
+    - 字面值表示方式：
+    
+      - 布尔值：TRUE | true | True
+      - 实数：3.14 | 3.342324e+5
+      - 整型数：12（也支持2、8、16进制数）
+      - 空值：~（用它来表示null值）
+      - 字符串：Hello | "Hello"（双引号可加可不加，如果需要使用转义字符，那么就需要加双引号）
+      - 日期：2013-12-23（日期必须用yyyy-MM-dd格式）
+      - 日期时间：2013-12-23T12:02:31+08:00（日期和时间之间用T链接，最后使用+跟上时区）
     
   - ###### 多环境配置：
   
-    > 为了方便我们在多个配置环境之间切换，Spring Boot提供了多环境配置，可以为每一个环境都准备一个配置文件，文件名必须是`application-环境标识.properties | yml`。然后在`application.properties | yml`主配置文件中，激活某个环境的配置文件`spring.profiles.active=环境标识`即可。
+    > - 为了方便我们在多个配置环境之间切换，Spring Boot提供了多环境配置，可以为每一个环境都准备一个配置文件，文件名必须是`application-环境标识.properties | yml`。然后在`application.properties | yml`主配置文件中，激活某个环境的配置文件`spring.profiles.active=环境标识`即可。
+    >
+    > - 也可以同时启用多个环境，通过`spring.profiles.include=环境标识,环境标示,..`来引入其他的子环境。
+    >
+    > - 从Spring Boot2.4之后开始使用`group`属性替代`include`属性，降低了配置的书写量。使用它可以定义多个主环境与子环境：
+    >
+    >   ```xml
+    >   spring:
+    >     profiles:
+    >       active: dev
+    >       group:
+    >         "dev": devDB,xy
+    >         "test": a,b
+    >   ```
   
   - ###### 引用配置文件中的内容：
   
-    > Spring Boot配置文件里的内容，都能够在外部通过`${key}`来引用，就像引入了外部的`jdbc.properties`文件一样。并且Spring Boot项目的配置文件中，可以使用`${}`来引用文件里其他位置定义的值。
+    > - Spring Boot配置文件里的内容，都能够在外部通过`${key}`来引用，就像引入了外部的`jdbc.properties`文件一样。
+    > - 并且Spring Boot项目的配置文件中，可以使用`${}`来引用文件里其他位置定义的值。
   
   - ###### `@ConfigurationProperties`注解和`Environment`对象：
   
-    > - `@ConfigurationProperties`注解是Spring Boot框架独有的。它用于将配置文件中的属性值注入到Spring Boot应用程序中的Java对象中。因此该对象必须定义为Spring容器管理的Bean，所以要用`@Component`注解标注在对象所在的类上。
-    >
-    > - 该注解在类上使用，类中的属性名要和配置文件中**最后的key**保持一致。`prefix`属性指定这些key的前缀。如：
-    >
-    >   > `User.class`：
-    >
-    >   ```
-    >   @ConfigurationProperties(prefix = "user")
-    >   public class User {
-    >   	private String name;
-    >   	private Integer age;
-    >   }
-    >   ```
-    >
-    >   > `application.properties`：
-    >
-    >   ```properties
-    >   user.name=张三
-    >   user.age=18
-    >   ```
-    >
-    > - 除此之外，Spring Boot中提供了`Environment`对象，里面装了配置文件中**所有的属性**，然后将该对象放在了Spring容器中。
+    - `@ConfigurationProperties`注解是Spring Boot框架独有的，它用于将配置文件中的属性值注入到Spring Boot应用程序中的Java对象中。因此该对象必须定义为Spring容器管理的Bean，所以要用`@Component`注解标注在对象所在的类上。
+    
+    - 该注解在类上使用，类中的属性名要和配置文件中**最后的key**保持一致。`prefix`属性指定这些key的前缀。如：
+    
+      > `User.class`：
+    
+      ```java
+      @ConfigurationProperties(prefix = "user")
+      public class User {
+      	private String name;//属性名必须和key保持一致
+      	private Integer age;
+      }
+      ```
+    
+      > `application.properties`：
+    
+      ```properties
+      user.name=张三
+      user.age=18
+      ```
+    
+      > 其实`starter`依赖中的自动配置类，也是通过这种方式来读取的.yml文件中的配置。
+    
+    - 除此之外，Spring Boot容器中提供了`Environment`对象可以直接用，里面装了配置文件中**所有的属性**。
 
 ------
 
@@ -382,7 +402,7 @@
   > }
   > ```
 
-- 也可以在`application.yml`中，设置主包的日志级别为debug：`logging.level.root=debug`（默认info），修改其他包的日志级别：`logging.level.com.itheima=warn`
+- 也可以在`application.yml`中，设置根包下的日志级别为debug：`logging.level.root=debug`（默认info），修改其他包的日志级别：`logging.level.com.itheima=warn`
 
 ------
 
@@ -542,9 +562,27 @@
 
 > 传统的WEB应用在发布之前，通常会打成war包，然后将war包部署到Tomcat容器中运行。而Spring Boot应用有2种打包与部署方式，分别是jar包和war包。
 
-- Jar包部署：我们第1个Spring Boot应用就是使用的jar包部署，最终项目是一个可以直接运行的jar包，代码中包含程序入口`main()`方法。所以我们可以在命令行直接通过`java -jar [jar包名]`来运行项目。
+- #### Jar包部署：
 
-- War包部署：虽然在开发时可以直接通过jar包方式运行项目，但是在生产环境下需要将项目打成war包，部署在Tomcat服务器中。步骤如下：
+  > - 我们第1个Spring Boot程序就是用的jar包方式运行。Jar包部署可以通过maven的package，最终会生成一个可以直接运行的jar包，代码中包含可运行的Tomcat程序。我们将该jar包放在服务器上后，命令行上通过`java -jar [jar包名]`就可以运行项目了。
+  > - 命令后面可以加临时启动参数来覆盖yaml文件中的配置：`java -jar [jar包名] --server.port=8080 --spring.database.druid.password=123`。这些参数对应的是IDEA中运行配置中的程序参数`Program arguments`，可以在`main()`方法的`args`参数中获取到。
+  > - 但是如果程序中用的不是：`SpringApplication.run(Springboot001Application.class, args);`，那么外部传的任何临时参数都会失效。
+
+  **注意**：前提是必须要有Spring Boot的maven插件：（否则运行时会报`没有主清单属性`错误）
+
+  ```xml
+  <plugins>
+      <!-- 作用就是打出一个可以独立运行的jar包，包含我们的程序和用到的依赖，还有启动Boot项目的程序 -->
+      <plugin>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+  </plugins>
+  ```
+
+- #### War包部署：
+
+  > 通常我们的生产环境下已经有了Tomcat服务器，所以在生产环境下需要将项目打成war包，部署在Tomcat上即可。步骤如下：
 
   1. 修改打包方式为`war`。并且忽略内嵌的Tomcat，将Tomcat依赖的`scope`设置为`provided`：（这样打包的项目中就没有main()方法了）
 
@@ -584,6 +622,24 @@
      > ```xml
      > <finalName>/</finalName>
      > ```
+
+------
+
+- #### Spring Boot中的4级配置文件：（叠加和覆盖原则）
+
+  - 1级：jar包所在目录下：config/application.yml（最高）
+  - 2级：jar包所在目录下：application.yml
+  - 3级：classpath：config/application.yml
+  - 4级：classpath：application.yml（最低）
+
+  > 作用：
+  >
+  > - 1级和2级留作打包后运维人员设置通用属性。1级常用于运维经理进行线上整体项目部署的调控。
+  > - 3级和4级用于系统开发人员设置通用属性。3级常用于项目经理进行整体项目属性的调控。
+
+- #### Spring Boot的配置文件中，读取pom文件：
+
+  > 在Spring Boot的yaml文件中，可以通过`@属性名@`来读取maven的pom文件中配置的属性。（有时pom更新了，但要手动compile才生效）
 
 ------
 

@@ -968,7 +968,7 @@
 
 ------
 
-### Spring整合JUnit5
+### Spring整合JUnit
 
 > Spring中有一套api对junit进行了封装，用起来很方便，我们了解下：
 

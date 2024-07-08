@@ -81,7 +81,7 @@
 
   - #### 指令语法：（指令主要用于`解析标签`，形式都是`v-xxx`，可以解析标签属性、标签体内容、绑定事件等....）
 
-    > 如果是**标签属性**要实现动态化，需要用指令语法。例如：其中的`v-bind`指令，`v-bind:属性名='JS表达式'`，它可以实现标签属性的动态化。（有点像`Thymeleaf`中的`th:属性名="${域中的数据}"`）由于该指令很常用，所以**可以简写**`:属性名='JS表达式'`
+    > 如果是**标签属性**要实现动态化，需要用指令语法。例如：其中的`v-bind`指令，`v-bind:属性名='JS表达式'`，它可以实现标签属性的动态化，如果表达式的结果为false，那么标签上就没有该属性。（有点像`Thymeleaf`中的`th:属性名="${域中的数据}"`）由于该指令很常用，所以**可以简写**`:属性名='JS表达式'`
   
 - ## Vue的数据绑定
 
@@ -179,19 +179,19 @@
   >
   > ```js
   > const v = new Vue({
-  >     el: '#root',
-  >     data(){
-  >     	name: '张三'
-  >     },
-  >     //通过computed来指定计算属性
-  >     computed: {
-  >         fullname: {
-  >         	//当读计算属性fullname时，get()方法就会被vue对象调用，返回值是属性fullname的值。它也在vue对象上
-  >         	get(){ return '我是'+ this.name },//get方法中的this就是vue对象
-  >             //当fullname被修改时，set()方法会被vue对象调用。如果你确定该属性不会被改，那就不用写set
-  >         	set(v){ this.name = v }
-  >         }
-  >     }
+  >        el: '#root',
+  >        data(){
+  >        	name: '张三'
+  >        },
+  >        //通过computed来指定计算属性
+  >        computed: {
+  >            fullname: {
+  >            	//当读计算属性fullname时，get()方法就会被vue对象调用，返回值是属性fullname的值。它也在vue对象上
+  >            	get(){ return '我是'+ this.name },//get方法中的this就是vue对象
+  >            	//当fullname被修改时，set()方法会被vue对象调用。如果你确定该属性不会被改，那就不用写set
+  >            	set(v){ this.name = v }
+  >            }
+  >        }
   > })
   > ```
   >

@@ -1016,7 +1016,7 @@ public class UserController {
   </html>
   ```
 
-- 注解方式：
+- 注解方式（常用）：
 
   > 1. 编写一个全局控制器类，类上使用`@ControllerAdvice`注解标注，表示这是一个处理异常的控制器类。
   > 2. 然后在其中写处理不同异常的处理器方法，方法上用`@ExceptionHandler(异常)`注解标注这是一个处理异常的处理器方法。
@@ -1288,7 +1288,7 @@ public class UserController {
   >           // 创建 Spring 应用程序上下文
   >           AnnotationConfigWebApplicationContext springContext = new AnnotationConfigWebApplicationContext();
   >           springContext.register(SpringConfig.class);
-  >                 
+  >                   
   >           // 配置 Spring MVC 的中央调度器 DispatcherServlet
   >           AnnotationConfigWebApplicationContext mvcContext = new AnnotationConfigWebApplicationContext();
   >           //让SpringMVC容器拿到ServletContext对象
@@ -1297,7 +1297,7 @@ public class UserController {
   >           ServletRegistration.Dynamic servlet = servletContext.addServlet("dispatcherServlet", new DispatcherServlet(mvcContext));
   >           servlet.setLoadOnStartup(1);
   >           servlet.addMapping("/");
-  >                 
+  >                   
   >           // 配置字符编码过滤器
   >           FilterRegistration.Dynamic filter = servletContext.addFilter("characterEncodingFilter", CharacterEncodingFilter.class);
   >           filter.setInitParameter("encoding", "UTF-8");

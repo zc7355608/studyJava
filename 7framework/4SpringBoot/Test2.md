@@ -1,4 +1,4 @@
-## Spring Boot整合Mybatis实现增删改查
+## Spring Boot整合Mybatis
 
 > Spring Boot支持市面上常见的关系型数据库（Oracle、Mysql、SqlServer、DB2等）对应的持久层框架（Hibernate、Mybatis、MybatisPlus），除此之外还支持非关系型数据库（Redis、MongoDB、Solr）的数据访问操作。这里介绍Spring Boot集成Mybatis并实现持久层的基本操作。
 
@@ -12,24 +12,24 @@
            <groupId>org.springframework.boot</groupId>
            <artifactId>spring-boot-starter-web</artifactId>
        </dependency>
-   <!--        Mybatis整合SpringBoot依赖-->
+   <!--        Mybatis整合SpringBoot依赖，必须的-->
        <dependency>
            <groupId>org.mybatis.spring.boot</groupId>
            <artifactId>mybatis-spring-boot-starter</artifactId>
            <version>3.0.3</version>
        </dependency>
-   <!--        PageHelper整合Mybatis的依赖-->
+   <!--        PageHelper整合Mybatis的依赖，可以没有-->
        <dependency>
            <groupId>com.github.pagehelper</groupId>
            <artifactId>pagehelper-spring-boot-starter</artifactId>
            <version>2.0.0</version>
        </dependency>
-   <!--        Mysql驱动-->
+   <!--        Mysql驱动，必须的-->
        <dependency>
            <groupId>com.mysql</groupId>
            <artifactId>mysql-connector-j</artifactId>
        </dependency>
-   <!--        c3p0数据源-->
+   <!--        c3p0数据源，可以没有-->
        <dependency>
            <groupId>com.mchange</groupId>
            <artifactId>c3p0</artifactId>
@@ -39,7 +39,7 @@
    <!--        <dependency>-->
    <!--            <groupId>com.alibaba</groupId>-->
    <!--            <artifactId>druid-spring-boot-starter</artifactId>-->
-   <!--            <version>1.2.23</version>-->
+   <!--            <version>1.2.6</version>-->
    <!--        </dependency>-->
    </dependencies>
    
@@ -61,25 +61,36 @@
      port: 80
      servlet:
        context-path: /
-   # 配置数据源
+   # 配置数据源，必须的
    spring:
      datasource:
-       type: com.mchange.v2.c3p0.ComboPooledDataSource
        driver-class-name: com.mysql.cj.jdbc.Driver
-       url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8
+       url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC
        username: root
        password: a123456789
-   # 配置Mybatis
+       #如果没有用数据源，type可以省略，用数据源了，那么就需要加type，或直接使用下面的方式配置数据源
+       type: com.mchange.v2.c3p0.ComboPooledDataSource
+   
+   # 或者用整合c3p0专用的配置，推荐
+   #spring:
+   #  datasource:
+   #    dbcp2:
+   #      driver-class-name: com.mysql.cj.jdbc.Driver
+   #      url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf8
+   #      username: root
+   #      password: a123456789
+   
+   # 配置Mybatis，非必须
    mybatis:
      mapper-locations: classpath:/com/itheima/springboot001/mapper/*.xml
      type-aliases-package: com.itheima.springboot001.pojo
      configuration:
        # 下划线转驼峰
        map-underscore-to-camel-case: true
-   # 配置PageHelper
+   # 配置PageHelper，非必须
    pagehelper:
      helper-dialect: mysql
-   # 日志
+   # 日志，非必须
    logging:
      level:
        com:
@@ -129,7 +140,7 @@
       >
       > ```java
       > @SpringBootApplication
-      >    //扫描Mapper接口，并在Spring容器中生成Mapper实现类
+      >    //扫描Mapper接口所在包，为包下每一个接口生成Mapper实现类，不用在每个接口上加@Mapper注解太麻烦了
       >    @MapperScan("com.itheima.springboot001.mapper")
       >    public class Springboot001Application {...}
       > ```
@@ -373,21 +384,25 @@
 
 ------
 
-## Spring Boot的单元测试
+## Spring Boot整合Junit
 
 > 做WEB项目避免不了要进行单元测试，通过它能够快速检测业务代码功能的正确与否，Spring Boot框架对Junit单元测试也提供了好的支持。
 
-###### 添加单元测试的依赖：
+1. 添加单元测试的依赖：（默认就有）
 
-```xml
-<dependency>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-test</artifactId>
-</dependency>
-```
+   ```xml
+   <dependency>
+       <groupId>org.springframework.boot</groupId>
+       <artifactId>spring-boot-starter-test</artifactId>
+   </dependency>
+   ```
 
-> - 如果是Spring Boot3和Junit5，在测试类上加`@SpringBootTest`注解即可。
-> - 如果是Spring Boot2和Junit4，在测试类上加`@RunWith(该测试类.class)`和`@SpringBootTest`注解。
+2. 在测试类上加`@SpringBootTest`注解。
+
+   > 注意：
+   >
+   > - 如果测试类与引入类是同名包，或者测试类是引入类的子包，则不需要声明引导类也可以运行。否则需要给`@SpringBootTest`注解设置属性：`classes = 主启动类.class`
+   > - 如果是junit4，则还需要在测试类上添加注解`@RunWith(SpringRunner.class)`。
 
 ###### 例如：
 
