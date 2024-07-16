@@ -358,7 +358,7 @@
   > }
   > ```
 
-  > `forin`还可以遍历数组，但是一般不这样用：
+  > `for in`还可以遍历数组，但是一般不这样用：
   >
   > ```js
   > let a = [2, 3.14, false, "abc"];
@@ -432,13 +432,13 @@
   > - 由于JSON的灵活性大、数据量小、简单易读的特点，所以有些数据库的数据也是JSON格式（MongoDB）。
   > - 由于JSON来源于JS，所以JS对JSON对象有原生的支持。其他的如Java或c中，就只能将它作为规范化的字符串去处理。
 
-- #### JS中将JSON对象转成字符串：
+- #### JS中将对象转成JSON串：
 
-  > 用内置对象`JSON`的字符串化方法`JSON.stringify(obj)`，可以将对象转换成字符串并返回
+  > 用内置对象`JSON`的字符串化方法`JSON.stringify(obj)`，可以将对象转换成JSON字符串并返回。
 
-- #### 字符串转JS对象：
+- #### JSON字符串转JS对象：
 
-  > `JSON.parse(jsonStr)`，返回值是JS对象
+  > `JSON.parse(jsonStr)`，返回值是JS对象。
 
 - #### 示例代码：
 

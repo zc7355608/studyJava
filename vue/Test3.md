@@ -15,7 +15,7 @@
   - **Mutations**：变化。里面放我们写好的一些直接操作State中数据的函数，这些函数中没有任何业务逻辑，只是对State的数据进行操作。
   - **State**：状态。在这里集中保存所有的状态数据，里面的数据类似data中，会自动做代理，当数据发生变化会重新渲染页面。
 
-- 所有的Vue组件都可以通过`dispatch`来调用Actions中的函数来最终对State中的状态进行操作。Actions中需要我们提前写好对应的函数以及业务逻辑，函数里又通过`commit`调用了Mutations中的函数来完成对State中状态的操作（Mutations中的函数不包含业务逻辑）。最终当State中的状态（数据）发生变化后会重新渲染页面，因为Vue对里面的数据做了**数据劫持**（类似data中）。
+- 所有的Vue组件都可以通过`dispatch`来调用Actions中的函数来最终对State中的状态进行操作。Actions中需要我们提前写好对应的函数以及业务逻辑，函数里又通过`commit`调用了Mutations中的函数来完成对State中状态的操作（Mutations中的函数不包含业务逻辑）。最终当State中的状态（数据）发生变化后会重新渲染页面，因为Vue对里面的数据做了**数据劫持**（类似data）。
 
 - Vue组件也可以直接通过`commit`调用Mutations中的函数（如果不需要写业务代码的话），跳过Actions直接操作State中的数据。
 

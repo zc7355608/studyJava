@@ -42,7 +42,7 @@
      >   })
      >   ```
   
-  2. （局部）注册组件：在使用组件的vm对象中，添加一个全新的配置项`components: { school: school, 组件名: 组件,...}`
+  2. （局部）注册组件：在使用组件的vm对象中，添加一个全新的配置项`components: { school: school, 组件名: 变量,...}`
   
      > 这种方式属于局部注册，用的较多，但是如果其他vm对象想用必须也得配置components去进行局部注册。此时可以用**全局注册**，这样其他所有vm对象接管的Vue容器中都可以编写该组件对应的组件标签了：`Vue.component('组件名', 组件)`
   
@@ -56,26 +56,31 @@
   
   ##### 注意事项：
   
-  > - **组件名的规范**：
+  > - **组件名的规范**：（不要和HTML内置的标签重名）
   >   - 组件名是一个单词（注意别和HTML标签名同名）时：**全小写**或**首字母大写**。
   >   - 组件名是多个单词时：**全小写**中间用`-`隔开，或采用**大驼峰方式（需要Vue脚手架环境支持）**
   > - 组件标签也可以使用单标签，但是**需要Vue脚手架环境的支持**。
-  > - 组件定义时可以使用`name: 'abc'`配置项，指定组件在开发者工具中呈现的名字。（只是在Vue工具中显示，其他地方没变）
+  > - 组件定义时可以使用`name: 'abc'`配置项，指定组件在开发者工具中呈现的名字。（目前的作用只是在Vue工具中显示）
   > - **定义组件可以简写**：`const school = Vue.extend({})`简写为`const school = {}`，注册组件的时候会自动调用该对象的`Vue.extend({})`
-  > - 组件也可以嵌套，在组件中注册其他组件，编写`components`配置项就可以了（注意组件的定义顺序）。通常会有一个管理所有组件的根组件，叫app组件。
+  > - 组件也可以嵌套，在组件中注册其他组件，编写`components`配置项就可以了（注意组件的定义顺序）。通常会有一个管理所有组件的根组件（app组件）。
   
   ##### 关于`VueComponent`：
   
-  > 1. `Vue.extend({})`的返回值本质上是一个名为`VueComponent`的构造函数。该构造函数不是程序员定义的，而是由动态`Vue.extend()`生成的。**注意**：每次调用`Vue.extend({})`定义一个组件时，返回的都是**全新的**`VueComponent`的构造器。
-  > 2. 我们只需要写`<school></school>`标签，Vue解析模板时会帮我们创建school组件的**组件实例对象（vc）**，即Vue帮我们执行的：`new VueComponent({配置对象})`
+  > 1. `Vue.extend({})`的返回值本质上是根据不同的配置对象，来返回不同的`VueComponent`的构造函数。该构造函数不是程序员定义的，而是由`Vue.extend()`动态生成的。
+  > 2. 每次调用`Vue.extend({})`定义一个新的组件时，返回的都是新的`VueComponent`构造器。不同组件的`VueComponent`是不同的
+  > 3. 我们只需要写`<school></school>`标签，Vue解析模板时会根据不同的组件构造器（school），帮我们创建对应组件的**组件实例对象（vc）**，即Vue帮我们执行的：`new VueComponent({配置对象})`
   > 4. 关于组件配置中的`this`：
   >    - 在`new Vue({})`的配置项中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是vm对象。
   >    - 而在`Vue.extend({})`定义组件的配置中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是`VueComponent`构造的**组件实例对象**（小型的vm对象vc）。
-  > 5. vm（或vc）上的`$children`是一个`VueComponent`类型（组件实例对象）的数组，保存了在该实例上注册的所有组件实例vc。
+  > 5. vm（或vc）上的`$children`是一个`VueComponent`类型的数组，保存了该模板中使用的所有组件实例vc。
   
   ##### 一个重要的关系：
   
-  > `VueComponent.prototype.__proto__ === Vue.prototype`，即：`VueComponent`是`Vue`的子类。
+  > `VueComponent.prototype.__proto__ === Vue.prototype`，即：`VueComponent`是`Vue`的子类。（vc是小型的vm）
+  
+  ###### 为什么要有这个关系？
+  
+  > 让组件实例对象vc可以访问到 Vue 原型上的属性、方法。
   
 - ## 单文件组件（常用）
 
@@ -83,14 +88,14 @@
   
   ##### 首先要知道：
   
-  > 这种`.vue`文件浏览器是不能识别的，也就是不能直接在浏览器环境中运行。我们需要将这个`.vue`文件经过webpack工具处理成`.js`文件，才可以引入到HTML中使用：
+  > 这种`.vue`文件浏览器是不能识别的，也就是不能直接在浏览器环境中运行。我们需要将这个`.vue`文件经过webpack工具处理打包成`.js`文件，才可以引入到HTML中使用：
   >
   > - 我们可以选择手动用**webpack**搭建**工作流**对`.vue`文件进行处理。但这种方式麻烦，且处理的结果（工作流）不一定是最好的。
   > - 通常我们会选择使用**Vue官方提供的脚手架**。就是Vue团队通过webpack给打造完的工作流，直接用就行。
   
   ##### 单文件组件的使用：
   
-  1. 先新建一个`.vue`文件（**定义组件**），该文件的名字同样遵循上面的组件名规范，一般用大写的方式：
+  1. 先新建一个`.vue`文件（**定义组件**）。该文件的名字同样遵循上面的组件名规范，一般用大写的方式：
   
      > `School.vue`：（VS Code安装插件：Vetur，作者Pine Wu）
   
@@ -143,7 +148,7 @@
      >        </div>
      > </template>
      > <script>
-     >    //引入其他文件中的子组件
+     >    //引入其他文件中的子组件的配置对象
      >    import School from './School.vue'
      > export default {
      >         name: 'App',
@@ -188,13 +193,13 @@
 
 ------
 
-# 使用Vue脚手架
+# 使用Vue脚 手架
 
 > 上面单文件组件如果不用Vue脚手架进行编译的话，是无法直接运行的。因为vue文件还没被编译为JS文件。
 
 - ### 初始化Vue脚手架
 
-  > Vue脚手架（Vue CLI）全称是：Vue命令行接口（Vue Command Line Interface）工具，是Vue官方提供的标准化开发工具（开发平台）。简单来说，Vue脚手架就是一个基于Vue框架进行快速开发的完整系统。它包括一个图形化的项目管理界面和一套完整的脚手架工具，帮助开发者快速搭建Vue项目。脚手架工具目前的最新版本是4.X（一般用最新的），地址https://cli.vuejs.org/zh/
+  > Vue脚手架（Vue CLI）全称是：Vue命令行接口（Vue Command Line Interface）工具，是Vue官方提供的标准化开发工具（开发平台）。简单来说，Vue脚手架就是一个快速构建Vue项目的工具，是基于Vue框架进行快速开发的完整的Vue项目。它包括一个图形化的项目管理界面和一套完整的脚手架工具，帮助开发者快速搭建Vue项目。脚手架目前最新版本是4.X（一般用最新的），地址https://cli.vuejs.org/zh/
 
   1. （仅第一次使用）通过npm工具，**全局安装Vue脚手架工具**：`npm i -g @vue/cli`，然后命令行执行`vue`来查看是否安装成功。
 
@@ -206,7 +211,7 @@
 
 - ### 脚手架相关文件的相关说明
 
-  - `package.json`：通过查看其中的`scripts`配置项，我们知道刚才执行的`npm run serve`其实是执行了`vue-cli-service serve`，该命令会部署项目文件并启动一个服务器。`vue-cli-service build`是所有代码写完后，将前端工程化的源代码`.vue`文件，编译为JS文件，并且将组件中`<template>`标签里的**Vue模版**进行了编译。`lint`中是通过`eslint`工具进行语法检查（很少用）。
+  - `package.json`：通过查看其中的`scripts`配置项，我们知道刚才执行的`npm run serve`其实是执行了`vue-cli-service serve`，该命令会部署项目文件并启动一个服务器。`vue-cli-service build`是前端所有代码写完后，将所有源代码打包输出为静态资源文件。并且将组件中`<template>`标签里的**Vue模版**进行了编译。`lint`中是通过`eslint`工具进行语法检查（很少用）。
 
     ```json
     "scripts": {
@@ -218,7 +223,7 @@
 
   - src目录中：
 
-    - `main.js`：该文件是整个Vue项目的入口文件。当执行了`npm run serve`后，直接去运行的该文件。
+    - `main.js`：该文件是整个Vue项目运行或打包的入口文件。当执行了`npm run serve`后，直接去运行的该文件。
 
       ```js
       //引入本地node_modules中vue的js文件包
@@ -230,7 +235,7 @@
       //创建vue实例
       new Vue({
           el: '#app',
-          //这行代码一会再细说，是它将App组件放入了HTML文件里id为app的容器中
+          //这行代码将App组件放入了HTML文件（index.html）中id为app的容器中
           render: h => h(App),
       })
       ```
