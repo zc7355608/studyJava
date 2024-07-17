@@ -50,7 +50,8 @@
   
      ```html
      <div id="root">
-     	<school></school><!-- 给该标签加属性就相当于给school组件最外层的div上加属性 -->
+         <!-- 给组件标签上添加属性，就相当于给school组件最外层的div上添加属性了 -->
+     	<school></school>
      </div>
      ```
   
@@ -338,83 +339,95 @@
 
 - ### 组件中的props配置项
 
-  > - 组件中的`props`配置项，可以让组件接收外部传过来的数据（属性或函数）。不局限于只用组件内部的数据，它可以让组件的使用者自定义组件，在使用组件标签的同时将自定义的数据传过来，达到自定义组件的目的。
-  > - 当组件模版中用到一些数据，data中没有配置，这些数据是使用组件标签的地方传进来的，传进来的数据要用`props`配置项接收。
+  > 组件中的`props`配置项可以让组件接收外部传过来的数据（属性或函数）。不局限于只用组件内部的数据，它可以让组件的使用者自定义组件，在使用组件标签的同时将自定义的数据传过来，达到自定义组件的目的。
+  >
+  > 当组件模版中用到一些数据，data中没有配置，这些数据是使用组件标签的地方传进来的，传进来的数据要用`props`配置项接收。
+  
+  1. ###### 使用组件的地方，通过组件标签的属性可以传递数据：`<School name="李四" age="13"/>`，一般用`:age="13"`来传数据，这样表达式传的是Number型动态数据。
+  
+  2. ###### 组件中通过props配置项来接收数据：
+  
+     ```js
+     <script>
+         export default {
+             name: 'School',
+             //组件自己的数据
+             data(){
+                 return {
+                     name: '河西蓝翔技校',
+                     address: '学校地址是这里'
+                 }
+             },
+             //方式1(用的最多)
+             props: ['name','age']
+             //方式2，接收时对类型进行限制
+             props: {
+             	name: String,
+             	age: Number
+         	}
+             //方式3，详细限制
+         	props: {
+                 name: {
+                     type: String,
+                     required: true
+                 },
+                 age: {
+                     type: Number,
+                     default: 0
+                 }
+             }
+         }
+     </script>
+     ```
+  
+  > 注意：
+  >
   > - props配置项中的数据也会放在vm（或vc）实例上，并且属性也做了响应式。相较于data，props里接收的数据优先被放在vc实例上。
-  > - props中的数据是只读的，不能通过vc去改。（不过Vue监视的是浅层次的修改，深层次的修改虽然不会报错，但不建议这样做）
-  > - 如果props传过来的数据在data或methods中已经定义了，重名了会报错。
-  
-  ###### 使用组件的地方，传数据：`<School name="李四" age="13"/>`，一般用`:age="13"`来传数据，这样表达式传的是Number型动态数据
-  
-  ###### 组件中通过props配置项来接收数据：
-  
-  ```html
-  <script>
-      export default {
-          name: 'School',
-          //组件自己的数据
-          data(){
-              return {
-                  name: '河西蓝翔技校',
-                  address: '学校地址是这里'
-              }
-          },
-          //方式1(用的最多)
-          props: ['name','age']
-          //方式2，接收时对类型进行限制
-          props: {
-          	name: String,
-          	age: Number
-      	}
-          //方式3，详细限制
-      	props: {
-              name: {
-                  type: String,
-                  required: true
-              },
-              age: {
-                  type: Number,
-                  default: 0
-              }
-          }
-      }
-  </script>
-  ```
+  > - **props中的数据是只读的**，不能通过vc去改。（不过Vue监视的是浅层次的修改，深层次的修改虽然不会报错，但不建议这样做）
+  > - 如果props传过来的数据在`data`或`methods`中已经定义了，重名了会报错。
+  > - 我们在给标签定义属性时，不要用像`key`、`ref`这些特殊的属性名，因为这些属性Vue内部在维护。
 
 ------
 
 - ### Mixin混入
 
-  > `mixin`目的是为了复用配置项。我们可以将data、methods、computed等多个地方共用的配置，提取成一个配置对象。然后再通过mixin配置项将这些配置在多个vc、vm上进行复用。
+  > `mixin`目的是为了复用配置项。我们可以将data、methods、computed等多个地方共用的键值对配置，放到一个公共的对象中。然后通过`mixin`配置项引入这些公共配置，达到复用配置的目的。
   
   ###### 用法：
   
-  > - 将公共的配置项提取成一个配置对象放在单独的JS文件中，并暴露该对象：`export default { data(){}, methods:{} }`，这样其他组件或Vue实例中，就可以通过`mixins: [obj]`配置项将这些配置局部混入（值是对象数组），这些配置项会和已有的配置项进行整合。
-  > - 如果配置冲突了，以本文件中的配置为主。（但如果是生命周期函数配置项，则都会执行，且先执行混合中的）
+  > - 将公共的配置项提取成一个配置对象放在单独的JS文件中，并暴露该对象：`export default { data:{}, methods:{} }`，这样其他组件或Vue实例中，就可以通过`mixins: [obj]`配置项将这些配置局部混入（值是对象数组），这些配置项会和已有的配置项进行整合。
+  > - 如果配置冲突了，以本文件中的配置为主。（但如果是生命周期函数配置项，则都会执行，且先执行`mixins`中的）
   > - **全局混入**：在main.js入口文件中通过Vue构造函数进行混入`Vue.mixin(对象)`，相当于本页面中所有的vm、vc上都加了该配置。
 
 ------
 
 - ### Vue中的插件
 
-  > Vue中的插件本质就是：包含`install()`方法的一个对象。通过插件可以对Vue的功能进行增强。用法：
+  > Vue中的插件本质就是：包含`install()`方法的一个对象。
+  >
+  > 通过插件可以对Vue的功能进行增强。用法：
 
   1. ###### 在plugins.js中，定义插件：
-
+  
      ```js
      export default {
          install(Vue,x,y){//参数1是Vue构造函数，后面是自定义参数。有了Vue构造函数，可以：定义全局的过滤器、指令、混入等..
              console.log("插件执行了！", Vue)
+             //全局过滤器
+             Vue.filter('filter1',function(value){})
+             //全局指令
+             Vue.directive('fbind',function(element,binding){})
+             //通过插件可以做很多事情...
          }
      }
      ```
-
+  
   2. ###### main.js中，使用插件：
-
+  
      ```js
      import plugins from "./plugins.js"
      //使用插件，这里会调用install方法
-     Vue.use(plugins,1,2,3)
+     Vue.use(plugins,1,2)
      ```
 
 ------
