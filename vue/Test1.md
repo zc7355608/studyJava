@@ -23,36 +23,36 @@
   <!DOCTYPE html>
   <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- 引入vue文件后，类似于jQuery，全局中多了一个Vue构造函数 -->
-    <script src="./js/vue.js"></script>
-    <!-- vue的全局配置 -->
-    <script>
-      //关闭生产提示
-      Vue.config.productionTip = false
-    </script>
-    <title>test Vue</title>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <!-- 引入vue文件后，类似于jQuery，全局中多了一个Vue构造函数 -->
+      <script src="./js/vue.js"></script>
+      <!-- vue的全局配置 -->
+      <script>
+      	//关闭生产提示
+      	Vue.config.productionTip = false
+      </script>
+      <title>Hello Vue!</title>
   </head>
   <body>
-  <!-- 准备好一个容器。因为vue采用组件化模式，要将vue的组件放在页面的指定位置上，所以用div包住指定位置 -->
-    <div id="root">
-      <!-- 先写死 -->
-      <!-- <h1>Hello,Vue!</h1> -->
-      <!-- 这里面的代码依旧用HTML，只是加入了vue的语法，所以该div容器被称为【Vue模板】 -->
-      <h1>Hello,{{user}}!</h1><!-- 这是vue模板的插值语法，里面可以写data对象的属性，或者JS表达式 -->
-    </div>
-    <script>
-      //想让Vue工作，就必须创建对应的Vue实例，传进去配置对象
-  	const v = new Vue({
-        //vue实例要将组件内容放在这个标签内部。值通常为css选择器串，还可以是dom对象
-        el: '#root',
-  	  //data中用于存储数据，数据供el指定的容器中使用，值目前先用对象
-        data: { user: '尚硅谷' }//一般该对象中只出现属性不出现方法，方法一般不在这儿写
-      })
-      //修改user中的数据，页面也随之更新，这就是vue的响应式，它会对data中的数据进行监测
-      v.user = '尚学堂'
-    </script>
+      <!-- 准备好一个容器。因为vue采用组件化模式，要将vue的组件放在页面的指定位置上，所以用div包住指定位置 -->
+      <div id="root">
+      	<!-- 先写死 -->
+      	<!-- <h1>Hello,Vue!</h1> -->
+      	<!-- 这里面的代码依旧用HTML，只是加入了vue的语法，所以该div容器被称为【Vue模板】 -->
+      	<h1>Hello,{{user}}!</h1><!-- 这是vue模板的插值语法，里面可以写data对象的属性，或者JS表达式 -->
+      </div>
+      <script>
+          //想让Vue工作，就必须创建对应的Vue实例，传进去配置对象
+          const v = new Vue({
+              //vue实例要将组件内容放在这个标签内部。值通常为css选择器串，还可以是dom对象
+              el: '#root',
+              //data中用于存储数据，数据供el指定的容器中使用，值目前先用对象
+              data: { user: '尚硅谷' }//一般该对象中只出现属性不出现方法，方法一般不在这儿写
+          })
+          //修改user中的数据，页面也随之更新，这就是vue的响应式，它会对data中的数据进行监测
+          v.user = '尚学堂'
+      </script>
   </body>
   </html>
   ```
@@ -299,7 +299,7 @@
     > </template>
     > ```
     >
-    > 注意：**`<template>`标签永远不会影响结构，Vue渲染时会将其删除**
+    > 注意：**`<template>`标签不会影响结构，Vue渲染时会将其删除**
 
 - ## 列表渲染
 
@@ -339,23 +339,24 @@
 
 - ## Vue的响应式
 
-  > - 只有刚开始就写在Vue对象的data中的属性，Vue才会对其做响应式，后面再往data或_data上添加的属性，Vue都不会做响应式了。
-  > - 可以通过Vue提供的API给data中添加要做响应式的数据，这样Vue会对它做数据代理和响应式：`Vue.set(targetObj, 属性名, 值)`，它和`vm.$set()`是一样的。返回值是添加的值。
+  > - 只有刚开始就写在Vue对象的data中的属性，Vue才会对其做响应式，后面再往data或_data中**添加**的属性，Vue都不会做响应式了。
+  > - 可以通过Vue提供的API给data中**添加**要做响应式的数据，这样Vue会对它做数据代理和响应式：`Vue.set(targetObj, 属性名, 值)`，它和`vm.$set()`是一样的，返回值是添加的值。它最好用于**向响应式对象上添加新属性**。
   > - 该API有局限性：**不能直接在vm实例或data对象上添加**。（也就是说第1个参数`targetObj`**不能是`vm`或`vm._data`**）
+  > - 同样还有`Vue.delete()`，删除对象的上的响应式属性。（用的少）
 
   ###### 数组数据的响应式：
 
   > - 当**通过下标**的方式，对data中的**数组数据**进行修改时，Vue是无法监测到的。因为Vue并没有对数组中每个元素提供getter和setter进行数据代理，所以这种方式修改数组Vue是不知道的。
   > - 只有我们通过：`push()、pop()、shift()、unshift()、splice()、sort()、reverse()`，这些会影响原始数组的方法，去修改数组时Vue才知道。Vue是怎么知道，我们调用了数组对象的这几个方法呢？是这样：Vue对这几个方法做了包装。也就是说这几个方法都是Vue重写的方法，不是Array原型对象上的方法了。
   > - 在Vue封装的方法中，首先调用了原先的`push、pop`等方法，完成正常的功能后，然后再去渲染的页面。
-  > - 也可以用`Vue.set('vm.student.hobby', 1, '游泳')`，通过下标对数组进行修改。
+  > - 也可以用`Vue.set/delete('vm.student.hobby', 1, '游泳')`，通过下标对数组进行修改或删除。
 
 - ## 表单数据的收集
 
   > - 单选框：除了指定相同的`v-model='gender'`外，还要为每个单选框指定value属性。当选中了某个单选框后，gender属性的值就变成了该单选框的value值（字符串）；当gender属性值发生变化后，对应value的单选框会被选中。
   > - 多选框：
   >   - 只有给多选框设置了value属性，且多个多选框的`v-model="arr"`绑定的是同一个数组，那么收集的是value组成的数组。
-  >   - 其他情况下多选框用`v-model`收集的都是`checked`属性值true或false。
+  >   - 其他情况下多选框用`v-model`收集的都是`checked`属性值true或false，且布尔值会决定多选框是否勾选。
   > - 下拉框：给`<select>`标签指定`v-model='city'`，city是data中的字符串属性。
 
 - ## 过滤器
@@ -384,7 +385,7 @@
   - Vue会将管道符`|`前面的time做为参数，传给过滤器函数`timeFormat`并调用，过滤器函数的返回值做为整个JS表达式的执行结果。
   - 过滤器函数调用时也可以指定多个参数，这些参数实际上是过滤器的第2、3...个参数，过滤器的第1个参数永远是管道符前面的值。
   - 类似于Linux的管道操作，多个过滤器也可以串联。
-  - 这种方式的过滤器是局部的，全局过滤器需要**在实例化Vue对象之前**，通过vue的构造函数配置：`Vue.filter('timeFormat', function(value){过滤器函数})`
+  - 这种方式的过滤器是局部的，全局过滤器需要**在实例化Vue对象之前**，通过Vue的构造函数配置：`Vue.filter('timeFormat', function(value){过滤器函数})`
 
 - ## 其他的内置指令
 

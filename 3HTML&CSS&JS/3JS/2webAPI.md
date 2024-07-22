@@ -4,13 +4,11 @@
 
 ## DOM
 
-> ​	DOM用于操作HTML元素，我们要想让页面发生变化，就得用DOM来做。DOM是将HTML文档以树状结构呈现出来，每个html标签都在`document`对象（文档树对象）中可以获取到对应的dom对象，dom树直观的体现了标签之间的关系。dom树上就是一个个的dom对象，浏览器会根据html文档中的一个个标签声明一个个的dom对象（js对象），所有的标签属性都可以在对应的dom对象中找到对应的属性，我们只要获取这个对象，修改dom对象的属性，它就会自动映射到html标签上去。
+> - DOM用于操作HTML元素，我们要想让页面发生变化，就得用DOM来做。DOM是将HTML文档以树状结构在JS中呈现出来，每个html标签都在`document`对象（文档树对象）中可以获取到对应的dom对象，dom树直观的体现了标签之间的关系。dom树上就是一个个的dom对象，浏览器会根据html文档中的一个个标签声明一个个的dom对象（js对象），所有的标签属性都可以在对应的dom对象中找到对应的属性，我们只要获取这个对象，修改dom对象的属性，它就会自动映射到html标签上去。
+> - 浏览器中内置的`document`对象就是整个html文档中DOM模块的根对象，里面有很多属性和方法供使用，它就是整个的dom树。JS的webAPI就是通过这种方式完成的和HTML页面的动态交互的。
+> - 而在HTML文档（`document`对象）中，最大的根元素是`<html>`，对应的dom对象是`document.documentElement`，它是文档树的根dom，包含了整个HTML文档的结构。
 >
-> ​	浏览器中内置的`document`对象就是整个html文档中DOM模块的根对象，里面有很多属性和方法供使用，它就是整个的dom树。JS的webAPI就是通过这种方式完成的和HTML页面的动态交互的。
->
-> ​	而在HTML文档（`document`对象）中，最大的根元素是<html>，对应的dom对象是`document.documentElement`，它是文档树的根dom，包含了整个HTML文档的结构。
->
-> （比如：html的div标签是不是有style属性，style中可以写css样式，我们通过`document`对象来获取到div对应的dom对象，修改dom对象的style属性值就是改它的css样式；而且这种通过js直接设置标签的style属性，相当于行内样式，优先级最高）
+> **比如：**html的div标签是不是有style属性，style中可以写css样式，我们通过`document`对象来获取到div对应的dom对象，修改dom对象的style属性值就是改它的css样式；而且这种通过js直接设置标签的style属性，相当于行内样式，优先级最高
 
 - ### 获取文档树中的dom对象：
 
@@ -34,11 +32,11 @@
 
 - ### 获取后，我们就可以通过dom来设置html中的标签了：
 
-  - 每个dom对象都有`innerText`和`innerHTML`属性，可以获取和修改标签内部的字符串。区别是一个可以识别html语法一个不可以
+  - 每个dom对象都有`innerText`和`innerHTML`属性，可以获取和修改标签内部的字符串。区别是一个可以识别html语法一个不可以。
   - HTML标签里的所有属性，对应的dom对象中都有对应的属性存在，要改直接用`dom.属性名=值`的方式去改就行了，也可以用dom对象的`setAttribute('属性名','值')`方法来给标签的属性赋值。查询属性值可以`dom.属性名`，也可以用`dom.getAttribute('属性名')`来查询属性值。如果标签的属性是布尔属性，如`disabled`，可以这样设置该属性：`dom.属性名=true/false;`
   - 可以通过`dom`对象的属性和方法直接操作元素的样式：
     1. 直接通过`obj.style.css属性="值";`，如：`obj.style.backgroundColor = 'red'`（注意css属性名要要修改成驼峰命名方式的写法，属性值要用双引号括起来的字符串格式）
-    2. 给dom设置类名是：`obj.className = '类名'`，因为clss是关键字，所以设置class属性用`className`。但是这种方式可能会覆盖原来的类名使用不方便，所以H5新增了一种`classList`属性的方式追加和删除类名，语法：`obj.classList.add('类名')`，`remove('')`、`toggle('')`，分别是添加、删除和切换类名（切换：有就删掉，没有加上），还有`contains('类名')`判断是否包含某类名。
+    2. 给dom设置类名是：`obj.className = '类名'`，因为`class`是关键字，所以设置class属性用`className`。但是这种方式可能会覆盖原来的类名使用不方便，所以H5新增了一种`classList`属性的方式追加和删除类名，语法：`obj.classList.add('类名')`，`remove('')`、`toggle('')`，分别是添加、删除和切换类名（切换：有就删掉，没有加上），还有`contains('类名')`判断是否包含某个类名。
 
 - ### JS操作自定义属性：
 
@@ -50,13 +48,13 @@
 
 - ### dom对象常用属性：
 
-  > - `tagName`：dom元素对应的标签名，全部大写
+  > - `tagName`：dom元素对应的标签名，全部大写。
   > - `clientWidth`：获取html元素自身可见部分的宽度（只包含padding和content，不包含border、margin、滚动条等，），值为数字，单位px。
-  > - `clientHeight`：获取html元素自身可见部分的高度；
-  > - `offsetWidth`：获取html元素自身可见部分再加border的宽度，值为数字，单位px
-  > - `offsetHeight`：获取html元素自身可见部分再加border的高度，值为数字，单位px
-  > - `offsetLeft`：获取元素距离自己的“定位祖先元素”左边框的距离，它获取的是元素的位置。（只读）
-  > - `offsetTop`：获取元素距离自己的“定位祖先元素”上边框的距离（只读）
+  > - `clientHeight`：获取html元素自身可见部分的高度。
+  > - `offsetWidth`：获取html元素自身可见部分再加border的宽度，值为数字，单位px。
+  > - `offsetHeight`：获取html元素自身可见部分再加border的高度，值为数字，单位px。
+  > - `offsetLeft`：获取元素距离自己的“定位祖先元素”左边框的距离，它获取的是元素的位置（只读）。
+  > - `offsetTop`：获取元素距离自己的“定位祖先元素”上边框的距离（只读）。
 
 - ### FormData对象的使用：
 
@@ -141,7 +139,7 @@
 
 - 事件监听的语法：`dom.addEventListener('事件名', 回调函数名[,是否开启捕获])`，可以多次调用来给一个事件绑定多个函数。
 
-- 早期的事件监听是这样写的：`obj.onclick = function(){}`，点击后调用该匿名函数。这种方式不支持同时绑定多个函数，会覆盖，而且不支持事件捕获（后面再说），并且优先级没有`addEventListener()`函数的优先级高。所以这种方式现在很少用了。
+- 早期的事件监听是这样写的：`obj.onclick = function(e){}`，点击后调用该匿名函数。这种方式不支持同时绑定多个函数，会覆盖，而且不支持事件捕获（后面再说），并且优先级没有`addEventListener()`函数的优先级高。所以这种方式现在很少用了。
 
 - 在事件绑定的回调函数中，函数的第1个参数会传进去一个“事件对象”，通常形参名用`event`或e来接收。事件对象就是一个对象，它内部有事件触发时的相关信息，例如：鼠标点击事件对象中，就有鼠标的位置信息。部分事件对象的属性：
 
@@ -152,7 +150,7 @@
   > `offsetX/offsetY`：获取光标相对于当前dom元素左上角的位置
   > `key`：获取键盘的键名字符串（以前是keyCode键值，已弃用），键值用`code`属性，但某些浏览器可能还没有实现
 
-- 事件解绑：如果是`onclick=function(){}`这种，就直接`onclick=null`进行解绑（函数也是对象，赋值null覆盖掉就行了）。如果是`addEventListener()`的方式，必须用`btn.removeEventListener('',fn)`，但如果注册的是匿名函数，就不能被解绑了。
+- 事件解绑：如果是`onclick=function(){}`这种，就直接`onclick=null`进行解绑（函数也是对象，赋值null覆盖掉就行了）。如果是`addEventListener()`的方式，必须用`btn.removeEventListener('事件名',fn)`，但如果注册的是匿名函数，就不能被解绑了。
 
 - **事件流**：指事件完整执行过程中的流动路径。事件流共2个方向：捕获和冒泡。当一个事件发生时，它默认是从最内层的元素上依次流向最外层的元素上，这就是事件的冒泡。从父到子是捕获，从子到父是冒泡。
 
@@ -185,6 +183,8 @@
 
   > 1. 先通过`document`对象的方法创建一个新节点：`document.createElement('div')`，
   > 2. 再将新节点放在dom树上：`父元素dom.appendChild(newDom)`，将该dom追加到父元素的最后一个子元素后面。或者插入到某个子元素前面：`父元素dom.insertBefore(newDom, 子dom)`
+
+- 新增文本节点：`document.createTextNode('这是一个文本节点')`
 
 - 删除节点：
 
@@ -247,21 +247,18 @@
     > - forward()：点了下前进按钮
     > - go(参数)：参数1表示前进一下，-1表示后退一下
 
-  - **本地存储**：随着页面数据越来越多，为了满足各种需求，经常会在用户本地pc上存储一些数据，所以H5提出了本地存储，允许JS通过webAPI来将一些数据存储到浏览器本地。本地存储的特性：
+  - **本地存储**：随着页面数据越来越多，为了满足各种需求，经常会在用户本地浏览器上存储一些数据，所以H5提出了本地存储，允许JS通过浏览器提供的webAPI，来将一些数据存储到浏览器本地。可以在浏览器的开发者工具中，通过Application面板的Local Storage来查看存的数据。这些数据只是当前网站所存储的。本地存储的特性：
 
     1. 数据存储在本地浏览器硬盘上，设置、读取方便，刷新也不丢失数据。
     3. 容量较大，`localStorage`和`sessionStorage`对象每个容量约5M左右
     
-    > `localStorage`：它是本地存储对象，存储的数据都是字符串。浏览器关闭也在。
-    >
-    > - 存：`localStorage.setItem(key, value)`，k,v数据都是以**键值对字符串**形式存储在本地浏览器中，同一个服务器地址的数据可以多个页面共享。
-    > - 取：`localStorage.getItem(key)`，获取本地键对应的值数据（串）。
-    > - 删：`localStorage.removeItem(key)`，删除键对应的键值对数据。这些方法参数都是string
-    > - 清空本地存储：`localStorage.clear()`
-    >
-    > `sessionStorage`：它是会话存储，关闭浏览器存的数据就消失，用法和以上基本相同，同样存储键值对字符串。
-    >
-    > （可以在浏览器的开发者工具中，通过Application面板的Local Storage来查看存的数据）
+    > - `localStorage`：它是本地存储对象，存储的数据都是字符串。浏览器关闭也在。
+    >  - 存：`localStorage.setItem(key, value)`，k,v数据都是以**键值对字符串**形式存储在本地浏览器中。这样同一个网站的数据就可以多个页面共享了。
+    >   - 取：`localStorage.getItem(key)`，获取本地键对应的值数据（串）。
+    >   - 删：`localStorage.removeItem(key)`，删除键对应的键值对数据。这些方法参数都是String型的。
+    >   - 清空所有的本地存储：`localStorage.clear()`。
+    > 
+    >- `sessionStorage`：它是会话存储，关闭浏览器存的数据就消失，用法和以上基本相同，同样存储键值对字符串。
 
 ------
 

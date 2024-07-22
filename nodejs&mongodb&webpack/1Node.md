@@ -640,7 +640,7 @@ server.listen(9000, () => {
 
 - #### 将npm下载包的地址改为淘宝镜像：
 
-  - 方式1：`npm config set registry https//registry.npmmirror.com/`
+  - 方式1：`npm config set registry https://registry.npmmirror.com/`
   - 方式2（推荐）通过nrm（Npm Registry Manager）工具来配置，它是专门管理npm的下载地址的。使用步骤：
     1. 安装nrm全局工具：`npm i -g nrm`
     2. 查看支持的镜像地址：`nrm ls`
@@ -656,7 +656,7 @@ server.listen(9000, () => {
 >
 > - 淘宝也提供了一个全局工具包cnpm，操作命令和npm大体相同。但是node.js中没有这个工具，需要下载。安装命令：
 >
->   `npm i -g cnpm --registry=https//registry.npmmirror.com`
+>   `npm i -g cnpm --registry=https://registry.npmmirror.com`
 
 ------
 
