@@ -206,8 +206,8 @@
 
     ```jsx
     // 1、创建函数式组件（函数名一定要大写字母开头，因为下面要用函数对应的组件标签）
-    function Demo(){
-    	console.log(this)//此处的this是undefined，因为babel编译后开启了严格模式
+    function Demo(props){// props实参后面会说
+    	//此处的this是undefined，因为babel编译后开启了严格模式
     	return <h2>我是用函数定义的组件（适用于简单组件的定义）</h2>
     }
     // 2、渲染组件到页面
@@ -243,13 +243,13 @@
 
   ###### 简单组件和复杂组件的区别就是是否包含状态（state），有状态的组件就是复杂组件。那什么是状态呢？
 
-  > - 组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
+  > 组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
 
 ------
 
 - ### 组件实例对象的核心属性
 
-  - #### state（组件的状态）
+  - #### state（状态）
 
     > - state是组件实例对象身上最重要的属性，**值必须是一个对象**。组件也被称作**状态机**，通过更新组件的state可以完成对应页面的更新（重新渲染页面）。
     >
@@ -293,11 +293,125 @@
     >
     >      > 这种方式相当于在每个组件实例的自身都有一个自定义方法。并且该方法是箭头函数写法，方法中的this是类作用域的this，所以方法中的this是当前的组件实例对象。
 
-  - #### props（组件的配置）：
+  - #### props
 
-  - #### sdf：
+    > 组件实例对象上的`props`属性可以让组件接收外部传的数据。只需要使用组件标签时给标签加上属性，React会自动将属性名和属性值以key-value的形式放在**props对象**中。如：（**注意：props是只读的，不允许改！**）
 
-- 士大夫萨芬
+    ```jsx
+    // 定义Student组件
+    class Student extends React.Component {
+        render() {
+            const {name,sex,age} = this.props
+            return (<ul id="student">
+            			<li>姓名：{name}</li>
+            			<li>性别：{sex}</li>
+            			<li>年龄：{age+1}</li>
+            		</ul>)
+        }
+    }
+    // 将Student组件渲染到页面上
+    ReactDOM.render(<Student name="艾克" age={15} sex="男"/>, document.getElementById('app'))
+    ```
+
+    > 还可以用展开运算符直接将对象展开放到`props`中：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
+
+    ###### 通过给类加静态属性`propTypes`和`defaultProps`，来约束传递的`props`数据的类型和默认值：
+
+    > React15.5版本后，PropTypes对象被React核心库给分离出来了。如果要对props做类型限制，还需要另外引入`prop-types`依赖包。
+
+    ```js
+    // 对props标签属性进行类型、必要性的限制。此时如果不按照要求给组件传递数据的话，页面虽然会正常显示但控制台会报错
+    Student.propTypes = {
+        name: PropTypes.string.isRequired,
+        ses: PropTypes.string,
+        age: PropTypes.number,
+        speak: PropTypes.func
+    }
+    // 指定props标签属性的默认值
+    Student.defaultProps = {
+        sex: '未知性别',
+        age: 18
+    }
+    ```
+
+    ###### 其实给类加静态属性还可以这样做，在类体中：
+
+    ```js
+    class Student extends React.Component {
+        static propTypes = {}
+        static defaultProps = {}
+        ...
+    }
+    ```
+
+    ###### 关于类式组件的构造器：
+
+    > 我们之前在写类式组件时，有一种初始化`state`的方式是通过组件类的构造器：
+    >
+    > ```js
+    > class Student extends React.Component {
+    >     constrator(props){
+    >         super(props)
+    >         console.log(props)
+    >     }
+    >     ...
+    > }
+    > ```
+    >
+    > 当时没说为什么必须写`super(props)`，现在可以说了。其实这里的props实参就是组件实例上的`props`，我们并不是一定要将props传给super()，甚至这个构造器不写都行。那么问题来了：
+    >
+    > 1. 组件类中的构造器有什么作用，通常在构造器中做什么事情呢？
+    >
+    > 2. 这个props传给super()和不传有什么区别吗？
+    >
+    >    > 在React中，构造器仅用于2种情况，**初始化state**和**解决类中自定义函数的this指向**。而props实参如果不传，那么构造器中通过`this.props`无法访问实例上的`props`（但这个小bug无关紧要，因为构造器通过实参就可以拿到props）。
+
+    ###### 函数式组件中也有`props`，是在函数的实参上。要限制props的类型和默认值，就给函数上加那2个静态属性即可。（函数式组件用不了state和refs，除非使用Hooks）
+
+  - #### refs
+
+    > 组件中的虚拟DOM标签上，可以通过定义`ref`属性（值是String）来标识自己。之后React会将组件中所有的ref收集到组件实例的`refs`对象中，key是标识名，value是真实DOM对象。
+
+    ###### 注意：上面String类型的`ref`已经不被React所推荐使用了，并且在之后的新版本中可能会移除。因为这种方式存在效率问题，写多了效率就不高了。但开发中还是有部分人在用，因为简单。
+
+    ###### 推荐用下面2种型式的`ref`：
+
+    1. ##### 回调函数的`ref`：
+
+       ```jsx
+       <input ref={ (currentNode)=>{this.input1 = currentNode} } type="text"/>
+       ```
+
+       > `ref`属性的值如果是一个回调函数，React在解析虚拟DOM时**自动调用该回调**并将**当前真实DOM**作为参数传进去了。访问：`this.input1`
+
+       ###### 关于回调函数被调用的次数：
+
+       > - 当每次state变化后重新调用render()**更新**页面时，该ref的回调会被执行2次。并且第1次调用时传的是`null`，第2次才是当前的真实DOM。
+       > - 这是因为每次render()渲染时都会创建一个新的ref回调，为了确保新回调能正常执行它先对旧回调做了清空。
+       > - 其实大多数情况下这都不会有什么问题。如果就想只调用1次该回调，可以将该回调写成组件中自定义方法的形式。
+
+    2. ##### `React.createRef()`：（React最推荐的方式）
+
+       > `React.createRef()`函数调用后会返回一个容器对象，该容器可以存储被`ref`标识的节点（真实DOM）。
+
+       ###### 使用：（一个容器只能存一个真实DOM）
+
+       > 组件实例自身上定义myInput属性（容器）：
+       >
+       > ```js
+       > class Student extends React.Component {
+       >     myInput = React.createRef()
+       >     ...
+       > }
+       > ```
+       >
+       > 组件标签中：
+       >
+       > ```html
+       > <input ref={this.myInput} type="text"/>
+       > ```
+       >
+       > 当React解析时发现ref的值是一个容器，于是就把该真实DOM放在了该容器中。获取：`this.myInput.current`
 
 ------
 
