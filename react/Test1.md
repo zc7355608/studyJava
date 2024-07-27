@@ -470,24 +470,24 @@
   
   - ###### 关于组件实例的生命周期（旧）：
   
-    - 当执行`ReactDOM.render()`之后，也就是组件实例对象被创建并挂载到页面上时，经历了如下过程：
+    - **初始化阶段**：当执行`ReactDOM.render()`之后，也就是组件实例对象初次被创建并挂载到页面上时：
   
       1. React首先new出来对应的组件实例对象，此时组件的**构造器执行了**。
       2. 然后调用了组件实例的`componentWillMount()`方法，此时组件还没被挂载到页面上。
       3. 紧接着调用组件实例的`render()`方法将组件挂载到页面对应位置上。组件实例**初始化渲染**、以及**state更新**后重新渲染页面时都会调用render()方法。
       4. 挂载完毕后又调用了组件实例的`componentDidMount()`。
   
-    - 关于组件的更新过程：
+    - **更新阶段**：当调用了`setState()`更新state状态，或父组件调用`render()`重新渲染页面时：
   
-      1. 当调用了`setState()`更新state状态后，React就调用了组件实例的`shouldComponentUpdate()`。它是控制页面更新的阀门，如果该方法返回false，那么接下来的更新流程都不会执行，也就是页面并不会重新渲染。（该方法不写的话默认返回true）
+      1. React先调用了组件实例的`shouldComponentUpdate()`。它是控制页面更新的阀门，如果该方法返回false，那么接下来的更新流程都不会执行，也就是页面并不会重新渲染。（该方法不写的话默认返回true）
       2. 如果更新阀门打开了，紧接着会调用组件实例的`componentWillUpdate()`。此时页面还没重新渲染。
       3. 之后就调用组件实例的`render()`完成对页面的重新渲染。
       4. 最后渲染完毕后会调用组件实例的`componentDidUpdate()`。
   
       > - 有时不想更新state中的数据，也希望通过`render()`将页面重新渲染下。此时可以调用组件实例的API：`forceUpdate()`，它直接绕过阀门从更新流程的第2步开始走强制渲染页面。
-      > - 当父组件的state**更新**后，**重新执行**`render()`渲染页面时，其中的子组件不仅也会进行更新，还会在每次更新前，也就是`shouldComponentUpdate()`执行之前，还会调用`componentWillReceiveProps(props)`。也就是子组件中接收父组件更新后传递的`props`之前，还可以对数据处理下。
+      > - 当父组件的state更新后，重新执行`render()`渲染页面时，其中的子组件不仅会进行更新，还会在每次更新前，也就是`shouldComponentUpdate()`执行之前，去调用`componentWillReceiveProps(props)`。也就是子组件接收父组件传递的`props`之前，还可以对数据处理下。（注意：更新时才会执行）
   
-    - 当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`之后，React会将该HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用，此时已经过了更新阶段，state更新页面也不会变了。
+    - **卸载阶段**：当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`之后，React会将HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用。（**注意**：此时已经过了更新阶段，此时再改state页面也不会变了）
   
   - ###### 关于组件实例的生命周期（新）：
   
