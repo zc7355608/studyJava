@@ -454,23 +454,19 @@
 
   > 每个组件实例从创建到销毁都会经历一系列过程，在这个过程中会通过组件实例去调用组件实例（原型）上一系列叫做**生命周期钩子**的函数，这给了用户在不同阶段执行自己的代码的机会。这就是组件的生命周期。
 
-  > React中，组件实例的生命周期图示：
-  >
-  > - 旧版本（16）：
-  >
-  >   ![d1e3f1f0acd0f76b4f13a4ba3924d863](./assets/d1e3f1f0acd0f76b4f13a4ba3924d863.png)
-  >
-  > - 新版本（18）：
-  >
-  >   ![ogimage](./assets/ogimage.png)
-  >
-  >   ![6e800851591dd7614acf7edbff6fde49](./assets/6e800851591dd7614acf7edbff6fde49.png)
-  >
-  >   ![2475303147-64e17cb8406859c1](./assets/2475303147-64e17cb8406859c1.webp)
+  ###### React中，组件实例的生命周期图示：
+  
+  - 旧版本（16）：
+  
+    ![d1e3f1f0acd0f76b4f13a4ba3924d863](./assets/d1e3f1f0acd0f76b4f13a4ba3924d863.png)
+  
+  - 新版本（17+）：
+  
+    ![9271bb7a3c309fd15d33d37178d54919](./assets/9271bb7a3c309fd15d33d37178d54919.png)
   
   - ###### 关于组件实例的生命周期（旧）：
   
-    - **初始化阶段**：当执行`ReactDOM.render()`之后，也就是组件实例对象初次被创建并挂载到页面上时：
+    - **初始化阶段（挂载阶段）**：当执行`ReactDOM.render()`之后，也就是组件实例对象初次被创建并挂载到页面上时：
   
       1. React首先new出来对应的组件实例对象，此时组件的**构造器执行了**。
       2. 然后调用了组件实例的`componentWillMount()`方法，此时组件还没被挂载到页面上。
@@ -489,9 +485,21 @@
   
     - **卸载阶段**：当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`之后，React会将HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用（一般在这里做收尾工作）。（**注意**：此时已经过了更新阶段，此时再改state页面也不会变了）
   
-  - ###### 关于组件实例的生命周期（新）：
+  - ###### 关于组件实例的生命周期（新）：废弃了3个钩子，新增了2个钩子。
   
-    - 
+    > 在新版本React中（17+），`componentWillMount()`、`componentWillUpdate()`、`componentWillReceiveProps(props)`这3个生命周期钩子函数**过时了**，即将被弃用不推荐再用了。如果非要用前面需要加上`UNSAFE_`前缀。因为这3个钩子函数经常会被误解和滥用，尤其是在未来版本启用**异步渲染**之后问题会更严重。
+    
+    - （了解）挂载和更新阶段新增了`static getDerivedStateFromProps(props,state)`钩子，得到一个派生的状态从props。它是实例上的静态方法，且有返回值。返回值可以是2种：
+    
+      1. 返回一个对象，该对象会和原来的状态对象state进行合并。
+    
+      2. 返回null，此时不会对state有任何的影响。
+    
+         > 派生状态会导致代码很冗余，并使组件难以维护，所以该钩子用的极少，了解即可。（若state的值在任何情况下都取决于props时才考虑使用该钩子函数）
+    
+    - （了解）当组件更新`render()`函数执行后，在页面完成更新之前，还会执行`getSnapshotBeforeUpdate()`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
+    
+      > 其实`componentDidUpdate(preProps,preState,snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
 ------
 
