@@ -6,7 +6,7 @@
 
 - ##### 发展史：
 
-  > 1. 起初是由Facebook的软件工程师Jordan Walke创建。
+  > 1. 起初是由**Facebook**的软件工程师Jordan Walke创建。
   >
   > 2. 于2011年部署于Facebook的newsfeed。
   >
@@ -68,7 +68,7 @@
   >            const VDOM = <h1 id="title">Hello React!</h1>/* JSX中，xml标签能和JS混着写 */
   >            // 2、将创建的虚拟DOM渲染到页面中（div内部）
   >    			//引入上面两个react库之后，全局就多了一个React和ReactDOM对象
-  >            ReactDOM.render(VDOM, document.getElementById('app'))//第一个参数是虚拟DOM，第二个参数是容器（dom）
+  >            ReactDOM.render(VDOM, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom对象（容器对象）
   >       </script>
   > </body>
   > </html>
@@ -140,7 +140,7 @@
   4. 如果`{}`里面的是数组，那么React会自动帮你遍历数组，数组中每个元素都当作虚拟DOM顺序放在`{}`所在位置上。
   5. 和HTML中不同的是，标签的class类名属性叫`className`，因为JSX中包含JS语法，而`class`是JS中的关键字。
   6. 和HTML中不同的是，标签的`style`样式属性的值不能用字符串，也就是不能这样写：`<span style='container'></span>`，值必须是JS中的对象（动态的），如：`<span style={ {backgroundColor:'red',color:'red'} }></span>`，属性名采用小驼峰形式。
-  7. 和HTML中不同的是，**JSX标签的事件句柄属性是小驼峰形式**，且值为JS表达式或回调函数名。如：`<div onClick={sayHi}></div>`
+  7. 和HTML中不同的是，**JSX标签的事件句柄属性是小驼峰形式**（后面再详细说），且值为JS表达式或回调函数名。如：`<div onClick={sayHi}></div>`
   
   ###### 做一个小练习：
   
@@ -253,7 +253,7 @@
 
     > - state是组件实例对象身上最重要的属性，**值必须是一个对象**。组件也被称作**状态机**，通过更新组件的state可以完成对应页面的更新（重新渲染页面）。
     >
-    > - 更新state对象中的数据必须通过React内置的API来完成：`this.setState({})`，否则无法做到响应式的渲染页面。该API在`React.Component`的原型上，它会拿着传进去的对象和原来的state对象进行合并，不是替换。
+    > - 更新state中的数据必须通过组件实例对象上的方法`setState({})`来完成，否则无法做到响应式的渲染页面。该API在`React.Component`的原型上，它会拿着传进去的对象和原来的state对象进行合并，不是替换。
     >
     > - 初始化组件实例对象身上的state有2种方式：（以下代码都是在组件类的类体中写）
     >
@@ -313,7 +313,7 @@
     ReactDOM.render(<Student name="艾克" age={15} sex="男"/>, document.getElementById('app'))
     ```
 
-    > 还可以用展开运算符直接将对象的值展开传到`props`对象中：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
+    > 还可以**用展开运算符直接将对象的值展开传到`props`对象中**：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
 
     ###### 通过给类加静态属性`propTypes`和`defaultProps`，来约束传递的`props`数据的类型和默认值：
 
@@ -454,21 +454,13 @@
 
   > 每个组件实例从创建到销毁都会经历一系列过程，在这个过程中会通过组件实例去调用组件实例（原型）上一系列叫做**生命周期钩子**的函数，这给了用户在不同阶段执行自己的代码的机会。这就是组件的生命周期。
 
-  ###### React中，组件实例的生命周期图示：
-  
-  - 旧版本（16）：
+  - ###### 关于组件实例的生命周期（16及之前的旧版本）：
   
     ![d1e3f1f0acd0f76b4f13a4ba3924d863](./assets/d1e3f1f0acd0f76b4f13a4ba3924d863.png)
   
-  - 新版本（17+）：
-  
-    ![9271bb7a3c309fd15d33d37178d54919](./assets/9271bb7a3c309fd15d33d37178d54919.png)
-  
-  - ###### 关于组件实例的生命周期（旧）：
-  
     - **初始化阶段（挂载阶段）**：当执行`ReactDOM.render()`之后，也就是组件实例对象初次被创建并挂载到页面上时：
   
-      1. React首先new出来对应的组件实例对象，此时组件的**构造器执行了**。
+      1. React首先new出来对应的组件实例对象，此时组件的**constrator()构造器执行了**。
       2. 然后调用了组件实例的`componentWillMount()`方法，此时组件还没被挂载到页面上。
       3. 紧接着调用组件实例的`render()`方法将组件挂载到页面对应位置上。组件实例**初始化渲染**、以及**state更新**后重新渲染页面时都会调用render()方法。
       4. 挂载完毕后又调用了组件实例的`componentDidMount()`。（常用）一般在这里做初始化，如：开启定时器，发送请求等。
@@ -481,24 +473,26 @@
       4. 最后渲染完毕后会调用组件实例的`componentDidUpdate()`。
   
       > - 有时不想更新state中的数据，也希望通过`render()`将页面重新渲染下。此时可以调用组件实例的API：`forceUpdate()`，它直接绕过阀门从更新流程的第2步开始走强制渲染页面。
-      > - 当父组件的state更新后，重新执行`render()`渲染页面时，其中的子组件不仅会进行更新，还会在每次更新前，也就是`shouldComponentUpdate()`执行之前，去调用`componentWillReceiveProps(props)`。也就是子组件接收父组件传递的`props`之前，还可以对数据处理下。（注意：更新时才会执行）
+      > - 当父组件的state更新后，重新执行`render()`渲染页面时，其中的子组件不仅会进行更新，还会在每次更新前，也就是`shouldComponentUpdate()`执行之前，去调用`componentWillReceiveProps(props)`。也就是子组件收到父组件传递的`props`之前，还可以对数据处理下。（注意：更新时才会执行）
   
     - **卸载阶段**：当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`之后，React会将HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用（一般在这里做收尾工作）。（**注意**：此时已经过了更新阶段，此时再改state页面也不会变了）
   
-  - ###### 关于组件实例的生命周期（新）：废弃了3个钩子，新增了2个钩子。
+  - ###### 关于组件实例的生命周期（17及之后的新版本）：废弃了3个钩子，新增了2个钩子。
+  
+    ![9271bb7a3c309fd15d33d37178d54919](./assets/9271bb7a3c309fd15d33d37178d54919.png)
   
     > 在新版本React中（17+），`componentWillMount()`、`componentWillUpdate()`、`componentWillReceiveProps(props)`这3个生命周期钩子函数**过时了**，即将被弃用不推荐再用了。如果非要用前面需要加上`UNSAFE_`前缀。因为这3个钩子函数经常会被误解和滥用，尤其是在未来版本启用**异步渲染**之后问题会更严重。
-    
-    - （了解）挂载和更新阶段新增了`static getDerivedStateFromProps(props,state)`钩子，得到一个派生的状态从props。它是实例上的静态方法，且有返回值。返回值可以是2种：
-    
-      1. 返回一个对象，该对象会和原来的状态对象state进行合并。
-    
+  
+    - （了解）初始化挂载和更新阶段新增了`static getDerivedStateFromProps(props,state)`钩子（得到一个派生的状态从props）。它是实例上的静态方法，且有返回值。返回值可以是2种：
+  
+      1. 返回一个对象，该对象会和原来的状态对象state进行合并（覆盖原来的同名属性）。
+  
       2. 返回null，此时不会对state有任何的影响。
-    
+  
          > 派生状态会导致代码很冗余，并使组件难以维护，所以该钩子用的极少，了解即可。（若state的值在任何情况下都取决于props时才考虑使用该钩子函数）
-    
+  
     - （了解）当组件更新`render()`函数执行后，在页面完成更新之前，还会执行`getSnapshotBeforeUpdate()`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
-    
+  
       > 其实`componentDidUpdate(preProps,preState,snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
 ------
