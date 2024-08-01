@@ -237,15 +237,102 @@
 
 # 路由（前端路由）
 
-> 路由（Route）就是一组K-V的对应关系。多个路由需要经过路由器（Router）的管理。
->
-> Vue中的路由是一个插件（vue-router），专门为了实现SPA（单页面）应用的。其中K为路径，V是Vue的组件。原理是：当页面导航栏的路径发生变化后（没有发请求），就会被vue-router监测到，然后根据路径找对应的组件渲染到页面上。
->
+> **路由（Route）**就是一组K-V的对应关系。多个路由需要经过**路由器（Router）**的管理。
+
+> Vue中的路由是一个Vue的**插件库（vue-router）**，专门为了实现SPA（单页面）应用的。其中K为路径，V是组件。原理是：当页面导航栏的路径发生变化后（没有发请求），就会被**vue-router**监测到，然后根据路径找对应的组件渲染到页面上。
+
 > SPA应用（Single Page web Application）的特点：
 >
 > 1. 整个应用只有**一个完整的页面**（1个html）。
-> 2. 点击页面导航不会刷新页面，只做局部的组件更换。
+>2. 点击页面导航**不会刷新页面，只做局部的组件更换**。
 > 3. 数据需要通过AJAX来获取。
+
+###### 路由的配置：
+
+1. 安装`vue-router`插件：`npm i vue-router@3`，（Vue3对应vue-router的4版本，而Vue2要用vue-router的3版本，否则会报错）
+
+2. 入口文件main.js中使用下该插件，这样vm实例中就可以写`router`配置项了：
+
+   ```js
+   import Vue from 'vue'
+   import VueRouter from 'vue-router'
+   import App from './App.vue'
+   Vue.use(VueRouter)
+   
+   new Vue({
+       el: '#app',
+       render: h => h(App),
+       // 使用插件后，就可以写router配置项了，值是VueRouter的实例
+       router: router对象,
+   })
+   ```
+
+3. src下新建`router/index.js`，里面创建`VueRouter`实例：
+
+   ```js
+   // 该文件专门用于创建整个应用的路由器实例
+   import VueRouter from "vue-router"
+   import About from '../pages/About'
+   import Home from '../pages/Home'
+   
+   // 创建一个路由器实例VueRouter并暴露出去
+   export default new VueRouter({
+     routes: [
+       {
+         path: '/about',
+         component: About
+       },
+       {
+         path: '/home',
+         component: Home
+       }
+     ]
+   })
+   ```
+
+   > 其中`routes`配置项的值是对象数组，用于配置多个路由规则。`path`指定路径，`component`是路径对应的组件。
+
+   ###### 注意：通常在routes中配置的组件称为路由组件，路由组件单独放在`src/pages/`目录下。路由组件实例对象身上会多两个API：`$route`是路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
+
+4. 此时回到main.js中，将`VueRouter`实例配置到`router`配置项里：
+
+   ```js
+   import Vue from 'vue'
+   import VueRouter from 'vue-router'
+   import App from './App.vue'
+   // 导入创建好的VueRouter路由器实例
+   import router from './router'
+   Vue.use(VueRouter)
+   
+   new Vue({
+       el: '#app',
+       render: h => h(App),
+       // 配置路由器
+       router,
+   })
+   ```
+
+   > 此时路由器就配置好了。
+
+###### 使用路由：
+
+1. 找到导航链接所在的`<a>`标签，将其替换为vue-router已经给你注册好的`<router-link>`标签（其实就是写好的组件，**本质就是a标签**）。
+
+   > - **注意：**原来a标签的href到了`<router-link>`标签上变成了`to`，to的值写上面`path`配好的路径。
+   > - 如果导航链接不是a标签，此时就不能用`<router-link>`了，用后面的**编程式路由导航**。
+   > - `<router-link>`标签还有`active-class`属性，用于指定路由导航被激活（点击）时要加的样式类名。
+
+2. 在要呈现和切换组件的位置加上`<router-view>`标签。
+
+###### 此时点击对应的`<router-link>`标签就会在`<router-view>`所在位置挂载对应的路由组件。路由切换时导航栏路径也随之变化，但是并没有发送网络请求。当切换其他路由组件时，默认是将原来的组件实例销毁（也可以配置为不销毁）。
+
+![image-20240801230601759](./assets/image-20240801230601759.png)
+
+![image-20240801230621415](./assets/image-20240801230621415.png)
+
+------
+
+路由：
 
 ------
 
