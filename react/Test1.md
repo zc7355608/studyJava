@@ -491,7 +491,7 @@
   
          > 派生状态会导致代码很冗余，并使组件难以维护，所以该钩子用的极少，了解即可。（若state的值在任何情况下都取决于props时才考虑使用该钩子函数）
   
-    - （了解）当组件更新`render()`函数执行后，在页面完成更新之前，还会执行`getSnapshotBeforeUpdate()`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
+    - （了解）当组件更新`render()`执行后，在页面完成更新之前，还会执行`getSnapshotBeforeUpdate(preProps,preState)`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
   
       > 其实`componentDidUpdate(preProps,preState,snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
