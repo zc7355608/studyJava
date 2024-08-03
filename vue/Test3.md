@@ -145,7 +145,6 @@
   	},
   }
   ```
-
 - #### mapActions与mapMutations
 
   > 如果我们写的函数中，只包含这行代码：`this.$store.dispatch/commit('函数名', 数据)`，那么这个函数也可以让Vuex自动生成，通过`mapActions`和`mapMutations`。
@@ -267,7 +266,7 @@
    })
    ```
 
-3. src下新建`router/index.js`，里面创建`VueRouter`实例：
+3. src下新建`router/index.js`，里面创建`VueRouter`实例（路由器）并配置路由规则：
 
    ```js
    // 该文件专门用于创建整个应用的路由器实例
@@ -292,7 +291,7 @@
 
    > 其中`routes`配置项的值是对象数组，用于配置多个路由规则。`path`指定路径，`component`是路径对应的组件。
 
-   ###### 注意：通常在routes中配置的组件称为路由组件，路由组件单独放在`src/pages/`目录下。路由组件实例对象身上会多两个API：`$route`是路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
+   ###### 注意：通常在routes中配置的组件称为路由组件，路由组件单独放在`src/pages/`目录下。路由组件对象vc身上会多两个API：`$route`是路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
 
 4. 此时回到main.js中，将`VueRouter`实例配置到`router`配置项里：
 
@@ -324,7 +323,7 @@
 
 2. 在要呈现和切换组件的位置加上`<router-view>`标签。
 
-###### 此时点击对应的`<router-link>`标签就会在`<router-view>`所在位置挂载对应的路由组件。路由切换时导航栏路径也随之变化，但是并没有发送网络请求。当切换其他路由组件时，默认是将原来的组件实例销毁（也可以配置为不销毁）。
+###### 此时点击对应的`<router-link>`标签就会在`<router-view>`所在位置挂载对应的路由组件。路由切换时导航栏路径也随之变化，但是并没有发送网络请求。当切换其他路由组件时，默认是将原来的组件实例销毁。
 
 ![image-20240801230601759](./assets/image-20240801230601759.png)
 
@@ -332,7 +331,259 @@
 
 ------
 
-路由：
+- #### 多级路由：
+
+  > 路由组件中还可以继续写`<router-link>`和`<router-view>`，这种路由组件的嵌套就形成了**多级路由**。
+
+  ###### 使用：
+
+  1. 路由中通过`children`配置项来配置多级路由：（**注意：子级路由path开头不要加斜杆`/`**）
+
+     ```js
+     import VueRouter from 'vue-router'
+     import Home from '../pages/Home'
+     import About from '../pages/About'
+     import Message from '../pages/Message'
+     import News from '../pages/News'
+     
+     export default new VueRouter({
+       routes: [
+         // 这里是一级路由
+         {
+           path: '/home',
+           component: Home,
+           children: [
+             // 这里是二级路由。注意：子级路由path开头不要加斜杆/
+             {
+               path: 'message',
+               component: Message
+             },
+             {
+               path: 'news',
+               component: News
+             }
+           ]
+         },
+         {
+           path: '/about',
+           component: About
+         }
+       ]
+     })
+     ```
+
+  2. Home路由组件中编写路由标签：（**注意：to中要写完整路径**）
+
+     ```html
+     <div id="home">
+       <h2>Home组件内容</h2>
+       <div>
+         <ul class="nav nav-tabs">
+           <li>
+             <!-- 其实to的值还可以是一个对象，后面有应用场景 -->
+             <router-link class="list-group-item" to="/home/news" active-class="active">News</router-link>
+           </li>
+           <li>
+             <router-link class="list-group-item" to="/home/message" active-class="active">Message</router-link>
+           </li>
+         </ul>
+         <router-view/>
+       </div>
+     </div>
+     ```
+
+- #### 给路由组件传递数据：
+
+  > 由于路由组件没有办法直接写组件标签，所以之前给普通组件传递数据的方式：props、自定义事件、事件回调等方式就都不能用了。
+  >
+  > 其实路由组件可以接收两种参数：**query参数**和**params参数**。
+
+  - ###### 路由组件的query参数：
+
+    > - 查询字符串参数（query参数）就是，通过在to指定的路径末尾追加`?name=zc&age=18&..`的方式给路由组件传递数据。路由组件中这样接收：`vc.$route.query.Key`，其中query是查询字符串转成的对象。
+    >
+    > - 但是这种方式传递的数据是固定的字符串，如果想动态化可以这样做：
+    >
+    >   ```html
+    >   <router-link :to="`/home/message?name=${p.name}&age=${p.age}`">Message</router-link>
+    >   ```
+    >
+    > - 其实to的值还可以是一个对象：（推荐）
+    >
+    >   ```html
+    >   <router-link :to="{
+    >     path: '/home/message',
+    >     query: {
+    >       name: p.name,
+    >       age: p.age
+    >     }
+    >   }">
+    >     Message
+    >   </router-link>
+    >   ```
+
+  - ###### 路由组件的params参数：
+
+    > - 所谓params参数就是路径参数（path传参），是Restful风格的参数。
+    >
+    > - 表面上看不出来哪个是路由哪个是数据，需要在path中指定占位符：`path:'/home/:name/:age'`。数据直接放在路由路径中：`to="/home/zs/18"`。取数据时通过：`vc.$route.params.占位符`，其中params是路径参数转成的对象。
+    >
+    > - 和query参数类似，传递动态数据还可以用对象，通过指定对象中的`params`属性：（**注意：此时对象中只能用name不能用path**）
+    >
+    >   ```html
+    >   <router-link :to="{
+    >     // 这里只能用name来指定路由
+    >     name: 'jia',
+    >     params: {
+    >       // 指定给name占位符传值p.name
+    >       name: p.name,
+    >       age: p.age
+    >     }
+    >   }">
+    >     Message
+    >   </router-link>
+    >   ```
+
+- #### 给路由命名：
+
+  > 如果是多级路由，那么得写很长的路径`to="/home/message/..."`去指定跳转到哪个路径。此时可以通过给路由命名（唯一）来**简化路由的跳转**。
+
+  ###### 使用：通过给路由对象设置`name`属性来给路由命名（注意不要重复）
+
+  ```js
+  export default new VueRouter({
+    routes: [
+      {
+        name: 'jia',
+        path: '/home',
+        component: Home
+      },
+      {
+        name: 'guanyu',
+        path: '/about',
+        component: About
+      }
+    ]
+  })
+  ```
+
+  > 此时就可以这样写：`<router-link :to="{name:'jia'}">Home</router-link>`，**指定路由名的方式to的值必须是对象**。
+
+- #### 路由的meta配置：
+
+  > 其实每一个路由配置对象中都可以写`meta`**元数据配置项**，值是一个对象，用于在路由中存放自定义数据。
+
+- #### 路由的props配置：
+
+  > 通过路由的props配置项，可以把路由组件接收的query参数和params参数，通过**props的方式**传给组件去使用。（使用props后从路由组件中取数据更方便了）
+
+  ```js
+  {
+  	name: 'guanyu',
+  	path: '/about',
+  	component: About,
+  	// props的第1种写法（推荐）：函数形式
+  	props($route){
+      	// 返回的对象中的所有K-V都会以props的形式传递给About组件。About组件配置props接收即可：props:['a','b']
+      	return {
+        		a: $route.query.id,
+        		b: $route.params.tittle
+      	}
+  	}
+    	// props的第2种写法：布尔形式。若为true则会把该路由组件收到的所有【params】参数以props的形式传给About组件
+    	// props: true
+  }
+  ```
+
+  > props的值还可以是一个普通对象：`props: {}`，但是这种方式传递的是固定的数据，所以很少用了解即可。
+
+- #### `<router-link>`的replace属性：
+
+  > - 点击`<router-link>`写的路由导航时，由于是a标签所以每一次点击更改地址栏路径后，都会形成历史记录。历史记录栈会将当前路径url进行push压栈（默认），栈针默认指向栈顶。而点击前进、后退按钮其实就是在操作历史记录栈的栈针。
+  > - 浏览器中有前进和后退按钮，这两个按钮都是依赖于浏览器的历史记录在工作的。浏览器的历史记录有2种写入模式，分别是：push和replace。push是追加历史记录，replace是替换当前记录。`<router-link>`路由导航跳转的时候默认为push。
+  > - 对历史记录栈的操作其实还有另一种模式：替换（replace），它是用当前url对栈顶记录进行替换。开启替换模式：`<router-link replace>`
+
+  ###### 所以`<router-link>`的replace属性的作用是：将路由跳转时操作浏览器历史记录的模式改为replace。
+
+------
+
+- #### 编程式路由导航：
+
+  > - 编程式路由导航可以不借助`<router-link>`实现路由的跳转，让路由跳转更加灵活。
+  > - 通过路由组件实例来拿到路由器，路由器`$router`上有`push({})、replace({})`方法。该方法的调用需要传进去配置对象，就是to的对象写法。
+  > - `$router`上还有几个常用的方法：`back()、forward()、go(n)`，用于操作历史记录栈针。
+
+- #### 缓存路由组件：
+
+  > 我们知道：默认路由的切换是先销毁原来的路由组件，再挂载新的路由组件实例。能不能切换路由时不要销毁原来的路由组件实例，而将其缓存起来呢？可以，用`<keep-alive>`标签将`<router-view>`标签包起来即可。而且通过给`<keep-alive>`标签设置`include='About'`属性可以指定只缓存其中某些组件，**值是组件名**，字符串或字符串数组。
+
+- #### 路由组件独有的2个生命周期钩子：
+
+  - `actived(){}`：路由组件被激活时触发。
+  - `deactived(){}`：路由组件失活时触发。
+
+  > 这两个钩子只要组件在页面上呈现（离开）就会调用，不论你是通过路由规则还是手动写组件标签。
+
+- #### 路由守卫：
+
+  > 路由守卫可以对路由进行权限控制。其实就是前端路由的拦截器，可以在路由跳转前后做一些事情。
+
+  > 通过在index.js中调用VueRouter实例的方法来给路由加上路由守卫。如：
+  >
+  > ```js
+  > const router = new VueRouter({
+  >     routes: [{},{}]
+  > })
+  > // 设置全局前置路由守卫
+  > router.beforeEach((to,from,next)=>{...})
+  > export default router
+  > ```
+
+  ###### 路由守卫分为：
+
+  - **全局前置路由守卫**：`router.beforeEach((to,from,next)=>{})`，该回调函数在，**路由初始化**以及**每次切换路由之前**调用。其中to是切换前的路由信息对象，from是切换后的路由信息对象（`$route`），next是放行函数，不调用该函数所有路由都不会放行。
+
+  - **全局后置路由守卫**：`router.afterEach((to,from)=>{})`，该回调函数在每次**成功切换路由之后**调用。在所有路由组件都完成切换，也就是所有路由守卫都没拦截、成功切换路由组件后，该回调函数会被调用。
+
+  - **独享路由守卫/局部路由守卫**：`beforeEnter(to,from,next){}`，如果只想给某一个路由单独设置前置守卫，可以**给路由添加**`beforeEnter`配置项，值是一个函数。
+
+  - **组件内路由守卫**：不同与前几种路由守卫，组件内路由守卫是组件实例配置项中的2个方法`beforeRouterEnter(to,from,next)`和`beforeRouterLeave(to,from,next)`，这俩个方法的调用时机是，**只有通过路由规则进入/离开该组件时才被调用**。（不同于路由组件的2个生命周期钩子，这两个方法只有通过路由规则切换路由组件时才会被调用）
+
+    > 注意：组件内路由守卫的进入和离开方法中，同样需要执行`next()`方法才会完成路由的切换。
+
+- #### 路由器的2种工作模式：
+
+  > 我们开启路由后，地址栏上的路径就发生了变化：http://localhost:8080/#/about，其中#号及后面的所有内容（`#/about`）就叫url路径里的**hash值**。哈希值最大的特点是，**它不会随着HTTP请求发送给服务器**。
+
+  > 路由器有两种工作模式：（默认）**hash模式**和**history模式**，更改路由器的工作模式为history：
+  >
+  > ```js
+  > export default new VueRouter({
+  >   // 更改路由器的工作模式为history，默认值hash
+  >   mode: 'history',
+  >   routes: [{},{}]
+  > })
+  > ```
+  >
+  > 此时浏览器路径就变的很正常了，没有哈希值了：http://localhost:8080/about，那么这两种模式的区别是什么呢？
+
+  ###### 路由器两种工作模式，除了哈希模式兼容性略好、地址可能被第三方app识别为非法之外，最主要是项目上线后的区别：
+
+  > - 当执行`npm run build`将开发完的Vue项目进行打包后，会在dist目录下生成最纯粹的HTML、CSS、JS文件（以及其他静态资源）。把这些静态资源部署在后端服务器上之后，我们的项目就可以运行了。
+  >
+  > - 如果此时路由器是history模式，那么注意了：通过点击路由导航虽然可以完成组件的切换、路径也随之变化，但此时都没有向后端发送网络请求。如果此时将地址栏url复制下来新开一个页签去访问，就会报404，因为这个url在服务器上根本没有对应的资源，只有一个index.html，端口号后面的都只是前端路由。如果此时路由器是hash模式，就没有这个问题。
+  >
+  > - 但并不是说如果项目要上线就只能用hash模式，history模式也可以。此时需要和后端人员进行沟通，让他将所有前端路由都配置下，访问时都返回index.html。
+  >
+  >   > 如果是Node服务器，除了手动配置之外，还可以通过第三方库`connect-history-api-fallback`去解决前端路由404的问题。
+
+------
+
+# Vue UI组件库
+
+> 所谓的UI组件库就是：将我们常用的元素、样式及交互，封装成各种组件供我们使用。只需要将组件拿过来即可使用。
+>
+> UI组件库分为两大类：移动端和PC端。移动端常用的UI组件库：Vant、Cube UI、Mint UI..，PC端常用的UI组件库：Element UI、IView UI..
 
 ------
 
