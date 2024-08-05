@@ -233,85 +233,29 @@
      >   ```
 
 ------
-
 # 路由（前端路由）
 
 > **路由（Route）**就是一组K-V的对应关系。多个路由需要经过**路由器（Router）**的管理。
 
-> Vue中的路由是一个Vue的**插件库（vue-router）**，专门为了实现SPA（单页面）应用的。其中K为路径，V是组件。原理是：当页面导航栏的路径发生变化后（没有发请求），就会被**vue-router**监测到，然后根据路径找对应的组件渲染到页面上。
+> - Vue中的路由是一个Vue的**插件库（vue-router）**，专门为了实现SPA（单页面）应用的。其中K为路径，V是组件。
+> - SPA应用（Single Page web Application）的特点：
+>   1. 整个应用只有**一个完整的页面**（1个html）。
+>   2. 点击页面导航**不会刷新页面，只做局部的组件更换**。
+>   3. 数据需要通过AJAX来获取。
 
-> SPA应用（Single Page web Application）的特点：
+###### 前端路由的原理是：当页面导航栏的路径发生变化后（没有发请求），就会被**vue-router**监测到，然后根据路径找对应的组件渲染到页面上。怎么做到的呢？
+
+> - 实际上在React和Vue的路由底层，使用了HTML5的`History API`，这使得可以在不重新加载整个页面的情况下改变URL，并且能更新浏览器的历史记录。
 >
-> 1. 整个应用只有**一个完整的页面**（1个html）。
->2. 点击页面导航**不会刷新页面，只做局部的组件更换**。
-> 3. 数据需要通过AJAX来获取。
-
-###### 路由的配置：
-
-1. 安装`vue-router`插件：`npm i vue-router@3`，（Vue3对应vue-router的4版本，而Vue2要用vue-router的3版本，否则会报错）
-
-2. 入口文件main.js中使用下该插件，这样vm实例中就可以写`router`配置项了：
-
-   ```js
-   import Vue from 'vue'
-   import VueRouter from 'vue-router'
-   import App from './App.vue'
-   Vue.use(VueRouter)
-   
-   new Vue({
-       el: '#app',
-       render: h => h(App),
-       // 使用插件后，就可以写router配置项了，值是VueRouter的实例
-       router: router对象,
-   })
-   ```
-
-3. src下新建`router/index.js`，里面创建`VueRouter`实例（路由器）并配置路由规则：
-
-   ```js
-   // 该文件专门用于创建整个应用的路由器实例
-   import VueRouter from "vue-router"
-   import About from '../pages/About'
-   import Home from '../pages/Home'
-   
-   // 创建一个路由器实例VueRouter并暴露出去
-   export default new VueRouter({
-     routes: [
-       {
-         path: '/about',
-         component: About
-       },
-       {
-         path: '/home',
-         component: Home
-       }
-     ]
-   })
-   ```
-
-   > 其中`routes`配置项的值是对象数组，用于配置多个路由规则。`path`指定路径，`component`是路径对应的组件。
-
-   ###### 注意：通常在routes中配置的组件称为路由组件，路由组件单独放在`src/pages/`目录下。路由组件对象vc身上会多两个API：`$route`是路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
-
-4. 此时回到main.js中，将`VueRouter`实例配置到`router`配置项里：
-
-   ```js
-   import Vue from 'vue'
-   import VueRouter from 'vue-router'
-   import App from './App.vue'
-   // 导入创建好的VueRouter路由器实例
-   import router from './router'
-   Vue.use(VueRouter)
-   
-   new Vue({
-       el: '#app',
-       render: h => h(App),
-       // 配置路由器
-       router,
-   })
-   ```
-
-   > 此时路由器就配置好了。
+>   > Hash模式的路由实现方式不是用的HTML5的`History API`，而是通过`#`号。锚点跳转也会留下历史记录。所以这种Hash模式的路由兼容性好。
+>
+> - `History API`包括以下几个主要的方法：
+>   
+>   - `pushState()`：可以向浏览器的历史栈中添加一个新的记录，同时改变当前的URL。
+>   - `replaceState()`：类似于`pushState()`，但是它会替换当前的历史记录而不是添加新的记录。
+>   - `onpopstate`事件：当用户使用浏览器的前进或后退按钮时触发。
+>   
+> - 如何工作：当我们在React或Vue应用中导航到一个新的路由时，前端框架会调用`pushState`来更新URL，并将这个新的URL添加到浏览器的历史记录中。这样，即使URL改变了，也不会触发一个完整的页面刷新，而是由前端框架接管这个URL的变化，并根据这个变化渲染相应的组件。
 
 ###### 使用路由：
 

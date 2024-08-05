@@ -496,4 +496,101 @@
       > 其实`componentDidUpdate(preProps,preState,snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
 ------
+- ### React脚手架
+
+  > - 使用React脚手架可以快速创建基于React的项目，在脚手架环境下开发React项目效率更高。
+  > - React官方提供了一个用于快速创建React项目的工具：create-react-app，通过它提供的命令可以快速创建React项目（node项目）。
+
+  ###### 安装`create-react-app`工具并通过该工具创建React模版项目（React脚手架环境）：
+
+  1. 安装create-react-app工具：`npm i -g create-react-app`（也可以用yarn，yarn和React是同一家公司的配合使用更好）
+  2. 切换到你存放React项目的目录下执行：`create-react-app 项目名`
+  3. 等待React项目创建成功后，cd进入项目目录中执行`npm start`即可启动React脚手架中自带的Hello Word项目。
+
+  ###### React项目创建成功后，查看`package.json`的scripts配置项目：
+
+  ```json
+    "scripts": {
+    	"start": "react-scripts start",
+    	"build": "react-scripts build",
+    	"test": "react-scripts test",
+    	"eject": "react-scripts eject"
+    },
+  ```
+
+  > - 其中`npm start`可以启动一台开发者服务器，帮助我们开发和调试React项目。
+  > - `npm run build`可以将前端开发完毕的项目，打包生成静态资源文件，由后端部署在服务器上运行。
+  > - `npm run test`是做前端测试的，我们几乎不用。
+  > - `npm run eject`可以将React脚手架隐藏起来的、所有Webpack相关的命令及配置文件都暴露出来，方便我们更底层的配置React脚手架。这个操作是永久性的不能返回。（之所以React将其隐藏起来就是怕碰坏了导致项目崩溃，一般我们不用动）
+
+  ###### 分析脚手架目录：
+
+  - public/：该目录下存放不参与打包的静态资源。其中包含`index.html`，它是React项目的主页面，将来所有的东西都会打包放在这个文件中（以后我们编写的都是SPA单页面应用），里面有一个id为root的div用于存放根组件App。public下的其他文件目前还用不到删除即可。
+
+  - src/：
+
+    - App.js & App.css：分别是App组件和App组件的样式文件。**App组件是所有组件的根组件**，id为root的div中只需要引入App组件即可。
+    - index.js & index.css：React项目的**入口文件**和全局样式文件。入口文件中引入了App组件并通过`ReactDOM.render()`将根组件（虚拟DOM）渲染到了id为root的div中（至于为什么能找到index.html是因为脚手架的Webpack中配置好了）。全局样式文件中存放全局样式，如果不想参与打包也可以放在public目录下在index.html中进行导入。
+
+    > - 至于`<App/>`标签外层为什么要包裹一个`<React.StrictMode>`标签，是因为包裹了之后它能帮助检查App组件及其子组件写的是否合理。
+    > - App组件中还用了`reportWebVitals.js`，它是用于记录页面上的性能的，里面用的`web-vitals`库。
+
+  - 其他的像：App.test.js是专门为App组件做测试的，setupTests.js是用于React项目的整体测试或组件测试的。（这俩几乎不用）
+
+  > 我们一般只需要写index.html、index.js、App.js、App.css即可。其中App.js中由于写的是组件且用了JSX语法，所以一般扩展名写成`App.jsx`。并且其他子组件都放在`src/components`下，每个组件都是单独的目录，目录名就是组件名。目录中存放组件（`index.jsx`或`组件名.jsx`）以及组件的样式和其他用到的资源。
+
+------
+
+- ### 样式的模块化
+
+  > 样式在React脚手架中怎么模块化呢？步骤如下：
+
+  1. 将`.css`文件的后缀名改成`.module.css`
+  2. 引入时：`import hello from './hello.module.css'`，此时样式就保存在了hello对象中。使用时通过`hello.类名`，它是一个JS表达式。
+
+  > 不过我们一般用Less写样式，外层嵌套个组件名后，不同组件的样式的类名不同，所以不会产生冲突。
+
+- ### React项目的注意事项
+
+  1. JSX多选框标签上的`checked`属性，会根据值`true/false`来决定是否勾选。如果加了该属性必须同时加上`onChange`属性（值为回调函数名），指定当多选框发生变化时要做什么。不加的话多选框就无法取消勾选了，只取决于checked属性的值了。
+  2. 而JSX多选框的`defaultChecked`属性，只在页面初始化时生效，以后`defaultChecked`的值变了也不去关联多选框的勾选和取消勾选状态了。
+
+------
+
+- ### React脚手架配置代理
+
+  > React脚手架也是一个Node项目，在项目中向后端发送AJAX请求会跨域。可以在React脚手架中通过配置代理来解决。React脚手架配置代理：
+
+  - 方式1：在`package.json`中，加配置项：`"proxy": "http://localhost:5000"`，这是方式2的简写形式。
+
+    > 这样需要的所有资源都向本地服务器发送请求。如果是**public目录下没有的资源**，本地代理服务器会继续请求目标服务器5000。
+
+  - 方式2：新建`src/setupProxy.js`文件（CommonJS）：
+
+    ```js
+    const proxy = require('http-proxy-middleware')
+    module.exports = function(app){
+      // use函数可以传多个参数
+      app.use(
+        proxy('/api1',{
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+          pathRewrite: {'^/api1':''}
+        }),
+        proxy('/api2',{
+          target: 'http://localhost:5001',
+          changeOrigin: true,
+          pathRewrite: {'^/api2':''}
+        }),
+      )
+    }
+    ```
+
+    > 这是标准的配置代理方式，只要请求uri以/api1开头就转发给5000服务器，不管public目录下有没有这个资源。
+
+- ### 消息订阅与发布
+
+  > React中要想实现任意组件间通信，需要用第三方的消息订阅与发布技术。一般我们用`pubsub-js`，在`componentDidMount()`中订阅消息，在`componentWillUnmount()`中取消订阅。（Vue中讲过，这里不再细说）
+
+------
 
