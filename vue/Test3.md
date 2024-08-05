@@ -257,6 +257,70 @@
 >   
 > - 如何工作：当我们在React或Vue应用中导航到一个新的路由时，前端框架会调用`pushState`来更新URL，并将这个新的URL添加到浏览器的历史记录中。这样，即使URL改变了，也不会触发一个完整的页面刷新，而是由前端框架接管这个URL的变化，并根据这个变化渲染相应的组件。
 
+###### 路由的配置：
+
+1. 安装`vue-router`插件：`npm i vue-router@3`，（Vue3对应vue-router的4版本，而Vue2要用vue-router的3版本，否则会报错）
+
+2. 入口文件main.js中使用下该插件，这样vm实例中就可以写`router`配置项了：
+
+   ```js
+   import Vue from 'vue'
+   import VueRouter from 'vue-router'
+   import App from './App.vue'
+   Vue.use(VueRouter)
+   
+   new Vue({
+       el: '#app',
+       render: h => h(App),
+       // 使用插件后，就可以写router配置项了，值是VueRouter的实例
+       router: router对象,
+   })
+   ```
+3. src下新建`router/index.js`，里面创建`VueRouter`实例（路由器）并配置路由规则：
+   ```js
+   // 该文件专门用于创建整个应用的路由器实例
+   import VueRouter from "vue-router"
+   import About from '../pages/About'
+   import Home from '../pages/Home'
+   
+   // 创建一个路由器实例VueRouter并暴露出去
+   export default new VueRouter({
+     routes: [
+       {
+         path: '/about',
+         component: About
+       },
+       {
+         path: '/home',
+         component: Home
+       }
+     ]
+   })
+   ```
+   > 其中`routes`配置项的值是对象数组，用于配置多个路由规则。`path`指定路径，`component`是路径对应的组件。
+
+   ###### 注意：通常在routes中配置的组件称为路由组件，路由组件单独放在`src/pages/`目录下。配置好的路由组件对象vc身上会多两个API：`$route`是路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
+
+4. 此时回到main.js中，将`VueRouter`实例配置到`router`配置项里：
+
+   ```js
+   import Vue from 'vue'
+   import VueRouter from 'vue-router'
+   import App from './App.vue'
+   // 导入创建好的VueRouter路由器实例
+   import router from './router'
+   Vue.use(VueRouter)
+   
+   new Vue({
+       el: '#app',
+       render: h => h(App),
+       // 配置路由器
+       router,
+   })
+   ```
+
+   > 此时路由器就配置好了。
+
 ###### 使用路由：
 
 1. 找到导航链接所在的`<a>`标签，将其替换为vue-router已经给你注册好的`<router-link>`标签（其实就是写好的组件，**本质就是a标签**）。
@@ -476,7 +540,7 @@
   >
   > ```js
   > const router = new VueRouter({
-  >     routes: [{},{}]
+  >    	routes: [{},{}]
   > })
   > // 设置全局前置路由守卫
   > router.beforeEach((to,from,next)=>{...})
@@ -503,9 +567,9 @@
   >
   > ```js
   > export default new VueRouter({
-  >   // 更改路由器的工作模式为history，默认值hash
-  >   mode: 'history',
-  >   routes: [{},{}]
+  >   	// 更改路由器的工作模式为history，默认值hash
+  >   	mode: 'history',
+  >   	routes: [{},{}]
   > })
   > ```
   >
