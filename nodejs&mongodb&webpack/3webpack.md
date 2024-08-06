@@ -5,9 +5,9 @@
   - #### 为什么前端需要打包工具：
 
     > 前端进行开发时，我们会使用框架（Vue、React），ES6模块化语法，Less/Sass等CSS预处理器进行代码的编写。而这样的代码想在浏览器上运行必须先被预处理，经历很多繁琐的步骤处理后才能运行在前端。用打包工具可以让我们避免做这样复杂的工作，让Webpack帮我们做项目的打包和代码替换，这样就可以直接放在前端运行。除此之外，打包工具还能够压缩代码、做兼容性处理、提升代码性能等。
-  
+
   - #### 打包工具可以帮我们做什么：
-  
+
     > 1. 性能优化：通过合并文件，减少了文件的大小，从而减少HTTP请求的数量，加快页面加载速度。
     >
     > 2. 代码预处理和打包：打包工具可以将模块化语法、框架语法（Vue、React）进行预处理。
@@ -15,9 +15,9 @@
     > 4. 转换 & 兼容性：可以将高级的 JavaScript（例如 ES6+）或其他编程语言（例如 TypeScript）转换为广泛支持的 ES5 代码。
     > 5. 依赖管理：确保代码按正确的顺序执行，满足模块间的依赖关系。
 
-  
+
   - #### 常见的打包工具：
-  
+
     > - Grunt
     > - Gulp
     > - Parcel
@@ -27,39 +27,39 @@
     > - ...
     >
     > 目前市面上最流行的是 Webpack，所以我们主要以 Webpack 来介绍使用打包工具。
-  
+
   - #### Webpack概述：
-  
+
     > Webpack是一个**静态资源打包工具**（就是别人写好的一个node的插件）。它会以一个或多个文件作为打包的入口，将我们整个项目的所有文件编译组合成一个或多个文件输出到当前目录的`dist`目录下（默认），输出的文件就可以在浏览器环境下运行了。通常将输出的文件称为`bundle`文件（束、捆）。（Webpack是基于Node开发的，所以它的运行需要有Node环境）
-  
+
   - #### Webpack初识：
-  
+
     > Webpack本身的功能很有限，仅能编译ES6的模块化语法（ESM）。
-  
+
     1. 首先初始化`package.json`文件：`npm init`
-  
+
     2. 下载`webpack`作为项目的开发依赖：`npm i webpack webpack-cli -D`
-  
+
        > `webpack-cli`是Webpack的命令工具，有很多webpack命令可以供我们使用。其实node命令我们之所以可以直接运行，就是因为它已经内置了node的命令工具cli，而Webpack没有，所以需要手动安装这个工具才能够使用Webpack命令。
-  
+
     3. 用命令`webpack`打包静态资源，也就是将一堆JS的模块化文件编译为一个JS文件：
-  
+
        > `npx`命令会将`./node_modules/.bin`目录临时添加为环境变量，并执行后面的`webpack`命令。也就是说执行npm安装的局部工具包中的命令需要用npx来执行。
-  
+
        - 开发模式打包：`npx webpack ./src/main.js --mode=development`
-  
+
        - 生产模式打包（默认）：`npx webpack ./src/main.js --mode=production`
-  
+
          > - `webpack`命令后指定打包的入口文件，也就是从main.js开始打包，将该入口文件内`import`导入的所有资源一起打包输出为一个JS文件。
          > - `--mode=xxx`参数用于指定Webpack的工作模式。若开发模式则输出易读代码，生产模式则是压缩优化后的代码。
-  
-  
-    ###### 观察输出文件：
-  
+
+  - #### 观察输出文件：
+
     > - 默认`Webpack`将文件输出到`dist`目录下，查看`dist`目录下编译后的`main.js`文件即可。
     > - `Webpack`本身功能很少，**只能编译ES6模块化语法**。如果入口文件中import了其他的Less、CSS、IMG等静态资源，它不知道如何处理后就会报错编译失败。
     >
-    > 因此，我们主要学习如何让`Webpack`处理其他资源，让它能做更多事情。
+
+  ###### 因此，我们主要学习如何让`Webpack`处理其他资源，让它能做更多事情。
 
 ------
 
@@ -82,13 +82,13 @@
     ```js
     const path = require('path')//用到了path模块
     modules.exports = {
-    	//入口文件（主文件），必须用相对路径
+    	//入口文件（主文件），从哪个文件开始打包（必须用相对路径）
         entry: '入口文件的相对路径',
-    	//输出（bundle文件），必须用绝对路径
+    	//输出（bundle文件），指定打包后的输出目录（必须用绝对路径）
         output: {
-            //输出的目录，必须用绝对路径
+            //打包后往哪个目录输出。必须用绝对路径
         	path: path.resolve(__dirname, 'dist'),
-        	//main.js输出的文件名。此时dist下js目录中会有打包后的main.js文件
+        	//指定main.js主文件打包后的文件名。此时主文件打包后输出为dist/js/main.js
         	filename: 'js/main.js'
         },
     	//加载器
@@ -98,9 +98,7 @@
             //loader的其他配置
         },
     	//插件
-        plugins: [
-        	//插件的配置
-        ],
+        plugins: [],
     	//模式
         mode: 'development'
     }
@@ -182,48 +180,79 @@
       },
       ```
 
-  - #### 处理图片资源：
+  - ------
 
+    #### 处理图片、字体以、多媒体资源：
+  
     > - 过去在Webpack4时，我们处理图片资源是通过`file-loader`和`url-loader`进行处理。
     > - 当CSS中通过`url()`引入了外部图片时，file-loader会将资源原封不动输出。而url-loader是在前者基础上，将小于某个大小的图片转成base64格式（做优化）。
     > - 将图片用Base64转成字符串的优点是：不需要再发送请求了。缺点是：体积会比原来大一些（图片越大大的越多）。所以一般我们综合考虑，会将小于10KB的图片进行Base64转码，减轻服务器的压力。
-
-    > 现在Webpack5已经将这两个Loader的功能内置到Webpack了。默认情况下，CSS中引入的图片会原封不动输出到dist目录下。如果还想将其他文件也原封不动输出，可以显式的将`file-loader`配置进去：（不用安装了）
+  
+    > 现在Webpack5已经将这两个Loader的功能内置到Webpack了。默认情况下，CSS中引入图片或字体文件时，会原封不动输出到dist目录下。如果想用`url-loader`对图片进行Base54转码，我们需要手动配置`url-loader`：（不用安装了）
     >
     > ```js
     > {
     > 	test: /\.(png|jpe?g|gif|webp|svg)$/,
-    > 	type: "asset",// 表示原封不动输出
+    > 	type: "asset",// 这个表示用url-loader，小于某个大小的图片会自动转Base64
+    > 	parser: {
+    > 		dataUrlCondition: {
+    > 			maxSize: 10 * 1024 // 设置小于10kb的图片会被base64处理
+    > 		}
+    > 	},
+    >     // 还可以指定输出图片的路径和文件名。该配置项是`file-loader`中独有的
+    >     generator: {
+    >         // 指定输出的文件名。将图片文件命名为[hash][ext][query]，其中：
+    >           // [hash]: 原来图片的文件名改为hash值，如果觉得文件名hash值太长了，可以指定hash值长度：[hash:10]
+    >           // [ext]: 使用之前的文件扩展名
+    >           // [query]: 添加之前的query参数
+    >         filename: "imgs/[hash][ext][query]"
+    >     }
     > },
     > ```
-
-    > 如果想用`url-loader`对图片进行Base54转码，我们只需要在`file-loader`中追加`parser`配置项即可：
-
-    ```js
-    {
-    	test: /\.(png|jpe?g|gif|webp|svg)$/,
-    	type: "asset",
-    	parser: {
-    		dataUrlCondition: {
-    			maxSize: 10 * 1024 // 小于10kb的图片会被base64处理
-    		}
-    	},
-        // 还可以指定输出图片的路径和文件名。该配置是`file-loader`独有的
-        generator: {
-            // 指定输出的文件名。将图片文件命名为[hash][ext][query]，其中：
-              // [hash]: 原来图片的文件名改为hash值，如果觉得文件名hash值太长了，可以指定hash值长度：[hash:10]
-              // [ext]: 使用之前的文件扩展名
-              // [query]: 添加之前的query参数
-            filename: "imgs/[hash][ext][query]"
-        }
-    },
-    ```
-
+  
+    > 还需要处理字体、音视频等需要原封不动输出的文件，它们都用`file-loader`将这些文件原封不动输出到指定目录中：
+    >
+    > ```js
+    > {
+    > 	test: /\.(ttf|woff2?|map4|map3|avi)$/,
+    > 	type: "asset/resource",// 表示使用`file-loader`
+    > 	generator: {
+    >         // 指定文件的输出目录
+    > 		filename: "media/[hash:8][ext][query]",
+    > 	},
+    > },
+    > ```
+  
   - #### 自动清空上次打包的内容：
-
+  
     > 只需要在`output`中添加配置：`clean: true`，这样每次打包前会先将path目录进行清空，再输出。（Webpack4需要安装插件来完成：`clean-webpack-plugin`）
-
-  - #### 的萨芬
+  
+  - ------
+  
+    #### 处理JS资源：
+  
+    > 你可能会问，JS资源Webpack不是已经能处理了吗，为什么我们还要去配置处理JS资源呢？原因是：
+    >
+    > > Webpack对JS的处理是有限的，只能编译中ES6的模块化语法，不能做其他事情了。我们有时候还想做代码的格式检查、兼容性处理、性能优化、编译JS的扩展语法JSX或Vue的模板语法...，这些都需要在Webpack中配置才行。
+    >
+    > 对JS、JSX代码进行格式检查一般都用Eslint，对JS代码做兼容性处理一般用Babel。
+  
+    ###### 我们先用Eslint检查代码格式，无误后再用Babel做兼容性处理。
+  
+    - **Eslint**：可组装的 JavaScript 和 JSX 检查工具（Facebook公司的）。我们用Eslint关键是写Eslint的配置文件，里面写上各种rules规则，将来运行Eslint进行语法检查时就可以根据写的规则对代码进行检查了。
+  
+      1. Eslint的配置文件：（以`.eslintrc.js`为例）
+  
+         > - 它的配置文件格式可以是多种，`.eslintrc`、`.eslintrc.js`、`.eslintrc.json`都可以，只是格式不同罢了。
+         > - 不创建Eslint的配置文件也行，可以直接在`package.json`中通过`eslintConfig`配置项写Eslint的检查规则。
+         >
+         > （以上配置方式使用一种即可，运行时ESLint会自动查找并读取它们）
+  
+         ```js
+         
+         ```
+  
+    - **Babel**：
 
 ------
 
