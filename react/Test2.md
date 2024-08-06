@@ -14,5 +14,241 @@
 
 > 使用前要先安装：`npm i react-router-dom@5`，这里先用5版本。
 
+1. 编写路由导航：React中靠`<Link>`标签来切换组件。它是一个组件，本质上就是a标签。所以首先将页面中的a标签（路由导航）换成`<Link/>`标签。
+
+   ```jsx
+   import { Link } from 'react-router-dom'
+   
+   export default class App extends Component{
+     render(){
+       return (
+         ...
+         <div>
+           <Link className="list-group-item" to="/about">About</Link>
+           <Link className="list-group-item" to="/home">Home</Link>
+         </div>
+         ...
+       )
+     }
+   }
+   ```
+
+   > 但此时运行会报错，因为还没有路由器实例呢。路由相关的标签都需要写在`<BrowserRouter>`或`<HashRouter>`路由器标签（Router实例）里面，都要收到路由器的管理。而一般项目中我们就用一个路由器，并且不同文件中写的路由标签都需要被这一个路由器标签包起来。因此路由器标签我们直接写在入口文件index.js中`<App/>`组件的外面：
+   >
+   > ```jsx
+   > import React from 'react'
+   > import ReactDOM from 'react-dom'
+   > // 引入路由器
+   > import { BrowserRouter } from 'react-router-dom'
+   > import App from './App' // React脚手架中可以省略扩展名.jsx
+   > 
+   > ReactDOM.render(
+   >      <BrowserRouter>
+   >    	<App/>
+   >      </BrowserRouter>,
+   >      document.getElementById('root')
+   > )
+   > ```
+
+   > **路由的两种工作模式：**
+   >
+   > React中路由器有两种：一种是`<BrowserRouter>`底层是H5的History API，路径上没有哈希值。另一种是`<HashRouter>`底层是`#`号实现的，路径上有哈希值。
+
+2. 注册路由：在要切换组件的地方写`<Route>`标签，并通过它的path和component属性注册路由。
+
+   ```jsx
+   import { Link, Route } from 'react-router-dom'
+   import About from './pages/About'
+   import Home from './pages/Home'
+   
+   export default class App extends Component{
+     render(){
+       return (
+         ...
+         <div>
+           <Route path="/about" component={About}/>
+           <Route path="/home" component={Home}/>
+         </div>
+         ...
+       )
+     }
+   }
+   ```
+
 ------
 
+- #### NavLink标签（组件）
+
+  > - 它和`<Link>`标签的区别是：`<NavLink>`标签对应的**组件被激活时**会给自身加`active`类名。
+  > - 并且`<NavLink>`标签还多了一个`activeClassName`属性，可以自己指定**组件被激活时**要加的类名。
+
+- #### Switch标签（组件）
+
+  > - 默认情况下，组件切换时一个path可以匹配多个组件。如果你切换的地方注册了多个路径path相同的组件：
+  >
+  >   ```xml
+  >   <div>
+  >   	<Route path="/about" component={About}/>
+  >   	<Route path="/home" component={Home}/>
+  >   	<Route path="/home" component={Home1}/>
+  >   	<Route path="/home" component={Home2}/>
+  >   </div>
+  >   ```
+  >
+  >   那么路由切换时匹配上了`/home`之后还会继续往下匹配，将符合路径的所有组件都激活展示。
+  >
+  > - 这其实这是存在效率问题的，我们希望它匹配上第一个path之后就不要再激活下面的其他组件了。此时就可以用`<Switch>`标签将`<Route>`包起来。
+  >
+  > - 通常情况下，path和component是一一对应的关系。如果注册了多个组件，通常为了提高效率，会用`<Switch>`标签给这些`<Route>`包起来。
+
+- #### 路由的严格匹配和模糊匹配
+
+  > 默认情况下，每个`<Route path="/home" component={Home2}/>`标签中注册的组件都是模糊匹配，也就是说`<Link to="/home/a/b" >Home</Link>`也可以匹配上该组件。如果想设置为严格匹配，加属性：`<Link exact={true}/>`
+
+  ###### 注意：通常页面没问题的话，我们不去开启严格匹配。如果严格匹配随便开，有时候会引发很严重的问题（如：无法匹配二级路由等问题）。
+
+- #### Redirect标签（组件）
+
+  > Redirect标签用于兜底。如果前面的`<Route path="/home" component={Home2}/>`都没匹配上，那么就听Redirect标签（组件）的：
+
+  ```jsx
+  import { Link, Route, Switch, Redirect } from 'react-router-dom'
+  ...
+  <div>
+    <Switch>
+      <Route path="/about" component={About}/>
+      <Route path="/home" component={Home}/>
+      <Redirect to="/home"/>
+    </Switch>
+  </div>
+  ```
+
+  > 它实际上是将path进行了重定向。
+
+------
+
+- #### 路由的嵌套（多级路由）
+
+  > **路由注册的顺序：**
+  >
+  > - 组件初始化执行`render()`方法时，如果其中写了`<Route/>`标签，那么会顺序注册这些组件。
+  > - 注册组件时会根据路径分层级。若某个组件的path是另一个组件的子组件，那么该组件会注册到另一个组件中。
+  > - 当路由切换进行路径匹配时，只有父组件的路径匹配成功，才会继续匹配其中的子组件。
+  >
+  > 这也是为什么开启路由的严格匹配，会导致无法匹配二级路由。
+
+  ###### 路由的嵌套：
+
+  > 根据路由的注册和匹配模式：子路由的path开头要加上父路由的path值。
+
+------
+
+- #### React中的路由组件和一般组件的区别
+
+  > 我们知道Vue中路由组件身上会多两个API：`$router`和`$route`，那么React的路由组件和一般组件有什么区别呢？路由组件激活后props会收到数据：
+  >
+  > - history：该属性是**全局唯一**的。因为历史记录是Router路由器在维护，而路由器只有一个。
+  >   - go(n)/goBack()/goForward()：用于操作历史记录栈针。（后面会说）
+  >   - push(url, state)/replace(url, state)：用于实现**编程式路由导航**，让路由跳转不再依赖于`<Link/>`标签。参数1是路由的path，参数2是state对象用于state传参。
+  > - location：
+  >   - pathname：存放该路由组件的path值。
+  >   - search：存放路由路径`?`以及后面的查询字符串。默认值为空串。
+  >   - state：存放传过来的state对象的。默认值为`undefined`。
+  > - match：
+  >   - params：存放传过来的params参数，值是一个对象（默认值为`{}`）。
+  >   - path：存放该路由组件的path值。不同于pathname，它可能会包含动态参数（params参数的占位符）。
+  >   - url：存放该路由组件的path值。不同于path，它是实际传过来的path，会将动态参数替换为值。
+
+- #### 路由传参
+
+  > 由于路由组件没有办法直接写组件标签，所以之前通过props给普通组件传递数据的方式就不能用了。路由组件有自己独有的传参方式。路由组件可以接收三种参数：**search参数**、**params参数**、**state参数**。（使用频率从上到下）
+  >
+  
+  - ##### search参数（query参数）：
+  
+    - 路由导航`<Link/>`标签中传数据：
+  
+      ```jsx
+      <Link to={`/home?id=${id}&title=${title}`}>Home</Link>
+      ```
+  
+    - 从`this.props.location.search`对象中取数据，数据React并没有整理成对象，而是：`?id=001&title=abc`
+  
+    - 一般我们用`querystring`库将这个数据再处理下：（无需安装，React脚手架已经下载好了）
+  
+      ```js
+      import qs from 'querystring'
+      // url编码格式的字符串都可以用该方法转成对象（不带?）
+      // qs.parse(str)
+      // 对象转成url编码字符串（不带?）
+      // qs.stringify(obj)
+      
+      // 处理数据
+      const str = this.props.location.search.slice(1)
+      const result = qs.parse(str)
+      ```
+  
+  - ##### params参数（路径参数）：
+  
+    - 路由导航`<Link/>`标签中传数据：
+  
+      ```jsx
+      <Link to={`/home/${id}/${title}`}>Home</Link>
+      ```
+  
+    - 在`<Route/>`标签中，使用占位符声明接收params参数：
+  
+      ```jsx
+      <Route path="/home/:id/:title" component={Home}/>
+      ```
+  
+      > 然后就可以从`this.props.match.params`对象中取对应的数据了，数据已经整理成对象了。
+  
+  - ##### state参数：
+  
+    > 前两种参数都会将数据暴露在地址栏url中，state参数不会在地址栏中暴露数据。
+  
+    - 路由导航`<Link/>`标签中传数据，state参数要求**to的值必须是一个对象**：（其实前两种方式to的值也可以是对象）
+  
+      ```jsx
+      <Link to={{
+          pathname: '/about/message',
+          state: { id,title }
+        }}>Home</Link>
+      ```
+  
+    - 从`this.props.location.state`中可以拿到这个state对象。
+  
+    > - 这种方式就算地址栏url中没东西，但**刷新页面仍可以保留住参数**，不会丢数据。因为BrowserRouter的url是靠浏览器的历史记录来维护的，所以没问题。
+    > - 但是HashRouter刷新页面state参数会丢失，因为它底层的实现方式不同，没有人帮它去保存和维护url。
+
+------
+
+- #### 路由的push和replace
+
+  > - 点击`<Link/>`写的路由导航时，由于是a标签所以每一次点击更改地址栏路径后，都会形成历史记录。历史记录栈会将当前路径url进行push压栈（默认），栈针默认指向栈顶。而点击前进、后退按钮其实就是在操作历史记录栈的栈针。
+  > - 浏览器中有前进和后退按钮，这两个按钮都是依赖于浏览器的历史记录在工作的。浏览器的历史记录有2种写入模式，分别是：push和replace。push是追加历史记录，replace是替换当前记录。`<Link/>`路由导航跳转的时候默认为push。
+  > - 对历史记录栈的操作其实还有另一种模式：替换（replace），它是用当前url对栈顶记录进行替换。开启替换模式：`<Link replace/>`
+
+- #### `withRouter()`的使用
+
+  > 编程式路由导航要想用，必须先拿到history对象，但是该对象是路由组件所独有的，普通组件没办法拿到怎么办？通过withRouter()函数给普通组件加上：
+
+  ```js
+  import App, { Component } from 'react'
+  import { withRouter } from 'react-router-dom'
+  
+  class Header extends Component {...
+  }
+  // 普通组件Header经过withRouter()函数的加工后，返回一个新组件再暴露出去，此时它身上就也有了路由组件的3个API
+  export default withRouter(Header)
+  ```
+
+------
+
+# React UI组件库
+
+> - 所谓的UI组件库就是：将我们常用的元素、样式及交互，封装成各种组件供我们使用。只需要将组件拿过来即可使用。React常用的UI组件库是Ant Design。
+> - UI组件库分为两大类：移动端和PC端。移动端常用的UI组件库：Vant、Cube UI、Mint UI..，PC端常用的UI组件库：Element UI、IView UI..
+
+------
