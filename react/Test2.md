@@ -431,10 +431,12 @@
   > ```
   >
 
-- 我们发现Reducer中操作状态的**操作名**很重要，一旦这个字符串写错了玩儿完。所以通常我们会新建一个`redux/constant.js`，将这些操作名都定义为常量。这样不仅防止出错，还便于管理：（然后Reducer和ActionCreator中都用这些常量来写）
+- 我们发现Reducer中操作状态的**操作名**很重要，一旦这个字符串写错了玩儿完。所以通常我们会新建一个`redux/constant.js`，将这些操作名都定义为常量。这样不仅防止出错，还便于管理：
 
   ```js
   export const INCREMENT = 'increment'
   export const DECREMENT = 'decrement'
   ```
+  
+  > 以后Reducer和ActionCreator中的操作名都用这些常量来写。
 ------
