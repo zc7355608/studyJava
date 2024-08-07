@@ -151,7 +151,7 @@
   >   - go(n)/goBack()/goForward()：用于操作历史记录栈针。（后面会说）
   >   - push(url, state)/replace(url, state)：用于实现**编程式路由导航**，让路由跳转不再依赖于`<Link/>`标签。参数1是路由的path，参数2是state对象用于state传参。
   > - location：
-  >   - pathname：存放该路由组件的path值。
+  >   - pathname：存放该路由组件所注册的path值。
   >   - search：存放路由路径`?`以及后面的查询字符串。默认值为空串。
   >   - state：存放传过来的state对象的。默认值为`undefined`。
   > - match：
@@ -251,4 +251,190 @@
 > - 所谓的UI组件库就是：将我们常用的元素、样式及交互，封装成各种组件供我们使用。只需要将组件拿过来即可使用。React常用的UI组件库是Ant Design。
 > - UI组件库分为两大类：移动端和PC端。移动端常用的UI组件库：Vant、Cube UI、Mint UI..，PC端常用的UI组件库：Element UI、IView UI..
 
+------
+
+# Redux
+
+> Redux是一个专门用于做状态管理的JS库。作用：集中式管理React应用中多个组件共享的state状态。（它不是专门用于React的插件库，还可以用在Vue、Angular中，但一般都与React配合使用）
+
+###### 什么时候使用Redux？
+
+> 1. 多个组件依赖同一状态。
+> 2. 多个组件要变更同一状态。
+>
+> 此时这个状态（数据）就应该放在Redux中。
+
+###### Redux的工作原理图：
+
+![06211f8b0271dd7d56175899e6376c2d](./assets/06211f8b0271dd7d56175899e6376c2d.png)
+
+###### Redux的工作原理：
+
+> - 当某个组件的数据需要多个组件共享时，最好的方式就是将其放在Redux中，让它帮我们维护每个组件的数据（状态）。此时数据不在自身了，当组件要操作数据（状态）时，需要通知Redux，由它来管理状态。
+>
+> - Redux中有3个重要的组成部分：**Action、Store、Reducer**。其中`Action`是一个对象，其中定义了对状态的操作。`Store`是Redux的核心对象，它维护着状态。`Reducer`完成状态的初始化、以及后续状态的更新，返回值作为新状态，是**纯函数**。流程如下：
+>
+>   - 当你要操作状态时，首先需要将要做的操作，通过`ActionCreator`创建出来一个操作对象action（当然也可以自己写action）。
+>   - 然后调用Store对象上的`dispatch(action)`方法并传进去该action对象，通知Store完成对状态的操作。
+>   - 当调用了`store.dispatch(action)`方法后，Store对象会根据action对象的内容，自动调用对应的Reducer函数完成对state的操作。
+>
+>   > **纯函数：**
+>
+> - Action对象有2个属性：其中type属性是必须的，表示操作的类型，值是Reducer函数中定义好的操作名字符串。data属性是可选的，存放操作值。
+>
+> - Reducer函数接收2个参数：preState（先前的state）和action对象。Reducer函数的返回值会作为新的状态交给Store维护。
+>
+> - 当Store对象初始化时，会调用1次Reducer函数去初始化对应的状态state。此时Reducer函数的preState为undefined、action对象中只有type属性且值为随机字符串。
+>
+> - 通过Store对象的`getState()`方法可以获取对应的状态数据。
+>
+> - Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。因此Redux提供了一个API，只要任何的state更新，就会帮你调指定的函数：`store.subscribe(func)`。只要我们将重新渲染页面的函数订阅到Redux中，那么state更新就可以重新渲染页面了。
+>
+
+
+
+> - 通常不同组件的Reducer函数放在不同的JS文件中，文件名一般叫`组件名_reducer.js`（全小写）。
+> - 通常不同组件的ActionCreator函数放在不同的JS文件中，文件名一般叫`组件名_action_creator.js/组件名_action.js`（全小写）。
+>
+> 每一个操作都对应一个`ActionCreator`（函数），由它在更改state之前，去处理相应的业务逻辑。`Store`是2者之间的桥梁，根据state的不同去调用不同的`Reducer`、获取不同的state。
+>
+> - 组件可以通过`store.getState()`去读取`Store`中管理的某个状态state。
+> - 当组件需要更改某个state时：
+>   - 如果改之前还需要处理业务逻辑，那么就通知`ActionCreators`，在其中处理完业务逻辑后，再调用Store对象的`dispatch(action)`。该方法需要传进去一个action对象，里面包含两个固定名的属性type和data。type是操作的类型（增/删），data是要更新的数据。
+>   - 如果改之前不需要处理逻辑了，那么可以直接调用`store.dispatch(action)`
+> - 和Vue中不同的是，Redux中state更新后并不会重新渲染页面，需要手动调用`setState({})`重新进行页面的渲染（也就是执行render()）
+
+###### 搭建Redux环境：
+
+1. 安装Redux（`npm i redux`）并在src下新建目录redux/，用于存放所有redux的东西。
+
+2. 编写`redux/store.js`，用于创建全局唯一的store对象：
+
+   ```js
+   // 引入createStore()函数，它专门用于创建核心的store对象
+   import { createStore } from 'redux'
+   // 引入为Count组件服务的Reducer
+   import countReducer from './count_reducer'
+   
+   // 创建并暴露store对象，参数是Reducer函数，目前就一个Reducer
+   export default createStore(countReducer)
+   ```
+
+3. 编写`redux/count_reducer.js`，用于创建**为Count组件服务的Reducer（函数）**：
+
+   ```js
+   // 定义初始化状态
+   const initState = 0
+   // 创建并暴露Reducer函数
+   export default function countReducer(preState=initState, action){
+     // 从action对象中获取type和data
+     const {type, data} = action
+     // 根据type决定如何加工数据
+     switch (type) {
+       // 如果是increment就加
+       case 'increment':
+         return preState + data
+       // 如果是decrement就减
+       case 'decrement':
+         return preState - data
+       // 如果是没定义的操作，就还返回原来的state
+       default:
+         return preState
+     }
+   }
+   ```
+
+###### 使用Redux：
+
+- 通过`store.getState()`获取state：
+
+  ```jsx
+  import React, { Component } from 'react'
+  // 引入store对象
+  import store from '../../redux/store'
+  
+  export default class Count extends Component {
+    ...
+    render() {
+      return (
+        <div>
+          ...
+          {/* 获取store中的状态数据 */}
+          <h1>当前求和为：{store.getState()}</h1>
+          ...
+        </div>
+      )
+    }
+    ...
+  }
+  ```
+
+- 通过`store.dispathch({})`修改state：
+
+  ```js
+  store.dispatch({type:'increment',data:value*1})
+  ```
+
+  > 但是这里有一个问题：Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。
+  >
+  > 也就是说：Store中的状态数据变化后，并没有重新渲染页面，所以页面还是旧的state。怎么办呢？需要用到store对象的`subscribe(func)`方法：
+  >
+  > ```js
+  > export default class Count extends Component {
+  >       ...
+  >     // 组件挂载完毕后，就调用subscribe检测redux中的状态。只要store中任意state发生变化，该回调就会执行
+  >       componentDidMount(){
+  >        	store.subscribe(()=>{
+  >        		// state变化后，手动调用`setState({})`更新页面
+  >        		this.setState({})
+  >        	})
+  >       }
+  >     ...
+  > }
+  > ```
+  >
+  
+  > 但还不行。如果有多个组件，难不成在每个组件挂载完毕时都去subscribe订阅一下吗？有个一劳永逸的办法，在入口文件index.js中：
+  >
+  > ```jsx
+  >import React from 'react'
+  > import ReactDOM from 'react-dom/client'
+  > import App from './App'
+  >   import store from './redux/store'
+  > 
+  >   const root = ReactDOM.createRoot(document.getElementById('root'))
+  >    root.render(<React.StrictMode><App/></React.StrictMode>)
+  >    
+  >    // 只要store中的状态发生变化，就重新渲染整个应用
+  >    store.subscribe(()=>{
+  >   	root.render(<React.StrictMode><App/></React.StrictMode>)
+  > })
+  > ```
+  > 
+  >给最大的App组件订阅下即可。
+
+###### 优化：
+
+- 我们每次还得手动写action对象很麻烦，可以用ActionCreator函数**为组件生成action对象**。编写`redux/count_action_creator.js`：
+
+  ```js
+  export const createIncrementAction = data => ({ type: 'increment', data })
+  export const createDecrementAction = data => ({ type: 'decrement', data })
+  ```
+
+  > 这样就不用自己亲自写action对象了，在组件中：
+  >
+  > ```js
+  > import { createIncrementAction, createDecrementAction } from '../../redux/count_action_creator'
+  > ...
+  > store.dispatch(createIncrementAction(value*1))
+  > ```
+  >
+
+- 我们发现Reducer中操作状态的**操作名**很重要，一旦这个字符串写错了玩儿完。所以通常我们会新建一个`redux/constant.js`，将这些操作名都定义为常量。这样不仅防止出错，还便于管理：（然后Reducer和ActionCreator中都用这些常量来写）
+
+  ```js
+  export const INCREMENT = 'increment'
+  export const DECREMENT = 'decrement'
+  ```
 ------
