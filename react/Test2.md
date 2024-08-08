@@ -272,13 +272,13 @@
 
 > - 当某个组件的数据需要多个组件共享时，最好的方式就是将其放在Redux中，让它帮我们维护每个组件的数据（状态）。此时数据不在自身了，当组件要操作数据（状态）时，需要通知Redux，由它来管理状态。
 >
-> - Redux中有3个重要的组成部分：**Action、Store、Reducer**。其中`Action`是一个对象，其中定义了对状态的操作。`Store`是Redux的核心对象，它维护着状态。`Reducer`完成状态的初始化、以及后续状态的更新，返回值作为新状态，是**纯函数**。流程如下：
+> - Redux中有3个重要的组成部分：**Action、Store、Reducer**。其中`Action`是一个对象，其中定义了对状态的操作。`Store`是Redux的核心对象，它维护着状态。`Reducer`完成状态的初始化、以及后续状态的更新，返回值作为新状态，它必须是一个**纯函数**。流程如下：
 >
 >   - 当你要操作状态时，首先需要将要做的操作，通过`ActionCreator`创建出来一个操作对象action（当然也可以自己写action）。
 >   - 然后调用Store对象上的`dispatch(action)`方法并传进去该action对象，通知Store完成对状态的操作。
 >   - 当调用了`store.dispatch(action)`方法后，Store对象会根据action对象的内容，自动调用对应的Reducer函数完成对state的操作。
 >
->   > **纯函数：**
+>   > **纯函数：**相同的输入永远会得到相同的输出，而且没有任何可观察的副作用。所以纯函数中不能改写形参，不能调用Math.random()，不能发送网络请求、调用IO设备等不靠谱有副作用的操作。
 >
 > - Action对象有2个属性：其中type属性是必须的，表示操作的类型，值是Reducer函数中定义好的操作名字符串。data属性是可选的，存放操作值。
 >
@@ -369,11 +369,7 @@
   }
   ```
 
-- 通过`store.dispathch({})`修改state：
-
-  ```js
-  store.dispatch({type:'increment',data:value*1})
-  ```
+- 通过Redux修改state：`store.dispatch({type:'increment',data:value})`
 
   > 但是这里有一个问题：Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。
   >
