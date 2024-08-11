@@ -49,27 +49,27 @@
   > <!DOCTYPE html>
   > <html lang="en">
   >        <head>
-  >    	    <meta charset="UTF-8">
+  >    		<meta charset="UTF-8">
   >        	<title>React</title>
   >        </head>
   > <body>
-  >   	<div id="app">33</div>
+  >       <div id="app">33</div>
   > 
-  >       <!-- 引入babel，用于将jsx转为js -->
-  >       <script src="./lib/babel.min.js"></script>
-  >       <!-- 引入react核心库 -->
-  >       <script src="./lib/react.development.js"></script>
-  >       <!-- 引入react-dom，用于支持react操作dom。该文件必须在核心库之后引入 -->
-  >       <script src="./lib/react-dom.development.js"></script>
+  >        <!-- 引入babel，用于将jsx转为js -->
+  >        <script src="./lib/babel.min.js"></script>
+  >        <!-- 引入react核心库 -->
+  >        <script src="./lib/react.development.js"></script>
+  >        <!-- 引入react-dom，用于支持react操作dom。该文件必须在核心库之后引入 -->
+  >        <script src="./lib/react-dom.development.js"></script>
   > 
-  >       <!-- type属性写text/babel，表示里面写的是jsx语法（在js的基础上加了xml语法），jsx语法得通过babel来转成js -->
-  >       <script type="text/babel">
-  >            // 1、创建虚拟DOM（虚拟DOM其实就是JS对象）
-  >            const VDOM = <h1 id="title">Hello React!</h1>/* JSX中，xml标签能和JS混着写 */
-  >            // 2、将创建的虚拟DOM渲染到页面中（div内部）
-  >    			//引入上面两个react库之后，全局就多了一个React和ReactDOM对象
-  >            ReactDOM.render(VDOM, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom对象（容器对象）
-  >       </script>
+  >        <!-- type属性写text/babel，表示里面写的是jsx语法（在js的基础上加了xml语法），jsx语法得通过babel来转成js -->
+  >        <script type="text/babel">
+  >        	// 1、创建虚拟DOM（虚拟DOM其实就是JS对象）
+  >        	const VDOM = <h1 id="title">Hello React!</h1>/* JSX中，xml标签能和JS混着写 */
+  >        	// 2、将创建的虚拟DOM渲染到页面中（div内部）
+  >        	//引入上面两个react库之后，全局就多了一个React和ReactDOM对象
+  >        	ReactDOM.render(VDOM, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom对象（容器对象）
+  >        </script>
   > </body>
   > </html>
   > ```
@@ -130,7 +130,7 @@
 
 - ### JSX
 
-  > JSX全程JavaScript XML，是React定义的一种类似于XML的JS的扩展语法：JS + XML。本质上是`React.createElement('h1',{id:'title'},'Hello React!')`的语法糖，是用来简化创建虚拟DOM的。
+  > JSX全程JavaScript XML，是React定义的一种类似于XML的JS的扩展语法：JS + XML。本质上是`React.createElement('h1',{id:'title'},'Hello React!')`的语法糖，简化了创建虚拟DOM的JS代码。
 
   ###### JSX的语法规则：
 
@@ -198,7 +198,7 @@
 
   > 组件是用来**实现局部功能效果的代码和资源的集合**（html/css/js/imgs等）。作用是：**复用代码，简化项目编码，提高运行效率**。当一个应用是以多组件的方式实现，那么这个应用就是一个**组件化的应用**。
 
-  ###### React中的组件其实就是类或函数。定义组件的2种方式：
+  ###### React中的组件其实就是类或函数，其中包含了一堆HTML结构和样式等。定义组件的2种方式：
 
   - ##### 方式1：函数式组件（高版本中主要用这种）
 
@@ -251,13 +251,13 @@
 
   - #### state（状态）
 
-    > - state是组件实例对象身上最重要的属性，**值必须是一个对象**。组件也被称作**状态机**，通过更新组件的state可以完成对应页面的更新（重新渲染页面）。
+    > - state是组件实例对象身上最重要的属性，**值必须是一个对象**。对象里面的一个个属性被称为组件的状态，所有组件也被称作**状态机**。通过更新组件的state可以完成对应页面的更新（重新渲染页面）。
     >
     > - 更新state中的数据必须通过组件实例对象上的`setState({}/func,[callback])`方法，否则无法做到响应式的渲染页面。该API在`React.Component`的原型上。执行后React会拿着传入的对象与原来的state进行合并（不是替换），异步更新state。
     >
     >   > - 由于React是异步更新的state，所以第2个参数可以传一个回调函数，该函数会在state更新后执行。
     >   > - setState函数的第1个参数还可以是函数，该函数接收到2个参数state和props，返回的对象用于更新state。
-    >   > - 其实对象式state是函数式state的语法糖。如果新state依赖于原state，那么推荐使用setState的函数式写法。
+    >   > - 其实之前对象式的state是函数式state的语法糖。如果新state依赖于原state，那么推荐使用setState的函数式写法。
     >
     > - 传进去的对象和原来的state对象进行合并，不是替换。
     >
@@ -293,12 +293,11 @@
     >   2. （推荐）将组件中的自定义方法写成这种格式：
     >
     >      ```js
-    >      changeWeather = ()=>{//这里的this是组件实例对象
-    >      }
+    >      changeWeather = ()=>{/*这里的this是组件实例对象*/}
     >      ```
-    >
-    >      > 这种方式相当于在每个组件实例的自身，都添加了一个自定义方法。并且由于该方法是箭头函数，所以方法中的this是类作用域的this，this指向当前的组件实例对象。
-  
+    >      
+    >> 这种方式相当于在每个组件实例的自身，都添加了一个自定义方法。并且由于该方法是箭头函数，所以方法中的this是类作用域的this，this指向当前的组件实例对象。
+    
   - #### props
   
     > 组件实例对象上的`props`属性可以让组件实例接收外部传过来的数据。只需要使用组件标签时给标签加上属性，React会自动将属性名和属性值以key-value的形式放在**props对象**中。如：（**注意：props是只读的，不允许改！**）
@@ -318,7 +317,7 @@
     // 将Student组件渲染到页面上
     ReactDOM.render(<Student name="艾克" age={15} sex="男"/>, document.getElementById('app'))
     ```
-
+  
     > 还可以**用展开运算符直接将对象中的键值对放到`props`对象中**：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
   
     ###### 通过给类加静态属性`propTypes`和`defaultProps`，来约束传递的`props`数据的类型和默认值：
@@ -329,7 +328,7 @@
     // 对props标签属性进行类型、必要性的限制。此时如果不按照要求给组件传递数据的话，页面虽然会正常显示但控制台会报错
     Student.propTypes = {
         name: PropTypes.string.isRequired,
-        ses: PropTypes.string,
+        sex: PropTypes.string,
         age: PropTypes.number,
         speak: PropTypes.func
     }
@@ -358,7 +357,7 @@
     > class Student extends React.Component {
     >        constrator(props){
     >        	super(props)
-    >        	console.log(props)
+    >        	console.log(this.props)
     >        }
     >        ...
     > }
@@ -375,21 +374,21 @@
     ###### 函数式组件中也有`props`，是在函数的实参上。要限制props的类型和默认值，就给函数上加那2个静态属性即可。（函数式组件暂时用不了state和refs，后面可以通过新语法Hook做到）
   
     ##### 关于props的细节：
-
+  
     > - 向props中传数据并非只能用标签属性的方式：`<MyComponent name={name} age={age}/>`，还可以将数据放在标签体中：
     >
     >   `<MyComponent>About</MyComponent>`，此时标签体中的About会被放在`props.children`中。
     >
     > - 注意：`children`是组件标签中的一个特殊的属性，设置该属性的值就是在往标签体中写东西。
-
+  
   - #### refs（不要过度使用）
-
+  
     > 组件中的虚拟DOM标签上，可以通过定义`ref`属性（值是String）来标识自己。之后React会将组件中所有的ref收集到组件实例的`refs`对象中，key是ref的值，value是ref所在的元素（真实DOM）。
   
     ###### 注意：上面String类型的`ref`已经不被React所推荐使用了，并且在之后的新版本中可能会移除。因为这种方式存在效率问题，写多了效率就不高了（但开发中还是有部分人在用，因为简单）。推荐使用下面2种形式的`ref`：
   
     1. ##### 回调函数的`ref`：
-
+  
        ```jsx
        <input ref={ (currentNode)=>{this.input1 = currentNode} } type="text"/>
        ```
@@ -620,3 +619,4 @@
   > React中要想实现任意组件间通信，需要用第三方的消息订阅与发布技术。一般我们用`pubsub-js`，在`componentDidMount()`中订阅消息，在`componentWillUnmount()`中取消订阅。（Vue中讲过，这里不再细说）
 
 ------
+
