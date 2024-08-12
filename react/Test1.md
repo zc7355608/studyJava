@@ -379,7 +379,7 @@
     >
     >   `<MyComponent>About</MyComponent>`，此时标签体中的About会被放在`props.children`中。
     >
-    > - 注意：`children`是组件标签中的一个特殊的属性，设置该属性的值就是在往标签体中写东西。
+    > - 注意：`children`是组件标签中的一个特殊的属性，显示的设置该属性的值就是在往标签体中写东西。
   
   - #### refs（不要过度使用）
   

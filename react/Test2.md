@@ -13,7 +13,12 @@
 >   2. 点击页面导航**不会刷新页面，只做局部的组件更换**。
 >   3. 数据需要通过AJAX来获取。
 >   
-> - `react-router`专门用于在React中实现路由。它有3个分支，分别是在web、native、anywhere环境下使用。我们用的是web方向的`react-router-dom`。
+> - `react-router`专门用于在React中实现路由。它有3个分支，分别为：
+>
+>   - react-router：路由的核心库，提供了很多组件和钩子。
+>   - **react-router-dom**：包含react-router核心库，并添加一些WEB环境下用于DOM的组件，例如`<BrowserRouter>`等。（我们用这个）
+>   - react-router-native：包含react-router核心库，并添加一些专门用于React Native的API，例如`<NativeRouter>`等。
+>
 
 ###### React中路由的使用：
 
@@ -61,7 +66,7 @@
    >
    > React中路由器有两种：一种是`<BrowserRouter>`底层是H5的History API，路径上没有哈希值。另一种是`<HashRouter>`底层是`#`号实现的，路径上有哈希值。（路由器两种工作模式的区别后面会说）
 
-2. 注册路由：在要切换组件的地方写`<Route>`标签，并通过它的path和component属性注册路由。
+2. 注册路由：在切换组件的地方写`<Route>`标签，并通过它的path和component属性注册路由。
 
    ```jsx
    import { Link, Route } from 'react-router-dom'
@@ -130,7 +135,7 @@
   </div>
   ```
 
-  > 它实际上是将path进行了重定向。
+  > `<Redirect>`的path是`/`，它实际上是将path进行了重定向。
 
 ------
 
@@ -144,7 +149,7 @@
   >
   > 这也是为什么开启路由的严格匹配，会导致无法匹配二级路由。
 
-  ###### 路由的嵌套就是：根据路由的注册和匹配模式，子路由的path开头要加上父路由的path值。
+  ###### 路由的嵌套就是：根据路由的注册和匹配模式，子路由注册的path开头要加上父路由的path值。
 
 
 ------
@@ -157,7 +162,7 @@
   >   - go(n)/goBack()/goForward()：用于操作历史记录栈针。（后面会说）
   >   - push(url, state)/replace(url, state)：用于实现**编程式路由导航**，让路由跳转不再依赖于`<Link/>`标签。参数1是路由的path，参数2是state对象用于state传参。
   > - location：
-  >   - pathname：存放该路由组件所注册的path值。
+  >   - pathname：存放to中指定的path值。
   >   - search：存放路由路径`?`以及后面的查询字符串。默认为空串。
   >   - state：存放传过来的state对象的。默认值undefined。
   > - match：
@@ -236,7 +241,7 @@
   > - 浏览器中有前进和后退按钮，这两个按钮都是依赖于浏览器的历史记录在工作的。浏览器的历史记录有2种写入模式，分别是：push和replace。push是追加历史记录，replace是替换当前记录。`<Link/>`路由导航跳转的时候默认为push。
   > - 对历史记录栈的操作其实还有另一种模式：替换（replace），它是用当前url对栈顶记录进行替换。开启替换模式：`<Link replace/>`
 
-- #### `withRouter()`的使用
+- #### `withRouter()`的使用（了解，6中已经删除了）
 
   > 编程式路由导航要想用，必须先拿到history对象，但是该对象是路由组件所独有的，普通组件没办法拿到怎么办？通过withRouter()函数给普通组件加上：
 
@@ -444,7 +449,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >               
+  >                        
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -501,7 +506,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >         
+  >               
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -509,7 +514,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >         
+  >               
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   
