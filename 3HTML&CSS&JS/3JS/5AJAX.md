@@ -171,113 +171,95 @@ fetch('url?name=value..',{
 
 ### AJAX的跨域访问：
 
-```js
-AJAX跨域问题：（默认不能跨域）
-	# 什么是跨域：就是通过a服务器上的html链接跳转到b服务器上的某个资源，访问别人的东西
-		* 通过超链接可以跨域
-		* 通过form表单也可以跨域
-		* 通过JS中的document.location.href也可以跨域
-		* 通过window.open("URL")也可以跨域
-		* 通过<script/>标签通过src加载js文件，也可以跨域加载
-		* 图片的src属性也可以跨域加载
-	# 以上这些都可以跨域访问，这是因为它们都有一个共同点：就是它们的路径都是写了一个完整的URL，并且浏览器地址栏改变了，那什么情况下跨域访问会出现问题呢？
-		默认情况下，html中发送AJAX跨域请求的时候，console控制台会报错：发送ajax跨域请求已被“同源策略”阻止；
-	# 什么是“同源策略”？为什么会出现这种情况？
-		发送ajax请求的html资源，它当前的url地址是a服务器，此时ajax请求发给a服务器，没有问题。
-        但是当发给b服务器时，浏览器发现当前资源和发送地址不属于同一个服务器，浏览器的安全机制“同源策略”
-        会阻止ajax请求的发送。因为在自己的a站点当中，访问其他站点（b站点）中的资源，跨域了，浏览器中内置的
-        xhr对象默认是不允许被两个不同站点同时使用的，所以ajax请求不能跨域访问，这是浏览器设计者为了安全考虑的。
-	# “同源策略”是浏览器的一种安全策略
-		什么是同源：协议一致、域名一致、端口一致，才是同源，只要以上的任一元素不一致，就不是同源；同源表示网络上的同一台服务器；AJAX的XMLHttpRequest对象默认要遵循同源策略；
-	# 但开发中我们不免要跨域进行ajax请求，那么怎么解决ajax跨域访问呢？
--------------------------------------------------------------------------------------------------------------------------
-* 方案1：jsonp（json with padding），它是非官方的跨域解决方案，野路子，纯粹是靠程序员的聪明想到的；（注意：这种方式只支持get请求）
-	# 原理：jsonp不是一个真正的ajax请求，只不过同样可以完成类似于ajax的那种局部刷新的效果，顺带着可以解决跨域问题；jsonp是一种“类ajax请求”的机制；
-	# 我们知道，script标签是可以跨域的，src属性可以是任意位置的js文件，那么这个路径可以是一个servlet吗？
-		当然可以，我们通过script标签引入.js文件的方式，S端响应内容模拟js文件中的内容，实现跨域访问；
-	# 用法：
-		html中：
-			<head>
-				<meta charset="UTF-8">
-				<title>jsonp的方式解决ajax跨域问题</title>
-			</head>
-			<body>
-				<button id="btn">jsonp方式解决ajax跨域</button>
-				<div id="mydiv"></div>
-				<script>
-					function sayHello(data){
-						document.getELementyId("mydiv").innerHTML = data.username
-					}
-				</script>
-				<script src="http://xx:xx/xxx/app.js"></script>
-			</body>
-		网络其他位置的app.js中：
-			const data = {"username": "LUCY"}
-			sayHello(data)
-	# 上面的代码中，script标签的src就相当于给某个服务器上发送了异步请求，通过服务器返回来的“json”数据，再加上补全了函数调用（调用我自己定义的函数），
-		这就是json with padding的由来；所以这种方式可以完成ajax的效果，还顺带解决了跨域问题；
-		（注意：要提前告诉S端服务器，要调用函数的函数名；并且注意返回内容得是js代码）
+- #### 关于浏览器的同源策略：
 
-	# 明白了上面代码的原理的话，我们也可以这样写：函数提前声明好，然后当某个事件发生时，我们用js代码给html中添加script标签，src指定下要请求的路径，
-		数据和函数调用由S端响应回来，这样也可以完成ajax请求；如下：
-			document.getElementById("btn").onclick = () => {
-				//创建一个script标签元素
-				const htmlScriptElement = document.createElement("script")
-				//设置script的src属性，并在后面添加url参数，来告诉S端，一会返回时给我调用哪个函数
-				htmlScriptElement.src = "http://localhost:8080/jsonp2?callback=sayHello"
-				//将script元素添加到body标签中，此时就会发送请求
-				document.getElementByTagName("body")[0].appendChild(htmlScriptElement)
-			}
+  > - **同源策略**：浏览器为了确保资源的安全，而遵循的一种策略。所谓同源是指：协议、域名、端口都相同就是同源。若所处源与目标源不一致，就是非同源（跨域）。所谓同源策略就是，浏览器对跨域的资源访问、资源操作会进行拦截。
+  >
+  > - 例如：源A和源B是非同源的，那么浏览器会有如下限制。
+  >
+  >   - 限制DOM访问。（源A的脚本不能操作源B的DOM）
+  >   - 限制Cookie访问。（源A的不能访问源B的Cookie）
+  >   - 限制AJAX获取数据。（源A给源B发送的AJAX请求所返回的数据会被浏览器拦截住）
+  >
+  >   > 在上述限制中，浏览器对AJAX获取数据的限制对我们来说是影响最大的一个，且实际开发中经常会遇到。因此我们才要解决AJAX跨域的问题。
+  >
+  > - `<link>、<img>、<a>、<script>...`这些标签发送的请求也可能跨域，只不过默认情况下浏览器对标签跨域不做严格限制，所以对开发无影响。
 
-		S端服务器的servlet中这样做：
-			@WebServlet("/jsonp2")
-			public class JSONServlet2 extends HttpServlet {
-				@Override
-				protected void doGet(HttpServletRequest req, HttpServletResponse resp) 
-						throws ServletException, IOException {
-						//获取函数
-					String functionName = req.getParameter("callback");
-						//设置响应的内容为js文件
-					resp.setContentType("application/Javascript");
-						//响应一段js代码，该js代码就相当于在js文件中这样配置了：sayHello({"username":"LUCY"})，
-					resp.getWriter().print(functionName +"({\"username\":\"LUCY\"})");
-				}
-			}
--------------------------------------------------------------------------------------------------------------------------
-* 方案2：jQuery库已经封装好了jsonp，它和我们方案1的原理相同，直接用即可
-	html中:
-		<button>获取内容</button>
-		<div></div>
-		<script>
-			$(function (){
-				$("button").click(function (){
-						//使用jquery库的函数，发送伪ajax请求，本质上是jsonp乔装打扮的
-					$.ajax({
-						type : "GET",	//注意：jsonp只支持get请求，这里必须是get方式；省略的话默认也是get
-							//注意：这里的url里没有跟数据，此时servlet不知道我给你返回数据时，要调用哪个函数
-						url : "http://localhost:8080/web01",//其实这里url不告诉S端函数名的话，默认传过去的是【callback】函数
-											//servlet代码需要获取callback关键字，返回数据时执行callback(data)函数
-											//该函数会在本页script代码块中自动生成并且调用下方的success函数
-							//一定要指定返回的数据类型为“jsonp”（关键）
-						dataType : "jsonp",
-						success : function (data){	//data通常是一个json数据：{"username":"张三"}
-							$("#mydiv").html("欢迎你："+ data.username)
-						}
-					})
-				})
-			})
-		</script>
-		**如果想换个函数名，不用callback()，后端代码写的就是xxx函数名，只能前端改，可以这样：
-			加两个属性：
-			jsonp: "后端的函数名"
-			jsonpCallback: "前端的函数名"	//指定它的话就可以将success删掉了
--------------------------------------------------------------------------------------------------------------------------
-* 方案3：CORS（Cross-Origin Resource Sharing）跨域资源共享
-	它是官方正统的跨域解决方案，它的特点是不需要在前端做任何操作，只在后端设置，且支持get和post（其他也可以设置），推荐；
-	用法：在servlet中设置响应头；response.setHeader("Access-Control-Allow-Origin", "http://localhost:8080/");
-			表示：允许这个源：http://localhost:8080/ 也就是这台服务器对我的资源进行ajax跨域访问，允许你访问我这个xhr对象；
-			如果是“*”表示该站点的资源允许所有服务器进行ajax跨域访问；
-```
+- #### 解决AJAX跨域：
+
+  - ##### 方案1：CORS（Cross-Origin Resource Sharing）跨域资源共享
+
+    > 这是官方的跨域解决方案，是用于控制浏览器校验跨域请求的一套规范，服务器按照CORS规范，添加特应响应头来控制浏览器的校验。它的特点是不需要在前端做任何操作，只在后端设置，且支持GET和POST（其他也支持）。
+
+    - ###### CORS解决简单请求跨域：
+
+      > 服务器设置响应头`Access-Control-Allow-Origin: http://localhost:8080`（值要和发送请求的URL一模一样），表示允许这个源http://localhost:8080/对我服务器的资源进行AJAX跨域访问。（响应头`*`表示该服务器的资源允许所有源跨域访问）
+
+      > **简单请求和复杂请求：**
+      >
+      > CORS会把请求分为2类，分别是**简单请求**和**复杂请求**。其中简单请求要符合以下要求：
+      >
+      > - 请求方式为GET\POST\HEAD
+      > - 请求头字段要符合《CORS安全规范》（一般不手动更改请求头的话都符合该规范）
+      > - 请求头的`Content-Type`的值只能是这3种：`text/plain`、`multipart/form-data`、`application/x-www-form-urlencoded`
+      >
+      > 只要不符合以上要求的都是复杂请求。复杂请求会自动发送一次**预检请求**。关于预检请求：
+      >
+      > 1. 发送时机：预检请求在实际的跨域请求之前，由浏览器自动发出。
+      > 2. 主要作用：用于向服务器确认是否允许接下来的跨域请求。
+      > 3. 基本流程：先发起`OPTIONS`请求，如果通过预检，继续发起实际的跨域请求。
+      > 4. 请求头内容：一个`OPTIONS`预检请求，通常会包含以下请求头：
+      >    - Origin：请求源
+      >    - Access-Control-Request-Method：实际请求的方式
+      >    - Access-Control-Request-Headers：实际请求中所使用的自定义头（如果有的话）
+
+    - ###### CORS解决复杂请求跨域：
+
+      1. 需要先通过浏览器发送的预检请求，服务器需要返回如下响应头：（在Node中通常用`cors`库来做第1步）
+         - Access-Control-Allow-Origin：允许的源
+         - Access-Control-Allow-Methods：允许的方法
+         - Access-Control-Allow-Headers：允许的自定义头
+         - （可选）Access-Control-Max-Age：预检请求的响应结果的缓存时间。也就是在该时间内就不需要再发送预检请求了。（一般会设置这个）
+      2. 然后就可以正常处理跨域请求了，与处理简单请求跨域方式相同。
+
+  ------
+
+  - ##### 方案2：JSONP（JSON with Padding）
+
+    > JSONP是利用了`<script>`标签可以跨域加载脚本，且不受严格限制的特性来解决的跨域（只能处理GET请求跨域）。（它是非官方的跨域解决方案，野路子，可以说是程序员智慧的结晶，早期一些浏览器不支持CORS时，可以靠JSONP解决跨域）。
+    
+    ###### JSONP的原理是：（类似于Vue的自定义事件）
+    
+    > 前端通过`<script>`标签的`src`属性来发送GET请求，服务器响应的是一段函数调用的js：
+    >
+    > ```js
+    > demo({name:'张三',age:18})
+    > ```
+    >
+    > 此时如果恰好前端有一个`demo(v)`函数，就刚好触发了调用，通过函数的形参拿到了数据。
+    
+    ###### 注意：JSONP解决跨域有局限性，只能解决GET请求跨域。因为`<script>`标签只能发送GET请求。
+    
+    ###### jQuery封装的JSONP：
+    
+    ```js
+    // 使用jquery封装的函数，发送伪ajax请求，本质上是jsonp乔装打扮的
+    $.ajax({
+      type : "GET",	// 注意：jsonp只支持get请求，所以这里必须是get，省略的话默认也是get
+      // 注意：这里的url中没有跟callback去指定回调函数名，它默认用的callback。后端需要获取query中的callback关键字
+      url : "http://localhost:8080/web01",
+      // 一定要指定返回的数据类型为“jsonp”（关键）
+      dataType : "jsonp",
+      // 指定返回时的回调
+      success : function (data){ //data通常是一个json：{"username":"张三"}
+        $("#mydiv").html("欢迎你："+ data.username)
+      }
+    })
+    /*如果想自定义返回时的回调，用这两个属性换掉success：
+    		jsonp: "后端的函数名"
+    		jsonpCallback: "前端的函数名"
+    */
+    ```
 
 ------
 
