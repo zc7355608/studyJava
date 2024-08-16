@@ -272,6 +272,7 @@
   1. 调用`useRoutes()`函数，传进去路由表：（返回值为上面的一堆路由组件结构）
 
      ```jsx
+     import useRoutes from 'react-router-dom'
      const ele = useRoutes([
        {
          path: '/about',
@@ -289,9 +290,9 @@
        },
      ])
      ```
-
+  
   2. 然后将以上结构替换为`{ele}`即可。
-
+  
      > 开发中我们会单独建一个文件`src/routes/index.js`存放路由表（数组）并默认导出。
   
   ###### 但是现在有一个问题：子级路由放哪里？
