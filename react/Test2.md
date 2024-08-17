@@ -24,7 +24,7 @@
 
 > 使用前要先安装：`npm i react-router-dom@5`，这里先用5版本，后面再说ReactRouter6。
 
-1. 编写路由导航：React中靠`<Link>`标签来切换组件。它是一个组件，本质上就是a标签。所以首先将页面中的a标签（路由导航）换成`<Link/>`标签。
+1. 编写路由导航：React中通过`<Link>`标签来切换组件。它是一个组件，本质上就是a标签。所以首先将页面中的a标签（路由导航）换成`<Link/>`标签。
 
    ```jsx
    import { Link } from 'react-router-dom'
@@ -92,7 +92,7 @@
 - #### NavLink标签（组件）
 
   > - 它和`<Link>`标签的区别是：`<NavLink>`标签对应的**组件被激活时**会给自身加`active`类名。
-  > - 并且`<NavLink>`标签还多了一个`activeClassName`属性，可以自己指定**组件被激活时**要加的类名。
+  > - 并且`<NavLink>`标签还有一个`activeClassName`属性，可以自己指定**组件被激活时**要加的类名。
 
 - #### Switch标签（组件）
 
@@ -135,7 +135,7 @@
   </div>
   ```
 
-  > `<Redirect>`的path是`/`，它实际上是将path进行了重定向。
+  > `<Redirect>`的path是`/`，它实际上是将path进行了重定向。（注意：`/`对应的组件不需要通过`<Link/>`标签去激活了，因为它是页面默认的URL）
 
 ------
 
@@ -449,7 +449,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                        
+  >                                 
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -478,12 +478,13 @@ store.subscribe(()=>{
      ...
      // 通过connect方法连接容器组件和UI组件，返回的就是容器组件，将其暴露即可
      export default connect()(Count)
+     // 注意：容器组件文件中一般不直接引入store对象
      ```
-
-     > 该容器组件文件中一般不引入store文件。
-
+  
+     > **高阶组件：**高阶组件本质是一个高阶函数。该函数接收一个组件，将其包装后返回一个新的组件。高阶组件通常用于**扩展组件的功能**。
+  
   2. 页面上使用容器组件，并通过store属性为容器组件指定store对象：
-
+  
      ```jsx
      import Count from './containers/Count'
      import store from './redux/store'
@@ -492,9 +493,9 @@ store.subscribe(()=>{
      	<Count store={store}/>
      </div>
      ```
-
+  
   ###### 给UI子组件传数据：
-
+  
   > - UI组件通过父容器组件和Redux打交道，而容器组件会通过props给UI组件传state和操作state的方法。但是目前存在问题：容器组件和UI组件之间的父子关系不是靠我们写标签形成的，没办法用props怎么办？
   >
   > - 容器组件是这样给UI组件传state和操作state的方法的：connect()方法调用时可以传2个（函数型）参数，这两个函数**返回的对象都会以props的形式传给UI组件**。
@@ -506,7 +507,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >               
+  >                     
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -514,7 +515,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >               
+  >                     
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   

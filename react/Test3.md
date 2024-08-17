@@ -267,12 +267,12 @@
 
   > 有没有发现它们的格式是一致的，不同的是path和element。我们能不能只写不同的地方（路由表），由Hook拿着我们写的路由表去生成该结构，可以：
 
-  ###### 使用useRoutes Hook：（路由中的Hook都是从`react-router-dom`中分别导入的）
+  ###### 使用`useRoutes` Hook：（路由中的Hook都是从`react-router-dom`中分别导入的）
 
   1. 调用`useRoutes()`函数，传进去路由表：（返回值为上面的一堆路由组件结构）
 
      ```jsx
-     import useRoutes from 'react-router-dom'
+     import {useRoutes} from 'react-router-dom'
      const ele = useRoutes([
        {
          path: '/about',
