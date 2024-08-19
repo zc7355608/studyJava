@@ -120,9 +120,9 @@ $.ajax({
 
 ------
 
-### 通过axios来发送AJAX请求：（axios的原理是通过Promise）
+### axios发送AJAX请求：
 
-> `axios`是目前前端最热门的ajax工具包，使用频率很高，而且是Vue和React都推荐的工具。
+> `axios`是目前前端最热门的ajax工具包，使用频率很高，而且是Vue和React都推荐的工具。（底层封装的是XHR）
 >
 > 使用之前先引入js文件，我们这里直接用在线地址：`<script src="https://unpkg.com/axios/dist/axios.min.js"></script>`
 >

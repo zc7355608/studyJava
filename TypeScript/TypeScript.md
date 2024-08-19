@@ -194,11 +194,209 @@
 
 - ### 一个特殊的情况
 
-  > 如果使用类型声明，限制函数类型的返回值为void，此时TS并不会严格限制函数的返回值类型。
+  > 当使用类型声明限制函数的返回值为void时，TS并不会严格要求函数返回空。
 
   ```ts
-  let f1: ()=>void
-  f1 = function(){ return 666 } // 这里不会报错
+  let f1: ()=>void = ()=>{ return 666 } // 这里不会报错
   ```
 
-  > 这是因为：箭头函数省略大括号时，默认会有一个return，此时如果严格限制了，那么箭头函数就不能简写了。因此TS不会严格限制。
+  > 这是因为：箭头函数省略大括号时，默认会有一个return，此时如果严格限制了，那么箭头函数就不能简写了。因此TS并不严格限制函数返回空。
+
+  （类中的override关键字）
+
+- ### 类中的成员修饰符
+
+  > 类中的成员修饰符可以加在属性或方法前，用于设置属性或方法的访问权限。
+
+  - public（默认）：公开的，可在任何地方使用
+  - protected：只可以在类体、子类中使用
+  - private：只可以类中使用
+
+  
+
+  - readonly：只读属性。在成员修饰符和成员变量名之间加。
+
+  - （类中）属性的简写形式：
+
+    - 简写前：
+
+      ```ts
+      class Person {
+        public name: string
+        public age: number
+        constructor(name:string, age:number){
+          this.name = name // 使用this.name时，name必须在类中提前声明好
+          this.age = age
+        }
+      }
+      ```
+
+    - 简写后：
+
+      ```ts
+      class Person {
+        constructor(public name:string, public age:number){}
+      }
+      ```
+
+------
+
+- ### 抽象类（abstract class）
+
+  > - 抽象类是一种无法被实例化的类，专门用来定义类的结构和行为。
+  > - 抽象类中可以写抽象方法，也可以有具体的实现。
+  > - 抽象类主要用来为其派生类提供一个基础结构，是用来被派生类继承的。继承时要求其派生类必须实现其中的抽象方法。
+  > - 抽象类的派生类也可以是抽象类，此时可以不实现其中的抽象方法。
+  > - 抽象类的作用？
+  >   - 定义通用接口
+  >   - 提供基础实现
+  >   - 确保关键实现
+  >   - 共享代码和逻辑
+
+  ```ts
+  abstract class Package {
+    abstract calculate(): number
+    printPackage(){ console.log('打印包裹重量') }
+  }
+  class StandPackage extends Package {
+    override calculate(): number { return 100 }
+  }
+  ```
+
+- ### 接口（interface）
+
+  > 接口是一种定义结构的方式，主要作用是为类、对象、函数等，规定一种契约，这样可以确保代码的一致性和安全性。但要注意：接口只能定义格式不能包含任何的实现。（一个类可以实现多个接口，但只能单继承）
+
+  - 定义类的结构：
+
+    ```ts
+    interface Person {
+      name: string
+      age: number
+      speak(n: number): void
+    }
+    class Student implements Person {
+      constructor(public name: string, public age: number){}
+      speak(n: number): void {
+        console.log('hello')
+      }
+    }
+    ```
+
+  - 定义对象的结构：
+
+    ```ts
+    interface Person {
+      readonly name: string
+      age?: number
+      speak: (n: number) => void
+    }
+    const xiaoming: Person = {
+      name: '小明',
+      age: 14, // 可以没有
+      speak(n){
+        console.log('hello')
+      }
+    }
+    ```
+
+  - 定义函数的结构：
+
+    ```ts
+    interface Count {
+      (a:number,b:number): number
+    }
+    const count: Count = (x,y)=>{ return x+y }
+    ```
+
+  - 接口之间的继承：
+
+  - 接口的自动合并（可合并性）：
+
+    ```ts
+    interface Person {
+      name: string
+    }
+    interface Person {
+      age: number
+    }
+    const p: Person = {
+      name: '张三',
+      age: 11
+    }
+    ```
+
+    > 何时使用接口：（接口和type都可用于定义对象的结构）
+    >
+    > 1. 定义对象的格式
+    > 2. 类的契约
+    > 3. 自动合并：一般用于扩展第三方库的类型。
+
+- ------
+
+  ### 泛型
+
+  > 泛型可以将类型参数化。它能让一个类型的定义适用于多种类型，同时仍然保持类型的安全性。
+
+  - 泛型函数：
+
+    ```ts
+    function log<K,V>(k: T, v: V) {
+      console.log(k,v)
+    }
+    log<string,number>('hello',100)
+    ```
+
+  - 泛型接口：
+
+    ```ts
+    interface Person<T> {
+      name: string,
+      extraInfo: T
+    }
+    ```
+
+  - 泛型类：
+
+    ```ts
+    class Person<T> {
+      constructor(
+    		public name: string,
+        public extraInfo: T
+      ){}
+    }
+    ```
+
+- ------
+
+  ### 类型声明文件
+
+  > 以`.d.ts`后缀结尾的文件是TS中的**类型定义文件**，作用是为现有的JS代码提供类型声明。这使得TS能够在使用第三方JS库时进行类型检查和提示。
+
+  > demo.js：
+  >
+  > ```js
+  > export function add(a,b){ return a+b }
+  > export function mul(a,b){ return a*b }
+  > ```
+  >
+  > demo.d.ts：（文件名必须和import导入的模块名保持一致）
+  >
+  > ```ts
+  > declare function add(a:number, b:number): number
+  > declare function mul(a:number, b:number): number
+  > export {add,mul}
+  > ```
+  >
+  > index.js：
+  >
+  > ```js
+  > import { add,mul } from './demo.js' // 如果没有“demo.d.ts”则会报错：无法找到模块“./demo.js”的类型声明文件
+  > console.log(add(1,2))
+  > console.log(mul(1,2))
+  > ```
+
+  > 实际开发中，类型声明文件通常放在`@types`目录下。
+
+------
+
