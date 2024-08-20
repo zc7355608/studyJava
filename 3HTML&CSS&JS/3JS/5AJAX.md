@@ -122,30 +122,115 @@ $.ajax({
 
 ### axios发送AJAX请求：
 
-> `axios`是目前前端最热门的ajax工具包，使用频率很高，而且是Vue和React都推荐的工具。（底层封装的是XHR）
->
-> 使用之前先引入js文件，我们这里直接用在线地址：`<script src="https://unpkg.com/axios/dist/axios.min.js"></script>`
->
-> 使用：
+> - `axios`是目前前端最热门的AJAX工具包，使用频率很高，是Vue和React都推荐使用的工具。（底层封装的是XHR对象）
+> - axios是一个基于Promise的HTTP客户端，可以在浏览器和NodeJS环境下使用。特点：
+>   - 在浏览器端发送AJAX请求。
+>   - 在服务器端发送HTTP请求。
+>   - 支持Promise API。
+>   - 请求响应拦截器。
+>   - 转换请求和响应的数据。
+>   - 取消请求。
+>   - 自动将结果转为JSON格式。
+>   - 保护客户端避免XSRF攻击。
+
+> 我们这里用在线地址引入：`<script src="https://unpkg.com/axios/dist/axios.min.js"></script>`，使用：
 
 ```js
-//还有`axios.get()`和`axios.post()`函数
+// axios函数接收一个配置对象并发送ajax请求（XHR的方式），返回值是一个promise对象
 axios({
-    method: 'post',//请求方式
-    url: 'https://api.example.com/data',
-    params: {name: zs, age: 12},//查询字符串
-    data: { name: 'John', age: 30 },//请求体的数据，如果data后面是对象，那么会自动转成JSON串给服务器
-    headers: {//设置请求头
-        'Content-Type': 'application/json', // 设置请求头中的Content-Type，这里是JSON格式
+    method: 'POST', // 请求方式
+    url: 'http://localhost:3000/posts/2',
+    // params: {name: zs, age: 12}, // 设置url中携带的查询字符串参数
+    data: { name: 'John', age: 30 }, // 设置请求体的数据。若data的值为对象，那么会自动转成JSON串发送
+    headers: { // 设置请求头，可以包含自定义请求头
+        'Content-Type': 'application/json', // 设置请求头中的Content-Type内容类型为JSON格式
     }
-}).then(function (result) {//请求完成，成功时调用该回调函数
-    console.log('Response data: ', result.data)
-}).catch(function (error) {//请求失败时的回调函数
+}).then(function (result) { // promise对象成功状态的回调
+    console.log('Response data: ', result.data) // axios将成功的数据放在了结果值对象的data属性中了
+}).catch(function (error) { // promise对象失败状态的回调
     console.error(error)
 })
+// 每个请求方式都有对应的`axios.xxx({})`函数，这些函数都是对axios()函数的进一步封装
 ```
 
-> 实际上在axios函数中new了一个`Promise`对象，在该Promise构造器中完成了AJAX，最后返回了该Promise对象
+> 还有一个`axios.request({})`函数（axios()函数底层就是该函数），它允许你以更加灵活的方式发送 HTTP 请求。你可以通过这个方法自定义请求的所有方面，包括请求方法、URL、数据、头部信息等等。不过大多数情况下 `axios` 函数足够用了，它已经包含了大部分常用的配置选项。
+
+###### 关于axios返回的promise对象，它成功状态的结果值：
+
+> 该promise对象成功状态的结果值是一个对象，对象中有如下属性：
+>
+> - config：这是我们传进去的配置对象，以及一些AJAX请求中默认的配置。
+> - data：服务器响应的结果，也就是响应体的内容。如果服务器响应的是JSON串，那么axios会自动将其解析为JS对象。
+> - headers：响应头信息。
+> - request：它是原生的XMLHttpRequest对象，axios就是对它的封装。
+> - status：响应状态码。
+> - statusText：响应状态字符串。
+
+- ##### 关于axios()函数接收的配置对象：
+
+  > - method：设置请求方式（字符串）。默认为GET请求。
+  > - url：设置请求的URL（字符串）。
+  > - baseURL：设置请求URL的基路径（字符串）。如果请求的URL为相对路径，那么会用该基路径拼接形成绝对路径后再发送请求。
+  > - headers：设置请求头信息（对象）。
+  > - params：设置请求URL中的查询字符串参数（对象）。
+  > - （不常用）paramsSerializer：用于将查询字符串序列化的函数。也就是用于自定义params对象转成的查询字符串的格式。
+  > - data：设置请求体数据。可以是对象或字符串格式。如果是对象，axios会将其转成JSON串再发送；如果是查询字符串则直接发送。
+  > - timeout：指定请求超时的毫秒数（Number）。超时请求会被取消。默认值0永不超时。
+  > - responseType：响应体的内容类型（字符串），用于告诉浏览器如何解析响应体的。值包括`array\buffer\document\json\text\stream`，还有浏览器专属的`blob`。默认是`json`。
+  > - maxContentLength：设置响应体所允许的最大字节数（Number）。
+
+  > 不常用的配置项：
+  >
+  > - onUploadProgress/onDownloadProgress：指定上传和下载时的回调（浏览器专属）。回调函数可以接收到一个参数progressEvent。
+  >
+  > - auth：设置XHR请求的用户名和密码的，值是一个对象：`{username: '用户名', password: '密码'}`
+  >
+  > - adapter：设置请求的适配器，允许自定义处理请求。值是一个函数function(config)。（详细请看：/lib/adapters/README.md）
+  >
+  > - withCredentials：表示跨域请求时是否需要使用携带凭证Cookie，默认false不携带。true时可以在跨域请求中携带Cookie。
+  >
+  > - transformRequest：对请求的数据进行处理，再将处理后的结果发送给服务器。值为函数数组，这是为了支持多个数据转换步骤。数组中的函数按照它们在数组中的顺序依次执行，前一个函数的输出作为下一个函数的输入（类似管道操作）。
+  >
+  > - transformResponse：对响应的数据进行处理，再将处理后的结果放在data中。值同样是函数数组。
+  >
+  >   ....还有其他的，需要时去axios官网查即可。
+
+- ##### axios的默认配置：
+
+  > 默认配置的设置是项目中非常实用的技巧，它可以把一些重复性的设置配置到默认设置里，简化我们的代码。只需要在使用前，通过`axios.defaults.配置项=值`配置下即可。
+
+- ##### 通过axios实例来发送AJAX请求：
+
+  1. 创建axios实例：
+
+     ```js
+     const ais = axios.create({
+         baseURL: 'https://api.apiopen.top',
+         timeout: 3000
+     })
+     ```
+
+     > 这里的ais是一个函数，它和axios函数的功能几乎是一样的。
+
+  2. 通过创建的axios函数来发送请求：
+
+     ```js
+     ais({
+     	url: '/getJoke'
+     }).then(resp=>{
+     	console.log(resp)
+     })
+     ```
+
+     > 也可以：`ais.get('/getJoke').then(resp=>{ console.log(resp) })`
+
+  > 用axios实例来发送AJAX的方式更灵活。
+
+- ##### axios中的拦截器：
+
+  > axios中的拦截器分为**请求拦截器**和**响应拦截器**（函数）。其中请求拦截器可以让我们在发送请求之前做拦截，满足条件后再发。当服务器响应了结果后，可以在响应拦截器中先对结果做预处理，这样拿到的响应数据就可以直接用了。拦截器就像请求过程中的一道道关卡，通过这些关卡可以更精细的控制请求和响应的过程。
+
+  ###### 使用：
 
 ------
 
