@@ -85,7 +85,7 @@
 
      > 如果祖孙组件在不同的文件，那就将Context用export进行导出，需要用的地方import导入。
 
-  2. 将祖组件的直接子组件用`<XxxContext.Provider>`组件标签包裹起来，通过`value`属性指定给后代组件传递的数据。
+  2. 将祖组件的直接子组件用`<XxxContext.Provider>`组件标签包裹起来，通过组件标签的`value`属性指定给后代组件传递的数据。
 
   3. 需要用数据的后代组件声明接收：
 
@@ -115,7 +115,7 @@
        import XxxContext from './A'
        ...
        // 声明并获取祖组件A中传递的value数据
-       const message = React.useContext(XxxContext)
+       const value = React.useContext(XxxContext)
        ```
 
   > 在实际开发中我们一般不用context，一般都用它封装的react插件。
@@ -169,7 +169,7 @@
   1. 给A组件中传递标签结构：
   
      ```jsx
-     <A render={ data => <B name={data}/> }
+     <A render={ data => <B name={data}/> } />
      ```
   
   2. A组件中接收标签结构并展示：
@@ -332,7 +332,7 @@
   })// navigate()函数的参数还可以是Number型
   ```
 
-  > 注意：在6版本中删除了`withRouter()`函数。所以history对象上的go(n)/goBack()/goForward()都变成了：`React.useNavigate()(n)`
+  > 注意：在6版本中删除了`withRouter()`函数。所以history对象上的go(n)/goBack()/goForward()都变成了：`React.useNavigate(n)`
 
 ------
 
