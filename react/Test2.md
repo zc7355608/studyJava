@@ -121,7 +121,7 @@
 
 - #### Redirect标签（组件）
 
-  > Redirect标签用于兜底。如果前面的`<Route path="/home" component={Home2}/>`都没匹配上，那么就听Redirect标签（组件）的：
+  > Redirect组件用于兜底。只要Redirect组件被渲染，就会重定向切换路由。也就是说，若前面的`<Route path="/home" component={Home2}/>`都没匹配上，那么就去渲染Redirect组件，它一渲染就会重定向并切换路由：
 
   ```jsx
   import { Link, Route, Switch, Redirect } from 'react-router-dom'
@@ -449,7 +449,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                                 
+  >                                    
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -507,7 +507,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >                     
+  >                       
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -515,7 +515,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >                     
+  >                       
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   

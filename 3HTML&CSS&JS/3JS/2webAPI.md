@@ -247,18 +247,24 @@
     > - forward()：点了下前进按钮
     > - go(参数)：参数1表示前进一下，-1表示后退一下
 
-  - **本地存储**：随着页面数据越来越多，为了满足各种需求，经常会在用户本地浏览器上存储一些数据，所以H5提出了本地存储，允许JS通过浏览器提供的webAPI，来将一些数据存储到浏览器本地。可以在浏览器的开发者工具中，通过Application面板的Local Storage来查看存的数据。这些数据只是当前网站所存储的。本地存储的特性：
+  - **本地存储**：随着页面数据越来越多，为了满足各种需求，经常会在用户本地浏览器上存储一些数据，所以H5提出了本地存储，允许JS通过浏览器提供的webAPI，来将一些数据存储到浏览器本地。可以在浏览器的开发者工具中，通过Application面板的Local Storage来查看存的数据。本地存储的特性：
 
-    1. 数据存储在本地浏览器硬盘上，设置、读取方便，刷新也不丢失数据。
-    3. 容量较大，`localStorage`和`sessionStorage`对象每个容量约5M左右
+    > 1. 数据存储在本地浏览器硬盘上，设置、读取方便，刷新也不丢失数据。
+    > 2. 容量较大，`localStorage`和`sessionStorage`对象每个容量约5M左右
+    
+    ###### 本地存储的API：
     
     > - `localStorage`：它是本地存储对象，存储的数据都是字符串。浏览器关闭也在。
     >  - 存：`localStorage.setItem(key, value)`，k,v数据都是以**键值对字符串**形式存储在本地浏览器中。这样同一个网站的数据就可以多个页面共享了。
     >   - 取：`localStorage.getItem(key)`，获取本地键对应的值数据（串）。
     >   - 删：`localStorage.removeItem(key)`，删除键对应的键值对数据。这些方法参数都是String型的。
     >   - 清空所有的本地存储：`localStorage.clear()`。
-    > 
-    >- `sessionStorage`：它是会话存储，关闭浏览器存的数据就消失，用法和以上基本相同，同样存储键值对字符串。
+    >
+    > - `sessionStorage`：它是会话存储，关闭浏览器存的数据就消失，用法和以上基本相同也是键值对字符串。
+    
+    ###### 注意：localStorage、sessionStorage都是同源才共享的。并且不同页面之间的sessionStorage是互相独立的，而且在页面跳转时会将当前页的sessionStorage拷贝一份携带过去，手动打开的标签页没有sessionStorage。
+    
+    > 但是localStorage并不是所有浏览器都支持，所以我们也可以用第3方库`store`来做。
 
 ------
 
