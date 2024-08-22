@@ -86,6 +86,8 @@
      }
    }
    ```
+   
+   > 在`<Route/>`中注册的组件是路由组件，路由组件是通过`<Link/>`标签放在页面上的，不是我们自己写的。通常为了与普通组件区分开，路由组件会放在pages/目录中，而不是components/中。
 
 ------
 
@@ -143,18 +145,16 @@
 
   > **路由注册的顺序：**
   >
-  > - 组件初始化执行`render()`方法时，如果发现组件中中写了`<Route/>`标签，那么会顺序注册这些组件。
-  > - 注册组件时会根据路径分层级。若某个组件的path是另一个组件的子组件，那么该组件会注册到另一个组件中。
-  > - 当路由切换进行路径匹配时，只有父组件的路径匹配成功，才会继续去根据剩下的path匹配其下的子组件。
+  > - 组件被渲染执行`render()`方法时，如果发现其中有`<Route/>`标签，那么会顺序注册这些路由组件。
+  > - 注册路由组件时会根据路径给组件分等级。若组件的path包含了另一个组件的path，那么该组件就作为另一个组件的子组件。
+  > - 当路由切换进行路径匹配时，只有父组件的路径匹配成功，才会继续拿着剩下的path去匹配其下的子组件进行展示。（这也是为什么开启路由的严格匹配，会导致无法匹配二级路由。父组件都匹配不上路径无法展示了，子组件就更没有机会去匹配路径和展示组件了）
   >
-  > 这也是为什么开启路由的严格匹配，会导致无法匹配二级路由。
-
-  ###### 路由的嵌套就是：根据路由的注册和匹配模式，子路由注册的path开头要加上父路由的path值。
-
+  
+###### 	所谓路由的嵌套就是：根据路由的注册和匹配模式，注册子路由时，子路由的path开头要加上父路由的path值。
 
 ------
 
-- #### React中的路由组件和一般组件的区别
+- #### React中路由组件和一般组件的区别（类式）
 
   > 我们知道Vue中路由组件身上会多两个API：`$router`和`$route`，那么React的路由组件和一般组件有什么区别呢？路由组件激活后props会收到数据：
   >
@@ -449,7 +449,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                                    
+  >                                          
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -507,7 +507,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >                       
+  >                           
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -515,7 +515,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >                       
+  >                           
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   
