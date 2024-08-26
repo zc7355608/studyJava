@@ -16,31 +16,31 @@
 
      > - 组件定义时，不能出现`el`配置项。因为最终所有的组件都要被vm对象所管理，由vm来决定服务于哪个Vue模版（容器）。
      >
-     > - `data`只能用函数式写法。因为对象式写法多个组件实例会共用这个data对象，数据不独立；而函数式写法会返回一个新的data对象，多个组件实例用的data互不影响。
-     >
-     > - 组件中通过`template`配置项来配置组件的模版（**组件模版**）：
+     > - 没有了el配置项，那么组件的结构（Vue模版）就只能通过`template`配置项来写了：
      >
      >   ```js
-     >   const school = Vue.extend({
-     >   	template: `
-     >   		<div>
-     >               <h2>学校:{{name}}</h2>
-     >               <h2>地址:{{address}}</h2>
-     >   		</div>
-     >   	`,
+     >  const school = Vue.extend({
+     >       template: `
+     >           <div>
+     >           	<h2>学校:{{name}}</h2>
+     >           	<h2>地址:{{address}}</h2>
+     >           </div>
+     >       `,
      >       data(){
      >           return {
-     >   			name: '河西蓝翔技校',
-     >   			address: '学校地址是这里'
-     >   		}
+     >           	name: '河西蓝翔技校',
+     >           	address: '学校地址是这里'
+     >           }
      >       },
      >       methods: {
      >           showName(){
-     >               alert(this.name)
+     >           	alert(this.name)
      >           }
      >       }
      >   })
      >   ```
+     > 
+     > - `data`只能用函数式写法。因为对象式写法多个组件实例会共用这个data对象，数据不独立；而函数式写法每次调用会返回一个新的data对象，多个组件实例之间的data互不影响。
   
   2. （局部）注册组件：在使用组件的vm对象中，添加一个全新的配置项`components: { school: school, 组件名: 变量,...}`
   
@@ -63,25 +63,19 @@
   > - 组件标签也可以使用单标签，但是**需要Vue脚手架环境的支持**。
   > - 组件定义时可以使用`name:'abc'`配置项，指定组件在开发者工具中呈现的名字。（目前的作用只是在Vue工具中显示）
   > - **定义组件可以简写**：`const school = Vue.extend({})`简写为`const school = {}`，注册组件的时候会自动调用该对象的`Vue.extend({})`
-  > - 组件也可以嵌套，在组件中注册其他组件，编写`components`配置项就可以了（注意组件的定义顺序）。通常会有一个管理所有组件的根组件（app组件）。
+  > - 组件也可以嵌套，在组件中注册其他组件，编写`components`配置项就可以了。通常会有一个管理所有组件的根组件（app组件）。
   
   ##### 关于`VueComponent`：
   
-  > 1. `Vue.extend({})`的返回值本质上是根据不同的配置对象，来返回不同的`VueComponent`的构造函数。该构造函数不是程序员定义的，而是由`Vue.extend()`动态生成的。
-  > 2. 每次调用`Vue.extend({})`定义一个新的组件时，返回的都是**新的**`VueComponent`构造器。不同组件的`VueComponent`不同。
-  > 3. 我们只需要写`<school></school>`标签，Vue解析模板时会根据不同的组件构造器（school），帮我们创建对应组件的**组件实例对象（vc）**，即Vue帮我们执行的：`new VueComponent({配置对象})`
-  > 4. 关于组件配置中的`this`：
-  >    - 在`new Vue({})`的配置项中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是vm对象。
-  >    - 而在`Vue.extend({})`定义组件的配置中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是`VueComponent`构造的**组件实例对象**（小型的vm对象vc）。
-  > 5. vm（或vc）上的`$children`是一个`VueComponent`类型的数组，保存了该模板中使用的所有组件实例vc。
-  
-  ##### 一个重要的关系：
-  
-  > `VueComponent.prototype.__proto__ === Vue.prototype`，即：`VueComponent`是`Vue`的子类。（vc是小型的vm）
-  
-  ###### 为什么要有这个关系？
-  
-  > 让组件实例对象vc可以访问到 Vue 原型上的属性、方法。
+  > - `Vue.extend({})`的返回值本质上是根据不同的配置对象，来返回不同的`VueComponent`的构造函数。该构造函数不是程序员定义的，而是由`Vue.extend()`动态生成的。
+  > - 每次调用`Vue.extend({})`定义一个新的组件时，返回的都是**新的**`VueComponent`构造器。不同组件的`VueComponent`不同。
+  > - 我们只需要写`<school></school>`标签，Vue解析模板时会根据不同的组件构造器（school），帮我们创建对应组件的**组件实例对象（vc）**，即Vue帮我们执行的：`new VueComponent({配置对象})`
+  > - 关于组件配置中的`this`：
+  >   - 在`new Vue({})`的配置项中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是vm对象。
+  >   - 而在`Vue.extend({})`定义组件的配置中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是`VueComponent`构造的**组件实例对象**（小型的vm对象vc）。
+  > - vm（或vc）上的`$children`是一个`VueComponent`类型的数组，保存了该模板中使用的所有组件实例vc。
+  > - **一个重要的关系：**`VueComponent.prototype.__proto__ === Vue.prototype`，即：`VueComponent`是`Vue`的子类。（vc是小型的vm）
+  > - **为什么要有这个关系？**为了让组件实例对象vc可以访问到 Vue 原型上的属性、方法。
   
 - ## 单文件组件（常用）
 
@@ -102,36 +96,36 @@
   
      ```vue
      <template>
-     	<!-- 组件的结构，也就是HTML。这里写的template标签就相当于写在了template配置项中 -->
+         <!-- 组件的结构，也就是HTML。这里写的template标签就相当于写在了template配置项中 -->
          <div class="demo">
-         	<h2>学校:{{name}}</h2>
-         	<h2>地址:{{address}}</h2>
+             <h2>学校:{{name}}</h2>
+             <h2>地址:{{address}}</h2>
              <button @click="showName()">弹出名字</button>
          </div>
      </template>
      <script>
-     	//组件的交互（JS脚本）。注意最后一定要暴露一下该组件，因为vue文件最终会翻译为js文件，不暴露其他JS中没法引入该组件
-         export default {//这里省略Vue.extend()，用简写的形式，否则还需要导入Vue文件
-             name: 'School',//这里最好和文件名保持一致
-             data(){
-                 return {
-                     name: '河西蓝翔技校',
-                     address: '学校地址是这里'
-                 }
-             },
-             methods: {
-                 showName(){
-                     alert(this.name)
-                 }
+     // 组件中的JS代码。注意最后一定要暴露一下该组件，因为vue文件最终会翻译为js文件，不暴露其他JS中没法引入该组件
+     export default { // 这里省略Vue.extend()，用简写的形式，否则还需要导入Vue文件
+         name: 'School', // 这里最好和文件名保持一致
+         data(){
+             return {
+                 name: '河西蓝翔技校',
+                 address: '学校地址是这里'
+             }
+         },
+         methods: {
+             showName(){
+                 alert(this.name)
              }
          }
+     }
      </script>
      <style scoped>/* style标签中的是该组件的样式，最终这些都会被JS代码动态添加到HTML的style标签中 */
-     	/* 组件的样式CSS，如果不加scoped，那么多个组件整合时，最终样式会混合在一起，本组件的样式可能会污染其他组件 */
-         /* App组件中不要加scoped */
-         .demo {
-             background-color: orange;
-         }/* scoped底层就是给该组件模板最外层的div上加一个唯一的属性，然后通过属性选择器和CSS选择器配合完成只给该组件加样式 */
+     /* 组件的样式CSS，如果不加scoped，那么多个组件整合时，最终样式会混合在一起，本组件的样式可能会污染其他组件 */
+     /* App组件中不要加scoped */
+     .demo {
+     	background-color: orange;
+     }/* scoped底层就是给该组件模板最外层的div上加一个唯一的属性，然后通过属性选择器和CSS选择器配合完成只给该组件加样式 */
      /* 另外还有lang属性，值可以是css、less、stylus，表示里面用是less写的样式。但是需要Vue脚手架项目中局部安装less-loader */
      </style>
      ```
@@ -149,15 +143,14 @@
      >        </div>
      > </template>
      > <script>
-     >    //引入其他文件中的子组件的配置对象
+     >    // 引入其他文件中的子组件的配置对象
      >    import School from './School.vue'
      > export default {
      >         name: 'App',
-     >         //注册组件
+     >         // 注册组件
      >         components: { School }
      >     }
      >    </script>
-     > <style></style>
      > ```
      
   2. `main.js`入口文件中，将根组件App注册到vm对象上，让Vue实例对象管理起来App组件：
@@ -194,7 +187,7 @@
 
 ------
 
-# 使用Vue脚 手架
+# 使用Vue脚手架
 
 > 上面单文件组件如果不用Vue脚手架进行编译的话，是无法直接运行的。因为vue文件还没被编译为JS文件。
 
@@ -227,16 +220,16 @@
     - `main.js`：该文件是整个Vue项目运行或打包的入口文件。当执行了`npm run serve`后，直接去运行的该文件。
 
       ```js
-      //引入本地node_modules中vue的js文件包
+      // 引入本地node_modules中vue的js文件包
       import Vue from 'vue'
-      //导入App根组件，所有组件的父组件
+      // 导入App根组件，所有组件的父组件
       import App from './App.vue'
-      //关闭vue的开发提示
+      // 关闭vue的开发提示
       Vue.config.productionTip = false
-      //创建vue实例
+      // 创建vue实例
       new Vue({
           el: '#app',
-          //这行代码将App组件（虚拟DOM）渲染为了真实DOM并替换掉了index.html中id为app的div
+          // 这行代码将App组件（虚拟DOM）渲染为了真实DOM并替换掉了index.html中id为app的div
           render: h => h(App),
       })
       ```
@@ -251,11 +244,11 @@
           </div>
       </template>
       <script>
-          //导入其他子组件
+          // 导入其他子组件
           import School from './components/School.vue'
           export default {
               name: 'App',
-              //注册其他子组件
+              // 注册其他子组件
               components: { School }
           }
       </script>
@@ -302,11 +295,11 @@
   
   ###### 关于`render()`函数：
   
-  > - 该函数会在运行`main.js`时被自动调用。该函数有一个函数实参（通常叫`createElement`），函数返回一个虚拟DOM（JS对象）。Vue会用`render()`函数返回的虚拟DOM转为真实DOM后渲染到页面上，替换掉el配置的HTML容器。用法：
+  > - 该函数会在运行`main.js`时被自动调用。该函数有一个函数实参（通常叫`createElement`），用于创建一个虚拟DOM（JS对象）。Vue会通过`render()`函数将返回的虚拟DOM渲染成页面上的真实DOM，替换掉el配置的HTML容器。用法：
   >
   >   ```js
   >   render: function(createElement){
-  >   	return createElement('h1','hello')//代替了template: `<h1>hello</h1>`,
+  >   	return createElement('h1','hello') // 代替了template: `<h1>hello</h1>`,
   >   }
   >   ```
   >
@@ -347,36 +340,34 @@
   2. ###### 组件中通过props配置项来接收数据：
   
      ```js
-     <script>
-         export default {
-             name: 'School',
-             //组件自己的数据
-             data(){
-                 return {
-                     name: '河西蓝翔技校',
-                     address: '学校地址是这里'
-                 }
+     export default {
+         name: 'School',
+         // 组件自己的数据
+         data(){
+             return {
+                 name: '河西蓝翔技校',
+                 address: '学校地址是这里'
+             }
+         },
+         // 方式1(用的最多)
+         props: ['name','age']
+         // 方式2，接收时对类型进行限制
+         props: {
+             name: String,
+             age: Number
+         }
+         // 方式3，详细限制
+         props: {
+             name: {
+                 type: String,
+                 required: true
              },
-             //方式1(用的最多)
-             props: ['name','age']
-             //方式2，接收时对类型进行限制
-             props: {
-             	name: String,
-             	age: Number
-         	}
-             //方式3，详细限制
-         	props: {
-                 name: {
-                     type: String,
-                     required: true
-                 },
-                 age: {
-                     type: Number,
-                     default: 0
-                 }
+             age: {
+                 type: Number,
+                 default: 0
              }
          }
-     </script>
+     }
      ```
   
   > 注意：
@@ -390,7 +381,7 @@
 
 - ### Mixin混入
 
-  > `mixin`目的是为了复用配置项。我们可以将data、methods、computed等多个地方共用的键值对配置，放到一个公共的对象中。然后通过`mixin`配置项引入这些公共配置，达到复用配置的目的。
+  > `mixin`目的是为了复用配置项。我们可以将data、methods、computed等多个地方共用的键值对配置，放到一个公共的对象中。然后通过`mixin`配置项引入这些公共配置对象，达到复用配置的目的。
   
   ###### 用法：
   
@@ -409,13 +400,13 @@
   
      ```js
      export default {
-         install(Vue,x,y){//参数1是Vue构造函数，后面是自定义参数。有了Vue构造函数，可以：定义全局的过滤器、指令、混入等..
+         install(Vue,x,y){ // 参数1是Vue构造函数，后面是自定义参数。有了Vue构造函数可以做很多事情
              console.log("插件执行了！", Vue)
-             //全局过滤器
+             // 全局过滤器
              Vue.filter('filter1',function(value){})
-             //全局指令
+             // 全局指令
              Vue.directive('fbind',function(element,binding){})
-             //通过插件可以做很多事情...
+             // 通过插件可以做很多事情...
          }
      }
      ```
@@ -424,7 +415,7 @@
   
      ```js
      import plugins from "./plugins.js"
-     //使用插件，这里会调用插件对象的install()方法
+     // 使用插件，这里会调用插件对象的install()方法
      Vue.use(plugins,1,2)
      ```
 
@@ -440,7 +431,9 @@
 
   - 另一种绑定自定义事件的方式：通过`vc.$on('atguigu', demo)`给vc实例组件绑定自定义事件。这种方式更灵活。
 
-    > 第2个参数如果是匿名函数的话，那么该匿名函数并不会被Vue所管理，而是由vc实例触发该事件时调用的，所以里面的this是vc。因此这个匿名函数最好用箭头函数，这样该匿名函数中的this仍然是上下文的vm对象：`vc.$on('atguigu',()=>{})`
+    > **注意：**$on()的第2个参数位置上如果直接放一个回调函数的话，那么给哪个组件绑定的自定义事件，该回调中的this就是谁。因为该回调是在绑定自定义事件的组件中触发调用的。
+    >
+    > 此时该回调函数最好用箭头函数的写法，这样回调中的this仍然是当前上下文的组件实例：`vc.$on('atguigu',()=>{})`
 
   - 事件只触发一次：`<Student @atguigu.once='demo'/>`或`vc.$once('atguigu', demo)`。
 
@@ -456,27 +449,27 @@
 
   ###### 原理是这样的：
 
-  > - 首先找一个对象X（vm或vc实例），当A组件要给B组件传数据时，由B组件先在对象X上绑定一个自定义事件，这样事件的回调函数就留在了B组件中。由A组件写代码触发该事件并传数据过去。这样数据就会在B的回调中以实参的形式保存。这就完成组件间通信。
+  > - 首先找一个对象X（vm或vc实例），当A组件要给B组件传数据时，由B组件先在对象X上绑定一个自定义事件，这样事件的回调函数就留在了B组件中。当A组件拿到X，就去触发它身上的自定义事件并传数据过去。这样数据就会在B的回调中以形参的形式保存。这就完成了组件间的通信。
   >
   > - 因此，对象X需要满足以下条件：
   >
-  >   1. 所有组件都能看到对象X
+  >   1. 所有组件都能拿到对象X
   >   2. 既然能够给X绑定自定义事件，那么X必须能够调用`$on()`。也就是说X必须是一个vm或vc对象（因为该API在Vue原型上）。
   >
   > - 要满足以上2个条件的话，将vm对象放在Vue原型上即可：（放的时候注意时机，得在`beforeCreate`也就是还没解析组件模版时就得安装全局事件总线，因为通常组件挂载完毕后就要用全局事件总线了）
   >
   >   ```js
   >   new Vue({
-  >   	el: '#app',
-  >   	render: h => h(App),
-  >   	//安装全局事件总线，$bus就是当前的vm实例
-  >   	beforeCreate(){
+  >       el: '#app',
+  >       render: h => h(App),
+  >       // 安装全局事件总线，$bus就是当前的vm实例
+  >       beforeCreate(){
   >   		Vue.prototype.$bus = this
-  >   	}
+  >       }
   >   })
   >   ```
   >
-  > - 这样所有的组件都能给vm对象绑定自定义事件，然后在另一个组件中触发事件并携带数据即可完成任意组件间的通信。如：
+  > - 这样所有的组件都能给这个X（vm对象）绑定自定义事件，然后在另一个组件中通过X去触发事件并携带数据，完成任意组件间的通信。如：
   >
   >   > B组件中给`$bus`绑定事件：
   >
@@ -513,23 +506,23 @@
   > - 假如组件A要给组件B发消息，那么B就需要先订阅消息并指定消息名（注册自定义事件），然后组件A根据消息名给B发布消息内容。
   > - 原生JS没有提供消息订阅与发布的库，所以我们用第三方库`pubsub-js`（publish发布，subscribe订阅）
 
-  ###### 使用前要先进行局部安装：`npm i pubsub-js`，它可以在任何框架中使用。使用：
+  ###### 使用前要先安装：`npm i pubsub-js`，它可以在任何框架中使用。使用：
 
   1. 订阅消息：
 
      ```js
-     //导包，pubsub是一个对象
+     // 导包，pubsub是一个对象
      import pubsub from 'pubsub-js'
-     //组件挂载完毕后，就订阅一个消息
+     // 组件挂载完后就订阅一个消息
      mounted(){
-         //每次订阅消息都会返回一个订阅id，通过该id来取消消息订阅
-         this.$pubId = pubsub.subscribe('消息名', (msgName,data)=>{//用箭头函数的写法this才是当前组件实例vc
-             //发布消息后执行的回调函数
+         // 每次订阅消息都会返回一个订阅id，通过该id来取消消息订阅
+         this.$pubId = pubsub.subscribe('消息名', (msgName,data)=>{ // 用箭头函数的写法this才是当前组件实例
+             // 发布消息后执行的回调函数
              console.log(`消息名:${msgName},消息数据:${data}`)
          })
      }
      beforeDestroy(){
-         //该组件销毁之前，取消消息的订阅
+         // 最好在该组件销毁之前，取消订阅的消息
          pubsub.unsubscribe(this.$pubId)
      }
      ```
@@ -540,17 +533,17 @@
      import pubsub from 'pubsub-js'
      methods: {
          sendData(){
-             //发布消息，携带数据
+             // 发布消息，携带数据
              pubsub.publish('消息名',666)
          }
      }
      ```
   
-     > 我们一般用Vue中自带的**全局事件总线**来完成任意组件间通信，而不是再去下载第三方库。所以这个作为了解。（React中会用）
+     > 我们一般通过Vue中的**全局事件总线**来完成任意组件间通信，而不是再去下载第三方库，所以了解即可。pubsub在React中比较常用。
 
 - ### vm.$nextTick(callback)
 
-  > 作用：下一次页面上的真实DOM更新之后，再去执行指定的回调函数。（该API在Vue原型上）
+  > 作用：下一次页面上的真实DOM更新之后，再去执行指定的回调。（该API在Vue原型上）
   >
   > 什么时候用：当数据改变后，要基于更新后的新DOM进行某些操作时，这些操作就可以放在该回调中。
 
@@ -583,7 +576,7 @@
 
   ###### 说明：
 
-  > - `<transition>`标签如果加了`appear`属性（没有值），那么当元素刚挂载到页面上时就会发生过渡效果。
+  > - `<transition>`标签如果加了`appear`属性（没有值），那么当元素初始化时就会发生过渡效果。
   >
   > - 如果页面上多个元素要不同的过渡效果，此时不同的过渡标签`<transition>`通过加`name='zs'`属性来区分。这样不同的过渡标签就去找各自对应的类名`zs-enter-active`，完成不同的过渡效果。
   >
@@ -608,7 +601,7 @@
 
   > 我们不用自己准备CSS样式了，直接使用第三方的动画库。用法：
   >
-  > 1. 通过npm安装`animate.css`：`npm install animate.css`
+  > 1. 通过npm安装`animate.css`：`npm i animate.css`
   > 2. 在.vue文件中引入：`import 'animate.css';`
   > 3. 设置`<transition>`标签的name属性为：`name='animate__animated animate__bounce'`，然后再加属性设置进入动画：`enter-active-class='animate__swing'`
 
@@ -630,8 +623,8 @@
   >
   > ```json
   > devServer: {
-  >     //代理服务器所代理的目标服务器，也就是要让这个代理服务器去和谁进行交互
-  > 	proxy: 'http://localhost:5000'
+  >            // 代理服务器所代理的目标服务器地址
+  >         proxy: 'http://localhost:5000'
   > }
   > ```
   >
@@ -642,13 +635,13 @@
   ```json
   devServer: {
       proxy: {
-          //配置url的请求前缀
+          // 配置url的请求前缀
           '/api': {
           	target: '目标服务器的url地址',
-          	ws: true,//默认true
-          	changeOrigin: true//默认true
+          	ws: true, // 默认true
+          	changeOrigin: true // 默认true
           },
-          //可以配置多个请求前缀
+          // 可以配置多个请求前缀...
       }
   }
   ```
@@ -672,7 +665,7 @@
 
      ```js
      import vueResource from 'vue-resource'
-     //使用插件
+     // 使用插件
      Vue.use(vueResource)
      ```
 
@@ -682,7 +675,7 @@
 
 - ### Vue中的插槽
 
-  > Vue中的插槽的作用是：让父组件可以向子组件指定位置上插入HTML结构，也是一种组件间通信的方式。
+  > 插槽的作用是：让父组件可以向子组件指定位置上插入HTML结构。
 
   > 我们之前是通过props配置项来给组件中传动态的数据。但有时我们不仅要求数据是动态的，还要求组件的结构是动态的。此时就需要通过组件中的**插槽**来完成。
 
@@ -713,19 +706,19 @@
      </template>
      ```
 
-     > - 往插槽中放的标签的CSS样式，写在哪个组件中都行。
+     > - 要往插槽中放的标签结构，它的CSS样式无论是写在定义插槽的地方、还是使用插槽的地方都行。
      >
-     > - 可以定义多个`<slot>`标签，通过该标签中的`name`属性来区分不同的插槽。使用时通过指定HTML标签的`slot`属性指定标签放在哪个插槽中。多个标签可以放到同一个插槽中。
+     > - 组件中可以定义多个`<slot>`插槽，通过其`name`属性来区分不同的插槽。使用时通过给HTML标签加`slot`属性，来指定该HTML标签放在哪个插槽中。多个标签可以放到同一个插槽中。
      >
-     > - 多个元素往插槽中放时，可以包在一个`<template>`标签中，它不会影响结构。此时可以用新写法指定插槽名字：`<template v-slot:插槽名>`
+     > - 多个元素往插槽中放时，可以包在一个`<template>`标签中，好处是不会增加一层结构。并且此时可以用新写法来指定要放到哪个插槽中：`<template v-slot:插槽名>`（或v-slot='插槽名'）
      >
      > - 插槽也可以给使用者传递数据，通过给`<slot>`标签加属性：`<slot :games="g">`，使用插槽的地方想获取数据外层必须用`<template>`标签包裹：（通过`scope`或`slot-scope`属性接收。其中data是对象，对象的key是slot标签的属性名games）
      >
      >   ```html
      >   <School title="育才学校">
      >       <!-- 通过`scope`或`slot-scope`属性接收。其中data是对象，对象的key是slot标签的属性名games -->
-     >   	<template scope="data" slot="school">
-     >           <img src="./a.jpg" alt="">{{data.games}}
+     >   	<template slot="school" scope="data">
+     >   		<img src="./a.jpg" alt="">{{data.games}}
      >       </template>
      >   </School>
      >   ```
