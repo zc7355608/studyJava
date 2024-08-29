@@ -107,12 +107,13 @@
 
 - ### Vue3中常用的组合式API
 
+  > 组合式API可以让你在任何地方使用methods、data、computed、生命周期钩子..等组件上的配置项，可以极大复用组件代码，将组件中的公共功能提取出来供多个组件使用。（组合式API的优势会在下面的自定义Hook中体现的淋漓尽致）
+  >
   
-
   - #### ref()：（所有的组合式API都需要从vue中引入才能用，并且都是函数，可以重复使用）
-
+  
       > 在setup()函数体中直接定义的数据是没有响应式的。Vue3中如果想让数据变成响应式的，需要用ref()加工下：
-
+  
       ```vue
       <template>
       	<span>我的名字是:{{name}}</span>
@@ -131,35 +132,35 @@
           }
       </script>
       ```
-
+  
       ###### 说明：
-
+  
       > - 数据经过`ref(initValue)`函数加工后，数据会放在RefImpl对象的value属性中。RefImpl通常被称为**引用对象/ref对象**。
       > - Vue3中，ref()给数据做响应式的原理是：通过`Object.defineProperty()`给RefImpl对象的原型上，定义了虚拟属性value，访问和修改的其实是ref()收集过来的数据。因此要修改name和age**得通过ref对象的value属性去访问和修改**：`name.value='李四'`。
       > - 并且在Vue模板中，如果数据是一个RefImpl对象，那么Vue解析时自动会去读取它的value属性，所有还这样写：`{{name}}`，加了value读取`{{name.value}}`反而会出问题。
       > - 如果传给ref的是一个对象：`ref({})`，那么Vue会对该引用类型数据（对象的地址）做响应式，并将其包装为RefImpl对象。而且该对象还会被包装成一个Proxy对象，因为Vue要对对象内部所有层次的数据，都进行响应式处理。（内部是通过Vue3的reactive()函数来给对象做的包装）
-
+  
       
-
+  
   - #### reactive()：
-
+  
       > 我们知道，Vue2中的响应式存在以下问题：
       >
       > - 新增属性、删除属性，界面不会更新。
       > - 直接通过下标修改数组，界面不会更新。
-
+  
       ###### 虽然Vue2提供了相应的解决方案，但是Vue3的reactive()函数实现的响应式更优秀，可以直接对对象和数组进行增删查改，不存在以上问题：
-
+  
       > - reactive()函数的作用是：给对象或数组类型的数据做响应式（基本类型不能用它，得用ref）。
       > - reactive()会将普通对象包装为Proxy对象。语法：`const 代理对象/数组 = reactive(源对象/数组)`。
       > - reactive()会给对象/数组所有层次的数据做响应式。内部是ES6的Proxy实现的，通过代理对象来操作的源对象。
-
+  
       ###### Vue3的响应式原理：
-
+  
       > Vue3中通过reactive()函数为源对象生成了一个Proxy代理对象。Proxy会为对象创建一个代理，从而拦截对象中任意属性的变化（包括增删改查等）。而Proxy中对源对象的增删改查又通过Reflect（反射）来完成。
-
+  
       ###### 这种方式实现的响应式，可以捕获到对代理对象属性的增、删、改、查，因此不存在Vue2的问题。模拟Vue3的响应式：
-
+  
       ```js
       let person = {name:'张三',age:14}
       const p = new Proxy(person, {
@@ -180,11 +181,13 @@
           }
       })
       ```
-
+  
+      
+  
   - #### computed()：
-
+  
       > Vue3中的计算属性是一个组合式API，是一个函数，需要在vue中引入才能使用。使用：
-
+  
       ```js
       import {reactive,computed} from 'vue'
       export default {
@@ -203,7 +206,7 @@
           }
       }
       ```
-
+  
       > - computed()函数可以接收一个函数参数，该函数参数的返回值就作为计算属性的值。
       >
       > - computed()返回一个计算属性，并且该计算属性也是响应式的。
@@ -220,13 +223,13 @@
       >       }
       >   })
       >   ```
-
+  
       
-
+  
   - #### watch()：
-
+  
       > Vue3中监视属性是一个组合式API，是一个函数，需要在vue中引入才能使用。使用：
-
+  
       ```js
       import {reactive,watch} from 'vue'
       export default {
@@ -246,7 +249,7 @@
           }
       }
       ```
-
+  
       > - watch的第1个参数是监视的数据，可以是ref对象或reactive定义的Proxy对象。watch的第2个参数是回调。第3个参数是配置对象（可选）：`{ immediate: true, deep: true }`。
       >
       > - 如果watch的第1个参数是ref对象，那么监视的是其中所有的属性。它是浅层次的监视，可以通过配置项来开启深度监视。
@@ -301,3 +304,52 @@
 
 ------
 
+- ### 自定义Hook
+
+  > Hook本质上就是一个函数，里面封装使用了一些组合式API。使用自定义Hook的优势是：复用代码，让setup的逻辑更简单。我们可以在自定义Hook中，封装多个组件共用的功能代码，从而将组件中的功能复用。使用：
+
+  > 在src/hooks/usePoint.js中：（Hook函数的名字一般叫useXxx）
+  >
+  > ```js
+  > import { reactive, onMounted, onBeforeUnmount } from 'vue'
+  > export default ()=>{ // 获取鼠标点击位置的Hook函数
+  >     let point = reactive({x:0,y:0})
+  >     function savePoint(e){
+  >         point.x = e.pageX
+  >         point.y = e.pageY
+  >     }
+  > 
+  >     onMounted(()=>{
+  >         window.addEventListener('click',savePoint)
+  >     })
+  >     onBeforeUnmount(()=>{
+  >         window.removeEventListener('click',savePoint)
+  >     })
+  >     return point
+  > }
+  > ```
+  >
+  > 在App.vue中：
+  >
+  > ```vue
+  > <template>
+  > 	<h1>当前鼠标点击的位置是:</h1>
+  > 	<span>x坐标:{{x}}</span>
+  > 	<span>y坐标:{{y}}</span>
+  > </template>
+  > <script>
+  >     import { ref } from 'vue'
+  >     import usePoint from './hooks/usePoint'
+  >     export default {
+  >         name: 'App',
+  >         setup(){
+  >             let {x,y} = usePoint()
+  >             return {x,y}
+  >         }
+  >     }
+  > </script>
+  > ```
+
+- ### toRef
+
+> 生命周期钩子写多个
