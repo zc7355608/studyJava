@@ -362,7 +362,7 @@
   >   - 其他情况下多选框用`v-model`收集的都是`checked`属性的值true或false，且布尔值会决定多选框是否勾选。
   > - 下拉框：通过`v-model='city'`给`<select>`标签指定绑定的变量（string），这样它里面的下拉框`<option>`标签的value属性就会关联上该变量。
 
-- ## 过滤器
+- ## 过滤器（不用学了，Vue3移除了过滤器）
 
   > 过滤器可以对**要显示的数据**进行特定格式化后再显示，适用于一些简单逻辑的处理。它是Vue提供的一个新的数据处理的方式而已，可以对你的数据进行一道道加工后显示新的数据。可以选择用或不用。使用：
 
@@ -370,16 +370,16 @@
   >
   > ```js
   > new Vue({
-  >     el: '#root',
-  >     data: {
-  >     	time: 124134314134313
-  >     },
-  >     filters: {
-  >         //过滤器的本质就是函数
-  >         timeFormat(value){
-  >         	return dayjs(value).format('yyyy-MM-dd: HH:mm:SSS')
-  >         }
-  >     }
+  >        el: '#root',
+  >        data: {
+  >        	time: 124134314134313
+  >        },
+  >        filters: {
+  >            //过滤器的本质就是函数
+  >            timeFormat(value){
+  >            	return dayjs(value).format('yyyy-MM-dd: HH:mm:SSS')
+  >            }
+  >        }
   > })
   > ```
   >

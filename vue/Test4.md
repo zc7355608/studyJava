@@ -26,32 +26,32 @@
 
      1. 组合式API：setup配置、ref与reactive、watch和watchEffect、provide与inject、...
      2. 新的内置组件：Fragment、Teleport、Suspense、...
-     3. 其他的改变：新的声明周期钩子、data配置项应始终用函数写法、移除keyCode作为v-on的修饰符、...
+     3. 其他的改变：新的声明周期钩子、data配置项应始终用函数写法、移除keyCode作为v-on的修饰符、移除过滤器、...
 
 - ------
 
--   ### 创建Vue3项目
+- ### 创建Vue3项目
 
-    - 方式1：通过Vue脚手架创建（确保`@vue/cli`在4.5.0以上）
-    
-    - 方式2：使用Vite创建。
-    
-      > Vite是新一代的前端打包工具。官网：https://vitejs.cn/vite3-cn/guide/，它相较于Webpack的优势：
-      >
-      > - 开发环境中，无需打包操作，可以快速的冷启动。
-      > - 更轻量快速的热重载（HMR）。
-      > - 真正的按需编译，不再等待整个应用编译完成。
-      >
-      > 传统构建与Vite构建对比图：
-      >
-      > ![image-20240826220952910](C:\Users\22737\Desktop\studyJava\vue\assets\image-20240826220952910.png)
-      >
-      > ![image-20240826221002655](C:\Users\22737\Desktop\studyJava\vue\assets\image-20240826221002655.png)
-    
-      1. `npm create vite@latest 项目名 -- --template vue`（需要NodeJS版本16+，npm7+）
-      2. cd进入工程目录后安装依赖：`npm i`，然后运行项目：`npm run dev`。
-    
-      ###### Vite创建的Vue工程和脚手架不太一样，不过我们不关心。我们接下来还用脚手架的方式来创建Vue工程。
+  - 方式1：通过Vue脚手架创建（确保`@vue/cli`在4.5.0以上）
+
+  - 方式2：使用Vite创建。
+
+    > Vite是新一代的前端打包工具。官网：https://vitejs.cn/vite3-cn/guide/，它相较于Webpack的优势：
+    >
+    > - 开发环境中，无需打包操作，可以快速的冷启动。
+    > - 更轻量快速的热重载（HMR）。
+    > - 真正的按需编译，不再等待整个应用编译完成。
+    >
+    > 传统构建与Vite构建对比图：
+    >
+    > ![image-20240826220952910](./assets/image-20240826220952910.png)
+    >
+    > ![image-20240826221002655](./assets/image-20240826221002655.png)
+
+    1. `npm create vue@latest`，这一指令将会安装并执行[create-vue](https://github.com/vuejs/create-vue)，它是 Vue3 官方的项目脚手架工具。执行后按照项目构建提示创建项目即可。
+    2. cd进入工程目录后安装依赖：`npm i`，然后运行项目：`npm run dev`。
+
+    ###### Vite创建的Vue工程和脚手架不太一样，不过我们不关心。我们接下来还用脚手架的方式来创建Vue工程。
 
 - ### 关于Vue3项目的目录结构
 
@@ -72,7 +72,7 @@
 
 - ### 组合式API的基础——setup配置项
 
-    > - setup是Vue3中的一个新的配置项，值是一个函数。它是所有组合式API表演的舞台，组件中所有用到的数据、方法、生命周期钩子等，均要写在setup函数中。（之前组件中写配置项的写法叫**选项式API**）
+    > - setup是Vue3中的一个新的组件配置项，值是一个函数。它是所有组合式API表演的舞台，组件中所有用到的数据、方法、生命周期钩子等，均要写在setup函数中。（之前在组件中写的配置项叫**选项式API**）
     >
     > - setup函数的2种返回值：
     >
@@ -91,24 +91,25 @@
     >     }
     >     ```
     >
-    > - setup()函数的3个参数：
+    > - setup()函数的2个参数：
     >
     >   - props：值为声明接收的props对象。
+    >
     >   - context：它是上下文对象，其中包含attrs、emit()、slots，分别对应了Vue2组件实例上的$attrs、$emit()、$slots。
-    >   - （Vue3中给组件绑定了自定义事件后，需要在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告）
     >
     > - **注意：**
     >
     >   1. Vue3中尽量不要写Vue2的配置项了，虽然Vue3中的methods、data、computed...配置项仍可用，且其中可以访问到setup返回的属性和方法，但Vue3的setup中不能访问Vue2的data、methods的数据。（若混用后重名了，则setup优先）
-    >   2. setup函数会在beforeCreate()之前执行，并且其中的this是undefined。
-    >   3. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要用then()来获取数据。
+    >   1. setup函数会在beforeCreate()之前执行，并且其中的this是undefined。
+    >   1. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要用then()来获取数据。（后期也可以返回Promise对象）
 
 ------
 
-- ### Vue3中常用的组合式API
+- ### Vue3常用的组合式API
 
-  > 组合式API可以让你在任何地方使用methods、data、computed、生命周期钩子..等组件上的配置项，可以极大复用组件代码，将组件中的公共功能提取出来供多个组件使用。（组合式API的优势会在下面的自定义Hook中体现的淋漓尽致）
-  >
+  > - Vue2中配置项写法的API函数，称为选项式API。而Vue3中的组合式API相较于选项式API的优势在于：我们可以更加优雅的组织我们的代码、函数，让相关功能的代码更加有序的组织在一起。
+  > - 组合式API可以让你在任何地方使用methods、data、computed、生命周期钩子..等组件上的配置项，可以极大复用组件代码。
+  > - 通过组合式API，可以将组件中的公共功能代码提取到一个Hook函数中，任何需要此功能的组件都可以引入该Hook使用，极大的复用了组件中的代码。即：组合式API的优势在Hook函数中体现的淋漓尽致。
   
   - #### ref()：（所有的组合式API都需要从vue中引入才能用，并且都是函数，可以重复使用）
   
@@ -138,22 +139,22 @@
       > - 数据经过`ref(initValue)`函数加工后，数据会放在RefImpl对象的value属性中。RefImpl通常被称为**引用对象/ref对象**。
       > - Vue3中，ref()给数据做响应式的原理是：通过`Object.defineProperty()`给RefImpl对象的原型上，定义了虚拟属性value，访问和修改的其实是ref()收集过来的数据。因此要修改name和age**得通过ref对象的value属性去访问和修改**：`name.value='李四'`。
       > - 并且在Vue模板中，如果数据是一个RefImpl对象，那么Vue解析时自动会去读取它的value属性，所有还这样写：`{{name}}`，加了value读取`{{name.value}}`反而会出问题。
-      > - 如果传给ref的是一个对象：`ref({})`，那么Vue会对该引用类型数据（对象的地址）做响应式，并将其包装为RefImpl对象。而且该对象还会被包装成一个Proxy对象，因为Vue要对对象内部所有层次的数据，都进行响应式处理。（内部是通过Vue3的reactive()函数来给对象做的包装）
+      > - 如果传给ref的是一个（引用数据类型）对象：`ref({})`，那么Vue会先将该对象包装成一个Proxy对象，然后再将该Proxy对象放在RefImpl对象的value属性中。也就是对Proxy对象的地址做了响应式。而之所以要将对象包装为Proxy对象，是因为Vue要对对象内部所有层次的数据，都进行响应式处理。（内部是通过Vue3的reactive()函数来给对象做的包装）
   
       
   
   - #### reactive()：
   
-      > 我们知道，Vue2中的响应式存在以下问题：
+      > 我们知道，Vue2中（对象和数组）的响应式存在以下问题：
       >
       > - 新增属性、删除属性，界面不会更新。
       > - 直接通过下标修改数组，界面不会更新。
   
       ###### 虽然Vue2提供了相应的解决方案，但是Vue3的reactive()函数实现的响应式更优秀，可以直接对对象和数组进行增删查改，不存在以上问题：
   
-      > - reactive()函数的作用是：给对象或数组类型的数据做响应式（基本类型不能用它，得用ref）。
-      > - reactive()会将普通对象包装为Proxy对象。语法：`const 代理对象/数组 = reactive(源对象/数组)`。
-      > - reactive()会给对象/数组所有层次的数据做响应式。内部是ES6的Proxy实现的，通过代理对象来操作的源对象。
+      > - reactive()函数的作用是：给引用（对象或数组）类型的数据做响应式（基本类型不能用它，得用ref）。
+      > - reactive()会将普通对象、数组包装为Proxy对象。语法：`const 代理对象/数组 = reactive(源对象/数组)`。
+      > - reactive()会给对象/数组所有层次的数据做响应式，并且后续添加的数据也是响应式的。内部是通过ES6的Proxy实现的，通过Proxy代理对象来操作的源对象。
   
       ###### Vue3的响应式原理：
   
@@ -209,7 +210,7 @@
   
       > - computed()函数可以接收一个函数参数，该函数参数的返回值就作为计算属性的值。
       >
-      > - computed()返回一个计算属性，并且该计算属性也是响应式的。
+      > - computed()返回一个计算属性（ComputedRefImpl对象），并且该计算属性也是响应式的。
       >
       > - 计算属性如果会被修改，需要用完整写法，给computed()传一个对象：
       >
@@ -256,7 +257,7 @@
       >
       > - 如果参数是Proxy对象，那么监视的是对象中所有层次的数据。它是强制的，deep配置项不起作用。此时回调中的niu和old都是该对象的内存地址，无论怎么修改对象内部的数据，niu和old都指向了同一个对象。
       >
-      > - watch的第1个参数也可以是数组，数组用来同时监视多个数据。数组中也必须是ref对象或Proxy对象（此时回调的参数niu和old也是数组）。
+      > - watch的第1个参数也可以是数组，数组用来同时监视多个数据。数组中也必须是ref对象或Proxy对象，此时回调的参数niu和old也是数组。
       >
       > - **小技巧：**如果只想监视Proxy对象中的某个数据，那么watch的第1个参数可以这样写：`()=>person.name`，如果要监视Proxy对象中的多个数据，那么就用函数数组：`[()=>person.name,..]`
       >
@@ -306,26 +307,26 @@
 
 - ### 自定义Hook
 
-  > Hook本质上就是一个函数，里面封装使用了一些组合式API。使用自定义Hook的优势是：复用代码，让setup的逻辑更简单。我们可以在自定义Hook中，封装多个组件共用的功能代码，从而将组件中的功能复用。使用：
+  > Hook本质上就是一个函数，里面使用了一些组合式API函数。使用自定义Hook的优势是：复用代码，让setup的逻辑更简单。我们可以在自定义Hook中，封装多个组件共用的功能代码，从而复用组件中的公共功能。使用：
 
   > 在src/hooks/usePoint.js中：（Hook函数的名字一般叫useXxx）
   >
   > ```js
   > import { reactive, onMounted, onBeforeUnmount } from 'vue'
   > export default ()=>{ // 获取鼠标点击位置的Hook函数
-  >     let point = reactive({x:0,y:0})
-  >     function savePoint(e){
-  >         point.x = e.pageX
-  >         point.y = e.pageY
-  >     }
+  >        let point = reactive({x:0,y:0})
+  >        function savePoint(e){
+  >        	point.x = e.pageX
+  >        	point.y = e.pageY
+  >        }
   > 
-  >     onMounted(()=>{
-  >         window.addEventListener('click',savePoint)
-  >     })
-  >     onBeforeUnmount(()=>{
-  >         window.removeEventListener('click',savePoint)
-  >     })
-  >     return point
+  >        onMounted(()=>{
+  >        	window.addEventListener('click',savePoint)
+  >        })
+  >        onBeforeUnmount(()=>{
+  >        	window.removeEventListener('click',savePoint)
+  >        })
+  >        return point
   > }
   > ```
   >
@@ -338,18 +339,206 @@
   > 	<span>y坐标:{{y}}</span>
   > </template>
   > <script>
-  >     import { ref } from 'vue'
-  >     import usePoint from './hooks/usePoint'
-  >     export default {
-  >         name: 'App',
-  >         setup(){
-  >             let {x,y} = usePoint()
-  >             return {x,y}
-  >         }
-  >     }
+  >        import { ref } from 'vue'
+  >        import usePoint from './hooks/usePoint'
+  >        export default {
+  >            name: 'App',
+  >            setup(){
+  >            	let {x,y} = usePoint()
+  >            	return {x,y}
+  >            }
+  >        }
   > </script>
   > ```
 
-- ### toRef
 
-> 生命周期钩子写多个
+------
+
+- ### toRef()
+
+    > - 作用：创建一个ref对象，其value值指向另一个对象中的某个属性。语法：`const name = toRef(person,'name')`，返回的name是一个ObjectRefImpl对象，里面的虚拟属性value其实就是person.name。
+    > - 使用场景：只将响应式对象中的某个属性提供给外部。（如果不用toRef，那么该属性外部只能用不能改，因为外部拿不到Proxy对象只拿到了一个值）
+    > - 扩展：toRefs和toRef功能类似，它可以批量创建多个ref对象，语法：`const p = toRefs(person)`。此时person中的属性p对象中都有，且值都包装成了ref对象。
+
+------
+
+- ### 其他的组合式API（不常用）
+
+    - #### shallowReactive()与shallowRef()：
+
+        > - shallowReactive()：与reactive()不同的是，shallowReactive()只对对象浅层次的数据做响应式。
+        > - shallowRef()：与ref()不同的是，shallowRef()只对基本类型做响应式，引用类型（对象和数组）只变为ref对象，并不会包装为Proxy对象。
+
+        
+
+    - #### readonly()与shallowReadonly()：
+
+        > - readonly()：将一个响应式数据进行包装，返回的新响应式数据是只读的（深层次只读）。
+        > - shallowReadonly()：类似与readonly()，只是返回的新响应式数据是浅层次的只读。
+
+        
+
+    - #### toRaw()与markRaw()：
+
+        > - toRaw()：将一个**reactive()生成的响应式对象**变为普通对象。
+        > - markRaw()：标记一个对象，使其永远不会变成响应式对象。应用场景：在reactive()生成的对象中添加的任何数据，默认都是响应式的，如果不希望对添加的某个数据做响应式，可以用它标记后再添加。
+
+        
+
+    - #### customRef()：
+
+        > 通过customRef()可以创建一个自定义的ref对象，并对其依赖项**跟踪（track）**和**更新触发（trigger）**进行显示控制。使用：
+
+        ```vue
+        <template>
+        	<input type="text" v-model="keyword"/>
+        	<h3>{{keyword}}</h3>
+        </template>
+        <script>
+            import { customRef } from 'vue'
+            export default {
+                name: 'App',
+                setup(){
+                    // 自定义ref函数myRef，不再用原来的ref()了
+                    function myRef(value){
+                        /*
+                            通过customRef方法来创建一个自定义的ref对象并返回。
+                            方法中需要传一个函数，该函数必须返回一个对象，对象中需要有set和get方法。
+                        */
+                        return customRef((track,trigger)=>{ // 
+                            return {
+                                // 当读取自定义ref对象的value属性时，get被调用
+                                get(){
+                                    track() // get方法对数据做了缓存，执行track()清空缓存后，return结果才是最新的
+                                    return value
+                                },
+        						// 当修改自定义ref对象的value属性时，set被调用
+                                set(v){
+        							value = v
+                                    trigger() // 通知Vue去重新解析模版
+                                }
+                            }
+                        })
+                    }
+                    let keyword = myRef('hello') // 使用自定义的ref
+        			return {keyword}
+                }
+            }
+        </script>
+        ```
+    
+        
+    
+    - #### provide和inject：
+    
+        > Vue3中提供了provide和inject，用于支持祖孙组件间通信。它俩都是组合式API函数。使用：
+    
+        ###### 祖组件App中：
+    
+        ```js
+        import { provide,ref } from 'vue'
+        export default {
+            name: 'App',
+            setup(){
+                let data = ref('AE86')
+        		provide('car', data)
+            }
+        }
+        ```
+    
+        ###### 后代组件Child中：
+    
+        ```js
+        import { inject } from 'vue'
+        export default {
+            name: 'Child',
+            setup(){
+        		let data = inject('car')
+                return {data}
+            }
+        }
+        ```
+    
+        
+    
+    - #### 响应式数据的判断：
+    
+        > - isRef(v)：检查一个值是否是ref对象。
+        > - isReactive(v)：检查一个对象是否是由reactive创建的响应式代理Proxy。
+        > - isReadonly(v)：检查一个响应式数据是否是只读的。
+        > - isProxy(v)：检查一个对象是否是由reactive()、readonly()方法创建的代理对象。
+
+------
+
+- ### Vue3提供的新组件
+
+  - #### Fragment：
+
+    > Vue2中要求组件模版中只能有一个根标签。而Vue3中组件模版可以没有根标签，此时内部会将多个标签包含在一个`<Fragment>`标签中（虚拟DOM）。这样就减少不必要的标签结构，理论上来说减少了内存占用。
+
+  - #### teleport（传送）：
+
+    > `<teleport to="css选择器">`能够将我们的标签结构传送到指定位置。用法：
+
+    ```html
+    <!-- 此时会将里面的div结构，追加到body标签内部 -->
+    <teleport to="body">
+        <div>我是内容</div>
+    </teleport>
+    ```
+
+  - #### Suspense：（目前还处在试验阶段，以后跟他相关的API可能会改）
+
+    > **异步组件：**通过Vue3中的defineAsyncComponent()函数（组合式API）引入的组件：（React中也有，是通过lazy()函数加载的）
+    >
+    > ```js
+    > // 静态引入
+    > import { defineAsyncComponent } from 'vue'
+    > // 动态引入
+    > const Child = defineAsyncComponent( ()=>import('./components/Child') )
+    > export default {
+    >        name: 'App'
+    >    }
+    > ```
+    > 
+    >Vue模版中的异步组件不会阻塞渲染，当异步组件请求回来时再渲染展示到页面上。
+    
+    ###### 但是当网络环境差，请求发生了错误时，如果页面上什么都不没有，用户还以为压根就没这个组件呢。可以使用Suspense来解决：
+    
+    > `<Suspense>`组件会等待异步组件的渲染，当异步组件还没渲染到页面上时展示一些默认内容，提升用户体验（React也有）。使用：
+    
+    ```vue
+    <!-- 用Suspense组件包住异步组件 -->
+    <Suspense fallback={<h1>loading...</h1>}>
+    	<template v-slot:default>
+    		<Child/>
+    	</template>
+    	<template v-slot:fallback>
+    		<h3>loading....</h3>
+    	</template>
+    </Suspense>
+    ```
+    
+    > - Suspense底层是通过插槽来实现的，因此需要将异步组件、请求错误时的组件放到对应的插槽中。
+    > - Suspense内部有2个插槽：异步组件要放到名为default的插槽中，请求错误时的组件放到名为fallback的插槽中。
+    
+    ###### 注意：`<Suspense>`和异步组件配合使用时，组件中setup的返回值可以是Promise对象。（Promise对象成功状态的结果值可以是JS对象或渲染函数）
+
+------
+
+- ### Vue3中的其他变化
+
+  - #### 全局API的转移：
+
+    > Vue2中我们可以使用Vue构造器上的全局API和配置：`Vue.component()`。但是Vue3中没有了Vue构造函数，因此这些全局API都放在了vm实例上。原来的`Vue.xxx`都变成了`vm.xxx`，其中：Vue.config.productionTip移除了，原来的`Vue.prototype`变成了`app.config.globalProperties`。
+  
+  - #### 其他：
+  
+    > - data配置项应该写成一个函数。
+    > - 移除了过滤器filter。
+    > - 过渡类名v-enter和v-leave变成了`v-enter-from`和`v-leave-from`，和结束类名看起来更配了。
+    > - 不再支持按键值的任何写法了。
+    > - Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警高。并且移除了v-on的.native修饰符，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。
+
+------
+
