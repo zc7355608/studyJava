@@ -4,7 +4,7 @@
 
 - ### Vue3简介
 
-  > 2020年9月18日，Vue发布3.0版本，代号：One Piece（海贼王）。共耗时2年多、2600+次提交、30+个RFC、600+次PR、99位贡献者。
+  > 2020年9月18日，Vue发布3.0版本，代号：One Piece（海贼王）。其中经历了：4800+次提交、40+个RFC、600+次PR、300+贡献者。
 
 - ### Vue3相比于2的优势
 
@@ -32,30 +32,54 @@
 
 - ### 创建Vue3项目
 
-  - 方式1：通过Vue脚手架创建（确保`@vue/cli`在4.5.0以上）
+  - 方式1：通过Vue脚手架创建（脚手架是基于Webpack的）。
 
-  - 方式2：使用Vite创建。
+  - 方式2：使用Vite创建（官方推荐）：
 
     > Vite是新一代的前端打包工具。官网：https://vitejs.cn/vite3-cn/guide/，它相较于Webpack的优势：
     >
     > - 开发环境中，无需打包操作，可以快速的冷启动。
+    >
     > - 更轻量快速的热重载（HMR）。
+    >
     > - 真正的按需编译，不再等待整个应用编译完成。
     >
-    > 传统构建与Vite构建对比图：
+    > - 对于TS、CSS、JSX等，支持开箱即用。
     >
-    > ![image-20240826220952910](./assets/image-20240826220952910.png)
+    > - 传统构建与Vite构建对比图：
     >
-    > ![image-20240826221002655](./assets/image-20240826221002655.png)
-
-    1. `npm create vue@latest`，这一指令将会安装并执行[create-vue](https://github.com/vuejs/create-vue)，它是 Vue3 官方的项目脚手架工具。执行后按照项目构建提示创建项目即可。
+    >   ![image-20240826220952910](./assets/image-20240826220952910.png)
+    >
+    >   ![image-20240826221002655](./assets/image-20240826221002655.png)
+    >
+    
+    1. `npm create vue@latest`，这一指令将会安装并执行[create-vue](https://github.com/vuejs/create-vue)，它是 Vue3 官方的（基于Vite）项目脚手架工具。执行后按照项目构建提示创建项目即可。
     2. cd进入工程目录后安装依赖：`npm i`，然后运行项目：`npm run dev`。
+    
+    ###### （基于Vite的）Vue3脚手架和Vue2脚手架创建的工程，目录结构不太一样，这里简单说下：
+    
+    > - public/：脚手架的根目录。里面只有一个页签图标favicon.ico，项目的页面index.html不在这里了。
+    >
+    > - src/：前端项目的源码目录。该目录中的所有文件都要通过Vite来编译打包。
+    >
+    > - env.d.ts：里面的`<reference types="vite/client"/>`可以让项目中的TS代码识别import导入的`.txt/.jpeg/.md/..`文件。
+    >
+    > - index.html（重点）：它是项目的页面，其中使用ESM引入了项目的入口文件`src/main.ts`。
+    >
+    >   ```html
+    >   <div id="app"></div>
+    >   <script type="module" src="/src/main.ts"></script><!-- 引入了主模块src/main.ts -->
+    >   ```
+    >
+    > - vite.config.ts：整个Vite项目的配置文件。（对应Vue2脚手架项目中的vue.config.js）
+    >
+    > - tsconfig.json/tsconfig.app.json/tsconfig.node.json：TS的配置文件。
+    
+    ###### 我们接下来还用Vue2脚手架来创建Vue工程。
 
-    ###### Vite创建的Vue工程和脚手架不太一样，不过我们不关心。我们接下来还用脚手架的方式来创建Vue工程。
+- ### 关于Vue3的入口文件
 
-- ### 关于Vue3项目的目录结构
-
-  > Vue Cli创建的Vue3项目的目录结构和文件和2是类似的，唯一不同的是入口文件的写法。在src/main.js中：
+  > Vue Cli创建的Vue3项目的目录结构和文件和2是类似的，唯一不同的是Vue3的入口文件。在src/main.js中：
 
   ```js
   // 采用分别引入的方式引入了createApp工厂函数
@@ -66,7 +90,7 @@
 
   > `createApp(App)`函数会通过传入App组件，去创建一个**应用实例对象**（其实就是更轻量的vm），通过该对象的mount()方法将App组件挂载到id为root的HTML容器中（填充）。它身上还有unmount()可以从容器中卸载App组件。
 
-  ###### 注意：原来Vue2入口文件的写法在Vue3中不能用了。
+  ###### 注意：原来Vue2的入口文件写法在Vue3中不能用了。
 
 - ------
 
@@ -120,7 +144,7 @@
       	<span>我的名字是:{{name}}</span>
       	<span>我的年龄是:{{age}}</span>
       </template>
-      <script>
+      <script lang="ts"> // 表示里面写的是TS代码
           // 组合式API都需要在vue中引入才能使用
           import { ref } from 'vue'
           export default {

@@ -37,11 +37,11 @@
     >
     >    > 此时会在当前目录下生成一个`tsconfig.json`配置文件，其中包含着很多编译时的配置。
     >
-    > 2. 监视根目录下所有层级`.ts`文件的变化，只要发生变化就进行编译：`tsc --watch`
+    > 2. 监视根目录下所有层级的`.ts/.tsx`文件的变化，只要发生变化就进行编译：`tsc --watch`
     >
-    >    > 默认是放在和`.ts`文件相同位置。
+    >    > 生成的js文件默认放在了和源ts文件同一目录中。
     >
-    > 3. （小优化，可选）当编译出错时不生成js文件，在`tsconfig.json`中：（该文件可以加注释）
+    > 3. （小优化，可选）当编译出错时不生成js文件，在`tsconfig.json`中：（该json文件可以加注释）
     >
     >    ```json
     >    {
@@ -55,13 +55,11 @@
 
 - ### 类型声明
 
-  > TS规定：定义变量时必须声明其类型，如：`let a: string`，此时a只能存字符串。
-
-  > 函数的形参、返回值也要指定类型：
+  > TS规定：定义变量时必须声明其类型：`let a: string`，此时a只能存字符串。函数的形参、返回值也要指定类型：
   >
   > ```ts
   > function demo(x:number,y:number):number{
-  >     return x+y
+  > 	return x+y
   > }
   > ```
   >
@@ -69,7 +67,7 @@
 
   字面量类型
 
-  1. 对象：`let person = { name:string; age?:18; [key:string]:any }`（最后可以加索引签名），（分割符可以是`,/;/回车`）
+  1. 对象：`let person: { name:string; age?:18; [key:string]:any }`（最后可以加索引签名），（分割符可以是`,或;或回车`）
 
      > 索引签名：允许定义对象可以具有**任意数量的属性**，这些属性的K和类型是可变的。常用于：描述类型和数量都不确定的属性，（具有动态属性的对象）
 
@@ -89,7 +87,7 @@
     >
     > 1. 没有显示的声明变量的类型，那么它的类型其实就是any。如：`let a`相当于`let a: any`
     >
-    > 2. any类型的变量可以赋值给任意类型的变量：
+    > 2. any类型的变量可以赋值给任意类型的变量：（any会搞破坏）
     >
     >    ```ts
     >    let a: any
@@ -173,25 +171,24 @@
     >
     > ```ts
     > type Area = {
-    >     height: number;
-    >     width: number;
+    >    	height: number;
+    >    	width: number;
     > }
-    > 
     > type Address = {
-    >     room: number;
-    >     floor: number;
-    > }
+    > 	room: number;
+    >    	floor: number;
+    >    }
     > type House = Area & Address
     > const h: House = {
     >     room: 1,
-    >     floor: 2,
-    >     height: 300,
-    >     width: 200
-    > }
+    >        floor: 2,
+    >        height: 300,
+    >        width: 200
+    >    }
     > ```
-
+    
   - **interface：**
-
+  
 - ### 一个特殊的情况
 
   > 当使用类型声明限制函数的返回值为void时，TS并不会严格要求函数返回空。
@@ -212,8 +209,6 @@
   - protected：只可以在类体、子类中使用
   - private：只可以类中使用
 
-  
-
   - readonly：只读属性。在成员修饰符和成员变量名之间加。
 
   - （类中）属性的简写形式：
@@ -222,20 +217,20 @@
 
       ```ts
       class Person {
-        public name: string
-        public age: number
-        constructor(name:string, age:number){
-          this.name = name // 使用this.name时，name必须在类中提前声明好
-          this.age = age
-        }
+          public name: string
+          public age: number
+          constructor(name:string, age:number){
+          	this.name = name // 使用this.name时，name必须在类中提前声明好
+          	this.age = age
+          }
       }
       ```
-
+  
     - 简写后：
 
       ```ts
       class Person {
-        constructor(public name:string, public age:number){}
+      	constructor(public name:string, public age:number){}
       }
       ```
 
@@ -255,11 +250,11 @@
 
   ```ts
   abstract class Package {
-    abstract calculate(): number
-    printPackage(){ console.log('打印包裹重量') }
+      abstract calculate(): number
+      printPackage(){ console.log('打印包裹重量') }
   }
   class StandPackage extends Package {
-    override calculate(): number { return 100 }
+  	override calculate(): number { return 100 }
   }
   ```
 
@@ -271,15 +266,15 @@
 
     ```ts
     interface Person {
-      name: string
-      age: number
-      speak(n: number): void
+        name: string
+        age: number
+        speak(n: number): void
     }
     class Student implements Person {
-      constructor(public name: string, public age: number){}
-      speak(n: number): void {
-        console.log('hello')
-      }
+        constructor(public name: string, public age: number){}
+        speak(n: number): void {
+        	console.log('hello')
+        }
     }
     ```
 
@@ -287,16 +282,16 @@
 
     ```ts
     interface Person {
-      readonly name: string
-      age?: number
-      speak: (n: number) => void
+        readonly name: string
+        age?: number
+        speak: (n: number) => void
     }
     const xiaoming: Person = {
-      name: '小明',
-      age: 14, // 可以没有
-      speak(n){
-        console.log('hello')
-      }
+        name: '小明',
+        age: 14, // 可以没有
+        speak(n){
+        	console.log('hello')
+        }
     }
     ```
 
@@ -304,7 +299,7 @@
 
     ```ts
     interface Count {
-      (a:number,b:number): number
+    	(a:number,b:number): number
     }
     const count: Count = (x,y)=>{ return x+y }
     ```
@@ -315,14 +310,14 @@
 
     ```ts
     interface Person {
-      name: string
+    	name: string
     }
     interface Person {
-      age: number
+    	age: number
     }
     const p: Person = {
-      name: '张三',
-      age: 11
+        name: '张三',
+        age: 11
     }
     ```
 
@@ -342,7 +337,7 @@
 
     ```ts
     function log<K,V>(k: T, v: V) {
-      console.log(k,v)
+    	console.log(k,v)
     }
     log<string,number>('hello',100)
     ```
@@ -351,8 +346,8 @@
 
     ```ts
     interface Person<T> {
-      name: string,
-      extraInfo: T
+        name: string,
+        extraInfo: T
     }
     ```
 
@@ -360,10 +355,10 @@
 
     ```ts
     class Person<T> {
-      constructor(
-    		public name: string,
-        public extraInfo: T
-      ){}
+        constructor(
+            public name: string,
+            public extraInfo: T
+        ){}
     }
     ```
 

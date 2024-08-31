@@ -146,10 +146,10 @@
      >    // 引入其他文件中的子组件的配置对象
      >    import School from './School.vue'
      > export default {
-     >         name: 'App',
-     >         // 注册组件
-     >         components: { School }
-     >     }
+     >        name: 'App',
+     >        // 注册组件
+     >        components: { School }
+     >    }
      >    </script>
      > ```
      
