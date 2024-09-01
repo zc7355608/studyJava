@@ -87,7 +87,7 @@
    }
    ```
    
-   > 在`<Route/>`中注册的组件是路由组件，路由组件是通过`<Link/>`标签放在页面上的，不是我们自己写的。通常为了与普通组件区分开，路由组件会放在pages/目录中，而不是components/中。
+   > 在`<Route/>`中注册的组件是路由组件，路由组件是通过`<Link/>`标签放在页面上的，不是我们自己写的。通常为了与普通组件区分开，路由组件会放在pages/或views/目录中，而不是components/中。
 
 ------
 
@@ -449,7 +449,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                                             
+  >                                                
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -507,7 +507,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >                             
+  >                               
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -515,7 +515,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >                             
+  >                               
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   

@@ -250,22 +250,23 @@
 >   - `replaceState()`：类似于`pushState()`，但是它会替换当前的历史记录而不是添加新的记录。
 >   - `onpopstate`事件：当用户使用浏览器的前进或后退按钮时触发。
 >   
-> - 如何工作：当我们在React或Vue应用中导航到一个新的路由时，前端框架会调用`pushState`来更新URL，并将这个新的URL添加到浏览器的历史记录中。这样，即使URL改变了，也不会触发一个完整的页面刷新，而是由前端框架接管这个URL的变化，并根据这个变化渲染相应的组件。
+> - 如何工作：当我们在React或Vue应用中导航到一个新的路由时，前端框架会调用`pushState()`来更新URL，并将这个新的URL添加到浏览器的历史记录中。这样，即使URL改变了，也不会触发一个完整的页面刷新，而是由前端框架接管这个URL的变化，并根据这个变化渲染相应的组件。
 
 ###### 路由的配置：
 
-1. 安装`vue-router`插件：`npm i vue-router@3`，（Vue3对应vue-router的4版本，而Vue2要用vue-router的3版本，否则会报错）
+1. 安装`vue-router`插件：`npm i vue-router@3`，（Vue3对应vue-router的最新版本4，而Vue2要用vue-router的3版本，否则会报错）
 
 2. src下新建`router/index.js`，里面创建`VueRouter`（路由器）实例并配置路由规则：
 
    ```js
    // 该文件专门用于创建整个应用的路由器实例
-   import VueRouter from "vue-router"
+   import VueRouter from "vue-router" // Vue3中：import {createRouter} from 'vue-router'
+   
    import About from '../pages/About'
    import Home from '../pages/Home'
    
    // 创建一个路由器实例VueRouter并暴露出去
-   export default new VueRouter({
+   export default new VueRouter({ // Vue3中：export default createRouter({})
      routes: [
        {
          path: '/about',
@@ -281,7 +282,11 @@
    
    > 其中`routes`配置项的值是对象数组，用于配置多个路由规则。`path`指定路径，`component`是路径对应的**路由组件**。
    
-   > **路由组件：**通常在routes中配置的组件称为路由组件，和普通组件不同的是，路由组件不需要我们自己写组件标签。且路由组件单独放在`src/pages/`目录下。配置好的路由组件对象vc身上会多两个API：`$route`是该路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
+   > **路由组件：**
+   >
+   > - 通常在routes中配置的组件称为路由组件，和普通组件不同的是，路由组件不需要我们自己写组件标签。且路由组件单独放在`pages/`或`views/`目录下。
+   > - 配置好的路由组件实例vc身上会多两个API：`$route`是该路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
+   > - Vue3中，这两个对象（$route/$router）需要调用vue-router的Hook来获取：`useRoute()`和`useRouter()`，返回值分别是路由信息对象和VueRouter实例（响应式的Proxy对象）。
    
 3. 入口文件main.js中使用`vue-router`插件，这样vm实例中就可以写`router`配置项了，值是刚刚暴露的VueRouter实例：
    ```js
@@ -299,6 +304,18 @@
        router,
    })
    ```
+   
+   > Vue3中：
+   >
+   > ```js
+   > import {createApp} from 'vue'
+   > import App from './App.vue'
+   > import router from './router'
+   > 
+   > const app = createApp(App)
+   > app.use(router) // 使用路由器
+   > app.mount('#app')
+   > ```
 
 ###### 使用路由：
 
@@ -378,6 +395,8 @@
        </div>
      </div>
      ```
+     
+     > **注意：**Vue3中变成了RouterLink和RouterView组件。（不引入也能用）
 
 - #### 给路由命名：
 
@@ -407,6 +426,10 @@
 - #### 配置路由的元数据：
 
   > 其实每一个路由配置对象中都可以写`meta`**元数据配置项**，值是一个对象，用于在路由中存放自定义数据。
+
+- #### 路由的重定向：
+
+  > 可以在路由规则中配置重定向：`{ path:'/', redirect:'/home' }`。
 
 - #### 给路由组件传递数据：
 
@@ -438,11 +461,11 @@
     >   </router-link>
     >   ```
 
-  - ###### 路由组件的params参数（path参数）：
+  - ###### 路由组件的params参数：（params参数不能传对象和数组数据）
 
     > - 所谓params参数就是路径参数（path传参），是Restful风格的参数。
     >
-    > - 表面上看不出来哪个是路由哪个是数据，需要在path中指定占位符：`path:'/home/:name/:age'`。数据直接放在路由路径中：`to="/home/zs/18"`。取数据时通过：`vc.$route.params.占位符`，其中params是路径参数转成的对象。
+    > - 表面上看不出来哪个是路由哪个是数据，需要在path中指定占位符：`path:'/home/:name/:age?'`，其中?表示可传可不传。数据直接放在路由路径中：`to="/home/zs/18"`。取数据时通过：`vc.$route.params.占位符`，其中params是路径参数转成的对象。
     >
     > - 和query参数类似，传递动态数据还可以用对象，通过指定对象的`params`属性：（**注意：此时对象中只能用name不能用path**）
     >
@@ -543,18 +566,32 @@
 
   ###### 路由器有两种工作模式：（默认）**hash模式**和**history模式**，它俩底层工作原理不同：一个是基于H5的`History API`，另一个是通过`#`号实现的。
   
-  > 通过mode配置项去更改路由器的工作模式：
+  > - 通过mode配置项去更改路由器的工作模式：
   >
-  > ```js
-  > export default new VueRouter({
+  >   ```js
+  >   export default new VueRouter({
   >       // 通过mode配置项，去更改路由器的工作模式为history，默认值hash
   >       mode: 'history',
-  >       routes: [{},{}]
-  > })
-  > ```
+  >   	routes: [{},{}]
+  >   })
+  >   ```
   >
+  > - Vue3中这样配置路由的工作模式：（Vue3中最好显示指定路由的工作模式，否则会报错）
+  >
+  >   ```js
+  >   import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
+  >   export default createRouter({
+  >       // 使用 history 模式
+  >       // history: createWebHistory(),
+  >         
+  >       // 或者用 hash 模式（默认）
+  >       history: createWebHashHistory(),
+  >       routes: [{},..]
+  >   })
+  >   ```
+  
   > 此时浏览器路径就变的很正常了，没有哈希值了：http://localhost:8080/about，那么这两种模式的区别是什么呢？
-
+  
   ###### 路由器两种工作模式，除了哈希模式兼容性略好、地址可能被第三方app识别为非法之外，最主要是项目上线后的区别：
   
   > - 当执行`npm run build`将开发完的Vue项目进行打包后，会在dist目录下生成最纯粹的HTML、CSS、JS文件（以及其他静态资源）。把这些静态资源部署在后端服务器上之后，我们的项目就可以运行了。

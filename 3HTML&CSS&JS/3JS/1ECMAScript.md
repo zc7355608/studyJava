@@ -592,7 +592,7 @@
   >
   > - `Object.values(obj)`：返回obj的所有属性值，数组。
   >
-  > - `Object.assign(o1,o2)`：对象合并，将o2的内容合并到o1，属性重名o2会覆盖o1。
+  > - `Object.assign(o1,o2,..)`：对象合并，将o2（及后面所有对象中的内容）合并到o1中，属性重名o2会覆盖o1。
   >
   > - `Object.is(o1,o2)`：判断两个对象是否完全相等，和`===`有点像，不同的是`Object.is(NaN,NaN)`为`true`。
   >

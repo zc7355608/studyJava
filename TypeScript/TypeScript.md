@@ -180,7 +180,7 @@
     >    }
     > type House = Area & Address
     > const h: House = {
-    >     room: 1,
+    >        room: 1,
     >        floor: 2,
     >        height: 300,
     >        width: 200
@@ -391,7 +391,7 @@
   > console.log(mul(1,2))
   > ```
 
-  > 实际开发中，类型声明文件通常放在`@types`目录下。
+  > 实际开发中，类型声明文件通常放在`@types`目录下。（import导入TS的类型时，为了将类型声明和值区分开，TS最新规范要求，类型前必须加type关键字：`import {type Person} from '@/types/index.ts'`）
 
 ------
 

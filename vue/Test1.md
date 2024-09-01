@@ -212,7 +212,7 @@
 
 - ## 监视属性（watch）
 
-  > `watch`配置项用来监视`data`和`computed`中的属性，当属性发生变化时会调用对应的`handler()`方法。如：
+  > `watch`配置项用来监视vm实例上的数据，当数据发生变化时会调用对应的`handler()`方法。如：
 
   ```js
   const v = new Vue({

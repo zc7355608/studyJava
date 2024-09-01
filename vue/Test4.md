@@ -102,7 +102,7 @@
     >
     >   - **若返回一个普通的JS对象，则对象中的属性和方法可以直接在Vue模板中使用。**
     >
-    >   - （了解）若返回一个渲染函数，则可以自定义渲染内容，该内容会作为Vue模板被渲染到页面的容器内。
+    >   - （了解）若返回一个函数，则该函数的返回值将作为Vue模板（虚拟DOM）被渲染到页面上。
     >
     >     ```js
     >     import { h } from 'vue'
@@ -110,7 +110,7 @@
     >         name: 'App',
     >         setup(){
     >             // 渲染函数的返回值是虚拟DOM，创建虚拟DOM需要从vue身上引入h函数（createElement）
-    >             return ()=>{ return h('h1','你好') } // 返回的虚拟DOM会作为Vue模板渲染到页面上
+    >             return ()=>{ return h('h1','你好') } // 返回的虚拟DOM会被转成真实DOM放到页面上
     >         }
     >     }
     >     ```
@@ -126,6 +126,60 @@
     >   1. Vue3中尽量不要写Vue2的配置项了，虽然Vue3中的methods、data、computed...配置项仍可用，且其中可以访问到setup返回的属性和方法，但Vue3的setup中不能访问Vue2的data、methods的数据。（若混用后重名了，则setup优先）
     >   1. setup函数会在beforeCreate()之前执行，并且其中的this是undefined。
     >   1. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要用then()来获取数据。（后期也可以返回Promise对象）
+    >
+    > - **setup的语法糖：**
+    >
+    >   - 可以直接在.vue文件的script标签中加`setup`属性（无值），此时该script标签作用域中的内容实际上是写在了setup()的函数体中。
+    >
+    >   - setup顶层作用域的所有属性、方法、import导入的内容，都放到对象中return出去了，而且**在setup()中将组件return出去就相当于注册了该组件**，并且setup还会自动解构和暴露数据。
+    >
+    >   - 这样也导致该标签中不能写组件的其他配置项了，如果有其他配置项只能再写一个script标签了。
+    >
+    >   - 有时我们想通过name配置项给组件起名字，此时就必须再写一个script标签。（不写组件名，默认是文件名）
+    >
+    >   - 如果不想就为了给组件起名，还得再写一个script标签，那么可以使用该插件：
+    >
+    >     1. 安装插件：`npm i vite-plugin-vue-setup-extend -D`
+    >
+    >     2. vite.config.ts中：
+    >
+    >        ```ts
+    >        import VueSetupExtend from 'vite-plugin-vue-setup-extend'
+    >        export default defineConfig({
+    >            plugins: [
+    >            	vue(),
+    >            	VueSetupExtend()
+    >            ],
+    >        })
+    >        ```
+    >
+    >     3. 给script标签加name属性，给组件起名字：`<script setup lang="ts" name="abc"></script>`
+    >
+    > - **defineProps**：Vue3中仍然可以用props配置项来声明接收传过来的数据，也可以在setup()函数中用defineProps([])：
+    >
+    >   ```js
+    >   import { defineProps } from 'vue' // defineProps不引入也行，defineXxx都是脚手架里的【宏函数】
+    >   const obj = defineProps(['list','name',..]) // 返回值是一个对象
+    >   ```
+    >
+    >   接收并限制类型：
+    >
+    >   ```ts
+    >   import { defineProps } from 'vue'
+    >   import { type Persons } from '@/types/Persons.ts'
+    >   const obj = defineProps<{list:Persons;name?:string}>(['list','name'])
+    >   ```
+    >
+    >   指定默认值：
+    >
+    >   ```ts
+    >   import { defineProps, withDefaults } from 'vue'
+    >   import { type Persons } from '@/types/Persons.ts'
+    >   const obj = withDefaults(defineProps<{list:Persons;name?:string}>(['list','name']), {
+    >       list: () => [{}],
+    >       name: () => '苏无名',
+    >   })
+    >   ```
 
 ------
 
@@ -234,9 +288,9 @@
   
       > - computed()函数可以接收一个函数参数，该函数参数的返回值就作为计算属性的值。
       >
-      > - computed()返回一个计算属性（ComputedRefImpl对象），并且该计算属性也是响应式的。
+      > - computed()返回一个计算属性（`ComputedRefImpl`对象），并且该计算属性也是响应式的。
       >
-      > - 计算属性如果会被修改，需要用完整写法，给computed()传一个对象：
+      > - 计算属性如果会被修改，需要用完整写法，给computed()传一个对象参数：
       >
       >   ```js
       >   person.fullName = computed({
@@ -275,15 +329,15 @@
       }
       ```
   
-      > - watch的第1个参数是监视的数据，可以是ref对象或reactive定义的Proxy对象。watch的第2个参数是回调。第3个参数是配置对象（可选）：`{ immediate: true, deep: true }`。
+      > - watch的第1个参数是监视的数据，可以是**ref对象**或**reactive定义的Proxy对象**。watch的第2个参数是回调。第3个参数是配置对象（可选）：`{ immediate: true, deep: true }`。
       >
       > - 如果watch的第1个参数是ref对象，那么监视的是其中所有的属性。它是浅层次的监视，可以通过配置项来开启深度监视。
       >
       > - 如果参数是Proxy对象，那么监视的是对象中所有层次的数据。它是强制的，deep配置项不起作用。此时回调中的niu和old都是该对象的内存地址，无论怎么修改对象内部的数据，niu和old都指向了同一个对象。
       >
-      > - watch的第1个参数也可以是数组，数组用来同时监视多个数据。数组中也必须是ref对象或Proxy对象，此时回调的参数niu和old也是数组。
+      > - watch的**第1个参数也可以是数组**，数组中必须是ref对象或Proxy对象，用来同时监视多个数据。此时回调的参数niu和old也是数组。
       >
-      > - **小技巧：**如果只想监视Proxy对象中的某个数据，那么watch的第1个参数可以这样写：`()=>person.name`，如果要监视Proxy对象中的多个数据，那么就用函数数组：`[()=>person.name,..]`
+      > - **小技巧：**如果只想监视Proxy对象中的某个数据，那么watch的第1个参数可以这样写：`()=>person.name`，如果要监视Proxy对象中的多个数据，那么就用函数数组：`[()=>person.name,..]`。也就是说，监视的数据也可以是**返回一个值的函数**。
       >
       >   > **特殊情况：**如果监视的Proxy中的数据，类型也是对象，并且层次比较深，那么还需要开启深度监视。
   
@@ -299,7 +353,7 @@
       })
       ```
   
-      > 其中的回调函数的执行时机是：一上来组件初始化、以及回调函数中用到的响应式数据发生变化时。
+      > 当一上来组件初始化时、以及回调函数中用到的响应式数据发生变化时，都会执行该回调。
   
       ###### watchEffect和computed有点像，都是依赖的数据发生变化后就执行。不同的是watchEffect不要求返回值。
 
@@ -378,11 +432,11 @@
 
 ------
 
-- ### toRef()
+- ### toRef()/toRefs()
 
-    > - 作用：创建一个ref对象，其value值指向另一个对象中的某个属性。语法：`const name = toRef(person,'name')`，返回的name是一个ObjectRefImpl对象，里面的虚拟属性value其实就是person.name。
+    > - 作用：创建一个ref对象，其value值指向另一个对象中的某个属性。语法：`const name = toRef(person,'name')`，返回的name是一个`ObjectRefImpl`对象，里面的虚拟属性value其实就是person.name。
     > - 使用场景：只将响应式对象中的某个属性提供给外部。（如果不用toRef，那么该属性外部只能用不能改，因为外部拿不到Proxy对象只拿到了一个值）
-    > - 扩展：toRefs和toRef功能类似，它可以批量创建多个ref对象，语法：`const p = toRefs(person)`。此时person中的属性p对象中都有，且值都包装成了ref对象。
+    > - 扩展：toRefs()和toRef()功能类似，它可以批量创建多个ref对象，语法：`const p = toRefs(person)`。此时person中的属性p对象中都有，且值都包装成了ref对象。
 
 ------
 
@@ -556,13 +610,37 @@
 
     > Vue2中我们可以使用Vue构造器上的全局API和配置：`Vue.component()`。但是Vue3中没有了Vue构造函数，因此这些全局API都放在了vm实例上。原来的`Vue.xxx`都变成了`vm.xxx`，其中：Vue.config.productionTip移除了，原来的`Vue.prototype`变成了`app.config.globalProperties`。
   
+  - #### Vue3的ref：
+  
+    > - Vue3中不能用`vc.refs`来获取ref标记的DOM了，因为组件实例拿不到了。就算有办法拿到了，Vue3中将组件实例保护起来了，变成了Proxy对象，之前Vue2的API在里面都看不到。
+    > - Vue3中**ref的值必须是一个ref对象**，此时会将ref标记的DOM元素放到ref对象的value属性中。
+  
+    1. 给标签加ref属性，值是一个**ref容器/ref对象**：`<div ref="container"/>`
+  
+    2. 创建一个ref容器，用于存储ref标记的DOM元素：（就是我们之前用的ref()函数，不要传值，空出来value）
+  
+       ```js
+       import { ref } from 'vue'
+       let container = ref() // 注意：容器名必须和ref属性值一样
+       ```
+  
+    ###### 注意：其实可以在子组件中定义，想让外部看到的、公开的属性和方法，通过`defineExpose()`函数：（宏函数）
+  
+    ```js
+    import { defineExpose } from 'vue' // defineExpose不引入也行，它是【宏函数】
+    let name = ref('张三')
+    defineExpose({name})
+    ```
+  
+    > 此时父组件通过ref拿到子组件实例之后，就可以看到导出的name属性了。
+  
   - #### 其他：
   
     > - data配置项应该写成一个函数。
     > - 移除了过滤器filter。
     > - 过渡类名v-enter和v-leave变成了`v-enter-from`和`v-leave-from`，和结束类名看起来更配了。
     > - 不再支持按键值的任何写法了。
-    > - Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警高。并且移除了v-on的.native修饰符，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。
+    > - Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且移除了v-on的.native修饰符，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。
 
 ------
 
