@@ -175,7 +175,7 @@
 
   > 随着组件越来越多，Actions、Mutations、State、Getters中保存的数据和函数也会越来越多，此时我们想找为某些组件服务的数据和函数就很困难。能不能用模块化的思想，将Actions、Mutations、State、Getters中的数据和函数，根据功能类别再分成不同模块（对象），访问时通过`state.模块名.数据`的方式访问呢？可以，这就是Vuex的模块化。使用：
 
-  1. 在外部单独定义两个配置对象：（可以分别放在2个JS文件中）
+  1. 在外部单独定义两个配置对象：（可以分别放在store/下的不同JS文件中）
 
      > countOptions.js：
      >
@@ -583,7 +583,7 @@
   >   export default createRouter({
   >       // 使用 history 模式
   >       // history: createWebHistory(),
-  >         
+  >           
   >       // 或者用 hash 模式（默认）
   >       history: createWebHashHistory(),
   >       routes: [{},..]

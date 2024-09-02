@@ -34,7 +34,7 @@
 
   - 方式1：通过Vue脚手架创建（脚手架是基于Webpack的）。
 
-  - 方式2：使用Vite创建（官方推荐）：
+  - 方式2：使用Vite创建（Vue3的脚手架）：
 
     > Vite是新一代的前端打包工具。官网：https://vitejs.cn/vite3-cn/guide/，它相较于Webpack的优势：
     >
@@ -127,11 +127,11 @@
     >   1. setup函数会在beforeCreate()之前执行，并且其中的this是undefined。
     >   1. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要用then()来获取数据。（后期也可以返回Promise对象）
     >
-    > - **setup的语法糖：**
+    > - **单文件组件（SFC）中使用setup的语法糖：**
     >
     >   - 可以直接在.vue文件的script标签中加`setup`属性（无值），此时该script标签作用域中的内容实际上是写在了setup()的函数体中。
     >
-    >   - setup顶层作用域的所有属性、方法、import导入的内容，都放到对象中return出去了，而且**在setup()中将组件return出去就相当于注册了该组件**，并且setup还会自动解构和暴露数据。
+    >   - setup顶层作用域的所有属性、方法、import导入的内容，都放到对象中return出去了，而且**在setup()中将组件return出去就相当于注册了该组件**。
     >
     >   - 这样也导致该标签中不能写组件的其他配置项了，如果有其他配置项只能再写一个script标签了。
     >
@@ -155,23 +155,22 @@
     >
     >     3. 给script标签加name属性，给组件起名字：`<script setup lang="ts" name="abc"></script>`
     >
-    > - **defineProps**：Vue3中仍然可以用props配置项来声明接收传过来的数据，也可以在setup()函数中用defineProps([])：
+    > - **defineProps()**：Vue3中仍然可以用props来声明接收传过来的数据，也可以在`<script setup>`中通过宏函数：
     >
     >   ```js
-    >   import { defineProps } from 'vue' // defineProps不引入也行，defineXxx都是脚手架里的【宏函数】
     >   const obj = defineProps(['list','name',..]) // 返回值是一个对象
     >   ```
-    >
+    >   
     >   接收并限制类型：
-    >
+    >   
     >   ```ts
     >   import { defineProps } from 'vue'
     >   import { type Persons } from '@/types/Persons.ts'
     >   const obj = defineProps<{list:Persons;name?:string}>(['list','name'])
     >   ```
-    >
+    >   
     >   指定默认值：
-    >
+    >   
     >   ```ts
     >   import { defineProps, withDefaults } from 'vue'
     >   import { type Persons } from '@/types/Persons.ts'
@@ -180,6 +179,8 @@
     >       name: () => '苏无名',
     >   })
     >   ```
+    >   
+    >   > **宏函数**：通常defineXxx()等只能在`<script setup>`中使用的函数被称为**编译器宏（宏函数）**。他们不需要导入就能用，且会随着 `<script setup>` 的处理过程一同被编译掉。**宏函数返回的对象会被提升到模块作用域，也就是说它们不是`setup`函数内部的局部变量，而是可以在整个组件中访问**。并且宏函数不能引用setup()中的局部变量，但能使用import导入的变量，因为它们不是局部作用域。
 
 ------
 
@@ -216,7 +217,7 @@
   
       > - 数据经过`ref(initValue)`函数加工后，数据会放在RefImpl对象的value属性中。RefImpl通常被称为**引用对象/ref对象**。
       > - Vue3中，ref()给数据做响应式的原理是：通过`Object.defineProperty()`给RefImpl对象的原型上，定义了虚拟属性value，访问和修改的其实是ref()收集过来的数据。因此要修改name和age**得通过ref对象的value属性去访问和修改**：`name.value='李四'`。
-      > - 并且在Vue模板中，如果数据是一个RefImpl对象，那么Vue解析时自动会去读取它的value属性，所有还这样写：`{{name}}`，加了value读取`{{name.value}}`反而会出问题。
+      > - 并且在Vue模板中，如果数据是一个RefImpl对象，那么Vue解析时自动会去读取它的value属性（拆包），所以这样写即可：`{{name}}`，不需要：`{{name.value}}`
       > - 如果传给ref的是一个（引用数据类型）对象：`ref({})`，那么Vue会先将该对象包装成一个Proxy对象，然后再将该Proxy对象放在RefImpl对象的value属性中。也就是对Proxy对象的地址做了响应式。而之所以要将对象包装为Proxy对象，是因为Vue要对对象内部所有层次的数据，都进行响应式处理。（内部是通过Vue3的reactive()函数来给对象做的包装）
   
       
@@ -260,6 +261,8 @@
           }
       })
       ```
+  
+      ###### 注意：Proxy对象会自动解包其中的任何ref对象（深层次）。也就是说，Proxy中的ref对象不用再`.value`去取值了。
   
       
   
@@ -436,7 +439,7 @@
 
     > - 作用：创建一个ref对象，其value值指向另一个对象中的某个属性。语法：`const name = toRef(person,'name')`，返回的name是一个`ObjectRefImpl`对象，里面的虚拟属性value其实就是person.name。
     > - 使用场景：只将响应式对象中的某个属性提供给外部。（如果不用toRef，那么该属性外部只能用不能改，因为外部拿不到Proxy对象只拿到了一个值）
-    > - 扩展：toRefs()和toRef()功能类似，它可以批量创建多个ref对象，语法：`const p = toRefs(person)`。此时person中的属性p对象中都有，且值都包装成了ref对象。
+    > - 扩展：toRefs()和toRef()功能类似，它可以批量创建多个ref对象，语法：`const p = toRefs(person)`。此时person中的属性p对象中都有，值都是ref对象。
 
 ------
 
@@ -624,23 +627,165 @@
        let container = ref() // 注意：容器名必须和ref属性值一样
        ```
   
-    ###### 注意：其实可以在子组件中定义，想让外部看到的、公开的属性和方法，通过`defineExpose()`函数：（宏函数）
+  - #### expose：
+  
+    > 可以在子组件中定义，想让外部看到的、公开的属性和方法，通过`expose: ['属性名',..]`配置项或`defineExpose()`宏函数：
   
     ```js
-    import { defineExpose } from 'vue' // defineExpose不引入也行，它是【宏函数】
     let name = ref('张三')
     defineExpose({name})
     ```
   
     > 此时父组件通过ref拿到子组件实例之后，就可以看到导出的name属性了。
   
+  - #### emits：
+  
+    > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且移除了v-on的.native修饰符，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在setup()中推荐直接用宏函数`defineEmits(['事件名',..])`去声明）
+  
   - #### 其他：
   
     > - data配置项应该写成一个函数。
+    >
     > - 移除了过滤器filter。
+    >
     > - 过渡类名v-enter和v-leave变成了`v-enter-from`和`v-leave-from`，和结束类名看起来更配了。
+    >
     > - 不再支持按键值的任何写法了。
-    > - Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且移除了v-on的.native修饰符，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。
+    >
+    >   ...
+
+------
+
+# Pinia
+
+> Pinia是一个符合直觉的Vue.js状态管理库（插件）。它没有Vuex那么臃肿、那么多复杂的流程，使用起来非常简单而又直接，是Vue3官方推荐的状态管理工具。使用：
+
+- ##### Pinia环境准备：
+
+  1. 安装：`npm i pinia`
+
+  2. main.js入口文件中使用Pinia（Vue插件）：
+
+     ```js
+     import { createApp } from 'vue'
+     import App from './App.vue'
+     // 1、引入createPinia()函数，用于创建pinia实例
+     import {createPinia} from 'pinia'
+     
+     const app = createApp(App)
+     // 2、创建pinia
+     const pinia = createPinia()
+     // 3、安装pinia（插件）
+     app.use(pinia)
+     app.mount('#root')
+     ```
+
+  3. 新建src/store/目录，去写不同的模块文件（创建不同的store对象）：（通常模块名和对应的组件名一致）
+
+     > count.js：
+     >
+     > ```js
+     > import {defineStore} from 'pinia'
+     > // 建议遵循Hook的命名。第1个参数是模块名（最好和文件名一致），第2个参数是配置对象
+     > export const useCountStore = defineStore('count',{
+     >     // 配置状态，值为返回一个对象的函数
+     >     state(){
+     >         return { sum: 0 } // 该模块中存一个状态sum，初值为0
+     >     }
+     > }
+     > // defineStore的返回值是一个函数，函数的执行结果是store对象（Proxy对象）。其中有sum、$state
+     > ```
+     >
+     > talk.js：
+     >
+     > ```js
+     > import {defineStore} from 'pinia'
+     > // 建议遵循Hook的命名。第1个参数是模块名（最好和文件名一致），第2个参数是配置对象
+     > const useCountStore = defineStore('count',{
+     >     // 配置状态，值为返回一个对象的函数
+     >     state(){
+     >         return { sum: 0 }
+     >     }
+     > }
+     > ```
+
+- #####  使用Pinia：
+
+  - 访问store中的数据：
+
+    ```js
+    import {useCountStore} from '@/store/count'
+    const countStore = useCountStore()
+    ```
+
+    > Vue模板中`{{countStore.sum}}`即可访问。（或`{{countStore.$state.sum}}`）
+
+  - 修改store中的数据：
+
+    > - 无业务逻辑时：
+    >
+    >   - 可以直接修改：`countStore.sum += 1`
+    >   - 或者批量修改：`countStore.$patch({sum:888})`，它会和原来的state进行合并。
+    >
+    > - 有业务逻辑时：（通过Actions）
+    >
+    >   1. 首先在对应模块的store中需要有对应的Action。在count.js的defineStore中加配置项：
+    >
+    >      ```js
+    >      export const useCountStore = defineStore('count',{
+    >          state(){
+    >              return { sum: 0 }
+    >          },
+    >          actions: { // actions对象中放一个个的action函数，函数中可以写复杂的业务逻辑
+    >              increment(v){ this.sum+=v }, // action函数中的this就是store对象
+    >          }
+    >      }
+    >      ```
+    >
+    >   2. 调用sotre对象上的Action函数：`countStore.increment(100)`
+
+- ##### storeToRefs(store对象)：
+
+  > 它只会把store对象中，所有的状态数据转为ref对象。然后放在一个对象中返回。
+
+- ##### getters：
+
+  > 当state配置项中的状态数据，需要经过处理再使用时，可以使用getters配置项：（类似于Vuex）
+
+  ```js
+  export const useCountStore = defineStore('count',{
+      state(){
+          return { sum: 0 }
+      },
+      getters: {
+          bigSum(state){ return state.sum*10 } // 每一个函数中都可以收到state参数，并且其中的this也是store对象
+      }
+  }
+  ```
+
+- ##### $subscribe(func)：
+
+  > 它可以监视store中状态（数据）的修改。使用：
+
+  ```js
+  countStore((mutate,state)=>{ // 参数1是修改信息对象，参数2是修改的状态数据（Proxy对象）
+      console.log('状态修改了',mutate,state)
+  })
+  ```
+
+- ##### store的组合式写法：
+
+  > 之前都是通过选项式写法来创建的store对象。接下来我们用组合式写法：
+
+  ```js
+  export const useCountStore = defineStore('count',()=>{ // 组合式写法第2个参数传一个函数（相当于setup()函数）
+      // 直接定义响应式的数据
+      let sum = ref(0)
+      // 直接写action函数
+      increment(v){ sum+=v }, // action函数中的this就是store对象
+  	return { sum, increment }
+  }
+  ```
 
 ------
 
