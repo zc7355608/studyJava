@@ -155,7 +155,7 @@
     >
     >     3. 给script标签加name属性，给组件起名字：`<script setup lang="ts" name="abc"></script>`
     >
-    > - **defineProps()**：Vue3中仍然可以用props来声明接收传过来的数据，也可以在`<script setup>`中通过宏函数：
+    > - **defineProps()**：Vue3中仍然可以用props来声明接收传过来的数据，如果在`<script setup>`中可以用宏函数：
     >
     >   ```js
     >   const obj = defineProps(['list','name',..]) // 返回值是一个对象
@@ -640,7 +640,29 @@
   
   - #### emits：
   
-    > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且移除了v-on的.native修饰符，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在setup()中推荐直接用宏函数`defineEmits(['事件名',..])`去声明）
+    > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且**移除了v-on的.native修饰符**，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在setup()中推荐直接用宏函数`defineEmits(['事件名',..])`去声明，并且用该方法返回对象上的emit()函数去触发自定义事件）
+  
+  - #### v-model：
+  
+    - Vue2中，v-model的原理：（自定义组件和HTML元素都是如此）
+  
+      > v-model双向数据绑定，底层是用表单元素的input事件来完成的：
+  
+      ```js
+      <input type='text' :value="username" @input="username = $event.target.value"/>
+      ```
+  
+      > 它和`<input type='text' v-model="username"/>`是等价的。
+  
+    - 而在Vue3中，v-model用在组件标签上则发生了变化。Vue3中v-model加在组件标签上是这样的：
+  
+      ```js
+      <MyComponent :modelValue="username" @update:modelValue="val => (username = val)"/>
+      ```
+  
+      > 上面的代码相当于：`<MyComponent v-model="username"/>`，其中`update:modelValue`就是一个普通的自定义事件名。
+  
+      ###### 注意：如果觉得modelValue有点烦，其实也可以自定义：`v-model:qwe="username"`，此时modelValue就变成了qwe，update:modelValue变成了update:qwe。这样做的好处是：组件标签上可以写多个v-model。
   
   - #### 其他：
   
@@ -786,6 +808,28 @@
   	return { sum, increment }
   }
   ```
+
+------
+
+- ### mitt
+
+  > mitt类似于pubsub，是一个用于实现任意组件间通信的JS库。它经过gzip压缩后只有200字节。使用：
+
+  1. 安装mitt：`npm i mitt`
+
+  2. 在src/utils/目录下新建一个文件emitter.js：（名字随意）
+
+     ```js
+     import mitt from 'mitt'
+     export default mitt() // 调用mitt()得到emitter对象，该对象可以：绑定事件、触发事件
+     ```
+
+     > **emitter对象身上有这几个方法：**
+     >
+     > - on('事件名', callback)：绑定该事件。
+     > - emit('事件名', data)：触发该事件。其中data会作为参数传给事件对应的callback()函数。
+     > - off('事件名')：解绑该事件。
+     > - all：拿到所有绑定的事件。该对象上有clear()方法可以解绑所有的自定义事件。
 
 ------
 
