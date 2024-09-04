@@ -73,7 +73,8 @@
   > - 关于组件配置中的`this`：
   >   - 在`new Vue({})`的配置项中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是vm对象。
   >   - 而在`Vue.extend({})`定义组件的配置中，data函数、methods中的函数、watch中的函数、computed中的函数，它们的this都是`VueComponent`构造的**组件实例对象**（小型的vm对象vc）。
-  > - vm（或vc）上的`$children`是一个`VueComponent`类型的数组，保存了该模板中使用的所有组件实例vc。
+  > - （Vue3中移除了）vm（或vc）上的`$children`是一个`VueComponent`类型的数组，保存了该模板中使用的所有组件实例vc。
+  > - $parent是当前组件的父组件实例。
   > - **一个重要的关系：**`VueComponent.prototype.__proto__ === Vue.prototype`，即：`VueComponent`是`Vue`的子类。（vc是小型的vm）
   > - **为什么要有这个关系？**为了让组件实例对象vc可以访问到 Vue 原型上的属性、方法。
   
@@ -432,7 +433,7 @@
 
   - 给谁绑定的事件，就找谁去触发该事件。所以触发atguigu事件就得通过该组件实例对象vc的API：`vc.$emit('atguigu')`。并且触发事件时还可以传递数据：`vc.$emit('atguigu',a,b..)`，此时需要在demo函数定义时，给该函数声明实参进行接收：`demo(a,b..)`。不过一般不这样写太麻烦，可以这样：`demo(a,...params)`。
 
-  - 另一种绑定自定义事件的方式：通过`vc.$on('atguigu', demo)`给vc实例组件绑定自定义事件。这种方式更灵活。
+  - （Vue3移除了）另一种绑定自定义事件的方式：通过`vc.$on('atguigu', demo)`给vc实例组件绑定自定义事件。这种方式更灵活。
 
     > **注意：**
     >
@@ -440,15 +441,15 @@
     > - 此时该回调函数最好用箭头函数的写法，这样回调中的this仍然是当前上下文的组件实例：`vc.$on('atguigu',()=>{})`
     > - 对于自定义事件来说，`$event`占位符是$emit()的第2个参数。
 
-  - 事件只触发一次：`<Student @atguigu.once='demo'/>`或`vc.$once('atguigu', demo)`。
+  - （Vue3移除了）事件只触发一次：`<Student @atguigu.once='demo'/>`或`vc.$once('atguigu', demo)`。
 
-  - 解绑事件：`vc.off('atguigu')`，解绑多个：`vc.off(['atguigu','other'])`，解绑所有：`vc.off()`。销毁组件实例后自定义事件就用不了了，`$emit()`不起作用了。
+  - （Vue3移除了）解绑事件：`vc.$off('atguigu')`，解绑多个：`vc.$off(['atguigu','other'])`，解绑所有：`vc.$off()`。销毁组件实例后自定义事件就用不了了，`$emit()`不起作用了。
 
     > `$emit()、$on()、$off()`这些API其实是Vue原型上的，所以其实也可以给vm对象绑定自定义事件。
 
   - 组件上也可以用原生的JS事件，需要给事件加`native`修饰符，这样Vue才不会将其当做自定义事件，而是将该事件绑定到组件最外层的HTML容器上。（Vue3中移除了）
 
-- ### 全局事件总线（Global Event Bus）
+- ### （Vue3中有新工具mitt来代替它了，所以了解即可）全局事件总线（Global Event Bus）
 
   > 全局事件总线可以实现**任意组件之间的通信**。
 
@@ -710,23 +711,23 @@
      	</div>
      </template>
      ```
-
      > - 要往插槽中放的标签结构，它的CSS样式无论是写在定义插槽的地方、还是使用插槽的地方都行。
      >
-     > - 组件中可以定义多个`<slot>`插槽，通过其`name`属性来区分不同的插槽。使用时通过给HTML标签加`slot`属性，来指定该HTML标签放在哪个插槽中。多个标签可以放到同一个插槽中。
+     > - 组件中可以定义多个`<slot>`插槽，通过其`name`属性来区分不同的插槽。使用时通过给HTML标签加`slot`属性，来指定该HTML标签放在哪个插槽中。多个标签可以放到同一个插槽中。（其实slot标签上默认有`name='default'`属性）
      >
-     > - 多个元素往插槽中放时，可以包在一个`<template>`标签中，好处是不会增加一层结构。并且此时可以用新写法来指定要放到哪个插槽中：`<template v-slot:插槽名>`（或v-slot='插槽名'）
+     > - 多个元素往插槽中放时，可以包在一个`<template>`标签中，好处是不会增加一层结构。并且此时可以用新写法来指定要放到哪个插槽中：`<template v-slot:插槽名>`（也可以`#插槽名`）。（也可以直接给组件标签加`v-slot:插槽名`来指定里面的所有结构放在哪个插槽中）
      >
-     > - 插槽也可以给使用者传递数据，通过给`<slot>`标签加属性：`<slot :games="g">`，使用插槽的地方想获取数据外层必须用`<template>`标签包裹：（通过`scope`或`slot-scope`属性接收。其中data是对象，对象的key是slot标签的属性名games）
+     > - 插槽也可以给使用者传递数据，通过给`<slot>`标签加属性：`<slot :games="g">`。使用插槽的地方想获取数据外层必须用`<template>`标签包裹，然后通过`v-slot="data"`属性接收：（其中data是对象，对象的key是slot标签的属性名games）
      >
-     >   ```html
+     >   ```vue
      >   <School title="育才学校">
-     >       <!-- 通过`scope`或`slot-scope`属性接收。其中data是对象，对象的key是slot标签的属性名games -->
-     >   	<template slot="school" scope="data">
-     >   		<img src="./a.jpg" alt="">{{data.games}}
+     >       <template v-slot:school="data">
+     >       	<img src="./a.jpg" alt="">{{data.games}}
      >       </template>
      >   </School>
      >   ```
+     >   
+     >   有多个插槽传递数据就这样：`v-slot:插槽名="data"`或`#插槽名="data"`。
   
   ###### 注意：其实通过组件实例的`vc.$slots.default`也可以获取到的传过来的标签结构，值是一个虚拟DOM数组。如果传结构时指定了插槽名，那么就通过`vc.$slots.插槽名`来获取对应的虚拟DOM。
 

@@ -454,8 +454,8 @@
 
     - #### readonly()与shallowReadonly()：
 
-        > - readonly()：将一个响应式数据进行包装，返回的新响应式数据是只读的（深层次只读）。
-        > - shallowReadonly()：类似与readonly()，只是返回的新响应式数据是浅层次的只读。
+        > - readonly()：将一个响应式数据进行包装，返回的新响应式数据是**深层次只读**的。
+        > - shallowReadonly()：类似与readonly()，只是返回的新响应式数据是**浅层次只读**的。
 
         
 
@@ -490,13 +490,13 @@
                             return {
                                 // 当读取自定义ref对象的value属性时，get被调用
                                 get(){
-                                    track() // get方法对数据做了缓存，执行track()清空缓存后，return结果才是最新的
+                                    track() // 对返回值进行持续跟踪，只要变化就去更新ref对象的value
                                     return value
                                 },
         						// 当修改自定义ref对象的value属性时，set被调用
                                 set(v){
         							value = v
-                                    trigger() // 通知Vue去重新解析模版
+                                    trigger() // 通知Vue去重新渲染模版
                                 }
                             }
                         })
@@ -534,7 +534,7 @@
         export default {
             name: 'Child',
             setup(){
-        		let data = inject('car')
+        		let data = inject('car', 默认值) // 第2个参数指定没收到数据时的默认值
                 return {data}
             }
         }
@@ -551,7 +551,7 @@
 
 ------
 
-- ### Vue3提供的新组件
+- ### Vue3中新内置的全局组件
 
   - #### Fragment：
 
@@ -570,21 +570,21 @@
 
   - #### Suspense：（目前还处在试验阶段，以后跟他相关的API可能会改）
 
-    > **异步组件：**通过Vue3中的defineAsyncComponent()函数（组合式API）引入的组件：（React中也有，是通过lazy()函数加载的）
+    > Suspense组件用于呈现异步组件。
+    
+    > **异步组件：**通过Vue3的defineAsyncComponent()函数加载的组件：（React中也有，是通过lazy()函数加载的）
     >
     > ```js
     > // 静态引入
-    > import { defineAsyncComponent } from 'vue'
-    > // 动态引入
+    > import { defineAsyncComponent } from 'vue' // 它不是宏函数
+    > // 动态引入，import()语句【可能】会发送网络请求
     > const Child = defineAsyncComponent( ()=>import('./components/Child') )
-    > export default {
-    >        name: 'App'
-    >    }
-    > ```
-    > 
-    >Vue模版中的异步组件不会阻塞渲染，当异步组件请求回来时再渲染展示到页面上。
+    > export default { name: 'App' }
+    >    ```
+    >    
+    > 和同步组件不同的是，异步组件不会阻塞渲染，当异步组件通过网络请求回来时再渲染到页面上。
     
-    ###### 但是当网络环境差，请求发生了错误时，如果页面上什么都不没有，用户还以为压根就没这个组件呢。可以使用Suspense来解决：
+    ###### 但是当网络环境差，请求发生了错误时，如果页面上什么都不没有，用户还以为压根就没这个组件呢。可以使用Suspense组件来解决：
     
     > `<Suspense>`组件会等待异步组件的渲染，当异步组件还没渲染到页面上时展示一些默认内容，提升用户体验（React也有）。使用：
     
@@ -601,9 +601,9 @@
     ```
     
     > - Suspense底层是通过插槽来实现的，因此需要将异步组件、请求错误时的组件放到对应的插槽中。
-    > - Suspense内部有2个插槽：异步组件要放到名为default的插槽中，请求错误时的组件放到名为fallback的插槽中。
+    > - Suspense内部有2个插槽：异步组件要放到default插槽中，组件请求回来时展示；异步组件请求失败或未完成时，展示fallback插槽中的内容。
     
-    ###### 注意：`<Suspense>`和异步组件配合使用时，组件中setup的返回值可以是Promise对象。（Promise对象成功状态的结果值可以是JS对象或渲染函数）
+    ###### 当`<Suspense>`和异步组件配合使用时，组件的setup()就可以返回Promise对象了（Promise对象成功状态的结果值可以是JS对象或渲染函数）。如果`<script setup>`中写了await关键字，那么对应的setup()函数自动就加上了async关键字。
 
 ------
 
@@ -642,7 +642,7 @@
   
     > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且**移除了v-on的.native修饰符**，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在setup()中推荐直接用宏函数`defineEmits(['事件名',..])`去声明，并且用该方法返回对象上的emit()函数去触发自定义事件）
   
-  - #### v-model：
+  - #### v-model指令：
   
     - Vue2中，v-model的原理：（自定义组件和HTML元素都是如此）
   
@@ -663,6 +663,11 @@
       > 上面的代码相当于：`<MyComponent v-model="username"/>`，其中`update:modelValue`就是一个普通的自定义事件名。
   
       ###### 注意：如果觉得modelValue有点烦，其实也可以自定义：`v-model:qwe="username"`，此时modelValue就变成了qwe，update:modelValue变成了update:qwe。这样做的好处是：组件标签上可以写多个v-model。
+  
+  - #### v-bind指令：
+  
+    > - 其实v-bind可以不绑定任何属性，此时值必须是一个对象：`<h1 v-bind="{x:100,y:200}"/>`，此时就相当于：`<h1 :x="100" :y="200"/>`。
+    > - 因此`<Child v-bind="$attrs"/>`其实就是：当前组件的$attrs对象的所有K-V，都以props的形式传给了Child组件。
   
   - #### 其他：
   
@@ -811,7 +816,7 @@
 
 ------
 
-- ### mitt
+- ### mitt（Vue3推荐使用，代替全局事件总线）
 
   > mitt类似于pubsub，是一个用于实现任意组件间通信的JS库。它经过gzip压缩后只有200字节。使用：
 

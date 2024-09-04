@@ -396,8 +396,7 @@
      </div>
      ```
      
-     > **注意：**Vue3中变成了RouterLink和RouterView组件。（不引入也能用）
-
+  
 - #### 给路由命名：
 
   > 如果是多级路由，那么得写很长的路径`to="/home/message/..."`去指定跳转到哪个路径。此时可以通过给路由命名（唯一）来**简化路由的跳转**。
@@ -583,7 +582,7 @@
   >   export default createRouter({
   >       // 使用 history 模式
   >       // history: createWebHistory(),
-  >           
+  >             
   >       // 或者用 hash 模式（默认）
   >       history: createWebHashHistory(),
   >       routes: [{},..]
