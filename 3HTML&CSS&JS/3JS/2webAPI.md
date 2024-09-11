@@ -33,7 +33,11 @@
 - ### 获取后，我们就可以通过dom来设置html中的标签了：
 
   - 每个dom对象都有`innerText`和`innerHTML`属性，可以获取和修改标签内部的字符串。区别是一个可以识别html语法一个不可以。
+
+    > 其实之所以innerText不能识别html语法，是因为innerText中的文本浏览器会进行转义，将`<script>`转为`&lt;script&gt;`，所以页面看到的是普通文本。而innerHTML则不做任何处理，因此使用innerHTML要小心*XXS攻击*。
+
   - HTML标签里的所有属性，对应的dom对象中都有对应的属性存在，要改直接用`dom.属性名=值`的方式去改就行了，也可以用dom对象的`setAttribute('属性名','值')`方法来给标签的属性赋值。查询属性值可以`dom.属性名`，也可以用`dom.getAttribute('属性名')`来查询属性值。如果标签的属性是布尔属性，如`disabled`，可以这样设置该属性：`dom.属性名=true/false;`
+
   - 可以通过`dom`对象的属性和方法直接操作元素的样式：
     1. 直接通过`obj.style.css属性="值";`，如：`obj.style.backgroundColor = 'red'`（注意css属性名要要修改成驼峰命名方式的写法，属性值要用双引号括起来的字符串格式）
     2. 给dom设置类名是：`obj.className = '类名'`，因为`class`是关键字，所以设置class属性用`className`。但是这种方式可能会覆盖原来的类名使用不方便，所以H5新增了一种`classList`属性的方式追加和删除类名，语法：`obj.classList.add('类名')`，`remove('')`、`toggle('')`，分别是添加、删除和切换类名（切换：有就删掉，没有加上），还有`contains('类名')`判断是否包含某个类名。
