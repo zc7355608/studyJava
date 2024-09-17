@@ -266,27 +266,28 @@
    import Home from '../pages/Home'
    
    // 创建一个路由器实例VueRouter并暴露出去
-   export default new VueRouter({ // Vue3中：export default createRouter({})
-     routes: [
-       {
-         path: '/about',
-         component: About
-       },
-       {
-         path: '/home',
-         component: Home
-       }
-     ]
+   export default new VueRouter({ // Vue3中创建路由器实例：export default createRouter({})
+       routes: [
+           {
+               path: '/about',
+               component: About
+           },
+           {
+               path: '/home',
+               component: Home
+           }
+       ]
    })
    ```
    
-   > 其中`routes`配置项的值是对象数组，用于配置多个路由规则。`path`指定路径，`component`是路径对应的**路由组件**。
+   > 其中`routes`配置项的值是对象数组，用于配置路由规则。`path`指定路径，`component`指定对应的**路由组件**。
    
    > **路由组件：**
    >
    > - 通常在routes中配置的组件称为路由组件，和普通组件不同的是，路由组件不需要我们自己写组件标签。且路由组件单独放在`pages/`或`views/`目录下。
    > - 配置好的路由组件实例vc身上会多两个API：`$route`是该路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
-   > - Vue3中，这两个对象（$route/$router）需要调用vue-router的Hook来获取：`useRoute()`和`useRouter()`，返回值分别是路由信息对象和VueRouter实例（响应式的Proxy对象）。
+   >
+   > > Vue3中，这两个对象（$route/$router）需要调用`vue-router`中的Hook来获取：`useRoute()`和`useRouter()`，返回值分别是**路由信息对象**和**VueRouter实例**（也是Proxy对象）。
    
 3. 入口文件main.js中使用`vue-router`插件，这样vm实例中就可以写`router`配置项了，值是刚刚暴露的VueRouter实例：
    ```js
@@ -305,7 +306,7 @@
    })
    ```
    
-   > Vue3中：
+   > Vue3中只需要使用下`vue-router`插件就行了：
    >
    > ```js
    > import {createApp} from 'vue'
@@ -396,7 +397,11 @@
      </div>
      ```
      
-  
+
+- #### 配置路由的元数据：
+
+  > 其实每一个路由配置对象中都可以写`meta`**元数据配置项**，值是一个对象，用于在路由中存放自定义数据。
+
 - #### 给路由命名：
 
   > 如果是多级路由，那么得写很长的路径`to="/home/message/..."`去指定跳转到哪个路径。此时可以通过给路由命名（唯一）来**简化路由的跳转**。
@@ -414,17 +419,15 @@
       {
         name: 'guanyu',
         path: '/about',
-        component: About
+        component: About,
+        // 路由的元数据
+        meta: { img:'xx', key:'xx' }
       }
     ]
   })
   ```
 
   > 此时就可以这样写：`<router-link :to="{name:'jia'}">Home</router-link>`，**指定路由名的方式to的值必须是对象**。
-
-- #### 配置路由的元数据：
-
-  > 其实每一个路由配置对象中都可以写`meta`**元数据配置项**，值是一个对象，用于在路由中存放自定义数据。
 
 - #### 路由的重定向：
 
@@ -448,7 +451,7 @@
     >
     > - 其实to的值还可以是一个对象：（推荐）
     >
-    >   ```html
+    >   ```vue
     >   <router-link :to="{
     >       path: '/home/message',
     >       query: {
@@ -468,7 +471,7 @@
     >
     > - 和query参数类似，传递动态数据还可以用对象，通过指定对象的`params`属性：（**注意：此时对象中只能用name不能用path**）
     >
-    >   ```html
+    >   ```vue
     >   <router-link :to="{
     >       // 这里只能通过name指定路由名的方式
     >       name: 'jia',
@@ -524,14 +527,16 @@
 
 - #### 缓存路由组件：
 
-  > 我们知道：默认路由的切换是先销毁原来的路由组件，再挂载新的路由组件实例。能不能切换路由时不要销毁原来的路由组件实例，而将其缓存起来呢？可以，用`<keep-alive>`标签将`<router-view>`标签包起来即可。而且通过给`<keep-alive>`标签设置`include='About'`属性可以指定只缓存其中某些组件，**值是组件名**（字符串或字符串数组）。
+  > 我们知道：默认路由的切换是先销毁原来的路由组件，再挂载新的路由组件实例。能不能切换路由时不要销毁原来的路由组件实例，而将其缓存起来呢？
+  >
+  > 可以，用`<keep-alive>`标签将`<router-view>`标签包起来即可。而且通过给`<keep-alive>`标签设置`include='About'`属性可以指定只缓存其中某些组件，**值是组件名**（字符串或字符串数组）。
 
 - #### 路由组件独有的2个生命周期钩子：
 
   - `actived(){}`：路由组件被激活时触发。
   - `deactived(){}`：路由组件失活时触发。
 
-  > 只要注册的路由组件在页面上呈现（离开），这两个钩子就会执行，不论你是通过路由规则还是手动写组件标签。
+  > 只要路由组件在页面上呈现（离开），这两个钩子就会执行，不论你是通过路由规则还是手动写组件标签。
 
 - #### 路由守卫：
 
@@ -582,7 +587,7 @@
   >   export default createRouter({
   >       // 使用 history 模式
   >       // history: createWebHistory(),
-  >                 
+  >                   
   >       // 或者用 hash 模式（默认）
   >       history: createWebHashHistory(),
   >       routes: [{},..]

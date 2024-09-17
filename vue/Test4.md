@@ -96,7 +96,7 @@
 
 - ### 组合式API的基础——setup配置项
 
-    > - setup是Vue3中的一个新的组件配置项，值是一个函数。它是所有组合式API表演的舞台，组件中所有用到的数据、方法、生命周期钩子等，均要写在setup函数中。（之前在组件中写的配置项叫**选项式API**）
+    > - setup是Vue3中的一个新的组件配置项，值是一个函数。它是所有组合式API表演的舞台，组件中所有用到的数据、方法、生命周期钩子等，均写在setup函数中（非必须）。（之前在组件中写的配置项叫**选项式API**）
     >
     > - setup函数的2种返回值：
     >
@@ -119,19 +119,19 @@
     >
     >   - props：值为声明接收的props对象。
     >
-    >   - context：它是上下文对象，其中包含attrs、emit()、slots，分别对应了Vue2组件实例上的$attrs、$emit()、$slots。
+    >   - context：它是上下文对象，其中包含`attrs`、`emit()`、`slots`，分别对应了Vue2组件实例上的$attrs、$emit()、$slots。
     >
     > - **注意：**
     >
     >   1. Vue3中尽量不要写Vue2的配置项了，虽然Vue3中的methods、data、computed...配置项仍可用，且其中可以访问到setup返回的属性和方法，但Vue3的setup中不能访问Vue2的data、methods的数据。（若混用后重名了，则setup优先）
     >   1. setup函数会在beforeCreate()之前执行，并且其中的this是undefined。
-    >   1. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要用then()来获取数据。（后期也可以返回Promise对象）
+    >   1. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要再用then()去获取数据。（后期也可以返回Promise对象）
     >
     > - **单文件组件（SFC）中使用setup的语法糖：**
     >
     >   - 可以直接在.vue文件的script标签中加`setup`属性（无值），此时该script标签作用域中的内容实际上是写在了setup()的函数体中。
     >
-    >   - setup顶层作用域的所有属性、方法、import导入的内容，都放到对象中return出去了，而且**在setup()中将组件return出去就相当于注册了该组件**。
+    >   - setup顶层作用域定义的所有属性、方法、import导入的内容，都自动放到对象中return出去了。而且**在setup()中将组件return出去就相当于注册了该组件**。
     >
     >   - 这样也导致该标签中不能写组件的其他配置项了，如果有其他配置项只能再写一个script标签了。
     >
@@ -157,10 +157,12 @@
     >
     > - **defineProps()**：Vue3中仍然可以用props来声明接收传过来的数据，如果在`<script setup>`中可以用宏函数：
     >
+    >   > **宏函数**：通常defineXxx()等只能在`<script setup>`中使用的函数被称为**编译器宏（宏函数）**。他们不需要导入就能用，且会随着 `<script setup>` 的处理过程一同被预处理掉。**宏函数的返回值会自动提升到模块作用域，也就是说它们不是`setup`函数内部的局部变量，而是可以在整个组件中访问**。并且宏函数不能引用setup()中的局部变量，但能使用import导入的变量，因为它们不是局部作用域。
+    >   
     >   ```js
     >   const obj = defineProps(['list','name',..]) // 返回值是一个对象
     >   ```
-    >   
+    >
     >   接收并限制类型：
     >   
     >   ```ts
@@ -168,7 +170,7 @@
     >   import { type Persons } from '@/types/Persons.ts'
     >   const obj = defineProps<{list:Persons;name?:string}>(['list','name'])
     >   ```
-    >   
+    >
     >   指定默认值：
     >   
     >   ```ts
@@ -180,7 +182,6 @@
     >   })
     >   ```
     >   
-    >   > **宏函数**：通常defineXxx()等只能在`<script setup>`中使用的函数被称为**编译器宏（宏函数）**。他们不需要导入就能用，且会随着 `<script setup>` 的处理过程一同被编译掉。**宏函数返回的对象会被提升到模块作用域，也就是说它们不是`setup`函数内部的局部变量，而是可以在整个组件中访问**。并且宏函数不能引用setup()中的局部变量，但能使用import导入的变量，因为它们不是局部作用域。
 
 ------
 
@@ -237,7 +238,7 @@
   
       ###### Vue3的响应式原理：
   
-      > Vue3中通过reactive()函数为源对象生成了一个Proxy代理对象。Proxy会为对象创建一个代理，从而拦截对象中任意属性的变化（包括增删改查等）。而Proxy中对源对象的增删改查又通过Reflect（反射）来完成。
+      > Vue3中通过reactive()函数为源对象生成了一个Proxy代理对象。Proxy会为对象创建一个代理，从而拦截对对象的任何操作（增删改查等）。而Proxy中对源对象的增删改查又通过Reflect（反射）来完成。
   
       ###### 这种方式实现的响应式，可以捕获到对代理对象属性的增、删、改、查，因此不存在Vue2的问题。模拟Vue3的响应式：
   
@@ -262,7 +263,7 @@
       })
       ```
   
-      ###### 注意：Proxy对象会自动解包其中的任何ref对象（深层次）。也就是说，Proxy中的ref对象不用再`.value`去取值了。
+      ###### 注意：Proxy会自动解包其中的任何ref对象（深层次）。也就是说，Proxy对象中的ref对象不用再`.value`去取值了。
   
       
   
@@ -275,12 +276,12 @@
       export default {
           name: 'App',
           setup(){
-              // 普通数据
+              // 定义响应式数据
               let person = reactive({
                   firstName: '张',
                   lastName: '三'
               })
-              // 计算出来的数据，计算属性（简写，不考虑修改fullName计算属性）
+              // 给响应式数据身上添加计算属性（简写，不考虑修改fullName计算属性）
               person.fullName = computed(()=>{
                   return person.firstName + '-' + person.lastName
               })
@@ -317,7 +318,7 @@
       export default {
           name: 'App',
           setup(){
-              // 普通数据
+              // 响应式数据
               let sum = ref(0)
               let count = ref(0)
               // 监视ref定义的多个响应式数据
@@ -437,7 +438,7 @@
 
 - ### toRef()/toRefs()
 
-    > - 作用：创建一个ref对象，其value值指向另一个对象中的某个属性。语法：`const name = toRef(person,'name')`，返回的name是一个`ObjectRefImpl`对象，里面的虚拟属性value其实就是person.name。
+    > - 作用：创建一个ref对象，其value值指向另一个对象中的某个属性。语法：`const name = toRef(person,'name')`，返回的name是一个`ObjectRefImpl`对象（ref对象），里面的虚拟属性value其实就是person代理对象的name属性。（toRef()的参数可以是任意类型）
     > - 使用场景：只将响应式对象中的某个属性提供给外部。（如果不用toRef，那么该属性外部只能用不能改，因为外部拿不到Proxy对象只拿到了一个值）
     > - 扩展：toRefs()和toRef()功能类似，它可以批量创建多个ref对象，语法：`const p = toRefs(person)`。此时person中的属性p对象中都有，值都是ref对象。
 
@@ -616,7 +617,7 @@
   - #### Vue3的ref：
   
     > - Vue3中不能用`vc.refs`来获取ref标记的DOM了，因为组件实例拿不到了。就算有办法拿到了，Vue3中将组件实例保护起来了，变成了Proxy对象，之前Vue2的API在里面都看不到。
-    > - Vue3中**ref的值必须是一个ref对象**，此时会将ref标记的DOM元素放到ref对象的value属性中。
+    > - Vue3中**ref的值必须是一个ref容器对象**，此时会将ref标记的DOM元素放到ref容器对象的value属性中。
   
     1. 给标签加ref属性，值是一个**ref容器/ref对象**：`<div ref="container"/>`
   
@@ -640,7 +641,7 @@
   
   - #### emits：
   
-    > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且**移除了v-on的.native修饰符**，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在setup()中推荐直接用宏函数`defineEmits(['事件名',..])`去声明，并且用该方法返回对象上的emit()函数去触发自定义事件）
+    > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且**移除了v-on的.native修饰符**，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在setup()中推荐直接用宏函数`defineEmits(['事件名',..])`去声明，并且用该方法返回对象中的emit()函数去触发自定义事件）
   
   - #### v-model指令：
   
