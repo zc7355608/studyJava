@@ -239,11 +239,11 @@
   
     ###### 我们先用Eslint检查代码格式，无误后再用Babel做兼容性处理。
   
-    - **Eslint**：可组装的 JavaScript 和 JSX 检查工具（Facebook公司的）。我们用Eslint关键是写Eslint的配置文件，里面写上各种rules规则，将来运行Eslint进行语法检查时就可以根据写的规则对代码进行检查了。
+    - **Eslint**：可组装的 JavaScript 和 JSX 检查工具（Facebook公司的）。我们用Eslint关键是写Eslint的配置文件，里面写上各种rules规则，将来运行Eslint进行语法检查时就可以根据写的规则对JS/TS代码进行检查了。
   
       - ###### Eslint的配置文件：（以`.eslintrc.js`为例）
   
-        > EsLint的配置文件格式可以是：`.eslintrc`、`.eslintrc.js`、`.eslintrc.json`多种，只是格式不同罢了。并且不创建Eslint的配置文件也行，可以直接在`package.json`中通过`eslintConfig`配置项写Eslint的检查规则。（配置方式使用一种即可，运行时ESLint会自动查找读取）
+        > EsLint的配置文件格式可以是：`.eslintrc`、`.eslintrc.js`、`.eslintrc.json`多种（最新版推荐用`eslint.config.js`），只是格式不同罢了。并且不创建Eslint的配置文件也行，可以直接在`package.json`中通过`eslintConfig`配置项写Eslint的检查规则。（配置方式使用一种即可，运行时ESLint会自动查找读取）
   
         ```js
         module.exports = {
