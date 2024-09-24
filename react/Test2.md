@@ -288,8 +288,6 @@
 >   - 然后通知Store拿着这个action对象，去根据type分发给对应的Reducer完成state的更新：`store.dispatch(action)`。（Redux中管理的每个数据都一一对应一个ActionCreator和Reducer）
 >   - 执行了这行代码后，Store就会拿着action去调用相应的Reducer函数完成对state的更新了。最终会跟据action对象的type属性来决定调用哪个Reducer。
 >
->   > **纯函数：**相同的输入永远会得到相同的输出，而且没有任何可观察的副作用。所以纯函数中不能改写形参，不能调用Math.random()，不能发送网络请求、调用IO设备等不靠谱有副作用的操作。
->
 > - Action对象有2个属性：其中type属性是必须的，表示操作的类型，值是Reducer函数中定义好的操作名（字符串，在Redux中必须唯一）。data属性是可选的，用于存放操作的值。
 >
 > - Reducer函数接收2个参数：preState（先前的state）和action对象。Reducer函数的返回值会作为新的state交给Store维护。
@@ -449,7 +447,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                                                
+  >                                                   
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -507,7 +505,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >                               
+  >                                 
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -515,7 +513,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >                               
+  >                                 
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   

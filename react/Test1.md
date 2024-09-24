@@ -62,13 +62,13 @@
   >        <!-- 引入react-dom，用于支持react操作dom。该文件必须在核心库之后引入 -->
   >        <script src="./lib/react-dom.development.js"></script>
   > 
-  >        <!-- type属性写text/babel，表示里面写的是jsx语法（在js的基础上加了xml语法），jsx语法得通过babel来转成js -->
+  >    <!-- type属性写text/babel，表示里面写的是jsx语法（在js的基础上加了xml语法），jsx语法得通过babel来转成js -->
   >        <script type="text/babel">
   >        	// 1、创建虚拟DOM（虚拟DOM其实就是JS对象）
-  >        	const VDOM = <h1 id="title">Hello React!</h1>/* JSX中，xml标签能和JS混着写 */
+  >        	const vdom = <h1 id="title">Hello React!</h1>/* JSX中，xml标签能和JS混着写 */
   >        	// 2、将创建的虚拟DOM渲染到页面中（div内部）
-  >        	//引入上面两个react库之后，全局就多了一个React和ReactDOM对象
-  >        	ReactDOM.render(VDOM, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom对象（容器对象）
+  >        		//引入上面两个react库之后，全局就多了一个React和ReactDOM对象
+  >        	ReactDOM.render(vdom, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom容器对象
   >        </script>
   > </body>
   > </html>
@@ -85,16 +85,16 @@
   > - 其实浏览器在拿到script标签中的代码后，发现是babel类型，于是它会找babel让它先去翻译，然后再解释JS代码块。这种情况如果代码少还好说，代码量一多则非常影响用户体验，我们目前初学时会使用这种方式，后面就不用了。它这个提示就是说：你这个方式不太对，代码一多可能会有问题。
   > - 还有一个提示是说：可以用框架提供的**调试工具**来开发React项目。一般框架都会提供它专门的调试工具。所以我们将这个React的Google调试工具插件下载下来，方便后面代码的调试。
   
-  ###### 为什么我们不用原生的JS来创建虚拟DOM，而要使用JSX创建虚拟DOM呢？
+  ###### 为什么我们不用原生的JS来创建虚拟DOM，而要使用JSX来创建虚拟DOM呢？
   
   > 要说清楚这个问题，首先我们将上面创建虚拟DOM的方式，改为用JS来写：（不需要引入babel了）
   >
   > ```html
   > <script>
   >        // 1、用React对象上的createElement(标签名,标签属性,标签内容)方法来创建虚拟DOM
-  >        const VDOM = React.createElement('h1',{id:'title'},'Hello React!')
+  >        const vdom = React.createElement('h1',{id:'title'},'Hello React!')
   >        // 2、将创建的虚拟DOM渲染到页面上
-  >        ReactDOM.render(VDOM, document.getElementById('app'))
+  >        ReactDOM.render(vdom, document.getElementById('app'))
   > </script>
   > ```
   
@@ -105,8 +105,8 @@
   > 如果用JSX的语法来创建虚拟DOM，就简单多了：
   >
   > ```jsx
-  > //加外层的小括号表示里面的虚拟DOM是一个整体
-  > const VDOM = (
+  > // 加外层的小括号表示里面的虚拟DOM是一个整体，否则会有JS的语法错误
+  > const vdom = (
   >        <h1 id="title">
   >        	<span>Hello React!</span>
   >        </h1>
@@ -134,17 +134,27 @@
 
   ###### JSX的语法规则：
 
-  > 1. JSX中**根标签只能有一个**，且每个**标签必须闭合**。
+  > 1. JSX的标签结构要更严格，**根标签只能有一个**，且每个**标签必须闭合**。
+  >
+  >    > **为什么根标签只能有一个**：JSX 虽然看起来很像 HTML，但在底层其实被转化为了 JS 对象，你不能在一个函数中返回多个对象，除非用一个数组把他们包装起来。这就是为什么多个 JSX 标签必须要用一个父元素包起来。（也可以用`<></>`包起来，好处是不会多一层HTML结构，且React新版本还提供了`Fragment`组件）
+  >
   > 2. 由于是XML语法，因此JSX中可以写任意名字的标签。其中小写字母开头的标签会被当作HTML标签解析，**大写字母开头的标签，会被当作组件**去渲染。
-  > 3. 如果XML标签要动态化，需要混入JS表达式时，要用`{}`包起来。
-  > 4. 如果`{}`里面的是数组，那么React会自动帮你遍历数组，数组中每个元素都当作虚拟DOM顺序放在`{}`所在位置上。
+  >
+  > 3. 如果标签要动态化，需要写JS表达式时，要用`{}`包起来。
+  >
+  > 4. 如果`{}`里面的是数组，那么React会自动帮你遍历数组，数组中每个元素都当作虚拟DOM顺序放在`{}`所在位置。
+  >
   > 5. 和HTML中不同的是，标签的class类名属性叫`className`，因为JSX中包含JS语法，而`class`是JS中的关键字。
+  >
   > 6. 和HTML中不同的是，标签的`style`样式属性的值不能用字符串，也就是不能这样写：`<span style='container'></span>`，值必须是JS中的对象（动态的），如：`<span style={ {backgroundColor:'red',color:'red'} }></span>`，属性名采用小驼峰形式。
-  > 7. 和HTML中不同的是，**JSX标签的事件句柄属性是小驼峰形式**（后面再详细说），且值为回调函数名。如：`<div onClick={sayHi}></div>`
+  >
+  > 7. JSX中，**标签的属性必须是小驼峰形式**。因此，事件句柄属性也要写成小驼峰形式，且值为回调函数名：`<div onClick={sayHi}></div>`。注意：不要加小括号。React在解析JSX时会绑定上该函数，而不是调用函数。
+  >
+  >    > 由于历史原因，`aria-*`和`data-*`属性还是以带`-`的 HTML 格式书写的。
   
-  ###### 做一个小练习：
+  ###### 小练习：
   
-  ```html
+  ```jsx
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -164,8 +174,8 @@
     <!-- type属性写text/babel，表示里面写的是jsx，且要通过babel来转成js -->
     <script type="text/babel">
       const data = ['Angular','React','Vue']
-      // 1、创建虚拟DOM
-      const VDOM = (
+      // 1、创建虚拟DOM。多行要用小括号包一下，否则JS语法错误
+      const vdom = (
         <div>
           <h1>前端js框架列表</h1>
           <ul>
@@ -180,7 +190,7 @@
         </div>
       )
       // 2、将创建的虚拟DOM渲染到页面上
-      ReactDOM.render(VDOM, document.getElementById('app'))
+      ReactDOM.render(vdom, document.getElementById('app'))
     </script>
   </body>
   </html>
@@ -196,14 +206,15 @@
 
   ###### 关于组件：
 
-  > 组件是用来**实现局部功能效果的代码和资源的集合**（html/css/js/imgs等）。作用是：**复用代码，简化项目编码，提高运行效率**。当一个应用是以多组件的方式实现，那么这个应用就是一个**组件化的应用**。
-
-  ###### React中的组件其实就是类或函数，其中包含了一堆HTML结构和样式等。定义组件的2种方式：
-
-  - ##### 方式1：函数式组件（高版本中主要用这种）
-
-    > 用函数定义出来的组件就叫**函数式组件**。如：（以下代码都是在babel标签中执行）
-
+  > - React 应用程序是由 **组件（UI组件）** 组成的。一个组件是 UI（用户界面）的一部分，它拥有自己的结构和交互。组件可以小到一个按钮，也可以大到整个页面（布局组件）。
+  > - 组件是用来**实现局部功能效果的代码和资源的集合**（html/css/js/imgs等）。作用是：**复用代码，简化项目编码，提高运行效率**。当一个应用是以多组件的方式实现，那么这个应用就是一个**组件化的应用**。
+  
+  ###### React中的组件其实就是类或函数，其中包含了一堆HTML结构和交互（JS）。React中定义组件的2种方式：
+  
+  - ##### 方式1：函数式组件（新版本中主要用这种）
+  
+    > 函数定义的组件就叫**函数式组件**（函数组件的函数最好是纯函数）。如：（以下代码都是在babel标签中执行）
+  
     ```jsx
     // 1、创建函数式组件（函数名一定要大写字母开头，因为下面要用函数对应的组件标签）
     function Demo(props){// props形参后面会说
@@ -212,14 +223,14 @@
     }
     // 2、渲染组件到页面
     ReactDOM.render(<Demo/>, document.getElementById('app'))
-    /*  ReactDOM.render(<Demo/>, document.getElementById('app'))的执行流程是：
+    /*  ReactDOM.render(<Demo/>, document.getElementById('app'))的大致执行流程：
     		1、React会去解析组件标签<Demo/>，然后找到对应的Demo组件。
     		2、发现是函数式组件于是就调用该函数，将函数返回的虚拟DOM转为真实DOM渲染到页面上。
     */
     ```
-
-  - ##### 方式2：类式组件（目前低版本中主要用这种）
-
+  
+  - ##### 方式2：类式组件（低版本中这种用的多）
+  
     > 用类定义出来的组件就叫**类式组件**。如：（以下代码都是在babel标签中执行）
     
     ```jsx
@@ -234,16 +245,18 @@
     }
     // 2、渲染组件到页面
     ReactDOM.render(<Demo/>, document.getElementById('app'))
-    /*  ReactDOM.render(<Demo/>, document.getElementById('app'))的执行流程是：
+    /*  ReactDOM.render(<Demo/>, document.getElementById('app'))的大致执行流程：
     		1、React会去解析虚拟DOM，发现是大写字母开头的组件标签<Demo/>，于是找到对应的Demo组件。
     		2、发现是类式组件于是就new出来了Demo类的实例对象（组件实例对象），并通过该实例调用了Demo原型对象上的render()方法。
         	3、最后将render()返回的虚拟DOM转为了真实DOM渲染到页面上。
     */
     ```
-
+  
   ###### 简单组件和复杂组件的区别就是是否包含状态（state），有状态的组件就是复杂组件。那什么是状态呢？
-
+  
   > 组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
+  
+  ###### 之前低版本中没有Hooks的时候，简单组件就是函数组件，它无法做到响应式。但随着高版本Hooks的出现，函数组件也可以做到响应式，且由于写起来更简单更优雅，因此React官方推荐全面使用函数组件。（这个后面再说）
 
 ------
 
@@ -251,13 +264,13 @@
 
   - #### state（状态）
 
-    > - state是组件实例对象身上最重要的属性，**值必须是一个对象**。对象里面的一个个属性被称为组件的状态，所有组件也被称作**状态机**。通过更新组件的state可以完成对应页面的更新（重新渲染页面）。
+    > - state是组件实例对象身上最重要的属性，**值必须是一个对象**。对象里面的一个个属性被称为组件的状态，所以组件也被称作**状态机**。通过更新组件的state可以完成对应页面的更新（重新渲染页面）。
     >
     > - 更新state中的数据必须通过组件实例对象上的`setState({}/func,[callback])`方法，否则无法做到响应式的渲染页面。该API在`React.Component`的原型上。执行后React会拿着传入的对象与原来的state进行合并（不是替换），异步更新state。
     >
     >   > - 由于React是异步更新的state，所以第2个参数可以传一个回调函数，该函数会在state更新后执行。
     >   > - setState函数的第1个参数还可以是函数，该函数接收到2个参数state和props，返回的对象用于更新state。
-    >   > - 其实之前对象式的state是函数式state的语法糖。如果新state依赖于原state，那么推荐使用setState的函数式写法。
+    >   > - 其实对象式的state是函数式state的语法糖。如果新state依赖于原state，那么推荐使用setState的函数式写法。
     >
     > - 传进去的对象和原来的state对象进行合并，不是替换。
     >
@@ -269,7 +282,7 @@
     >      constructor(props){
     >      	super(props)
     >      	// 初始化类式组件中的状态（state属性）
-    >      	this.state= { isHot: true }
+    >      	this.state = { isHot: true }
     >      }
     >      ```
     >
@@ -280,45 +293,56 @@
     >      state = { isHot: true }
     >      ```
     >
-    > - **注意：**（类式）组件中的**自定义方法的this是`undefined`**。因为这些方法是通过事件回调的方式调用的，并且由于**类中所有的方法都在局部开启了严格模式**，所以this不是组件实例对象并且也不能指向window而是undefined。怎么解决呢？
+    > - **注意：**类组件中自己写的方法，其中的this是`undefined`。因为这些方法是通过事件回调的方式调用而不是实例调用，并且由于类中所有的方法都在局部开启了严格模式，所以this不是组件实例对象且不能指向window，所以是undefined：
     >
-    >   1. 在类式组件的构造函数中，给每一个自定义方法都加一行代码：
+    >   ```js
+    > class Demo {
+    >       myMethod(){/* 里面的this是undefined */}
+    >   }
+    >   ```
+    >
+    > - 怎么解决呢？
+    >
+    >   1. 在类组件的构造器中，手动更改每个自定义方法中的this，生成一个新方法放在实例自身上：
     >
     >      ```js
     >      this.changeWeather = this.changeWeather.bind(this)
     >      ```
     >
-    >      > 这样在每个组件实例自身都多了一个新的`changeWeather()`，它将原来原型上的`changeWeather()`的this做了更正。但这种方式的**缺点是**：每一个自定义方法都需要加一行代码在构造函数中做更正。
+    >      > 这样在每个组件实例自身都多了一个新的`changeWeather()`，它将原来原型上的`changeWeather()`的this做了更正。但这种方式的**缺点是**：每一个自定义方法都需要加一行代码在构造函数中做更正。而且原型上还有一个旧的changeWeather。
     >
-    >   2. （推荐）将组件中的自定义方法写成这种格式：
+    >   2. （推荐）组件中的自定义方法直接这样写即可：
     >
     >      ```js
-    >      changeWeather = ()=>{/*这里的this是组件实例对象*/}
+    >      changeWeather = ()=>{/* 里面的this是组件实例对象 */}
     >      ```
     >      
-    >> 这种方式相当于在每个组件实例的自身，都添加了一个自定义方法。并且由于该方法是箭头函数，所以方法中的this是类作用域的this，this指向当前的组件实例对象。
+    >      > 由于该方法是箭头函数，所以方法中的this是类作用域的this，this指向当前的组件实例对象。
+    >
     
-  - #### props
+  - #### props（只读的，不能改）
   
-    > 组件实例对象上的`props`属性可以让组件实例接收外部传过来的数据。只需要使用组件标签时给标签加上属性，React会自动将属性名和属性值以key-value的形式放在**props对象**中。如：（**注意：props是只读的，不允许改！**）
+    > 组件实例上的`props`属性可以让组件实例接收外部传过来的数据。只需要使用组件标签时给标签加上属性，React会自动将属性名和属性值以key-value的形式放在组件实例的props属性中，值是一个对象。如：（**注意：props是只读的，不允许改！**）
   
     ```jsx
     // 定义Student组件
     class Student extends React.Component {
         render() {
             const {name,sex,age} = this.props
-            return (<ul id="student">
-            			<li>姓名：{name}</li>
-            			<li>性别：{sex}</li>
-            			<li>年龄：{age+1}</li>
-            		</ul>)
+            return ( // 没有括号包裹的话，任何在 return 下一行的代码都将被忽略！
+                <ul id="student">
+                    <li>姓名：{name}</li>
+                    <li>性别：{sex}</li>
+                    <li>年龄：{age+1}</li>
+                </ul>
+            )
         }
     }
     // 将Student组件渲染到页面上
     ReactDOM.render(<Student name="艾克" age={15} sex="男"/>, document.getElementById('app'))
     ```
   
-    > 还可以**用展开运算符直接将对象中的键值对放到`props`对象中**：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
+    > 还可以**用展开运算符直接将对象中的键值对传到组件的`props`属性中**：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
   
     ###### 通过给类加静态属性`propTypes`和`defaultProps`，来约束传递的`props`数据的类型和默认值：
   
@@ -371,15 +395,13 @@
     >
     >    > 在React中，构造器仅用于2种情况，**初始化state**和**解决类中自定义函数的this指向**。而props实参如果不传，那么构造器中通过`this.props`无法访问实例上的`props`（但这个小bug无关紧要，因为构造器通过实参就可以拿到props）。
   
-    ###### 函数式组件中也有`props`，是在函数的实参上。要限制props的类型和默认值，就给函数上加那2个静态属性即可。（函数式组件暂时用不了state和refs，后面可以通过新语法Hook做到）
+    ###### 函数式组件中也有`props`，是在函数的实参上。要限制props的类型和默认值，就给函数上加那2个静态属性即可。（函数式组件暂时用不了state和refs，后面可以通过Hooks做到）
   
     ##### 关于props的细节：
   
-    > - 向props中传数据并非只能用标签属性的方式：`<MyComponent name={name} age={age}/>`，还可以将数据放在标签体中：
+    > - 向props中传数据并非只能用标签属性的方式：`<MyComponent name={name} age={age}/>`，还可以将数据放在标签体中：`<MyComponent>About</MyComponent>`，此时标签体中的About文本会被放在组件实例的`props.children`中。（当然不仅可以放文本，也可以放JSX组件）
     >
-    >   `<MyComponent>About</MyComponent>`，此时标签体中的About会被放在`props.children`中。
-    >
-    > - 注意：`children`是组件标签中的一个特殊的属性，显示的设置该属性的值就是在往标签体中写东西。
+    > - `children`是组件标签中的一个特殊的属性，用于显示的往组件的标签体中写东西。（如果传了children还在标签体中写东西了，那么标签体的优先级更高）
   
   - #### refs（不要过度使用）
   
