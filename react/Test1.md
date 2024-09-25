@@ -213,7 +213,7 @@
   
   - ##### 方式1：函数式组件（新版本中主要用这种）
   
-    > 函数定义的组件就叫**函数式组件**（函数组件的函数最好是纯函数）。如：（以下代码都是在babel标签中执行）
+    > 函数定义的组件就叫**函数式组件**。如：（以下代码都是在babel标签中执行）
   
     ```jsx
     // 1、创建函数式组件（函数名一定要大写字母开头，因为下面要用函数对应的组件标签）
@@ -228,6 +228,21 @@
     		2、发现是函数式组件于是就调用该函数，将函数返回的虚拟DOM转为真实DOM渲染到页面上。
     */
     ```
+  
+    > **Tips**：
+    >
+    > - 函数组件的函数最好是纯函数。也就是不要修改组件定义前就已经存在的变量，这可能会产生副作用。
+    > - 在React中，你可以在渲染时读取三种输入：props、state、context。你应该始终将这些输入视为只读，在组件中修改它们会使得组件【不纯】。
+    > - React 提供了 “严格模式”，在严格模式下开发时，它将会调用每个组件函数两次。**通过重复调用组件函数，严格模式有助于找到不纯的组件**。
+    > - 严格模式只在开发环境下有效，因此它不会降低应用程序的速度。如需引入严格模式，你可以用 `<React.StrictMode>` 包裹根组件App。
+    > - 哪些地方**可能**引发副作用 ？
+    >   1. 函数式编程在很大程度上依赖于纯函数，但 **某些事物** 在特定情况下不得不发生改变。这是编程的要义！这些变动包括更新屏幕、启动动画、更改数据等，它们被称为 **副作用**。它们是 **“额外”** 发生的事情，与渲染过程无关。
+    >   2. 在 React 中，**副作用通常属于事件处理程序**。事件处理程序是 React 在你执行某些操作（如单击按钮）时运行的函数。即使事件处理程序是在你的组件 **内部** 定义的，它们也不会在渲染期间运行！ **因此事件处理函数无需是纯函数**。
+    >   3. 如果你用尽一切办法，仍无法为副作用找到合适的事件处理程序，你还可以调用组件中的`useEffect()`方法将其附加到返回的JSX中。这会告诉 React 在渲染结束后执行它。**然而，这种方法应该是你最后的手段**。如果可能，请尝试仅通过渲染过程来表达你的逻辑。你会惊讶于这能带给你多少好处！
+    > - 使用纯函数编写组件有哪些好处？
+    >   1. 你的组件可以在不同的环境下运行。
+    >   2. 你可以放心的为纯函数组件开启缓存来跳过渲染，以提高性能。
+    >   3. 在渲染深层次组件树时，数据发生变化后，React可以立即停止并重新开始渲染组件树。不必浪费时间完成过时的渲染。
   
   - ##### 方式2：类式组件（低版本中这种用的多）
   
@@ -529,7 +544,7 @@
   
          > 派生状态会导致代码很冗余，并使组件难以维护，所以该钩子用的极少，了解即可。（只有state的值在任何情况下都取决于props时才考虑使用该钩子函数）
   
-    - （了解）当组件更新`render()`执行后，在页面完成更新之前，还会执行`getSnapshotBeforeUpdate(preProps,preState)`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
+    - （了解）当组件走更新流程`render()`执行后，在页面完成更新之前，还会执行`getSnapshotBeforeUpdate(preProps,preState)`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
   
       > 其实`componentDidUpdate(preProps,preState,snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
@@ -548,12 +563,12 @@
   ###### React项目创建成功后，查看`package.json`的scripts配置项目：
 
   ```json
-    "scripts": {
-    	"start": "react-scripts start",
-    	"build": "react-scripts build",
-    	"test": "react-scripts test",
-    	"eject": "react-scripts eject"
-    },
+  "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test",
+      "eject": "react-scripts eject"
+  },
   ```
 
   > - 其中`npm start`可以启动一台开发者服务器，帮助我们开发和调试React项目。
@@ -579,12 +594,11 @@
     - App.js & App.css：分别是App组件和App组件的样式文件。**App组件是所有组件的根组件**，id为root的div中只需要引入App组件即可。
     - index.js & index.css：React项目的**入口文件**和全局样式文件。入口文件中引入了App组件并通过`ReactDOM.render()`将根组件（虚拟DOM）渲染到了id为root的div中（至于为什么能找到index.html是因为脚手架的Webpack中配置好了）。全局样式文件中存放全局样式，如果不想参与打包也可以放在public目录下在index.html中进行导入。
   
-    > - 至于`<App/>`标签外层为什么要包裹一个`<React.StrictMode>`标签，是因为包裹了之后它能帮助检查App组件及其子组件写的是否合理。
-    > - App组件中还用了`reportWebVitals.js`，它是用于记录页面上的性能的，里面用的`web-vitals`库。
+    > App组件中还用了`reportWebVitals.js`，它是用于记录页面上的性能的，里面用的`web-vitals`库。
+    
+  - 其他的：App.test.js是专门为App组件做测试的，setupTests.js是用于React项目的整体测试或组件测试的。（这俩几乎不用）
   
-  - 其他的像：App.test.js是专门为App组件做测试的，setupTests.js是用于React项目的整体测试或组件测试的。（这俩几乎不用）
-  
-  > 我们一般只需要写index.html、index.js、App.jsx、App.css即可。并且由于React中编写组件会用JSX语法，所以一般组件文件的扩展名为`.jsx`。除了App外的其他子组件都放在`src/components`下，每个组件都是单独的目录，目录名就是组件名。目录中存放组件文件：`index.jsx`或`组件名.jsx`，以及组件的样式和组件中用到的所有资源。
+  > 我们一般只需要写index.html、index.js、App.jsx、App.css即可。并且由于React中编写组件会用JSX语法，所以一般组件文件的扩展名为`.jsx`。除了App外的其他UI组件都放在`src/components`下，每个组件都是单独的目录，目录名就是组件名，目录中存放组件文件：`index.jsx`或`组件名.jsx`，以及组件的样式和组件中用到的所有资源。布局组件放在`src/layouts`目录下。
 
 ------
 
@@ -640,7 +654,7 @@
 
 - ### 消息订阅与发布
 
-  > React中要想实现任意组件间通信，需要用第三方的消息订阅与发布技术。一般我们用`pubsub-js`，在`componentDidMount()`中订阅消息，在`componentWillUnmount()`中取消订阅。（Vue中讲过，这里不再细说）
+  > React中要想实现任意组件间通信，需要用第三方的消息订阅与发布技术。一般我们用`pubsub-js`（或`mitt`），在`componentDidMount()`中订阅消息，在`componentWillUnmount()`中取消订阅。（Vue中讲过，这里不再细说）
 
 ------
 
