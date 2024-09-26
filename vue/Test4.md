@@ -396,19 +396,19 @@
   > ```js
   > import { reactive, onMounted, onBeforeUnmount } from 'vue'
   > export default ()=>{ // 获取鼠标点击位置的Hook函数
-  >        let point = reactive({x:0,y:0})
-  >        function savePoint(e){
-  >        	point.x = e.pageX
-  >        	point.y = e.pageY
-  >        }
+  >     let point = reactive({x:0,y:0})
+  >     function savePoint(e){
+  >     	point.x = e.pageX
+  >     	point.y = e.pageY
+  >     }
   > 
-  >        onMounted(()=>{
-  >        	window.addEventListener('click',savePoint)
-  >        })
-  >        onBeforeUnmount(()=>{
-  >        	window.removeEventListener('click',savePoint)
-  >        })
-  >        return point
+  >     onMounted(()=>{
+  >     	window.addEventListener('click',savePoint)
+  >     })
+  >     onBeforeUnmount(()=>{
+  >     	window.removeEventListener('click',savePoint)
+  >     })
+  >     return point
   > }
   > ```
   >
@@ -421,17 +421,19 @@
   > 	<span>y坐标:{{y}}</span>
   > </template>
   > <script>
-  >        import { ref } from 'vue'
-  >        import usePoint from './hooks/usePoint'
-  >        export default {
-  >            name: 'App',
-  >            setup(){
-  >            	let {x,y} = usePoint()
-  >            	return {x,y}
-  >            }
-  >        }
+  >     import { ref } from 'vue'
+  >     import usePoint from './hooks/usePoint'
+  >     export default {
+  >         name: 'App',
+  >         setup(){
+  >         	let {x,y} = usePoint()
+  >         	return {x,y}
+  >         }
+  >     }
   > </script>
   > ```
+  
+  ###### 注意：自定义的Hook函数也不一定非得按照上面的格式来写，只要实现了Hook的功能即可。
 
 
 ------

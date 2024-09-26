@@ -32,7 +32,7 @@
 
 - ### React Hooks/Hook
 
-  > Hook是React 16.8.0版本增加的新特性，可以让你在函数式组件中使用state、ref、生命周期钩子以及其他类组件中才能用的React特性。（类组件不能用）
+  > Hook是React 16.8.0版本增加的新特性，可以让你在函数式组件中使用state、ref、生命周期钩子以及其他类组件中才能用的React特性。
 
   ##### 3个常用的Hook：
 
@@ -67,7 +67,14 @@
     > - `React.useEffect(()=>{ return ()=>{} },[])`可以让我们在函数式组件里使用生命周期钩子。
     > - 该方法调用时传入2个参数。第1个函数参数相当于`componentDidmount()`和`componentDidUpdate()`的结合体。第2个数组参数里面写要监视的state中的状态（变量）。如果不指定第2个参数表示监视整个state。
     > - 并且第1个函数参数中，如果返回了一个函数，那么这个函数还相当于`componentWillUnmount()`
-    
+
+
+  ##### 使用React Hooks的注意事项：
+
+  1. 所有内置的Hooks只能在函数中使用。（类组件中用不了Hooks）
+  2. 只能在函数的顶层作用域中使用，不能嵌套在if、for、内部的其他函数中。
+
+------
 
 - ### Fragment（碎片）
 
@@ -118,7 +125,7 @@
        const value = React.useContext(XxxContext)
        ```
 
-  > 在实际开发中我们一般不用context，一般都用它封装的react插件。
+  > 在实际开发中我们一般不用context，一般都用它封装的React插件。
 
 ------
 

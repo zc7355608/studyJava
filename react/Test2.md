@@ -284,9 +284,11 @@
 >
 > - Redux中有3个重要的组成部分：**Action、Reducer、Store**。其中`Action`是一个对象，其中定义了对state的操作。`Reducer`完成state的初始化、以及后续state的更新，返回值作为新的state，它必须是一个**纯函数**。`Store`是Redux的核心对象，Redux工作的核心API都在该对象上，它是唯一的且维护着唯一的state（类型任意）。state的更新通过Store调用相应的Reducer来完成，具体工作流程为：
 >
->   - 当你要操作state时，首先需要将要做的操作，通过`ActionCreator`函数创建出来一个操作该state的action对象（当然这个action也可以自己写）。
->   - 然后通知Store拿着这个action对象，去根据type分发给对应的Reducer完成state的更新：`store.dispatch(action)`。（Redux中管理的每个数据都一一对应一个ActionCreator和Reducer）
->   - 执行了这行代码后，Store就会拿着action去调用相应的Reducer函数完成对state的更新了。最终会跟据action对象的type属性来决定调用哪个Reducer。
+>   - 当你要操作state时，首先需要将要做的操作，通过`ActionCreator`函数创建出来一个操作state的action对象（当然这个action也可以自己写）。
+>
+>   - 然后Store根据action的type分发给对应的Reducer完成对state的更新：`store.dispatch(action)`。
+>
+>     > 执行了`dispatch`后，Store就会拿着action去调用相应的Reducer函数完成对state的更新了。最终会跟据action对象的type属性来决定调用哪个Reducer。
 >
 > - Action对象有2个属性：其中type属性是必须的，表示操作的类型，值是Reducer函数中定义好的操作名（字符串，在Redux中必须唯一）。data属性是可选的，用于存放操作的值。
 >
@@ -294,11 +296,9 @@
 >
 > - 当Store对象初始化时，会调用1次Reducer函数（所有的）去初始化state。此时Reducer函数的preState为undefined、action对象中只有type属性且值为随机字符串。
 >
-> - 通过`store.getState()`方法可以获取Store对象中维护的（唯一的）状态state。（里面可能包含了Redux管理的多个数据）
+> - 通过`store.getState()`方法可以获取Store对象中维护的（唯一的）状态state。
 >
-> - Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。因此Redux提供了一个API，只要state发生变化（浅层次），就会帮你调指定的函数：`store.subscribe(func)`。
->
->   > 因此我们只需要将重新渲染页面的函数订阅到Redux中，那么state变化Redux就可以重新渲染页面了。
+> - Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。因此Redux提供了一个API，只要state发生变化（浅层次），就会帮你调指定的函数：`store.subscribe(func)`。因此我们只要将重新渲染页面的代码订阅到func中，当state变化Redux就能拿到最新的state去重新渲染页面了。
 >
 
 ###### 搭建Redux环境：
@@ -447,7 +447,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                                                   
+  >                                                         
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -505,7 +505,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >                                 
+  >                                     
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -513,7 +513,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >                                 
+  >                                     
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   

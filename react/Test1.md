@@ -453,7 +453,7 @@
        > }
        > ```
        >
-       > 组件标签中：
+       > 标签中：
        >
        > ```html
        > <input ref={this.myInput} type="text"/>
