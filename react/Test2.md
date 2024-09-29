@@ -280,32 +280,31 @@
 
 ###### Redux的工作原理：
 
-> - 当某个组件的数据需要多个组件共享时，最好的方式就是将其放在Redux中，让它帮我们维护需要多个组件共享的数据（状态）。此时数据不在自身了，当组件要操作数据（状态）时，需要通知Redux让它来调度去完成对state的操作。
+> - 当某个组件的数据需要多个组件共享时，最好的方式就是将其放在Redux中，让它帮我们维护需要多个组件共享的数据（状态），类型通常是一个对象，这样可以保存多个数据。此时数据不在自身了，当组件要操作数据（状态）时，需要通知Redux让它来调度以完成对state的操作。
 >
-> - Redux中有3个重要的组成部分：**Action、Reducer、Store**。其中`Action`是一个对象，其中定义了对state的操作。`Reducer`完成state的初始化、以及后续state的更新，返回值作为新的state，它必须是一个**纯函数**。`Store`是Redux的核心对象，Redux工作的核心API都在该对象上，它是唯一的且维护着唯一的state（类型任意）。state的更新通过Store调用相应的Reducer来完成，具体工作流程为：
+> - Redux中有3个重要的组成：**Action、Reducer、Store**。
 >
->   - 当你要操作state时，首先需要将要做的操作，通过`ActionCreator`函数创建出来一个操作state的action对象（当然这个action也可以自己写）。
+>   - 其中`Action`是一个对象，定义了对state的操作，它包含2个属性：其中`type`属性是必须的，表示操作的类型（Redux中必须唯一），值是Reducer函数中定义好的操作名字符串。`data`属性是可选的，用于存放操作值。
 >
->   - 然后Store根据action的type分发给对应的Reducer完成对state的更新：`store.dispatch(action)`。
+>   - `Reducer`完成state的修改及初始化，返回值作为新的state，它同样必须是一个纯函数。Reducer函数接收2个参数：preState（先前的state）和action对象。Reducer函数的返回值会作为新的state交给Store维护。
 >
->     > 执行了`dispatch`后，Store就会拿着action去调用相应的Reducer函数完成对state的更新了。最终会跟据action对象的type属性来决定调用哪个Reducer。
+>     > 当Store对象初始化时，会调用1次Reducer函数去初始化state。此时Reducer函数的preState为undefined、action对象中只有type属性且值为随机字符串（为了和自己写的action中的type冲突）。
 >
-> - Action对象有2个属性：其中type属性是必须的，表示操作的类型，值是Reducer函数中定义好的操作名（字符串，在Redux中必须唯一）。data属性是可选的，用于存放操作的值。
+>   - `Store`是Redux的核心，Redux工作时所需的API都在该对象上，它是唯一的且维护着唯一的state（类型任意）。state的更新通过Store调用其对应的Reducer函数来完成。
 >
-> - Reducer函数接收2个参数：preState（先前的state）和action对象。Reducer函数的返回值会作为新的state交给Store维护。
+> - Redux的工作流程：
 >
-> - 当Store对象初始化时，会调用1次Reducer函数（所有的）去初始化state。此时Reducer函数的preState为undefined、action对象中只有type属性且值为随机字符串。
+>   1. 当你要操作state时，首先需要将要做的操作，通过`ActionCreator`函数创建一个用于操作state的action对象。（这个action也可以自己写，不用ActionCreator）
+>   2. 然后调用Store对象的`dispatch()`方法并将action作为参数传进去，此时Store会调用Reducer函数，根据action的type来对state更新。
+>   3. 最后通过`store.getState()`方法可以获取Redux中保存的（唯一的）状态state。
 >
-> - 通过`store.getState()`方法可以获取Store对象中维护的（唯一的）状态state。
->
-> - Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。因此Redux提供了一个API，只要state发生变化（浅层次），就会帮你调指定的函数：`store.subscribe(func)`。因此我们只要将重新渲染页面的代码订阅到func中，当state变化Redux就能拿到最新的state去重新渲染页面了。
->
+> - 注意：Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。因此Redux提供了一个API，只要state发生变化（浅层次），就会帮你调指定的函数：`store.subscribe(func)`。因此我们只要将重新渲染页面的代码订阅到func中，当state变化React就会重新渲染页面了。
 
 ###### 搭建Redux环境：
 
 1. 安装Redux：`npm i redux`，并在src/下新建redux/目录，用于存放Redux中的所有文件。
 
-2. （核心）编写`redux/store.js`，用于创建Redux中的核心**store对象**（全局唯一）：
+2. （核心）编写`redux/store.js`（或`store/index.js`），用于创建Redux中的核心**store对象**（全局唯一）：
 
    ```js
    // 引入createStore()函数，它专门用于创建核心的store对象
@@ -319,7 +318,7 @@
 
    > 目前Store就管理一个count数据所以就关联一个为count服务的Reducer，将来要管理多个数据需要关联多个Reducer时就不是这样写了。
 
-3. 编写`redux/count_reducer.js`，用于创建**为count数据服务的Reducer（函数）**：
+3. 编写`redux/count_reducer.js`，用于创建**为count服务的Reducer（函数）**：（只要执行了dispatch，Reducer就会执行）
 
    ```js
    // 定义初始化的state
@@ -350,7 +349,7 @@
   <h1>当前求和为：{store.getState()}</h1>
   ```
   
-- 通知Redux去修改state：`store.dispatch({type:'increment',data:100})`，让Store拿着action分发给对应的Reducer完成操作。
+- 通知Redux去修改state：`store.dispatch({type:'increment',data:100})`。dispatch只要调用，就会执行Store关联的Reducer。
 
 ###### 但是这里有一个问题：
 
@@ -447,12 +446,12 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                                                         
+  >                                                            
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
   >   
-  >- 并且Redux调用这个异步action函数时，它就知道你肯定会在里面使用dispatch函数，所以调用时Store会给函数式action传参dispatch，不用再引入store了。
+  >- 并且Redux调用这个异步action函数时，它就知道你肯定会在里面使用dispatch函数，所以调用时Store会给函数式action传参dispatch，不用再引入store了：`return (dispatch) => {..}`
   
 - #### 使用`react-redux`
 
@@ -460,7 +459,7 @@ store.subscribe(()=>{
 
   > 在用`react-redux`之前，我们先了解一些概念：
   >
-  > 1. 所有要用Redux的UI组件（就是我们写的组件）都应该包裹一个**容器组件**，它们是直接父子关系。
+  > 1. 所有要用Redux的**UI组件**都应该包裹一个**容器组件**，它们是直接父子关系。
   > 2. 真正和Redux打交道的是容器组件，只有容器组件中才可以随意使用Redux的API。（我们写的UI组件中不能出现任何Redux的东西）
   > 3. 容器组件会通过props给UI组件（子组件）传2个东西：1、Redux中维护的state。2、用于操作state的方法。
   >
@@ -496,7 +495,7 @@ store.subscribe(()=>{
   
   > - UI组件通过父容器组件和Redux打交道，而容器组件会通过props给UI组件传state和操作state的方法。但是目前存在问题：容器组件和UI组件之间的父子关系不是靠我们写标签形成的，没办法用props怎么办？
   >
-  > - 容器组件是这样给UI组件传state和操作state的方法的：connect()方法调用时可以传2个（函数型）参数，这两个函数**返回的对象都会以props的形式传给UI组件**。
+  > - 容器组件是这样给UI组件传state和操作state的方法的：connect()方法调用时可以传2个（函数型）参数，这两个函数**返回的对象中的K-V，会以props的形式传给UI组件**。
   >
   > - 其中第1个函数用来传state，参数也是state；第2个函数用来传操作state的方法，参数是dispatch。（默认还给UI组件传了store对象）
   >
@@ -505,7 +504,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >                                     
+  >                                       
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -513,7 +512,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >                                     
+  >                                       
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   
@@ -544,9 +543,9 @@ store.subscribe(()=>{
   
   - mapDispatchToProps的对象写法：
   
-    > - 你有没有发现，mapActionToProps返回的对象中，方法体的重复度有点高。在每个方法最后，都要拿着返回的action对象去调用dispatch更新state，因为容器组件传的就是操作state的方法。
+    > - 你有没有发现，mapDispatchToProps返回的对象中，方法体的重复度有点高。在每个方法最后，都要拿着返回的action对象去调用dispatch更新state。因为容器组件传的就是操作state的方法，而操作state必然要调用dispatch。
     >
-    > - 那既然每个操作state的方法最终都要拿着action调用dispatch，所以react-redux就对其做了优化：
+    > - 既然每个操作state的方法最终都要拿着action调用dispatch，所以react-redux就对其做了优化：
     >
     >   > mapDispatchToProps不要再写成函数了，代码冗余度太高，直接写成一个对象，对象中是一个一个操作state的方法。这些方法的返回值我都当作action对象，自动帮你去调用dispatch更新state：
     >   
@@ -642,8 +641,7 @@ store.subscribe(()=>{
      export default createStore(reducer, applyMiddleware(thunk))
      ```
   
-     > - 合并之后就变成了一个总的Reducer，所以要求操作不同state的操作名不能重复。
-     > - 合并之后Redux中的state就变成了一个对象，对象中有count和person属性，初值分别为0和数组（对应Reducer()函数的返回结果）。以后每次根据操作名调用不同的Reducer去更新state后，都是一个新的state对象了。
+     > 合并之后Redux中的state就变成了一个对象，对象中有count和person属性，初值分别为0和数组（对应Reducer函数的返回结果）。并且所有的Reducer函数汇总成了一个总的Reducer，只要执行dispatch，那么所有的Reducer函数都会执行。所以要求操作不同state的操作名不能重复。
      
      一般不在store.js中合并所有的Reducer，而是在reducers/下新建index.js（用于合并所有的Reducer，并暴露一个汇总后的Reducer）：
      
@@ -690,7 +688,7 @@ store.subscribe(()=>{
 
 ------
 
-# 项目打包运行
+# 项目打包运行（静态站点生成SSG）
 
 > 项目写完了，如何将我们写的React应用真正部署在服务器上。步骤：
 
