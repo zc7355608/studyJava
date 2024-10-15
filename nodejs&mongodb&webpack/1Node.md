@@ -796,7 +796,7 @@ server.listen(9000, () => {
 
   > 中间件（中间件函数）是express中的一个功能，它本质是一个回调函数。我们可以在该函数中，对请求和响应做一个处理。中间件的作用就是封装公共操作，简化代码。中间件分为2大类：
   >
-  > - 全局中间件：它是在所有路由函数`app.get()`之前执行（要放在所有路由函数前才能在路由函数前执行）
+  > - 全局中间件：它最好放在所有的路由函数`app.get()`之前，以保持代码逻辑清晰且符合预期的执行顺序。
   > - 路由中间件：它是在部分路由函数之前执行，在全局中间件之后执行（在路由函数参数上加）
   >
   
@@ -856,19 +856,20 @@ server.listen(9000, () => {
 
   - `body-parser`的使用：
 
-    > 之前版本需要npm先安装该软件包，然后才能使用`body-parser`的这2个解析器中间件，分别用于解析URL编码和JSON串这两种请求体（默认忽略请求体不是这两种格式的请求）。使用：
+    > 之前版本需要npm先安装该软件包，然后才能使用`body-parser`的这3个中间件，分别用于解析URL编码、JSON串、二进制数据这3种请求体（当不是这3种请求体时，则不做任何处理）。使用：
     >
     > ```js
     > const bodyParser = require('body-parser')
-    > //解析URL编码的请求体数据时，使用上方Node内置的querystring模块，而不是使用第三方库qs
+    > // extend：true当 extended 被设置为 true 时，express.urlencoded 中间件会使用一个完整的查询字符串解析库（通常是 qs 库）来解析请求体。这种模式支持更复杂的对象结构，允许在表单数据中使用嵌套的对象和数组。
     > const urlParser = bodyParser.urlencoded({ extended: false })
     > const jsonParser = bodyParser.json()
+    > // const binParser = bodyParser.raw() 解析二进制数据，将其添加到req.body上
     > app.get('/abc', urlParser, (req, res) => {
-    > //将url编码格式串，解析为JS对象，将该对象添加到req.body属性上
+    > // 将url编码格式串，解析为JS对象，将该对象添加到req.body属性上
     > 	res.end(req.body)
     > })
     > app.post('/def', jsonParser, (req, res) => {
-    > //将json串解析为JS对象，将该JS对象添加到req.body属性上
+    > // 将json串解析为JS对象，将该JS对象添加到req.body属性上
     > 	res.end(req.body)
     > })
     > ```
@@ -877,11 +878,12 @@ server.listen(9000, () => {
   
   - JSON解析中间件的使用：
   
-    > 之后Express集成了`body-parser`，所以无需下载和导包，直接可以使用这两个中间件函数，用法：
+    > 之后Express集成了`body-parser`，所以无需下载和导包，直接可以使用这3个中间件函数，用法：
     >
     > ```js
     > app.use(express.urlencoded({ extended: false }))
     > app.use(express.json())
+    > app.use(express.raw())
     > app.post('/abc', (req, res) => {
     > 	console.log(req.body)
     > 	res.end();
