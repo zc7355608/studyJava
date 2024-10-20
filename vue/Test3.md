@@ -232,7 +232,7 @@
 
 > **路由（Route）**就是一组K-V的对应关系。多个路由需要经过**路由器（Router）**的管理。
 
-> - Vue中的路由是一个Vue的**插件库（vue-router）**，专门为了实现SPA（单页面）应用的。其中K为路径，V是组件。
+> - Vue中的路由是一个Vue的**插件（vue-router）**，专门为了实现SPA（单页面）应用的。其中K为路径，V是组件。
 > - SPA应用（Single Page web Application）的特点：
 >   1. 整个应用只有**一个完整的页面**（1个html）。
 >   2. 点击页面导航**不会刷新页面，只做局部的组件更换**。
@@ -244,13 +244,13 @@
 >
 >   > Hash模式的路由实现方式不是用的HTML5的`History API`，而是通过`#`号。锚点跳转也会留下历史记录，因此这种Hash模式的路由兼容性好。
 >
-> - `History API`包括以下几个主要的方法：
->   
->   - `pushState()`：可以向浏览器的历史栈中添加一个新的记录，同时改变当前的URL。
+> - 几个常用的`History API`：
+>
+>   - `pushState()`：可以向浏览器的历史栈中添加一个新的记录，同时改变当前的URL（不发请求）。
 >   - `replaceState()`：类似于`pushState()`，但是它会替换当前的历史记录而不是添加新的记录。
 >   - `onpopstate`事件：当用户使用浏览器的前进或后退按钮时触发。
->   
-> - 如何工作：当我们在React或Vue应用中导航到一个新的路由时，前端框架会调用`pushState()`来更新URL，并将这个新的URL添加到浏览器的历史记录中。这样，即使URL改变了，也不会触发一个完整的页面刷新，而是由前端框架接管这个URL的变化，并根据这个变化渲染相应的组件。
+>
+> - History API的工作原理：当我们在React或Vue应用中导航到一个新的路由时，前端框架会调用`pushState()`来更新URL，并将这个新的URL添加到浏览器的历史记录中。这样即使URL改变了，也不会触发一个完整的页面刷新，而是由前端框架接管这个URL的变化，并根据这个变化渲染相应的组件。
 
 ###### 路由的配置：
 
@@ -284,10 +284,12 @@
    
    > **路由组件：**
    >
-   > - 通常在routes中配置的组件称为路由组件，和普通组件不同的是，路由组件不需要我们自己写组件标签。且路由组件单独放在`pages/`或`views/`目录下。
+   > - 通常在routes中配置的组件称为路由组件，和普通组件不同的是，路由组件不需要我们自己写组件标签。路由组件一般放在`pages/`或`views/`目录下。
+   >
    > - 配置好的路由组件实例vc身上会多两个API：`$route`是该路由组件的路由信息对象，`$router`是全局唯一的VueRouter实例（路由器）。
    >
-   > > Vue3中，这两个对象（$route/$router）需要调用`vue-router`中的Hook来获取：`useRoute()`和`useRouter()`，返回值分别是**路由信息对象**和**VueRouter实例**（也是Proxy对象）。
+   >   > Vue3中，这两个对象（$route/$router）需要调用`vue-router`中的Hook来获取：`useRoute()`和`useRouter()`，返回值分别是**路由信息对象**和**VueRouter实例**（也是Proxy对象）。
+   >
    
 3. 入口文件main.js中使用`vue-router`插件，这样vm实例中就可以写`router`配置项了，值是刚刚暴露的VueRouter实例：
    ```js
@@ -512,7 +514,7 @@
 - #### `<router-link>`的replace属性：
 
   > - 点击`<router-link>`写的路由导航时，由于是a标签所以每一次点击更改地址栏路径后，都会形成历史记录。历史记录栈会将当前路径url进行push压栈（默认），栈针默认指向栈顶。而点击前进、后退按钮其实就是在操作历史记录栈的栈针。
-  > - 浏览器中有前进和后退按钮，这两个按钮都是依赖于浏览器的历史记录在工作的。浏览器的历史记录有2种写入模式，分别是：push和replace。push是追加历史记录，replace是替换当前记录。`<router-link>`路由导航跳转的时候默认为push。
+  > - 浏览器中有前进和后退按钮，这两个按钮都是依赖于浏览器的历史记录在工作的。浏览器的历史记录有2种写入模式，分别是：push和replace。push是追加历史记录，replace是替换当前记录。`<router-link>`路由导航跳转的时候**默认为push**。
   > - 对历史记录栈的操作其实还有另一种模式：替换（replace），它是用当前url对栈顶记录进行替换。开启替换模式：`<router-link replace>`
 
   ###### 所以`<router-link>`的replace属性的作用是：将路由跳转时操作浏览器历史记录的模式改为replace。
@@ -531,7 +533,7 @@
   >
   > 可以，用`<keep-alive>`标签将`<router-view>`标签包起来即可。而且通过给`<keep-alive>`标签设置`include='About'`属性可以指定只缓存其中某些组件，**值是组件名**（字符串或字符串数组）。
 
-- #### 路由组件独有的2个生命周期钩子：
+- #### 路由组件独有的2个生命周期钩子：（在routes配置项中配置的组件都有这两个生命周期钩子）
 
   - `actived(){}`：路由组件被激活时触发。
   - `deactived(){}`：路由组件失活时触发。
@@ -560,7 +562,7 @@
   
   - **独享路由守卫/局部路由守卫**：`beforeEnter(to,from,next){}`，如果只想给某一个路由单独设置前置守卫，可以**给路由添加**`beforeEnter`配置项，值是一个函数。
   
-  - **组件内路由守卫**：不同与前几种路由守卫，组件内路由守卫是组件实例配置项中的2个方法`beforeRouterEnter(to,from,next)`和`beforeRouterLeave(to,from,next)`，这俩个方法的调用时机是，**只有通过路由规则进入/离开该组件时才被调用**。（不同于路由组件的2个生命周期钩子，这两个方法只有通过路由规则切换路由组件时才会被调用）
+  - **组件内路由守卫**：不同与前几种路由守卫，组件内路由守卫是组件实例配置项中的2个方法`beforeRouterEnter(to,from,next)`和`beforeRouterLeave(to,from,next)`，这两个方法的调用时机是：**只有通过路由规则进入/离开该组件时才被调用**。（不同于路由组件的2个生命周期钩子，这两个方法只有通过路由规则切换路由组件时才会被调用）
   
     > 注意：组件内路由守卫的进入和离开方法中，都需要执行`next()`方法才会完成路由的切换。
   
@@ -580,14 +582,14 @@
   >   })
   >   ```
   >
-  > - Vue3中这样配置路由的工作模式：（Vue3中最好显示指定路由的工作模式，否则会报错）
+  > - Vue3中这样配置：（Vue3中最好显示指定路由的工作模式，否则会报错）
   >
   >   ```js
   >   import { createRouter, createWebHistory, createWebHashHistory } from 'vue-router'
   >   export default createRouter({
   >       // 使用 history 模式
   >       // history: createWebHistory(),
-  >                   
+  >                     
   >       // 或者用 hash 模式（默认）
   >       history: createWebHashHistory(),
   >       routes: [{},..]

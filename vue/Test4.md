@@ -26,13 +26,13 @@
 
      1. 组合式API：setup配置、ref与reactive、watch和watchEffect、provide与inject、...
      2. 新的内置组件：Fragment、Teleport、Suspense、...
-     3. 其他的改变：新的声明周期钩子、data配置项应始终用函数写法、移除keyCode作为v-on的修饰符、移除过滤器、...
+     3. 其他的改变：新的声明周期钩子、data配置项应始终用函数写法、vue文件中可以写多个script标签（多个标签的lang属性必须相同）、移除keyCode作为v-on的修饰符、移除过滤器、...
 
 - ------
 
 - ### 创建Vue3项目
 
-  - 方式1：通过Vue脚手架创建（脚手架是基于Webpack的）。
+  - 方式1：通过Vue脚手架创建（Vue2的脚手架是基于Webpack的）。
 
   - 方式2：使用Vite创建（Vue3的脚手架）：
 
@@ -53,7 +53,7 @@
     >   ![image-20240826221002655](./assets/image-20240826221002655.png)
     >
     
-    1. `npm create vue@latest`，这一指令将会安装并执行[create-vue](https://github.com/vuejs/create-vue)，它是 Vue3 官方的（基于Vite）项目脚手架工具。执行后按照项目构建提示创建项目即可。
+    1. `npm create vue@latest`，这一指令将会安装并执行create-vue工具，它是 Vue3 官方的（基于Vite）项目脚手架工具。执行后按照项目构建提示创建项目即可。
     2. cd进入工程目录后安装依赖：`npm i`，然后运行项目：`npm run dev`。
     
     ###### （基于Vite的）Vue3脚手架和Vue2脚手架创建的工程，目录结构不太一样，这里简单说下：
@@ -85,24 +85,24 @@
   // 采用分别引入的方式引入了createApp工厂函数
   import { createApp } from 'vue'
   import App from './App.vue'
-  createApp(App).mount('#root')
+  createApp(App).mount('#root')  // 不是$mount()方法了
   ```
 
-  > `createApp(App)`函数会通过传入App组件，去创建一个**应用实例对象**（其实就是更轻量的vm），通过该对象的mount()方法将App组件挂载到id为root的HTML容器中（填充）。它身上还有unmount()可以从容器中卸载App组件。
+  > `createApp(App)`函数会通过传入App组件，去创建一个**应用实例对象**（其实就是更轻量的vm），通过该对象的`mount()`方法将App组件挂载到id为root的HTML容器中（填充）。它身上还有`unmount()`可以从容器中卸载App组件。
 
   ###### 注意：原来Vue2的入口文件写法在Vue3中不能用了。
 
 - ------
 
-- ### 组合式API的基础——setup配置项
+- ### Vue3组合式API的基础——setup配置项
 
-    > - setup是Vue3中的一个新的组件配置项，值是一个函数。它是所有组合式API表演的舞台，组件中所有用到的数据、方法、生命周期钩子等，均写在setup函数中（非必须）。（之前在组件中写的配置项叫**选项式API**）
+    > - setup是Vue3中的一个新的组件配置项，值是一个函数。它是所有组合式API表演的舞台，组件中所有用到的数据、方法、生命周期钩子等，均要写在setup函数中（非必须）。（之前在组件中写的配置项叫**选项式API**）
     >
     > - setup函数的2种返回值：
     >
     >   - **若返回一个普通的JS对象，则对象中的属性和方法可以直接在Vue模板中使用。**
     >
-    >   - （了解）若返回一个函数，则该函数的返回值将作为Vue模板（虚拟DOM）被渲染到页面上。
+    >   - （了解）返回一个**渲染函数**，该渲染函数的返回值将作为Vue模板（虚拟DOM）被渲染到页面上。
     >
     >     ```js
     >     import { h } from 'vue'
@@ -124,8 +124,8 @@
     > - **注意：**
     >
     >   1. Vue3中尽量不要写Vue2的配置项了，虽然Vue3中的methods、data、computed...配置项仍可用，且其中可以访问到setup返回的属性和方法，但Vue3的setup中不能访问Vue2的data、methods的数据。（若混用后重名了，则setup优先）
-    >   1. setup函数会在beforeCreate()之前执行，并且其中的this是undefined。
-    >   1. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要再用then()去获取数据。（后期也可以返回Promise对象）
+    >   1. setup函数会在beforeCreate()之前执行，并且其中的this是undefined。（组合式API都是函数，没实例啥事了）
+    >   1. setup不能是一个Async函数。因为Async函数的返回值是一个Promise对象，它需要再用then()去获取数据。（其实满足一定条件后，也可以返回Promise对象，后面再说）
     >
     > - **单文件组件（SFC）中使用setup的语法糖：**
     >
@@ -219,7 +219,7 @@
       > - 数据经过`ref(initValue)`函数加工后，数据会放在RefImpl对象的value属性中。RefImpl通常被称为**引用对象/ref对象**。
       > - Vue3中，ref()给数据做响应式的原理是：通过`Object.defineProperty()`给RefImpl对象的原型上，定义了虚拟属性value，访问和修改的其实是ref()收集过来的数据。因此要修改name和age**得通过ref对象的value属性去访问和修改**：`name.value='李四'`。
       > - 并且在Vue模板中，如果数据是一个RefImpl对象，那么Vue解析时自动会去读取它的value属性（拆包），所以这样写即可：`{{name}}`，不需要：`{{name.value}}`
-      > - 如果传给ref的是一个（引用数据类型）对象：`ref({})`，那么Vue会先将该对象包装成一个Proxy对象，然后再将该Proxy对象放在RefImpl对象的value属性中。也就是对Proxy对象的地址做了响应式。而之所以要将对象包装为Proxy对象，是因为Vue要对对象内部所有层次的数据，都进行响应式处理。（内部是通过Vue3的reactive()函数来给对象做的包装）
+      > - 如果传给ref的是一个（引用类型）对象：`ref({})`，那么Vue会先将该对象包装成一个Proxy对象，然后再将该Proxy对象放在RefImpl对象的value属性中。也就是对Proxy对象的地址做了响应式。而之所以要将对象包装为Proxy对象，是因为Vue要对对象内部所有层次的数据，都进行响应式处理。（内部是通过Vue3的reactive()函数来给对象做的包装）
   
       
   
@@ -232,9 +232,9 @@
   
       ###### 虽然Vue2提供了相应的解决方案，但是Vue3的reactive()函数实现的响应式更优秀，可以直接对对象和数组进行增删查改，不存在以上问题：
   
-      > - reactive()函数的作用是：给引用（对象或数组）类型的数据做响应式（基本类型不能用它，得用ref）。
-      > - reactive()会将普通对象、数组包装为Proxy对象。语法：`const 代理对象/数组 = reactive(源对象/数组)`。
-      > - reactive()会给对象/数组所有层次的数据做响应式，并且后续添加的数据也是响应式的。内部是通过ES6的Proxy实现的，通过Proxy代理对象来操作的源对象。
+      > - reactive函数的作用是：给引用类型的数据（对象或数组）做响应式。（基本类型不能用它，得用ref）
+      > - reactive会将普通对象、数组包装为Proxy对象。语法：`const 代理对象/数组 = reactive(源对象/数组)`。
+      > - reactive会给对象/数组所有层次的数据做响应式，并且后续添加的数据也是响应式的。内部是通过ES6的Proxy实现的，通过Proxy代理对象来操作的源对象。
   
       ###### Vue3的响应式原理：
   
@@ -263,7 +263,7 @@
       })
       ```
   
-      ###### 注意：Proxy会自动解包其中的任何ref对象（深层次）。也就是说，Proxy对象中的ref对象不用再`.value`去取值了。
+      ###### 注意：Proxy会自动解包其中的任何ref对象。也就是说，Proxy对象中的ref对象不用再`.value`去取值了（深层次）。
   
       
   
@@ -339,7 +339,7 @@
       >
       > - 如果参数是Proxy对象，那么监视的是对象中所有层次的数据。它是强制的，deep配置项不起作用。此时回调中的niu和old都是该对象的内存地址，无论怎么修改对象内部的数据，niu和old都指向了同一个对象。
       >
-      > - watch的**第1个参数也可以是数组**，数组中必须是ref对象或Proxy对象，用来同时监视多个数据。此时回调的参数niu和old也是数组。
+      > - watch的**第1个参数也可以是数组**，数组中是ref对象或Proxy对象，用来同时监视多个数据。此时回调的参数niu和old也是数组。
       >
       > - **小技巧：**如果只想监视Proxy对象中的某个数据，那么watch的第1个参数可以这样写：`()=>person.name`，如果要监视Proxy对象中的多个数据，那么就用函数数组：`[()=>person.name,..]`。也就是说，监视的数据也可以是**返回一个值的函数**。
       >
@@ -395,20 +395,20 @@
   >
   > ```js
   > import { reactive, onMounted, onBeforeUnmount } from 'vue'
-  > export default ()=>{ // 获取鼠标点击位置的Hook函数
-  >     let point = reactive({x:0,y:0})
-  >     function savePoint(e){
-  >     	point.x = e.pageX
-  >     	point.y = e.pageY
-  >     }
+  > export default () => {  // 获取鼠标点击位置的Hook函数
+  >        let point = reactive({x:0,y:0})
+  >        function savePoint(e){
+  >            point.x = e.pageX
+  >            point.y = e.pageY
+  >        }
   > 
-  >     onMounted(()=>{
-  >     	window.addEventListener('click',savePoint)
-  >     })
-  >     onBeforeUnmount(()=>{
-  >     	window.removeEventListener('click',savePoint)
-  >     })
-  >     return point
+  >        onMounted(()=>{
+  >            window.addEventListener('click',savePoint)
+  >        })
+  >        onBeforeUnmount(()=>{
+  >            window.removeEventListener('click',savePoint)
+  >        })
+  >        return point
   > }
   > ```
   >
@@ -421,15 +421,15 @@
   > 	<span>y坐标:{{y}}</span>
   > </template>
   > <script>
-  >     import { ref } from 'vue'
-  >     import usePoint from './hooks/usePoint'
-  >     export default {
-  >         name: 'App',
-  >         setup(){
-  >         	let {x,y} = usePoint()
-  >         	return {x,y}
-  >         }
-  >     }
+  >        import { ref } from 'vue'
+  >        import usePoint from './hooks/usePoint'
+  >        export default {
+  >            name: 'App',
+  >            setup(){
+  >                let {x,y} = usePoint()
+  >                return {x,y}
+  >            }
+  >        }
   > </script>
   > ```
   
@@ -627,7 +627,7 @@
   
        ```js
        import { ref } from 'vue'
-       let container = ref() // 注意：容器名必须和ref属性值一样
+       let container = ref()  // 注意：容器名必须和ref属性值一样
        ```
   
   - #### expose：
@@ -643,7 +643,7 @@
   
   - #### emits：
   
-    > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且**移除了v-on的.native修饰符**，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在setup()中推荐直接用宏函数`defineEmits(['事件名',..])`去声明，并且用该方法返回对象中的emit()函数去触发自定义事件）
+    > Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且**移除了v-on的.native修饰符**，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在script setup中推荐直接用宏函数`defineEmits(['事件名',..])`去声明，并且可以用该方法返回对象中的emit()函数去触发自定义事件）
   
   - #### v-model指令：
   
