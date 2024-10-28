@@ -188,30 +188,34 @@
 
    - Java中switch语句的值只能是如下类型：整型、枚举型（JDK5）、String（jdk7）。
 
-     > 从JDK12开始，`switch`语句升级为更简洁的表达式语法，使用类似模式匹配（Pattern Matching）的方法，保证只有一种路径会被执行，并且不需要`break`语句，没有穿透效应：
+     > 从JDK12开始，`switch`语句升级为更简洁的表达式语法，使用类似模式匹配（Pattern Matching）的方法，保证只有一种路径会被执行，并且不需要`break`语句，没有**Case穿透**：
      >
      > ```java
      > public class Main {
-     >        public static void main(String[] args) {
-     >            String fruit = "apple";
-     >            switch (fruit) {
-     >                case "apple" -> System.out.println("Selected apple");
-     >                case "pear" -> System.out.println("Selected pear");
-     >                case "mango" -> {
-     >                    System.out.println("Selected mango");
-     >                    System.out.println("Good choice!");
-     >                }
-     >                default -> System.out.println("No fruit selected");
-     >            }
-     >        }
+     >     public static void main(String[] args) {
+     >         String fruit = "apple";
+     >         switch (fruit) {
+     >             case "apple" -> System.out.println("Selected apple");
+     >             case "pear" -> System.out.println("Selected pear");
+     >             case "mango" -> {
+     >                 System.out.println("Selected mango");
+     >                 System.out.println("Good choice!");
+     >             }
+     >             default -> System.out.println("No fruit selected");
+     >         }
+     >     }
      > }
      > ```
+     >
+     > 并且从Java 14开始，`switch`语句正式升级为表达式，并且允许使用`yield`关键字为switch语句指定返回值。
+
+   - Java中的`for each`循环可以遍历所有**可迭代**的数据类型，包括数组及后面的`List`、`Map`等。虽然`for each`的写法更简洁，但是`for each`循环无法指定遍历顺序，也无法获取数组的索引。
 
 9. ## Java中的类型
 
    - **基本数据类型**：
 
-     > 基本数据类型是CPU可以直接进行运算的类型。Java中的基本数据类型：`byte(1)/short(2)/int(4)/long(8)/float(4)/double(8)/boolean(1)/char(2)`
+     > 基本数据类型是CPU可以直接进行运算的类型。Java中的**基本数据类型**包括：`byte(1)/short(2)/int(4)/long(8)/float(4)/double(8)/boolean(1)/char(2)`
 
    - **引用数据类型**：除了上述基本类型的变量，剩下的都是引用类型。例如，引用类型最常用的就是`String`字符串：`String s = "hello";`。引用类型的变量类似于C语言的指针，存储的是一个“引用地址”，指向某个对象在内存的位置。
 
@@ -219,7 +223,7 @@
 
     - **整型**：
 
-      - 默认情况下，数字都当做十进制int型字面量处理；`0B/0b`开头表示二进制的int型字面量（JDK8），这是c语言（C99）中没有的；`0x/0x`开头表示十六进制字面量；`0`开头表示8进制字面量。
+      - **默认情况下，数字字面量值都被当做十进制int型处理**；`0B/0b`开头表示二进制的int型字面量（JDK8），这是c语言（C99）中没有的；`0x/0x`开头表示十六进制字面量；`0`开头表示8进制字面量。
 
       - 若要将数字当做long类型字面量，需要在数字后面加`L/l`。
 
@@ -229,7 +233,7 @@
 
     - **布尔型**：布尔型字面量只有两个值`true/false`。
 
-    - **字符型**：单引号`'`括起来的字符被当做字符型字面量，可以保存一个Unicode字符。也可以用`'\u0000'`来表示一个空字符`''`，其中`\u`表示是Unicode编码，后面跟上该字符对应的2字节16进制的码点（因为是utf-16编码方式）。不能直接给char型变量赋值`''`。（char本质上保存的也是数字）
+    - **字符型**：单引号`'`括起来的单个字符被当做字符型字面量，可以保存一个Unicode字符。也可以用`'\u0000'`来表示一个空字符`''`（char型单引号中必须有东西），其中`\u`表示是Unicode编码，后面跟上该字符对应的2字节16进制的码点（因为是UTF-16编码）。不能直接给char型变量赋值`''`。（char本质上保存的也是数字）
 
     - **字符串型**：双引号`"`括起来的一串内容被当做字符串字面量（不可变）。（Java中String型是引用类型，保存的是字符串字面量的引用地址）
 
@@ -239,31 +243,31 @@
       >
       > - 字符串本质是对象，可以用`length()`等字符串常用的方法。
       >
-      > - 从JDK13开始，可以用`"""多行字符串"""`表示多行字符串了。（多行字符串前面共同的空格会被去掉，是以最短的行首空格为基准）
+      > - 从JDK13开始，可以用`"""多行字符串"""`表示多行字符串了。（内容中会带上`\n`，并且多行字符串前面共同的空格会被去掉，是以最短的行首空格为基准）
 
     - **`null`**：当一个引用类型变量，不知道初始化为什么值时，可以先给它赋值null，即不指向任何引用地址。
 
-    - **数组型**：如果要定义一组类型相同的变量，可以使用该类型的数组。数组的初始化：
+    - **数组型**：如果要定义一组类型相同的变量，可以使用该类型的数组（引用类型）。数组的初始化：
 
       - 静态初始化：`类型[] 数组名 = new 类型[]{值1,..};`（其中`new 类型[]`可省略）
       - 动态初始化：`类型[] 数组名 = new 类型[n];`
 
       > **Java中的数组的特点：**
       >
-      > - 数组一旦创建，大小不可变。并且在内存中的地址是连续的。
+      > - 数组一旦创建，大小不可变。并且在内存中的地址是连续的（读取快）。
       > - 数组本质也是引用类型，并且有`length`属性。
       > - 数组动态初始化后每个元素都有默认值。
       > - 二维数组初始化：`int[][] arr = new int[3][2]`或`int[][] arr = new int[3][]`。
 
 11. ## 变量
 
-    - **常量**：`final`修饰的是常量，一旦赋值就不可修改。通常常量名全大写。（后面还会继续讲final关键字）
+    - **常量**：`final`修饰局部变量一旦赋值就不可修改。通常常量名全部大写。（后面还会继续说final关键字）
 
     - **var**：有些时候，类型的名字太长，写起来比较麻烦。例如：`StringBuilder sb = new StringBuilder();`，此时可以用`var`关键字：`var sb = new StringBuilder();`，编译器会根据赋值语句自动推断出变量`sb`的类型是`StringBuilder`。对编译器来说，这里的var就是StringBuilder。
 
     - **变量的作用域**：变量只在离它最近的`{}`中有效，这就是它的作用域。
 
-      > 定义变量时，要遵循作用域最小化原则，尽量将变量定义在尽可能小的作用域。
+      > 定义变量时，要遵循作用域最小化原则，尽量将变量定义在尽可能小的作用域。局部变量必须先初始化再使用。
 
 12. ## 基本运算
 
