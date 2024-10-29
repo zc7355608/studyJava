@@ -6,7 +6,7 @@
 
   > 2020年9月18日，Vue发布3.0版本，代号：One Piece（海贼王）。其中经历了：4800+次提交、40+个RFC、600+次PR、300+贡献者。
 
-- ### Vue3相比于2的优势
+- ### Vue3相比于Vue2的优势
 
   1. 性能的提升：
 
@@ -716,13 +716,13 @@
      > count.js：
      >
      > ```js
-     > import {defineStore} from 'pinia'
+     > import { defineStore } from 'pinia'
      > // 建议遵循Hook的命名。第1个参数是模块名（最好和文件名一致），第2个参数是配置对象
-     > export const useCountStore = defineStore('count',{
-     >     // 配置状态，值为返回一个对象的函数
-     >     state(){
-     >         return { sum: 0 } // 该模块中存一个状态sum，初值为0
-     >     }
+     > export const useCountStore = defineStore('count', {
+     >        // 配置状态，值为返回一个对象的函数
+     >        state(){
+     >        	return { sum: 0 } // 该模块中存一个状态sum，初值为0
+     >        }
      > }
      > // defineStore的返回值是一个函数，函数的执行结果是store对象（Proxy对象）。其中有sum、$state
      > ```
@@ -730,13 +730,13 @@
      > talk.js：
      >
      > ```js
-     > import {defineStore} from 'pinia'
+     > import { defineStore } from 'pinia'
      > // 建议遵循Hook的命名。第1个参数是模块名（最好和文件名一致），第2个参数是配置对象
-     > const useCountStore = defineStore('count',{
-     >     // 配置状态，值为返回一个对象的函数
-     >     state(){
-     >         return { sum: 0 }
-     >     }
+     > const useCountStore = defineStore('count', {
+     >        // 配置状态，值为返回一个对象的函数
+     >        state(){
+     >        	return { sum: 0 }
+     >        }
      > }
      > ```
 
@@ -745,11 +745,11 @@
   - 访问store中的数据：
 
     ```js
-    import {useCountStore} from '@/store/count'
+    import { useCountStore } from '@/store/count'
     const countStore = useCountStore()
     ```
 
-    > Vue模板中`{{countStore.sum}}`即可访问。（或`{{countStore.$state.sum}}`）
+    > Vue模板中`{{ countStore.sum }}`即可访问。（或`{{ countStore.$state.sum }}`）
 
   - 修改store中的数据：
 
@@ -763,7 +763,7 @@
     >   1. 首先在对应模块的store中需要有对应的Action。在count.js的defineStore中加配置项：
     >
     >      ```js
-    >      export const useCountStore = defineStore('count',{
+    >      export const useCountStore = defineStore('count', {
     >          state(){
     >              return { sum: 0 }
     >          },
