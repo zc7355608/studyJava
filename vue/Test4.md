@@ -711,34 +711,50 @@
      app.mount('#root')
      ```
 
-  3. 新建src/store/目录，去写不同的模块文件（创建不同的store对象）：（通常模块名和对应的组件名一致）
+  3. 新建src/store/目录，不同模块的store对象放在不同文件中：（创建不同的store对象，并为每个store对象创建唯一id）
 
-     > count.js：
+     > count.js：（这个*id*是必须传入的，Pinia 将用它来连接store和devtools。为了养成习惯性的用法，将返回的函数命名为*use...*，这是一个符合组合式API风格的约定）
      >
      > ```js
      > import { defineStore } from 'pinia'
-     > // 建议遵循Hook的命名。第1个参数是模块名（最好和文件名一致），第2个参数是配置对象
+     > // 建议遵循Hook的命名。第1个参数是store的id（唯一），用于区分不同的store对象，第2个参数是配置对象
      > export const useCountStore = defineStore('count', {
      >        // 配置状态，值为返回一个对象的函数
-     >        state(){
+     >        state: () => {
      >        	return { sum: 0 } // 该模块中存一个状态sum，初值为0
      >        }
      > }
-     > // defineStore的返回值是一个函数，函数的执行结果是store对象（Proxy对象）。其中有sum、$state
+     > // defineStore的返回值是一个函数，函数的执行结果是store对象（Proxy对象）。其中有sum、$state属性
      > ```
      >
      > talk.js：
      >
      > ```js
      > import { defineStore } from 'pinia'
-     > // 建议遵循Hook的命名。第1个参数是模块名（最好和文件名一致），第2个参数是配置对象
-     > const useCountStore = defineStore('count', {
-     >        // 配置状态，值为返回一个对象的函数
-     >        state(){
-     >        	return { sum: 0 }
+     > const useTalkStore = defineStore('talk', {
+     >     // 配置状态，值为返回一个对象的函数
+     >        state: () => {
+     >        	return { talk: 'haha' }
      >        }
-     > }
+     >    }
      > ```
+     
+     > **TIP**：defineStore的第2个参数也可以是一个函数（`()=>{}`），可以实现更多的高级用法：
+     >
+     > ```js
+     > export const useCounterStore = defineStore('counter', () => {
+     >     const count = ref(0)
+     >     function increment() { // 该函数也可以是箭头函数
+     >     	count.value++
+     >     }
+     > 
+     >     return { count, increment }
+     > })
+     > ```
+     >
+     > - 该函数定义了一些响应式属性和方法，并且返回一个带有我们想暴露出去的属性和方法的对象。在Setup Store中：`ref()` 就是 `state` 属性，`computed()` 就是 `getters`，`function()` 就是 `actions`。
+     > - **注意**：要让 pinia 正确识别 `state`，你**必须**在 setup store 中返回 **`state` 的所有属性**。这意味着，你不能在 store 中使用**私有**属性。不完整返回会影响**SSR**，开发工具和其他插件的正常运行。
+     > - Setup store 比 Option Store 带来了更多的灵活性，因为你可以在一个 store 内创建侦听器，并自由地使用任何组合式函数。不过，请记住，**使用组合式函数会让 SSR 变得更加复杂**。
 
 - #####  使用Pinia：
 
@@ -751,14 +767,14 @@
 
     > Vue模板中`{{ countStore.sum }}`即可访问。（或`{{ countStore.$state.sum }}`）
 
-  - 修改store中的数据：
+  - 修改store中的数据：（store中的数据都是响应式数据，类似于ref对象）
 
     > - 无业务逻辑时：
     >
     >   - 可以直接修改：`countStore.sum += 1`
     >   - 或者批量修改：`countStore.$patch({sum:888})`，它会和原来的state进行合并。
     >
-    > - 有业务逻辑时：（通过Actions）
+    > - 有业务逻辑时：（通过Actions，你可以认为actions函数就是Vue2中的methods）
     >
     >   1. 首先在对应模块的store中需要有对应的Action。在count.js的defineStore中加配置项：
     >
@@ -768,20 +784,16 @@
     >              return { sum: 0 }
     >          },
     >          actions: { // actions对象中放一个个的action函数，函数中可以写复杂的业务逻辑
-    >              increment(v){ this.sum+=v }, // action函数中的this就是store对象
+    >              increment(v){ this.sum+=v }, // action函数中的this就是store对象，所以不要用箭头函数
     >          }
     >      }
     >      ```
     >
     >   2. 调用sotre对象上的Action函数：`countStore.increment(100)`
 
-- ##### storeToRefs(store对象)：
-
-  > 它只会把store对象中，所有的状态数据转为ref对象。然后放在一个对象中返回。
-
 - ##### getters：
 
-  > 当state配置项中的状态数据，需要经过处理再使用时，可以使用getters配置项：（类似于Vuex）
+  > 当state配置项中的状态数据，需要经过处理再使用时，可以使用getters配置项：（类似于computed计算属性）
 
   ```js
   export const useCountStore = defineStore('count',{
@@ -793,6 +805,12 @@
       }
   }
   ```
+
+  ###### 注意：getters、actions的函数中的this都是当前store对象。
+
+- ##### storeToRefs(store对象)：
+
+  > 它只会把store对象中，所有的状态数据转为ref对象。然后放在一个对象中返回。
 
 - ##### $subscribe(func)：
 
