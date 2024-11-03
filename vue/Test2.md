@@ -700,7 +700,7 @@
      ```html
      <template>
          <div>
-             <School title="育才学校"><!-- 此时得用双标签写法 -->
+             <School title="育才学校"><!-- 得用双标签 -->
                  <!-- 往插槽中放img标签。img标签是在该App组件中完成解析后，再塞到组件的插槽中的 -->
                  <img src="./a.jpg" alt="">
              </School>
