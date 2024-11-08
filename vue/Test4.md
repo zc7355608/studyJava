@@ -817,7 +817,7 @@
   > 它可以监视store中状态（数据）的修改。使用：
 
   ```js
-  countStore((mutate,state)=>{ // 参数1是修改信息对象，参数2是修改的状态数据（Proxy对象）
+  countStore.$subscribe((mutate,state)=>{ // 参数1是修改信息对象，参数2是修改的状态数据（Proxy对象）
       console.log('状态修改了',mutate,state)
   })
   ```
