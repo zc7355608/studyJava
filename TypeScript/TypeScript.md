@@ -29,19 +29,25 @@
     > 1. npm安装TS的编译器：`npm i -g typescript`
     > 2. 编译TS源代码（`.ts`结尾）：`tsc demo.ts`
     >
-    > > 最终会在当前目录下生成一个`demo.js`文件。
+    > 此时就会在当前目录下生成一个`demo.js`文件，就可以在浏览器或Node中运行了。
+    >
+    > （VSCode中也可以用Code Runner插件来有右键直接运行一个TS文件，但需要全局安装node和ts-node两个包）
 
   - ##### 自动化编译：
-
+  
     > 1. 在项目根目录下创建TS编译的配置文件：`tsc --init`
     >
     >    > 此时会在当前目录下生成一个`tsconfig.json`配置文件，其中包含着很多编译时的配置。
     >
-    > 2. 监视根目录下所有层级的`.ts/.tsx`文件的变化，只要发生变化就进行编译：`tsc --watch`
+    >    > **TIP：**
+    >    >
+    >    > - jsconfig.json文件是VSCode中的，旨在为纯 JavaScript 项目提供类似TS的配置功能。该文件的出现时间稍晚于 tsconfig.json，大约在 2015 年左右。
+    >    > - 也可以将tsconfig.json看作是jsconfig.json的简化版。因为jsconfig.json的许多概念和功能是从tsconfig.json中演变而来的。jsconfig.json是tsconfig.json与`"allowJs"`属性设置为`true`。
+    >    > - jsconfig.json是为了满足纯 JavaScript 项目的需求而创建的，它继承了tsconfig.json的许多配置项，并简化了一些不需要的选项。
     >
-    >    > 生成的js文件默认放在了和源ts文件同一目录中。
+    > 2. 监视根目录下所有层级的`.ts/.tsx`文件的变化，只要发生变化就自动编译：`tsc --watch`。生成的js文件默认放在了和ts源文件同一目录下。
     >
-    > 3. （小优化，可选）当编译出错时不生成js文件，在`tsconfig.json`中：（该json文件可以加注释）
+    > 3. （小优化，可选）当编译出错时不生成js文件，在`tsconfig.json`中：（特殊：该json文件可以加注释）
     >
     >    ```json
     >    {
