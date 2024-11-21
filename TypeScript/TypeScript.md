@@ -34,7 +34,7 @@
     > （VSCode中也可以用Code Runner插件来有右键直接运行一个TS文件，但需要全局安装node和ts-node两个包）
 
   - ##### 自动化编译：
-  
+
     > 1. 在项目根目录下创建TS编译的配置文件：`tsc --init`
     >
     >    > 此时会在当前目录下生成一个`tsconfig.json`配置文件，其中包含着很多编译时的配置。
@@ -62,8 +62,8 @@
   > - TS主要学的就是如何写类型。TS中的类型大致分为：**基本类型、高级类型、内置类型、自定义类型、类型体操**。
   > - TS是用来做类型检测的，只是提示作用，只在编译阶段有效，和运行阶段无关。
   > - TS代码编译之后我们写的类型就消失了。但并不是说白写了，编译后可以选择给我们写的TS代码生成单独的*.d.ts类型声明文件。
-  > - 写TS就是不断的在给变量添加类型约束，约束我们程序员，这个变量是有类型的，别乱赋值影响后期维护避免bug。但并不是说所有变量都需要加类型，也麻烦。TS支持**类型推导**，根据赋的值来确定变量的类型。
-  
+  > - 写TS就是不断的在给变量添加类型约束，约束我们程序员，这个变量是有类型的，别乱赋值影响后期维护避免bug。但并不是说所有变量都需要加类型，也麻烦。TS支持**类型推导**，根据赋的值确定变量的类型，推断不出来的再手动写出来。
+
 - ### 类型声明
 
   > TS规定：定义变量时，必须为其声明类型：`let a: string`。此时a只能存字符串。函数的形参、返回值同样如此：
@@ -76,94 +76,109 @@
   > ```
   >
 
-  字面量类型
-
-  1. 对象：`let person: { name:string; age?:18; [key:string]:any }`（最后可以加索引签名），（分割符可以是`,或;或回车`）
-
-     > 索引签名：允许定义对象可以具有**任意数量的属性**，这些属性的K和类型是可变的。常用于：描述类型和数量都不确定的属性，（具有动态属性的对象）
-
-  2. 函数：`let count: (x:number,y:number)=>number`，只能存储这种形式的函数
-
-  3. 数组：`let arr: string[]`，或`let arr: Array<string>`（后面说泛型），
-
-  类型推断（建议手动写出来）
-
 - ### TS中的类型
 
-  > TS包含了JS中的所有类型，并且还新增了6个新类型。（2个用于自定义类型的方式type和interface）
+  - 基本类型：
 
-  - **any：**它表示任意类型。一旦将变量类型声明为any，那就意味着放弃了对该变量的类型检查。
+    - JS中的`undefined、string、symbol、object、null、number、boolean、bigint、function`等关键字，都作为TS的基本类型。需要说明的是：
 
-    > **注意：**
-    >
-    > 1. 没有显示的声明变量的类型，那么它的类型其实就是any。如：`let a`相当于`let a: any`
-    >
-    > 2. any类型的变量可以赋值给任意类型的变量：（any会搞破坏）
-    >
-    >    ```ts
-    >    let a: any
-    >    a = 99
-    >    let s: string
-    >    s = a // 明明s要求是string型，但是any型变量的值也可以赋给s
-    >    ```
-    >
-    > 3. 开发中尽量少用any，大量的使用any相当于写的不是TypeScript，而是AnyScript。
+      > - 对象类型object/Object：`let a: object`，如果用对象类型限制一个变量，那么这个变量除了基本类型之外，可以赋任意的值，因为数组、函数等类型都属于对象类型。实际开发中用的较少，因为限制范围太大了。object表示**任何非原始类型**，Object表示**Object类的子类**，也就是所有可以调用Object身上方法的类型（也就是除了null和undefined的任何类型）。因此我们通常用对象的**字面量**类型来指定对象类型：
+      >
+      >   ```ts
+      >   // 表示person是一个有name是属性的对象，age属性可选，还可以有任意数量的其他属性（any不限类型）
+      >   let person: { name:string; age?:18; [key:string]:any }  // 分隔符可以是, ; Enter
+      >   ```
+      >
+      > - 数组类型：`let arr: string[]`或`let arr: Array<string>`。（后面说泛型）
+      >
+      > - 函数类型：`let count: (x: number, y: number) => number`，只能存储这种形式的函数。
+      >
+      > - null和undefined：当`strickNullChecks`关闭后，null和undefined就不再检查了，它俩可以任意赋值了。
 
-  - **unknown：**它的含义是**未知的**，可以理解为一个类型安全的any，适用于：不确定数据的具体类型。
+    - 除此之外还新增了6个作为基本类型：（其中枚举类型也是枚举值/枚举常量）
 
-    > - 它和any的区别是：unknown类型的变量不允许赋值给任意类型的变量。
-    > - knknown会强制开发者在使用前进行类型检查，从而提供更强安全型。（上面的a如果换成unknown则会报错）
-    > - 读取any的任何属性都不会报错，而unknown恰恰与其相反。
-    > - 断言：`a as string` | `<string> a`
+      - **any：**它表示任意类型。一旦将变量类型声明为any，那就意味着放弃了对该变量的类型检查。
 
-  - **never：**任何值都不是，简言之就是不能有值（`undefined、null、''`都不行）。
+        > **注意：**
+        >
+        > 1. 没有显示的声明变量的类型，那么它的类型其实就是any。如：`let a`相当于`let a: any`
+        >
+        > 2. any类型的变量可以赋值给任意类型的变量：（any会搞破坏）
+        >
+        >    ```ts
+        >    let a: any
+        >    a = 99
+        >    let s: string
+        >    s = a // 明明s要求是string型，但是any型变量的值也可以赋给s
+        >    ```
+        >
+        > 3. 开发中尽量少用any，大量的使用any相当于写的不是TypeScript，而是AnyScript。
 
-    > - 几乎不用never去直接限制变量，因为没有意义。
-    > - never一般是TS主动推断出来的。
-    > - never一般用于限制函数的返回值类型，如果一个函数的返回值类型为never，那么该函数不能顺利的执行结束。
+      - **unknown：**它的含义是**未知的**，可以理解为一个类型安全的any，适用于：不确定数据的具体类型。
 
-  - **void：**它通常用于声明函数的返回值，含义：【函数返回值为空（undefined），调用者不应该依赖其返回值进行任何操作】。如：
+        > - 它和any的区别是：unknown类型的变量不允许赋值给任意类型的变量。
+        > - knknown会强制开发者在使用前进行类型检查，从而提供更强安全型。（上面的a如果换成unknown则会报错）
+        > - 读取any的任何属性都不会报错，而unknown恰恰与其相反。
+        > - 断言：`a as string` | `<string> a`
 
-    ```ts
-    function demo():void{ console.log('hello') }
-    let result = demo()
-    if(result){} // 这行代码会报错：demo函数没有返回值，不应该拿着空的返回值去做任何操作
-    ```
+      - **never：**任何值都不是，简言之就是不能有值（`undefined、null、''`都不行）。
 
-  - **tuple（元组）：**它是一种特殊的**定长的**数组类型，它按序规定了数组中每个元素的类型。用于精确描述一组值。如：
+        > - 几乎不用never去直接限制变量，因为没有意义。
+        > - never一般是TS主动推断出来的。
+        > - never一般用于限制函数的返回值类型，如果一个函数的返回值类型为never，那么该函数不能顺利的执行结束。
 
-    ```ts
-    let a: [string, number, boolean] = ['1', 2, true]  // 定长的数组，不按照要求push会报错
-    ```
+      - **void：**它通常用于声明函数的返回值，含义：函数返回值为空（或undefined），调用者不应该依赖其返回值进行任何操作。如：
 
-    > - `?`表示元素是可选的。如：`let a: [string, number?]`，...string表示任意个string类型：`let a: [string, ...string]`。
-    > - 
-  
-  - **enum（枚举值/枚举类型）：**TS中新增了枚举值，它可以定义**一组命名常量**。编译后生成的是JS对象，也叫**对象枚举**。
-  
-    - **数字枚举**：它是一种最常见的枚举类型，其枚举成员的值是数字且会自动递增。数字枚举具备反向映射的特点。
-  
-      ```ts
-      enum Direction { UP,DOWN,LEFT,RIGHT }
-      Direction.LEFT  // 值为2
-      Direction[0]  // 值为0
-      // 一般会指定枚举的值
-      enum Direction { UP=1,DOWN,LEFT,RIGHT=12 }
-      ```
-  
-    - **字符串枚举**：枚举成员的值是字符串，字符串枚举没有反向映射，也就是不能这样：`Direction[0]`
-  
-      ```ts
-      enum Direction { UP='up',DOWN='down',LEFT='left',RIGHT='right' }
-      ```
-  
-    - **常量枚举**：它是一种用特殊的、用const定义的枚举，在编译时会被换掉，不会产生定义枚举的代码，提高性能。
-  
-      ```ts
-      const enum Direction { UP='up',DOWN='down',LEFT='left',RIGHT='right' }
-      ```
-  
-  - Object/object：实际开发中用的较少，因为限制范围太大了。object表示**任何非原始类型**。Object表示**Object的子类型**，也就是所有可以调用Object方法的类型（除了null和undefined的任何类型都可以）。
+        ```ts
+        function demo(): void { console.log('hello') }
+        let result = demo()
+        if(result){} // 这行代码会编译报错：demo函数没有返回值，不应该拿着空的返回值去做任何操作
+        ```
+
+      - **tuple（元组）：**它是一种特殊的**定长的**数组类型，它按序规定了数组中每个元素的类型。用于精确描述一组值。如：
+
+        ```ts
+        let a: [string, number, boolean] = ['1', 2, true]  // 定长的数组，不按照要求push会报错
+        ```
+
+        > - `?`表示元素是可选的。如：`let a: [string, number?]`，...string表示任意个string类型：`let a: [string, ...string]`。还可以给元组的索引起别名：`let a: [a:string, b:number]`
+
+      - **enum（枚举值/枚举类型）：**TS中新增了枚举值，它可以定义**一组命名常量**。编译后生成的是JS对象，也叫**对象枚举**。
+
+        - **数字枚举**：它是一种最常见的枚举类型，其枚举成员的值是数字且会自动递增。数字枚举具备反向映射的特点。
+
+          ```ts
+          enum Direction { UP,DOWN,LEFT,RIGHT }
+          Direction.LEFT  // 值为2
+          Direction[0]  // 值为0
+          // 一般会指定枚举的值
+          enum Direction { UP=1,DOWN,LEFT,RIGHT=12 }
+          ```
+
+        - **字符串枚举**：枚举成员的值是字符串，字符串枚举没有反向映射，也就是不能这样：`Direction[0]`
+
+          ```ts
+          enum Direction { UP='up',DOWN='down',LEFT='left',RIGHT='right' }
+          ```
+
+        - **常量枚举**：它是一种用特殊的、用const定义的枚举，在编译时会被换掉，不会产生定义枚举的代码，提高性能。
+
+          ```ts
+          const enum Direction { UP='up',DOWN='down',LEFT='left',RIGHT='right' }
+          ```
+
+  - 高级类型：联合类型
+
+  - 内置类型：
+
+  - 自定义类型：
+
+  - 类型体操
+
+  > （2个用于自定义类型的方式type和interface）
+
+  - Object/object：。
+
 
 ------
 
