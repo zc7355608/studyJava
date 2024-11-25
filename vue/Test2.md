@@ -120,7 +120,7 @@
      }
      </script>
      <style scoped>/* style标签中的是该组件的样式，最终这些都会被JS代码动态添加到HTML的style标签中 */
-     /* 组件的样式CSS，如果不加scoped，那么多个组件整合时，最终样式会混合在一起，本组件的样式可能会污染其他组件 */
+     /* 组件的样式CSS，如果不加scoped，那么多个组件整合时，最终样式会混合在一起，本组件的样式可能会污染其他组件（即使这个vue文件没有被import导入） */
      /* App组件中不要加scoped */
      .demo {
      	background-color: orange;
