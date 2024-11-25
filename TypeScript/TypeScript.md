@@ -29,7 +29,9 @@
     > 1. npm安装TS的编译器：`npm i -g typescript`
     > 2. 编译TS源代码（`.ts`结尾）：`tsc demo.ts`
     >
-    > > 最终会在当前目录下生成一个`demo.js`文件。
+    > 此时就会在当前目录下生成一个`demo.js`文件，就可以在浏览器或Node中运行了。
+    >
+    > （VSCode中也可以用Code Runner插件来有右键直接运行一个TS文件，但需要全局安装node和ts-node两个包）
 
   - ##### 自动化编译：
 
@@ -37,11 +39,15 @@
     >
     >    > 此时会在当前目录下生成一个`tsconfig.json`配置文件，其中包含着很多编译时的配置。
     >
-    > 2. 监视根目录下所有层级的`.ts/.tsx`文件的变化，只要发生变化就进行编译：`tsc --watch`
+    >    > **TIP：**
+    >    >
+    >    > - jsconfig.json文件是VSCode中的，旨在为纯 JavaScript 项目提供类似TS的配置功能。该文件的出现时间稍晚于 tsconfig.json，大约在 2015 年左右。
+    >    > - 也可以将tsconfig.json看作是jsconfig.json的简化版。因为jsconfig.json的许多概念和功能是从tsconfig.json中演变而来的。jsconfig.json是tsconfig.json与`"allowJs"`属性设置为`true`。
+    >    > - jsconfig.json是为了满足纯 JavaScript 项目的需求而创建的，它继承了tsconfig.json的许多配置项，并简化了一些不需要的选项。
     >
-    >    > 生成的js文件默认放在了和源ts文件同一目录中。
+    > 2. 监视根目录下所有层级的`.ts/.tsx`文件的变化，只要发生变化就自动编译：`tsc --watch`。生成的js文件默认放在了和ts源文件同一目录下。
     >
-    > 3. （小优化，可选）当编译出错时不生成js文件，在`tsconfig.json`中：（该json文件可以加注释）
+    > 3. （小优化，可选）当编译出错时不生成js文件，在`tsconfig.json`中：（特殊：该json文件可以加注释）
     >
     >    ```json
     >    {
@@ -51,107 +57,177 @@
     >    }
     >    ```
 
-------
+  - ##### tsc 常用编译参数如下表所示：
+
+    | 序号 |                         编译参数说明                         |
+    | :--: | :----------------------------------------------------------: |
+    |  1.  |                   **--help**显示帮助信息。                   |
+    |  2.  |                  **--module**载入扩展模块。                  |
+    |  3.  |                 **--target**设置 ECMA 版本。                 |
+    |  4.  | **--declaration**额外生成一个 .d.ts 扩展名的文件。`tsc ts-hw.ts --declaration`以上命令会生成 ts-hw.d.ts、ts-hw.js 两个文件。 |
+    |  5.  |              **--removeComments**删除文件的注释              |
+    |  6.  |         **--out**编译多个文件并合并到一个输出的文件          |
+    |  7.  | **--sourcemap**生成一个`.map`文件。.map文件是一个存储源代码与编译代码对应位置映射的信息文件。 |
+    |  8.  | **--module noImplicitAny**在表达式和声明上有隐含的 any 类型时报错 |
+    |  9.  | **--watch**在监视模式下运行编译器。会监视输出文件，在它们改变时重新编译。 |
+
+- ### 关于TS
+
+  > - TS主要学的就是如何写类型。TS中的类型大致分为：**基本类型、高级类型、内置类型、自定义类型、类型体操**。
+  > - TS是用来做类型检测的，只是提示作用，只在编译阶段有效，和运行阶段无关。
+  > - TS代码编译之后我们写的类型就消失了。但并不是说白写了，编译后可以选择给我们写的TS代码生成单独的`*.d.ts`**类型声明文件**。
+  > - 写TS就是不断的在给变量添加类型约束，约束我们程序员，这个变量是有类型的，别乱赋值影响后期维护避免bug。但并不是说所有变量都需要加类型，也麻烦。TS支持**自动类型推断**，根据赋的值确定变量的类型，推断不出来的再手动写出来。
+  > - 需要注意的是，虽然ES6支持类，但TS编译器仍会将`.ts`源码中的类、ESM模块代码，编译处理为兼容性更好的JS代码。（而JS中ES6语法的代码一般会通过打包/构建工具（webpack、esbuild）去做兼容性处理）
 
 - ### 类型声明
 
-  > TS规定：定义变量时必须声明其类型：`let a: string`，此时a只能存字符串。函数的形参、返回值也要指定类型：
+  > TS规定：定义变量时，必须为其声明类型：`let a: string`。此时a只能存字符串。函数的形参、返回值同样如此：
   >
   > ```ts
-  > function demo(x:number,y:number):number{
-  > 	return x+y
+  > // 此时调用该函数时，必须传2个number型作为参数，不能多也不能少。且该函数返回值也是number型
+  > function demo (x: number, y: number): number{
+  > 	return x + y
   > }
   > ```
   >
-  > 此时调用该函数时，必须传2个number型作为参数，不能多也不能少。且该函数返回值也是number型。
 
-  字面量类型
+- ### 类型断言
 
-  1. 对象：`let person: { name:string; age?:18; [key:string]:any }`（最后可以加索引签名），（分割符可以是`,或;或回车`）
-
-     > 索引签名：允许定义对象可以具有**任意数量的属性**，这些属性的K和类型是可变的。常用于：描述类型和数量都不确定的属性，（具有动态属性的对象）
-
-  2. 函数：`let count: (x:number,y:number)=>number`，只能存储这种形式的函数
-
-  3. 数组：`let arr: string[]`，或`let arr: Array<string>`（后面说泛型），
-
-  类型推断（建议手动写出来）
+  > 类型断言可以让开发者明确告诉编译器变量的类型，常用于无法推断的情况。可以使用`as`或`<类型>`：
+  >
+  > ```ts
+  > let someValue: any = "this is a string"
+  > let strLength: number = (someValue as string).length
+  > // 或者：(<string>someValue).length
+  > ```
+  >
+  > ###### 注意：尖括号断言会在JSX中失效。
 
 - ### TS中的类型
 
-  > TS包含了JS中的所有类型，并且还新增了6个新类型。（2个用于自定义类型的方式type和interface）
+  - 基本类型：
 
-  - **any：**它表示任意类型。一旦将变量类型声明为any，那就意味着放弃了对该变量的类型检查。
+    - JS中的`undefined、string、symbol、object、null、number、boolean、bigint`等基础类型，都作为TS的基本类型。需要说明的是：
 
-    > **注意：**
-    >
-    > 1. 没有显示的声明变量的类型，那么它的类型其实就是any。如：`let a`相当于`let a: any`
-    >
-    > 2. any类型的变量可以赋值给任意类型的变量：（any会搞破坏）
-    >
-    >    ```ts
-    >    let a: any
-    >    a = 99
-    >    let s: string
-    >    s = a // 明明s要求是string型，但是any型变量的值也可以赋给s
-    >    ```
-    >
-    > 3. 开发中尽量少用any，大量的使用any相当于写的不是TypeScript，而是AnyScript。
+      > - object：表示**任何非基础类型**。如果用object来限制一个变量，那么这个变量除了基本类型之外，可以赋任意的值，因为数组、函数等都属于object类型。这种在实际开发中用的很少，因为限制范围太大了，我们通常用对象的**字面量**类型：
+      >
+      >   ```ts
+      >   // 表示person是一个有name是属性的对象，age属性可选，还可以有任意数量的其他属性（any不限类型）
+      >   let person: { name:string; age?:18; [key:string]:any }  // 分隔符可以是, ; Enter
+      >   ```
+      >
+      > - Object：表示**Object类**，即所有可以调用Object身上方法的类型。（即除了null和undefined的任何类型）
+      >
+      > - 数组类型：`let arr: string[]`或`let arr: Array<string>`。（后面说泛型）
+      >
+      > - `Function`函数类型：`let count: (x: number, y: number) => number`，仅存储这种形式的函数。
+      >
+      > - null和undefined：分别表示"空值"和"未定义"。在默认情况下，它们是所有类型的子类型，但可以通过开启 strictNullChecks 来严格检查。
 
-  - **unknown：**它的含义是**未知的**，可以理解为一个类型安全的any，适用于：不确定数据的具体类型。
+    - 除此之外还增加了以下几个基本类型：（其中枚举类型也是枚举值/枚举常量）
 
-    > - 它和any的区别是：unknown类型的变量不允许赋值给任意类型的变量。
-    > - knknown会强制开发者在使用前进行类型检查，从而提供更强安全型。（上面的a如果换成unknown则会报错）
-    > - 读取any的任何属性都不会报错，而unknown恰恰与其相反。
-    > - 断言：`a as string` | `<string> a`
+      - **字面量类型**：字面量类型可以让变量只能拥有特定的值，通常结合union来定义变量的特定状态：
 
-  - **never：**任何值都不是，简言之就是不能有值（`undefined、null、''`都不行）。
+        ```ts
+        let direction: "up" | "down" | "left" | "right"
+        direction = "up"
+        ```
+      
+      - **any：**表示任何类型。适合不确定数据类型的情况，但使用时需谨慎，因为 any 会绕过类型检查。
+      
+        > ###### any是 TS 针对编程时类型不明确的变量使用的一种数据类型，它常用于以下三种情况：
+        >
+        > 1. 变量的值会任意改变时。
+        > 2. 定义存储各种类型数据的数组时。
+        > 3. 改写现有代码时，任意值允许在编译时可选择地包含或移除类型检查。
+        >
+        > **注意：**
+        >
+        > 1. 没有给变量显示的声明类型（自动类型推断也没起作用），那么它的类型其实就是any。如：`let a`相当于`let a: any`
+        >
+        > 2. any类型的变量可以赋值给任意类型的变量：（any会搞破坏）
+        >
+        >    ```ts
+        >    let a: any
+        >    a = 99
+        >    let s: string
+        >    s = a // 明明s要求是string型，但是any型变量的值也可以赋给s
+        >    ```
+        >
+        > 3. 开发中尽量少用any，大量的使用any相当于写的不是TypeScript，而是AnyScript。
 
-    > - 几乎不用never去直接限制变量，因为没有意义。
-    > - never一般是TS主动推断出来的。
-    > - never一般用于限制函数的返回值类型，如果一个函数的返回值类型为never，那么该函数不能顺利的执行结束。
+      - **union联合**：表示一个变量可以是多种类型之一。通过`|`符号实现：`let id: string | number`
 
-  - **void：**它通常用于声明函数的返回值，含义：【函数返回值为空（undefined），调用者不应该依赖其返回值进行任何操作】。如：
+      - **unknown：**它的含义是**未知的**，可以理解为一个类型安全的、更严格的any，适用于**不确定数据的具体类型**。
+      
+        > - 它和any的区别是：unknown类型的变量不允许赋值给任意类型的变量。
+        > - knknown会强制开发者在使用前进行类型检查，从而提供更强安全型。（上面的a如果换成unknown则会报错）
+        > - 读取any的任何属性都不会报错，而unknown恰恰与其相反。
+        > - 断言：`a as string` | `<string> a`
+      
+      - **never：**它是其它所有类型的子类型（包括 null 和 undefined），表示**任何值都不是**。这意味着声明为 never 类型的变量只能被 never 类型所赋值，在函数中它通常表现为抛出异常或无法执行到终止点（例如无限循环）。
+      
+        > - 几乎不用never去直接限制变量，因为没有意义。
+        > - never一般是TS主动推断出来的。
+        > - never一般用于限制函数的返回值类型，如果一个函数的返回值类型为never，那么该函数不能顺利的执行结束。
+      
+      - **void：**它通常用于声明函数的返回值，含义：函数返回值为空（或undefined），调用者不应该依赖其返回值进行任何操作。如：
+      
+        ```ts
+        function demo(): void { console.log('hello') }
+        let result = demo()
+        if(result){} // 这行代码会编译报错：demo函数没有返回值，不应该拿着空的返回值去做任何操作
+        ```
+      
+      - **tuple（元组）：**它是一种特殊的**定长的**数组类型，它按序规定了数组中每个元素的类型。用于精确描述一组值。如：
+      
+        ```ts
+        let a: [string, number, boolean] = ['1', 2, true]  // 定长的数组，不按照要求push会报错
+        ```
+      
+        > - `?`表示元素是可选的。如：`let a: [string, number?]`，...string表示任意个string类型：`let a: [string, ...string]`。还可以给元组的索引起别名：`let a: [a:string, b:number]`
+      
+      - **enum（枚举值/枚举类型）：**TS中新增了枚举值，它可以定义**一组命名常量**。编译后生成的是JS对象，也叫**对象枚举**。
+      
+        - **数字枚举**：它是一种最常见的枚举类型，其枚举成员的值是数字且会自动递增。数字枚举具备反向映射的特点。
+      
+          ```ts
+          enum Direction { UP,DOWN,LEFT,RIGHT }
+          Direction.LEFT  // 值为2
+          Direction[0]  // 值为0
+          // 一般会指定枚举的值
+          enum Direction { UP=1,DOWN,LEFT,RIGHT=12 }
+          ```
+      
+        - **字符串枚举**：枚举成员的值是字符串，字符串枚举没有反向映射，也就是不能这样：`Direction[0]`
+      
+          ```ts
+          enum Direction { UP='up',DOWN='down',LEFT='left',RIGHT='right' }
+          ```
+      
+        - **常量枚举**：它是一种用特殊的、用const定义的枚举，在编译时会被换掉，不会产生定义枚举的代码，提高性能。
+      
+          ```ts
+          const enum Direction { UP='up',DOWN='down',LEFT='left',RIGHT='right' }
+          ```
 
-    ```ts
-    function demo():void{ console.log('hello') }
-    let result = demo()
-    if(result){} // 这行代码会报错：demo函数没有返回值，不应该拿着空的返回值去做任何操作
-    ```
+  - 高级类型：
 
-  - **tuple（元组）：**它是一种特殊的定长的**数组类型**，其中**每个元素的类型已知且可以不同**。用于精确描述一组值的类型，?表示可选元素。如：`let a: [string,number?]`，...string[]表示任意个string类型：`let a: [string, ...string[]]`，
+  - 内置类型：
 
-  - **enum（枚举）：**它可以定义**一组命名常量**，能够增强代码可读性，让代码更好维护。
+  - 自定义类型：
 
-    - 数字枚举：它是一种最常见的枚举类型，其枚举成员的值是数字且会自动递增。数字枚举具备反向映射的特点。
+  - 类型体操
 
-      ```ts
-      enum Direction { UP,DOWN,LEFT,RIGHT }
-      Direction.LEFT
-      Direction[0]
-      // 也可以指定常量的值
-      // enum Direction { UP=1,DOWN,LEFT,RIGHT=12 }
-      ```
 
-    - 字符串枚举：枚举成员的值是字符串，字符串枚举没有反向映射，也就是不能这样：`Direction[0]`
-
-      ```ts
-      enum Direction { UP='up',DOWN='down',LEFT='left',RIGHT='right' }
-      ```
-
-    - 常量枚举：它是一种特殊的、使用const关键字定义的枚举类型，在编译时会被内联，不会产生定义枚举类型的代码。
-
-      > **编译时内联：**所谓内联其实就是TS在编译时，会将枚举成员替换为实际的枚举值，而不生成额外的枚举对象。这可以减少生成的JS代码量，并提高运行时性能。
-
-  - Object/object：实际开发中用的较少，因为限制范围太大了。object表示**任何非原始类型**。Object表示**Object的子类型**，也就是所有可以调用Object方法的类型（除了null和undefined的任何类型都可以）。
 
 ------
 
 - ### 在TS中自定义类型
 
-  > 手动
+  > 
 
-  - **type：**它可以为任意类型创建别名，让代码更简洁、可读性更强，同时能更方便地进行类型复用和扩展。
+  - **type：**类型别名 (`type`) 可以为复杂的类型定义简短的别名，便于代码复用，使代码更简洁、可读性更强，同时能更方便地进行类型复用和扩展：
 
     ```ts
     type Status = number | string
@@ -201,9 +277,9 @@
 
   （类中的override关键字）
 
-- ### 类中的成员修饰符
+- ### 类中的访问控制权限修饰符
 
-  > 类中的成员修饰符可以加在属性或方法前，用于设置属性或方法的访问权限。
+  > TS在类中提供了以下4个访问控制权限修饰符，加在属性或方法前用于设置属性或方法的访问权限。
 
   - public（默认）：公开的，可在任何地方使用
   - protected：只可以在类体、子类中使用
@@ -230,7 +306,7 @@
 
       ```ts
       class Person {
-      	constructor(public name:string, public age:number){}
+      	constructor(public name: string, public age: number){}
       }
       ```
 
@@ -238,7 +314,7 @@
 
 - ### 抽象类（abstract class）
 
-  > - 抽象类是一种无法被实例化的类，专门用来定义类的结构和行为。
+  > - TS支持抽象类，抽象类是一种无法被实例化的类，专门用来定义类的结构和行为。
   > - 抽象类中可以写抽象方法，也可以有具体的实现。
   > - 抽象类主要用来为其派生类提供一个基础结构，是用来被派生类继承的。继承时要求其派生类必须实现其中的抽象方法。
   > - 抽象类的派生类也可以是抽象类，此时可以不实现其中的抽象方法。
@@ -329,11 +405,11 @@
 
 - ------
 
-  ### 泛型
+### 泛型
 
-  > 泛型可以将类型参数化。它能让一个类型的定义适用于多种类型，同时仍然保持类型的安全性。
+  > TypeScript允许在**类、接口、函数**中使用泛型，将类型参数化，使代码可以适应不同的类型需求，同时保持类型安全。
 
-  - 泛型函数：
+- 泛型函数：
 
     ```ts
     function log<K,V>(k: T, v: V) {
@@ -342,7 +418,7 @@
     log<string,number>('hello',100)
     ```
 
-  - 泛型接口：
+- 泛型接口：
 
     ```ts
     interface Person<T> {
@@ -351,7 +427,7 @@
     }
     ```
 
-  - 泛型类：
+- 泛型类：
 
     ```ts
     class Person<T> {
@@ -361,6 +437,57 @@
         ){}
     }
     ```
+
+### 类型守卫
+
+> TypeScript 提供了类型守卫，可以在代码中检查变量类型，帮助编译器推断更加具体的类型。这对于联合类型尤为重要。
+>
+> ```ts
+> function printId(id: string | number) {
+>     if (typeof id === "string") {
+>     	console.log(id.toUpperCase())
+>     } else {
+>     	console.log(id.toFixed(2))
+>     }
+> }
+> ```
+
+### 可选链和空值合并运算符
+
+> TypeScript 增加了 JavaScript 的可选链 (`?.`) 和空值合并运算符 (`??`)，简化了代码中对可能为 `null` 或 `undefined` 值的处理。
+
+```ts
+let user = { name: "Alice", address: { city: "Wonderland" } };
+console.log(user?.address?.city); // 如果 address 存在则输出 city，否则返回 undefined
+
+let value = null;
+console.log(value ?? "default"); // 如果 value 为 null 或 undefined，则返回 "default"
+```
+
+### 类型兼容性和工具类型
+
+> TypeScript 提供了一些工具类型，如 `Partial`、`Pick`、`Readonly`、`Record` 等，这些类型可以帮助生成新的类型，简化类型定义。
+>
+> ```ts
+> interface Todo {
+>   title: string;
+>   description: string;
+> }
+> 
+> let partialTodo: Partial<Todo> = { title: "Learn TypeScript" }; // 可选属性
+> ```
+
+### 编译期错误检查
+
+> TypeScript 提供的编译期错误检查可以捕获 JavaScript 中不易发现的错误，如拼写错误、类型不匹配等，帮助提升代码质量。
+
+### 模块和命名空间
+
+> TypeScript 提供了基于 ES6 的模块系统，使用 `import` 和 `export` 导入和导出模块。此外，TypeScript 还支持命名空间（Namespace），用于组织代码和避免命名冲突。
+
+### ES 新特性支持
+
+> TypeScript 提前支持了一些还未在所有环境中普及的 ES 特性，如装饰器（Decorators）、异步迭代器等，且能够将其编译成兼容的 JavaScript 版本。
 
 - ------
 
