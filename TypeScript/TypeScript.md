@@ -142,7 +142,7 @@
 
 - ### TS中的类型
 
-  - 基本类型：
+  - ##### 基本类型：
 
     - JS中的`undefined、string、symbol、object、null、number、boolean、bigint`等基础类型，都作为TS的基本类型。需要说明的是：
 
@@ -161,7 +161,11 @@
       >
       > - `Function`函数类型：`let count: (x: number, y: number) => number`，仅存储这种形式的函数。
       >
+      >   > **注意**：TS中只有上面方式定义的函数才能加类型，`function say(){}`这种方式定义的函数则不能加类型，因此一般不用这种方式声明函数。
+      >
       > - null和undefined：分别表示*空值*和*未定义*。在默认情况下，它们是所有类型的子类型，可以赋给任何变量，但可以通过 strictNullChecks 来开启空检查，使其只能赋值null/undefined。
+      >
+      > - String和string虽然是不同的TS类型，但是TS的类型系统允许将`String`构造的实例赋值给`string`类型的变量，因为`String`实例在某些情况下会被隐式转换为原始字符串类型。（但最好还是区分开避免歧义）
       >
       
     - 除此之外还增加了以下几个基本类型：（其中枚举类型也是枚举值/枚举常量）
@@ -253,13 +257,24 @@
           const enum Direction { UP='up', DOWN='down', LEFT='left', RIGHT='right' }
           ```
     
-  - 高级类型：
+  - ##### 类型别名：
 
-  - 内置类型：
-
-  - 自定义类型：
-
-  - 类型体操
+    > 类型别名 (`type`) 可以为复杂的类型定义简短的别名，便于在代码中引用，使代码更简洁、可读性更强，同时能更方便地进行类型复用和扩展：
+    >
+    > ```ts
+    > type Status = number | string
+    > let a: Status
+    > a = 1
+    > a = '404'
+    > ```
+  
+  - ##### 高级类型：
+  
+  - ##### 内置类型：
+  
+  - ##### 自定义类型：
+  
+  - ##### 类型体操
 
 
 
@@ -267,44 +282,33 @@
 
 - ### 在TS中自定义类型
 
-  > 
-
-  - **type：**类型别名 (`type`) 可以为复杂的类型定义简短的别名，便于代码复用，使代码更简洁、可读性更强，同时能更方便地进行类型复用和扩展：
-
-    ```ts
-    type Status = number | string
-    let a: Status
-    a = 1
-    a = '404'
-    ```
-
-    > 联合类型：它是一种高级类型，表示一个值可以是几种类型之一。
-    >
-    > ```ts
-    > type StringOrNumber = string | number
-    > let id: StringOrNumber
-    > ```
-
-    > 交叉类型：它允许将多个类型合并为一个类型，合并后的类型将拥有**所有被合并类型的成员**。（通常用于交叉对象类型）
-    >
-    > ```ts
-    > type Area = {
-    >    	height: number;
-    >    	width: number;
-    > }
-    > type Address = {
-    > 	room: number;
-    >    	floor: number;
-    >    }
-    > type House = Area & Address
-    > const h: House = {
-    >        room: 1,
-    >        floor: 2,
-    >        height: 300,
-    >        width: 200
-    >    }
-    > ```
-    
+  > 联合类型：它是一种高级类型，表示一个值可以是几种类型之一。
+  >
+  > ```ts
+  > type StringOrNumber = string | number
+  > let id: StringOrNumber
+  > ```
+  
+  > 交叉类型：它允许将多个类型合并为一个类型，合并后的类型将拥有**所有被合并类型的成员**。（通常用于交叉对象类型）
+  >
+  > ```ts
+  > type Area = {
+  >    	height: number;
+  >    	width: number;
+  > }
+  > type Address = {
+  > 	room: number;
+  >    	floor: number;
+  >    }
+  > type House = Area & Address
+  > const h: House = {
+  >        room: 1,
+  >        floor: 2,
+  >        height: 300,
+  >        width: 200
+  >    }
+  > ```
+  
   - **interface：**
   
 - ### 一个特殊的情况
