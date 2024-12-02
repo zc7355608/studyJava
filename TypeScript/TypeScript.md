@@ -242,6 +242,21 @@
         ```
       
         > - `?`表示元素是可选的。如：`let a: [string, number?]`，`...string`表示任意个string类型：`let a: [string, ...string]`。还可以给元组的索引起别名：`let a: [a:string, b:number]`
+        >
+        > - 通过`as const`断言，TypeScript会将该元组视为一个不可变的常量元组：
+        >
+        >   ```ts
+        >   let tuple = [42, "Hello"] as const  // 元组类型：[42, "Hello"]
+        >   ```
+        >
+        > - 还可以用展开运算符可以轻松地将多个元组合并成一个新的元组：
+        >
+        >   ```ts
+        >   let tuple1: [number, string] = [42, "Hello"]
+        >   let tuple2: [boolean] = [true]
+        >   let extendedTuple: [number, string, ...typeof tuple2] = [42, "Hello", ...tuple2]
+        >   console.log(extendedTuple)  // 输出: [42, "Hello", true]
+        >   ```
       
       - **enum（枚举值/枚举类型）：**TS中新增了枚举值，它可以定义**一组命名常量**。编译后生成的是JS对象，也叫**对象枚举**。
       
@@ -293,6 +308,8 @@
   
   - ##### 高级类型：
   
+    - **接口（interface）**：
+  
   - ##### 内置类型：
   
   - ##### 自定义类型：
@@ -324,8 +341,6 @@
   >        width: 200
   >    }
   > ```
-  
-  - **interface：**
   
   （类中的override关键字）
   
@@ -389,9 +404,13 @@
 - ### 接口（interface）
 
   > 接口是一种定义结构的方式，主要作用是为类、对象、函数等，规定一种契约，这样可以确保代码的一致性和安全性。但要注意：接口只能定义格式不能包含任何的实现。（一个类可以实现多个接口，但只能单继承）
-
+  >
+  > 接口是一系列抽象方法的声明，是一些方法特征的集合，这些方法都应该是抽象的，需要由具体的类去实现，然后第三方就可以通过这组抽象方法调用，让具体的类执行具体的方法。
+  >
+  > TS定义一个接口：
+  
   - 定义类的结构：
-
+  
     ```ts
     interface Person {
         name: string
@@ -405,9 +424,9 @@
         }
     }
     ```
-
+  
   - 定义对象的结构：
-
+  
     ```ts
     interface Person {
         readonly name: string
@@ -422,9 +441,9 @@
         }
     }
     ```
-
+  
   - 定义函数的结构：
-
+  
     ```ts
     interface Count {
     	(a:number,b:number): number
@@ -433,9 +452,9 @@
     ```
 
   - 接口之间的继承：
-
+  
   - 接口的自动合并（可合并性）：
-
+  
     ```ts
     interface Person {
     	name: string
@@ -448,7 +467,7 @@
         age: 11
     }
     ```
-
+  
     > 何时使用接口：（接口和type都可用于定义对象的结构）
     >
     > 1. 定义对象的格式
