@@ -16,7 +16,7 @@
   > - 有漏洞的逻辑。
   > - 访问不存在的属性。
   > - 低级的拼写错误。
-
+  >
   > **使用TS就可以避免以上问题：**
   >
   > - TS代码在运行前会先进行编译，编译时就可以发现代码的错误或不合理之处从而减小运行时出现异常的概率，这是TS这种**静态类型检查语言**的好处。
@@ -31,7 +31,14 @@
     >
     > 此时就会在当前目录下生成一个`demo.js`文件，就可以在浏览器或Node中运行了。
     >
-    > （VSCode中也可以用Code Runner插件来有右键直接运行一个TS文件，但需要全局安装node和ts-node两个包）
+    > *（VSCode中也可以用Code Runner插件来有右键直接运行一个TS文件，但需要全局安装node和ts-node两个包）*
+    >
+    > 关于`ts-node`工具：它是一个非官方的、用于直接运行TS代码的工具，使用：
+    >
+    > 1. 全局安装：`npm install -g ts-node`
+    > 2. 直接执行TS代码：`ts-node a.ts`
+    >
+    > 如果不全局安装`ts-node`，也可以通过`npx`调用它来运行TS代码：`npx ts-node a.ts`，`npx`会在线调用 ts-node工具，从而在不安装的情况下运行TS代码。如果执行 ts-node 命令不带有任何参数，它会提供一个 TypeScript 的命令行 REPL 运行环境，你可以在这个环境中输入 TypeScript 代码，逐行执行。
 
   - ##### 自动化编译：
 
@@ -95,13 +102,14 @@
 
 - ### 类型推断
 
-  > - 当类型没有给出时，TypeScript 编译器利用**类型推断**来推断类型：
+  > - 当类型没有给出时，TypeScript 编译器利用**自动类型推断**来推断变量的类型：
   >
   >   ```ts
   >   var num = 2  // 类型推断为 number
   >   ```
   >
-  > - 若缺乏声明且没有赋值，不能推断出类型，那么它的类型被视作默认的 any 类型。（尽量避免any）
+  > - 对于开发者没有指定类型、TypeScript 必须自己推断类型的那些变量，如果无法推断出类型，TypeScript 就会认为该变量的类型是`any`。应尽量避免any。
+  >
 
 - ### 类型断言
 
@@ -147,7 +155,7 @@
 
     - JS中的`undefined、string、symbol、object、null、number、boolean、bigint`等基础类型，都作为TS的基本类型。需要说明的是：
 
-      > - object：表示**任何非基础类型**，适用于复杂的对象结构。如果用object来限制一个变量，那么这个变量除了基本类型之外，可以赋任意的值，因为数组、函数等都属于object类型。这种在实际开发中用的很少，因为限制范围太大了，我们通常用对象的**字面量**类型：
+      > - object：表示字面量类型的对象，*对象、函数、数组*都属于普通字面量对象（引用类型），它适用于复杂的对象结构。如果用object来限制一个变量，那么这个变量除了基本类型之外，可以赋任意的值，因为数组、函数等都属于object类型。这种在实际开发中用的很少，因为限制范围太大了，我们通常用*接口*来限制对象：
       >
       >   ```ts
       >   // 表示person是一个有name是属性的对象，age属性可选，还可以有任意数量的其他属性（any不限类型）
@@ -156,7 +164,7 @@
       >
       >   **注意**：TS中的`?`表示age参数是可选的。
       >
-      > - Object：表示**Object类**，即所有可以调用Object身上方法的类型。（即除了null和undefined的任何类型）
+      > - Object：大写的`Object`类型代表 JavaScript 语言里面的广义对象。所有能访问到Object原型上的都是`Object`类型。这囊括了几乎所有的值，因此很少用（除了null和undefined）。
       >
       > - 数组类型：`let arr: string[]`或`let arr: Array<string>`。（后面说泛型）
       >
@@ -169,22 +177,15 @@
       >
       > - null和undefined：分别表示*空值*和*未定义*。在默认情况下，它们是所有类型的子类型，可以赋给任何变量，但可以通过 strictNullChecks 来开启空检查，使其只能赋值null/undefined。
       >
-      > - String和string虽然是不同的TS类型，但是TS的类型系统允许将`String`构造的实例赋值给`string`类型的变量，因为`String`实例在某些情况下会被隐式转换为原始字符串类型。（但最好还是区分开避免歧义）
+      > - 大String和小string是不同的TS类型，其中大写类型同时包含包装对象和字面量两种情况，小写类型只包含字面量，不包含包装对象。（建议只使用小写类型，不使用大写类型。因为绝大部分使用原始类型的场合，都是使用字面量，不使用包装对象。而且，TypeScript 把很多内置方法的参数，定义成小写类型，使用大写类型会报错）
+      >
+      > - symbol 类型和 bigint 类型无法获取它们的包装对象。即`Symbol()`和`BigInt()`不能作为构造函数使用，所以没有办法直接获得 symbol 类型和 bigint 类型的包装对象，因此`Symbol`和`BigInt`这两个类型虽然在TS中存在，但是目前没用。
       >
       
     - 除此之外还增加了以下几个基本类型：（其中枚举类型也是枚举值/枚举常量）
   
-      - **字面量类型**：字面量类型可以让变量只能拥有特定的值，通常结合union来定义变量的特定状态：
+      - **any：**表示任何类型，范围最大，适合不确定数据类型的情况。使用时需谨慎，因为 any 会绕过类型检查。从集合的角度看，`any`类型可以看成是所有其他类型的全集，包含了一切可能的类型。TS将这种类型称为“顶层类型”（top type），意为涵盖了所有下层。
   
-        ```ts
-        let direction: "up" | "down" | "left" | 2 | boolean
-        direction = "up"
-        ```
-      
-        **注意**：const定义的变量意味着不会被修改，因此`const a = 1`此时a是字面量类型1。
-      
-      - **any：**表示任何类型，范围最大，适合不确定数据类型的情况。使用时需谨慎，因为 any 会绕过类型检查。
-      
         > ###### any是 TS 针对编程时类型不明确的变量使用的一种数据类型，它常用于以下三种情况：
         >
         > 1. 变量的值会任意改变时。
@@ -195,7 +196,7 @@
         >
         > 1. 没有给变量显示的声明类型（自动类型推断也没起作用），那么它的类型其实就是any。如：`let a`相当于`let a: any`
         >
-        > 2. any类型的变量可以赋值给任意类型的变量：（any会搞破坏）
+        > 2. any类型的变量可以赋值给任意类型的变量：（any存在**污染问题**）
         >
         >    ```ts
         >    let a: any
@@ -205,19 +206,53 @@
         >    ```
         >
         > 3. 开发中尽量少用any，大量的使用any相当于写的不是TypeScript，而是AnyScript。
-  
-      - **union联合**：表示一个变量可以是多种类型之一。通过`|`符号实现：`let id: string | number`
       
-      - **unknown：**它的含义是**未知的**，可以理解为一个类型安全的、更严格的any，适用于**不确定数据的具体类型**。它和any的区别是：unknown类型的变量不允许赋值给任意类型的变量。
+      - **unknown：**为了解决`any`“污染”其他变量的问题，TS3.0引入了`unknown`。它与`any`含义相同，表示类型不确定，可能是任意类型，但是它的使用有一些限制，不像`any`那样自由，可以视为严格版的`any`。`unknown`跟`any`的相似之处在于，所有类型的值都可以分配给`unknown`类型（范围最大）；不同之处在于，它不能直接使用，主要有以下几个限制：
       
-        > - unknown会强制开发者在使用前进行类型检查，从而提供更强安全型。（上面的a如果换成unknown则会报错）
-        > - 读取any的任何属性都不会报错，而unknown恰恰与其相反。
-        
-      - **never：**它是其它所有类型的子类型（包括 null 和 undefined），表示**任何值都不是**。这意味着声明为 never 类型的变量只能被 never 类型所赋值，在函数中它通常表现为抛出异常或无法执行到终止点（例如无限循环）。
+        > 1. 首先，`unknown`类型的变量，不能直接赋值给其他类型的变量（除了`any`和`unknown`类型）。这就避免了污染问题，从而克服了`any`的一大缺点。
+        > 2. 其次，不能直接调用`unknown`类型变量的方法和属性。
+        > 3. 最后，`unknown`类型变量能够进行的运算是有限的，只能进行比较运算（`==`、`===`、`!=`、`!==`、`||`、`&&`、`?`）、取反运算（运算符`!`）、`typeof`和`instanceof`运算符这几种，其他运算都会报错。
+        >
+        > 那么怎么才能使用`unknown`类型变量呢？答案是，只有经过“类型缩小”，`unknown`类型变量才可以使用。所谓“类型缩小”，就是缩小`unknown`变量的类型范围，给其指定确定的类型，确保不会出错。
+        >
+        > 这样设计的目的是，只有明确`unknown`变量的实际类型，才允许使用它，防止像`any`那样可以随意乱用，“污染”其他变量。
+        >
+        > 总之，`unknown`可以看作是更安全的`any`。一般来说，凡是需要设为`any`类型的地方，通常都应该优先考虑设为`unknown`类型。在集合论上，`unknown`也可以视为所有其他类型（除了`any`）的全集，所以它和`any`一样，也属于 TypeScript 的顶层类型。
+      
+      - **never**：为了保持与集合论的对应关系，以及类型运算的完整性，TS引入了“空类型”的概念，即该类型为空（空集），不包含任何值。即*never是其它所有类型的子类型（包括 null 和 undefined）*。表示**任何值都不是**，不存在这样的类型。这意味着声明为`never`类型的变量只能被`never`类型所赋值，在函数中它通常表现为抛出异常或无法执行到终止点（例如无限循环）。
       
         > - 几乎不用never去直接限制变量，因为没有意义。
         > - never一般是TS主动推断出来的。
         > - never一般用于限制函数的返回值类型，如果一个函数的返回值类型为never，那么该函数不能顺利的执行结束。
+        > - `never`类型是任何其他类型所包含的，TypeScript 把这种情况称为“底层类型”（bottom type）。
+      
+      - **字面量类型/值类型**：字面量类型可以让变量只能拥有特定的值，通常结合union来定义变量的特定状态：
+      
+        ```ts
+        let direction: "up" | "down" | "left" | 2 | boolean
+        direction = "up"
+        ```
+      
+        **注意**：const定义的变量意味着不会被修改，因此`const a = 1`此时a是字面量类型1。
+      
+      - **union联合类型**：表示一个变量可以是多种类型之一。通过`|`符号实现：`let id: string | number`。
+      
+      - **交叉类型**：取多个类型的交集，用符号`&`表示：`let x: number & string`。此时变量`x`必须同时是数值和字符串，这当然是不可能的，所以 TypeScript 会认为`x`的类型是`never`。交叉类型表示对象的合成：
+      
+        ```ts
+        let obj: { foo: string } & { bar: string }  // 表示对象中必须包含foo和bar两个属性
+        obj = {
+          foo: "hello",
+          bar: "world",
+        }
+        ```
+      
+        > 再比如为对象类型添加新属性：
+      
+        ```ts
+        type A = { foo: number }
+        type B = A & { bar: number }
+        ```
       
       - **void：**它通常用于声明函数的返回值，含义：函数返回值为空（或undefined），调用者不应该依赖其返回值进行任何操作。如：
       
@@ -308,7 +343,218 @@
   
   - ##### 高级类型：
   
-    - **接口（interface）**：
+    - **接口（interface）**：接口是一种定义结构的方式，主要作用是为类、对象、函数等，规定一种契约，这样可以确保代码的一致性和安全性。但要注意：接口只能定义格式不能包含任何的实现。TS中定义接口：
+  
+      > - 定义类的接口：
+      >
+      >   ```ts
+      >   interface Person {
+      >       name: string;  // 分隔符可以是; , Enter
+      >       age: number,
+      >       speak(n: number): void
+      >   }
+      >   class Student implements Person {
+      >       constructor(public name: string, public age: number){}
+      >       speak(n: number): void {
+      >       	console.log('hello')
+      >       }
+      >   }
+      >   ```
+      >
+      > - 定义对象的接口：
+      >
+      >   ```ts
+      >   interface Person {
+      >       readonly name: string
+      >       age?: number,   // 可有可无，相当于：age: number | undefined
+      >       speak: (n: number) => void
+      >   }
+      >   const xiaoming: Person = {
+      >       name: '小明',
+      >       age: 14,
+      >       speak(n){
+      >       	console.log('hello')
+      >       }
+      >   }
+      >   ```
+      >
+      > - 定义函数的接口：
+      >
+      >   ```ts
+      >   interface Count {
+      >   	(a: number, b: number): number
+      >   }
+      >   const count: Count = (x,y)=>{ return x+y }
+      >   ```
+  
+      > 接口的自动合并（可合并性）：
+      >
+      > ```ts
+      > interface Person {
+      > 	name: string
+      > }
+      > interface Person {
+      > 	age: number
+      > }
+      > const p: Person = {
+      >     name: '张三',
+      >     age: 11
+      > }
+      > ```
+      >
+      > 接口中我们还可以将数组的索引值和元素设置为不同类型。索引值可以是数字或字符串。
+      >
+      > ```ts
+      > // 设置元素为字符串类型
+      > interface namelist { 
+      >    [index: number]: string 
+      > }
+      > // 类型一致，正确
+      > var list2: namelist = ["Google","Runoob","Taobao"]
+      > // 错误元素 1 不是 string 类型
+      > // var list2: namelist = ["Runoob",1,"Taobao"]
+      > ```
+      >
+      > **接口继承**：接口继承就是说接口可以通过继承其他接口来扩展自己。Typescript 允许接口继承多个接口，继承使用关键字**extends**。继承语法格式：`接口名 extends 接口1,接口2,.. {}`。
+  
+    - **类（class）**：TypeScript 是面向对象的 JavaScript。类描述了所创建的对象共同的属性和方法。TypeScript 支持面向对象的所有特性，比如 类、接口等。TypeScript 类定义方式：`class 类名 {}`。类中包含*属性、方法、构造器*。
+  
+      > - **（类中）属性的简写形式**：（类中的override关键字）
+      >
+      >   - 简写前：
+      >
+      >     ```ts
+      >     class Person {
+      >         public name: string
+      >         public age: number
+      >         constructor(name: string, age: number){
+      >         	this.name = name  // 使用this.name时，name必须在类中提前声明好
+      >         	this.age = age
+      >         }
+      >     }
+      >     ```
+      >
+      >   - 简写后：
+      >
+      >     ```ts
+      >     class Person {
+      >         // 此时this.name = name可以省略
+      >     	constructor(public name: string, public age: number){}
+      >     }
+      >     ```
+      >
+      > - **类的继承**：TypeScript 的类支持单继承，类继承使用关键字**extends**。子类除了不能继承父类的私有成员，其他的都可以继承。语法格式：`class A extends 类名 {}`。
+      >
+      > - **方法重写**：类继承后，子类可以对父类的方法重新定义，这个过程称之为方法的重写。其中**super**指向父类的引用，使子类能访问到父类的属性和方法（私有的除外）。
+      >
+      > - **类中的访问控制权限修饰符**：TypeScript 中，可以用访问控制符来保护对类、变量、方法和构造方法的访问。TypeScript 支持 3 种不同的访问权限：
+      >
+      >   - **public（默认）**：公开的，可以在任何地方被访问。
+      >   - **protected**：受保护的，可以被其自身以及其子类访问。
+      >   - **private**：私有的，只能在本类体中使用。
+      >
+      >   > 还有一个`readonly`修饰符，用于设置*只读属性*，在访问控制权限修饰符和属性名之间加：`public readonly name: string`
+      >
+      > - **类和接口**：类可以实现接口，使用关键字`implements`，此时类中必须包含接口中定义的所有属性。
+      >
+      > - **鸭子类型（Duck Typing）**：鸭子类型是动态类型语言中的一种风格，是多态（polymorphism）的一种表现形式。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由*当前对象中所有的方法和属性*来决定。
+      >
+      >   > 可以这样表述："当看到一只鸟走起来像鸭子、游泳起来像鸭子、叫起来也像鸭子，那么这只鸟就可以被称为鸭子。"
+      >
+      >   应用到编程中，这意味着：
+      >
+      >   - **不关心对象是什么**：在鸭子类型中，我们不关心一个对象的具体类型是什么，只关心它能否完成我们需要的操作。
+      >   - **动态检查**：在运行时，系统会检查对象是否具有所需的方法或属性，而不是在编译时检查其类型。
+      >   - **灵活性高**：这种方式使得代码更加灵活，可以更容易地扩展和修改。
+      >
+      >   > 举例说明：
+      >   >
+      >   > 假设你有一个函数 `makeSound`，它接受一个对象并调用其 `quack` 方法：
+      >   >
+      >   > ```ts
+      >   > function makeSound(duck: any) {
+      >   > 	duck.quack()
+      >   > }
+      >   > ```
+      >   >
+      >   > 在这个例子中，我们不关心传入的对象具体是什么类型，只要它有`quack`方法即可。如果传入的对象有一个`quack`方法，那么这个函数就能正常工作。因此参数duck设置为any。但是如果将duck参数的类型指定为`Duck`，那么就必须确保传入的对象实现了`Duck`接口，否则编译报错。
+      >   >
+      >   > 总之：鸭子类型强调的是对象的行为而不是其类型，这使得代码更加灵活和动态。
+  
+    - **抽象类（abstract class）**：
+  
+      > - TS支持抽象类，抽象类是一种无法被实例化的类，专门用来定义类的结构和行为。
+      > - 抽象类中可以写抽象方法，也可以有具体的实现。
+      > - 抽象类主要用来为其派生类提供一个基础结构，是用来被派生类继承的。继承时要求其派生类必须实现其中的抽象方法。
+      > - 抽象类的派生类也可以是抽象类，此时可以不实现其中的抽象方法。
+      > - 抽象类的作用？
+      >   - 定义通用接口
+      >   - 提供基础实现
+      >   - 确保关键实现
+      >   - 共享代码和逻辑
+  
+      ```ts
+      abstract class Package {
+          abstract calculate(): number
+          printPackage(){ console.log('打印包裹重量') }
+      }
+      class StandPackage extends Package {
+      	override calculate(): number { return 100 }
+      }
+      ```
+  
+    - **泛型（Generics）**：泛型是一种编程语言特性，允许在定义*函数、类、接口*等时使用占位符来表示类型，而不是具体的类型。将类型参数化，使代码可以适应不同的类型需求，同时保持类型安全。泛型是一种在编写可重用、灵活且类型安全的代码时非常有用的功能。泛型的优势包括：
+  
+      - **代码重用：** 可以编写与特定类型无关的通用代码，提高代码的复用性。
+      - **类型安全：** 在编译时进行类型检查，避免在运行时出现类型错误。
+      - **抽象性：** 允许编写更抽象和通用的代码，适应不同的数据类型和数据结构。
+  
+      > 泛型函数：
+      >
+      > ```ts
+      > function log<K,V>(k: T, v: V) {
+      > 	console.log(k,v)
+      > }
+      > log<string,number>('hello',100)
+      > ```
+      >
+      > 泛型接口：
+      >
+      > ```ts
+      > interface Person<T,U> {
+      >     name: T
+      >     age: U
+      > }
+      > let p: Person<string,number> = { name: 'zs', age: 13, }
+      > ```
+      >
+      > 泛型类：
+      >
+      > ```ts
+      > class Person<T> {
+      >     constructor(public name: T, public age: U){}
+      > }
+      > let p = new Person<string,number>('zs', 13)
+      > ```
+  
+      > **泛型约束**：有时候你想限制泛型的类型范围，可以使用泛型约束，使用`extends`（不能用`super`）。
+      >
+      > ```ts
+      > interface Lengthwise {
+      >     length: number;
+      > }
+      > function f1<T extends Lengthwise>(arg: T): void {
+      >     console.log(arg.length)
+      > }
+      > ```
+      >
+      > **泛型默认值**：可以给泛型设置默认值，使得在不指定类型参数时能够使用默认类型。
+      >
+      > ```ts
+      > function f1<T = string>(arg: T): T {
+      >     return arg
+      > }
+      > ```
   
   - ##### 内置类型：
   
@@ -318,196 +564,27 @@
 
 
 
-------
-
-- ### 在TS中自定义类型
-
-  > 交叉类型：它允许将多个类型合并为一个类型，合并后的类型将拥有**所有被合并类型的成员**。（通常用于交叉对象类型）
-  >
-  > ```ts
-  > type Area = {
-  >    	height: number;
-  >    	width: number;
-  > }
-  > type Address = {
-  > 	room: number;
-  >    	floor: number;
-  >    }
-  > type House = Area & Address
-  > const h: House = {
-  >        room: 1,
-  >        floor: 2,
-  >        height: 300,
-  >        width: 200
-  >    }
-  > ```
-  
-  （类中的override关键字）
-  
-- ### 类中的访问控制权限修饰符
-
-  > TypeScript 是面向对象的 JavaScript。类描述了所创建的对象共同的属性和方法，TypeScript 支持面向对象的所有特性，比如 类、接口等。TS在类中提供了以下4个访问控制权限修饰符，加在属性或方法前用于设置属性或方法的访问权限。
-
-  - public（默认）：公开的，可在任何地方使用
-  - protected：只可以在类体、子类中使用
-  - private：只可以类中使用
-
-  - readonly：只读属性，只能在构造器中赋值。在修饰符和属性名之间加，如：`public readonly name: string`。
-
-  - （类中）属性的简写形式：
-
-    - 简写前：
-
-      ```ts
-      class Person {
-          public name: string
-          public age: number
-          constructor(name: string, age: number){
-          	this.name = name  // 使用this.name时，name必须在类中提前声明好
-          	this.age = age
-          }
-      }
-      ```
-  
-    - 简写后：
-
-      ```ts
-      class Person {
-      	constructor(public name: string, public age: number){}  // 此时this.name = name可以省略
-      }
-      ```
-
-------
-
-- ### 抽象类（abstract class）
-
-  > - TS支持抽象类，抽象类是一种无法被实例化的类，专门用来定义类的结构和行为。
-  > - 抽象类中可以写抽象方法，也可以有具体的实现。
-  > - 抽象类主要用来为其派生类提供一个基础结构，是用来被派生类继承的。继承时要求其派生类必须实现其中的抽象方法。
-  > - 抽象类的派生类也可以是抽象类，此时可以不实现其中的抽象方法。
-  > - 抽象类的作用？
-  >   - 定义通用接口
-  >   - 提供基础实现
-  >   - 确保关键实现
-  >   - 共享代码和逻辑
-
-  ```ts
-  abstract class Package {
-      abstract calculate(): number
-      printPackage(){ console.log('打印包裹重量') }
-  }
-  class StandPackage extends Package {
-  	override calculate(): number { return 100 }
-  }
-  ```
-
-- ### 接口（interface）
-
-  > 接口是一种定义结构的方式，主要作用是为类、对象、函数等，规定一种契约，这样可以确保代码的一致性和安全性。但要注意：接口只能定义格式不能包含任何的实现。（一个类可以实现多个接口，但只能单继承）
-  >
-  > 接口是一系列抽象方法的声明，是一些方法特征的集合，这些方法都应该是抽象的，需要由具体的类去实现，然后第三方就可以通过这组抽象方法调用，让具体的类执行具体的方法。
-  >
-  > TS定义一个接口：
-  
-  - 定义类的结构：
-  
-    ```ts
-    interface Person {
-        name: string
-        age: number
-        speak(n: number): void
-    }
-    class Student implements Person {
-        constructor(public name: string, public age: number){}
-        speak(n: number): void {
-        	console.log('hello')
-        }
-    }
-    ```
-  
-  - 定义对象的结构：
-  
-    ```ts
-    interface Person {
-        readonly name: string
-        age?: number
-        speak: (n: number) => void
-    }
-    const xiaoming: Person = {
-        name: '小明',
-        age: 14, // 可以没有
-        speak(n){
-        	console.log('hello')
-        }
-    }
-    ```
-  
-  - 定义函数的结构：
-  
-    ```ts
-    interface Count {
-    	(a:number,b:number): number
-    }
-    const count: Count = (x,y)=>{ return x+y }
-    ```
-
-  - 接口之间的继承：
-  
-  - 接口的自动合并（可合并性）：
-  
-    ```ts
-    interface Person {
-    	name: string
-    }
-    interface Person {
-    	age: number
-    }
-    const p: Person = {
-        name: '张三',
-        age: 11
-    }
-    ```
-  
-    > 何时使用接口：（接口和type都可用于定义对象的结构）
-    >
-    > 1. 定义对象的格式
-    > 2. 类的契约
-    > 3. 自动合并：一般用于扩展第三方库的类型。
+> 交叉类型：它允许将多个类型合并为一个类型，合并后的类型将拥有**所有被合并类型的成员**。（通常用于交叉对象类型）
+>
+> ```ts
+> type Area = {
+>    	height: number;
+>    	width: number;
+> }
+> type Address = {
+> 	room: number;
+>    	floor: number;
+>    }
+> type House = Area & Address
+> const h: House = {
+>        room: 1,
+>        floor: 2,
+>        height: 300,
+>        width: 200
+>    }
+> ```
 
 - ------
-
-### 泛型
-
-  > TypeScript允许在**类、接口、函数**中使用泛型，将类型参数化，使代码可以适应不同的类型需求，同时保持类型安全。
-
-- 泛型函数：
-
-    ```ts
-    function log<K,V>(k: T, v: V) {
-    	console.log(k,v)
-    }
-    log<string,number>('hello',100)
-    ```
-
-- 泛型接口：
-
-    ```ts
-    interface Person<T> {
-        name: string,
-        extraInfo: T
-    }
-    ```
-
-- 泛型类：
-
-    ```ts
-    class Person<T> {
-        constructor(
-            public name: string,
-            public extraInfo: T
-        ){}
-    }
-    ```
 
 ### 类型守卫
 
