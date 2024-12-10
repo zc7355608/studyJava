@@ -99,6 +99,19 @@
   > }
   > ```
   >
+  > **类型的兼容：**
+  >
+  > TypeScript 的类型存在兼容关系（类似于集合），某些类型可以兼容其他类型：
+  >
+  > ```ts
+  > type T = number | string
+  > let a: number = 1
+  > let b: T = a
+  > ```
+  >
+  > - 上面示例中，变量`a`和`b`的类型是不一样的，但是变量`a`赋值给变量`b`并不会报错。这时，我们就认为，`b`的类型兼容`a`的类型（b类型的集合包含a类型的集合）。TypeScript 为这种情况定义了一个专门术语。如果类型`A`的值可以赋值给类型`B`，那么类型`A`就称为类型`B`的**子类型（subtype）**。在上例中，类型`number`就是类型`number|string`的子类型。
+  > - 类似于其他静态类型语言，TypeScript 中凡是可以使用父类型的地方，都可以使用子类型，但是反过来不行。
+  > - 之所以有这样的规则，是因为子类型继承了父类型的所有特征，所以可以用在父类型的场合。但是，子类型还可能有一些父类型没有的特征，对父类型做了扩展，所以父类型不能用在子类型的场合。
 
 - ### 类型推断
 
@@ -166,7 +179,7 @@
       >
       > - Object：大写的`Object`类型代表 JavaScript 语言里面的广义对象。所有能访问到Object原型上的都是`Object`类型。这囊括了几乎所有的值，因此很少用（除了null和undefined）。
       >
-      > - 数组类型：`let arr: string[]`或`let arr: Array<string>`。（后面说泛型）
+      > - 数组类型：`let arr: string[]`或`let arr: Array<string>`（后面说泛型）。`T[][]`表示二维数组，其中`T`是最底层数组成员的类型，其中每个一维数组中必须保存T类型的值。
       >
       > - `Function`函数类型：`let count: (x: number, y: number) => number`，仅存储这种形式的函数。
       >
@@ -242,8 +255,8 @@
         ```ts
         let obj: { foo: string } & { bar: string }  // 表示对象中必须包含foo和bar两个属性
         obj = {
-          foo: "hello",
-          bar: "world",
+            foo: "hello",
+            bar: "world",
         }
         ```
       
@@ -276,7 +289,11 @@
         let a: [string, number, boolean] = ['1', 2, true]  // 定长的数组，不按照要求push会报错
         ```
       
-        > - `?`表示元素是可选的。如：`let a: [string, number?]`，`...string`表示任意个string类型：`let a: [string, ...string]`。还可以给元组的索引起别名：`let a: [a:string, b:number]`
+        > - `?`表示元素是可选的，可选的必须都放在最后。如：`let a: [string, number?]`。
+        >
+        > - 还可以用展开运算符，后面跟数组或元组类型，表示不限数量的元组：`let a: [string, ...string[]]`。（扩展运算符用在元组的任意位置都可以）
+        >
+        > - 给元组的索引起别名：`let a: [a:string, b:number]`。
         >
         > - 通过`as const`断言，TypeScript会将该元组视为一个不可变的常量元组：
         >
@@ -319,7 +336,7 @@
   
   - ##### 类型别名：
   
-    > - 类型别名 (`type`) 可以为复杂的类型定义简短的别名，便于在代码中引用，使代码更简洁、可读性更强，同时能更方便地进行类型复用和扩展：（并且**类型别名默认有变量提升，声明位置在顶部**）
+    > - 类型别名 (`type`) 可以为复杂的类型定义简短的别名，便于在代码中引用，使代码更简洁、可读性更强，同时能更方便地进行类型复用和扩展：（类型别名默认有变量提升，声明位置在*当前块级作用域的顶部*）
     >
     >   ```ts
     >   type Status = number | string
@@ -328,11 +345,12 @@
     >   a = '404'
     >   ```
     >
-    > - TS中的`typeof`关键字还可以用于提取变量的类型：
+    > - TS中的`typeof`关键字还可以用于提取变量的TS类型：（`typeof`后面只能是标识符，不能是表达式和类型）
     >
     >   ```ts
-    >   const obj = { name: 'zs', age: 18, }
-    >   type MyPerson = typeof obj  // 此时MyPerson的类型就是obj对应的字面量类型
+    >   const a = { x: 0 }
+    >   type T0 = typeof a  // { x: number }
+    >   type T1 = typeof a.x  // number
     >   ```
     >
     > - `keyof`关键字可以将对象中的所有key提取为字符串的联合类型：
