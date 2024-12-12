@@ -181,16 +181,75 @@
       >
       > - 数组类型：`let arr: string[]`或`let arr: Array<string>`（后面说泛型）。`T[][]`表示二维数组，其中`T`是最底层数组成员的类型，其中每个一维数组中必须保存T类型的值。
       >
-      > - `Function`函数类型：`let count: (x: number, y: number) => number`，仅存储这种形式的函数。
+      > - 函数类型：函数的类型声明，需要在声明函数时，给出参数的类型和返回值的类型：
       >
       >   ```ts
-      >   // 仅声明函数的类型：
-      >   function toArray(v: string): string[]
+      >   function hello(txt: string): string {
+      >   	return "hello " + txt
+      >   }
       >   ```
+      >
+      >   > 如果变量被赋值为一个函数，变量的类型有两种写法：
+      >   >
+      >   > ```ts
+      >   > // 写法一
+      >   > const hello = function (txt: string) {
+      >   > 	console.log("hello " + txt)
+      >   > }
+      >   > 
+      >   > // 写法二
+      >   > const hello: (txt: string) => void = function (v) {  // 类型里面的参数名(txt)是必须的
+      >   > 	console.log("hello " + txt)
+      >   > }
+      >   > ```
+      >   >
+      >   > - 上面示例中，变量`hello`被赋值为一个函数，它的类型有两种写法。写法一是通过等号右边的函数类型，推断出变量`hello`的类型；写法二则是使用箭头函数的形式，为变量`hello`指定类型，参数的类型写在箭头左侧，返回值的类型写在箭头右侧。
+      >   >
+      >   > - 注意：函数的实际参数个数，可以少于类型指定的参数个数，但是不能多于：
+      >   >
+      >   >   ```ts
+      >   >   let myFunc: (a: number, b: number) => number
+      >   >   myFunc = (a: number) => a  // 正确
+      >   >   myFunc = (a: number, b: number, c: number) => a + b + c  // 报错
+      >   >   ```
+      >   >
+      >   > - 由于函数本质上也是对象，因此函数类型还可以采用对象（接口）的写法：
+      >   >
+      >   >   ```ts
+      >   >   let add: {  // add可以是一个函数（对象）
+      >   >     (x: number, y: number): number
+      >   >   }
+      >   >   add = function (x, y) {
+      >   >     return x + y
+      >   >   }
+      >   >   ```
+      >   >
+      >   >   这种写法平时很少用，但是非常合适用在一个场合：函数本身存在属性。
+      >   >
+      >   >   ```ts
+      >   >   function f(x: number) {
+      >   >   	console.log(x)
+      >   >   }
+      >   >   f.version = '1.0'
+      >   >   ```
+      >   >
+      >   >   上面示例中，函数`f()`本身还有一个属性`version`。这时，`f`完全就是一个对象，类型就要使用对象的写法：
+      >   >
+      >   >   ```ts
+      >   >   let foo: {
+      >   >   	(x: number): void
+      >   >   	version: string
+      >   >   } = f
+      >   >   ```
       >
       > - null和undefined：分别表示*空值*和*未定义*。在默认情况下，它们是所有类型的子类型，可以赋给任何变量，但可以通过 strictNullChecks 来开启空检查，使其只能赋值null/undefined。
       >
       > - 大String和小string是不同的TS类型，其中大写类型同时包含包装对象和字面量两种情况，小写类型只包含字面量，不包含包装对象。（建议只使用小写类型，不使用大写类型。因为绝大部分使用原始类型的场合，都是使用字面量，不使用包装对象。而且，TypeScript 把很多内置方法的参数，定义成小写类型，使用大写类型会报错）
+      >
+      > - Symbol：TS 中用`symbol`表示 Symbol 类型。并且为了表示唯一的Symbol值，TS 设计了`symbol`的一个子类型`unique symbol`，它表示某个唯一的 Symbol 值。并且由于所以这个类型的变量是不能被赋其他值的，因此必须用`const`不能用`let`：`const x: unique symbol = Symbol()`。（两个`unique symbol`类型的变量其实类型并不相同）
+      >
+      >   > - unique symbol 类型的一个作用，就是用作属性名，这可以保证不会跟其他属性名冲突。如果要把某一个特定的 Symbol 值当作属性名，那么它的类型只能是 unique symbol，不能是 symbol。
+      >   > - `unique symbol`类型也可以用作类的属性值，但只能赋值给类的`readonly static`属性。
       >
       > - symbol 类型和 bigint 类型无法获取它们的包装对象。即`Symbol()`和`BigInt()`不能作为构造函数使用，所以没有办法直接获得 symbol 类型和 bigint 类型的包装对象，因此`Symbol`和`BigInt`这两个类型虽然在TS中存在，但是目前没用。
       >
