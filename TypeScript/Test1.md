@@ -189,9 +189,9 @@
   >   a = '404'
   >   ```
   >
-  >   > 1. 类型别名默认有变量提升，声明位置在**当前块级作用域的顶部**。
+  >   > - 类型别名默认有变量提升，声明位置在**当前块级作用域的顶部**。
   >   >
-  >   > 2. 别名支持使用表达式，也可以在定义一个别名时，使用另一个别名，即别名允许嵌套：
+  >   > - 别名支持使用表达式，也可以在定义一个别名时，使用另一个别名，即别名允许嵌套：
   >   >
   >   >    ```ts
   >   >    type World = "world"
@@ -308,18 +308,16 @@
     >
     >   ```ts
     >   let hello: (txt: string) => void  // 声明变量为函数类型，其中类型里的参数名(txt)是必须的
-    >   hello = function (v) {
-    >   	console.log("hello " + txt)
-    >   }
+    >   hello = function (v) { console.log("hello " + txt) }
     >   ```
-    >
+    >   
     > - 实际赋值的函数的参数个数，可以少于类型指定的参数个数，但是不能多于。
     >
     >   ```ts
-    >   let myFunc: (a: number, b: number) => number
+    >  let myFunc: (a: number, b: number) => number
     >    myFunc = (a: number) => a  // 正确
     >   ```
-    >
+    > 
     >   这是因为 JavaScript 函数在声明时往往有多余的参数，实际使用时可以只传入一部分参数。
     >
     > - 可以用`typeof`运算符获取一个函数的类型：`const myParseInt: typeof parseInt;`
@@ -327,65 +325,63 @@
     > - 函数类型还可以采用接口的写法。
     >
     >   ```ts
-    >    let add: {
+    >   let add: {
     >   	(x: number, y?: number): number  // 格式为 (参数列表):返回值，其中y?:表示该参数是可选的
     >    }
-    >   add = function (x, y) {
-    >   	return x + y
-    >   }
+    >   add = function (x, y) { return x + y }
     >   ```
-    >
+    >   
     > - TypeScript 提供了一个内置的函数类型 Function ，任何函数都属于这个类型。（用的很少，了解即可）
-    >
+    > 
     >   ```ts
-    >    declare type Function = (...args: any[]) => any
+    >   declare type Function = (...args: any[]) => any
     >   ```
     >
-    > - 函数参数如果存在变量解构，类型写法如下。
-    >
+    > - 函数参数如果存在变量解构，类型写法如下。（注意：如果解构时给变量重命名了，那么就无法指定类型了）
+    > 
     >   ```ts
-    >   function f([x, y]: [number, number]) {
+    >  function f([x, y]: [number, number]) {
     >     // ...
-    >   }
+    >  }
     >   function sum({ a, b, c }: { a: number; b: number; c: number }) {
     >     // ...
     >   }
     >   ```
-    >
+    > 
     > - rest 参数表示函数剩余的所有参数，它的类型可以是数组类型（剩余参数类型相同），也可以是元组类型（剩余参数类型不同）。
-    >
+    > 
     > - 如果函数内部不能修改某个参数，可以在函数定义时，在参数类型前面加上`readonly`关键字，表示这是只读参数。
     >
     >   ```ts
-    >   function arraySum(arr: readonly number[]) {
+    >  function arraySum(arr: readonly number[]) {
     >       // ...
-    >       arr[0] = 0; // 报错
+    >      arr[0] = 0; // 报错
     >   }
     >   ```
-    >
+    > 
     > - 构造函数的类型写法，就是在参数列表前面加上`new`命令。
-    >
+    > 
     >   ```ts
-    >   type AnimalConstructor = new () => Animal
+    >  type AnimalConstructor = new () => Animal
     >   ```
     >
     >   > 构造函数还有另一种接口的写法：（后面会讲接口）
     >   >
     >   > ```ts
-    >   > type F = {
+    >  > type F = {
     >   > 	new (s: string): object
     >   > }
     >   > ```
-    >
+    > 
     > - 某些函数既是构造函数，又可以当作普通函数使用，比如`Date()`。这时，类型声明可以写成下面这样。
-    >
+    > 
     >   ```ts
-    >   type F = {
+    >  type F = {
     >       new (s: string): object
-    >       (n?: number): number
+    >      (n?: number): number
     >   }
     >   ```
-  
+    
   - **TS中的函数重载：**
   
     > 有些函数可以接受不同类型或不同个数的参数，并且根据参数的不同，会有不同的函数行为。这种根据参数类型不同，执行不同逻辑的行为，称为函数重载（function overload）。
@@ -408,9 +404,9 @@
     > function reverse(str: string): string;
     > function reverse(arr: any[]): any[];  // 函数实际调用的类型，以前2行的类型声明为准
     > function reverse(stringOrArray: string | any[]): string | any[] {
-    >     if (typeof stringOrArray === "string")
-    >     	return stringOrArray.split("").reverse().join("");
-    >     else return stringOrArray.slice().reverse();
+    >        if (typeof stringOrArray === "string")
+    >        	return stringOrArray.split("").reverse().join("");
+    >        else return stringOrArray.slice().reverse();
     > }
     > ```
     >
@@ -430,7 +426,7 @@
     >       add(bool: boolean): this;
     >       add(str: string): this;
     >       add(value: any): this {
-    >       this.#data += String(value);
+    >       	this.#data += String(value);
     >       	return this;
     >       }
     >   
