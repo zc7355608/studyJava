@@ -92,7 +92,7 @@
   > - 需要注意的是，虽然ES6支持类，但TS编译器仍会将`.ts`代码中的类、ESM模块的代码，编译为兼容性更好的JS代码。（而JS中ES6语法的代码一般会通过打包/构建工具（webpack、esbuild）去做兼容性处理）
   > - TypeScript 提前支持了一些还未在所有环境中普及的 ES 新特性，如装饰器（ES11）、异步迭代器等，且能够将其编译成兼容的 JavaScript 版本。
   > - TypeScript 支持**块级类型声明**，即类型可以写在代码块（或函数）里面，并且只在当前代码块（或函数）中有效。
-  
+
 - ### 类型声明
 
   > - TS 规定：定义变量时，必须为其声明类型：`let a: string`。此时a的类型是string，只能存字符串，赋其他类型值会编译报错（虽然能够正常运行，但 TS 觉得你这里写的有问题，得做修改）。
@@ -114,17 +114,16 @@
   >
   >   ```ts
   >   let num = 2  // num变量推断为 number 类型
-  >   
   >   function toString(num: number) {  // 自动推断函数的返回值是 string 类型
   >   	return String(num)
   >   }
   >   ```
-  >
-  > - 从这里可以看到，TypeScript 的设计思想是，类型声明是可选的，你可以加，也可以不加。即使不加类型声明，依然是有效的 TypeScript 代码，只是这时不能保证 TypeScript 会正确推断出类型。由于这个原因，所有 JavaScript 代码都是合法的 TypeScript 代码。
-  >
-  > - 这样做的好处是：将以前的 JavaScript 项目改为 TypeScript 项目时，你可以逐步地为老代码添加类型，即使有些代码没有添加，也不会无法运行。
-  >
-  > - 对于开发者没有指定类型、TypeScript 必须自己推断类型的那些变量，如果无法推断出类型，TypeScript 就会认为该变量的类型是`any`。应尽量避免any（后面会说any类型）。
+  >   
+  >- 从这里可以看到，TypeScript 的设计思想是，类型声明是可选的，你可以加，也可以不加。即使不加类型声明，依然是有效的 TypeScript 代码，只是这时不能保证 TypeScript 会正确推断出类型。由于这个原因，所有 JavaScript 代码都是合法的 TypeScript 代码。
+  > 
+  >- 这样做的好处是：将以前的 JavaScript 项目改为 TypeScript 项目时，你可以逐步地为老代码添加类型，即使有些代码没有添加，也不会无法运行。
+  > 
+  >- 对于开发者没有指定类型、TypeScript 必须自己推断类型的那些变量，如果无法推断出类型，TypeScript 就会认为该变量的类型是`any`。应尽量避免any（后面会说any类型）。
 
   > **类型的兼容：**
   >
@@ -140,9 +139,11 @@
   > - 类似于其他静态类型语言，TypeScript 中凡是可以使用父类型的地方，都可以使用子类型，但是反过来不行。
   > - 之所以有这样的规则，是因为子类型继承了父类型的所有特征，所以可以用在父类型的场合。但是，子类型还可能有一些父类型没有的特征，对父类型做了扩展，所以父类型不能用在子类型的场合。
 
-- ### 类型断言
-
-  > 类型断言可以让开发者明确告诉编译器变量的类型，常用于无法推断的情况。可以使用`as`或`<类型>`：（尖括号断言会在JSX中失效）
+  > **类型断言：**
+  >
+  > 对于没有类型声明的值，TypeScript 会进行类型推断，很多时候得到的结果，未必是开发者想要的。因此TypeScript 提供了*类型断言*这样一种手段，允许开发者在代码中*断言*某个值的类型，告诉编译器此处的值是什么类型。TypeScript 一旦发现存在类型断言，就不再对该值进行类型推断，而是直接采用断言给出的类型。（*编译器：你在教我做事？*）
+  >
+  > 类型断言可以让开发者明确告诉编译器变量的类型，常用于无法推断的情况。使用`as`或`<类型>`：（尖括号断言会在JSX中失效）
   >
   > ```ts
   > let someValue: any = "this is a string"
@@ -156,27 +157,45 @@
   > - 也可以进行多重类型断言：`(obj as string) as any`，但要少用，因为它会破坏原有的关系。
   > - 和强制类型转换不同的是，类型断言是一个纯编译时语法，也是一种为编译器提供关于如何分析代码的方法。
 
-- ### 非空断言、可选链、空值合并运算符
+- ### 非空断言运算符
 
   > `!`是TS中的**非空断言运算符**，用于告诉编译器某个变量一定不是`null`或`undefined`，从而避免类型检查错误。用法：`变量!`。
+
+- ### `as const`断言
+
+  > TypeScript 提供了一种特殊的类型断言`as const`，用于告诉编译器，推断类型时，可以将这个类型视为值类型。
   >
-  > 以下两个运算符均为ES11的语法：
+  > ```ts
+  > let s = "JavaScript" as const  // s的类型为 "JavaScript"
+  > ```
   >
-  > - `?`是TS中的**可选链运算符**，当变量不为`null`或`undefined`时再继续去取值：
+  > 注意，`as const`断言只能用于字面量，不能用于变量或表达式。
   >
-  >   ```ts
-  >   let user = { name: "Alice", address: { city: "Wonderland" } }
-  >   console.log(user?.address?.city)  // 如果 address 存在则输出 city，否则返回 undefined
-  >   ```
+  > ```ts
+  > let s1 = "JavaScript"
+  > let s2 = s1 as const  // 报错
+  > let s = ("Java" + "Script") as const  // 报错
+  > ```
   >
-  > - `??`是TS中的**空值合并**运算符，当变量为`null`或`undefined`时，返回后面的值。用法：
+  > `as const`也可以写成前置的形式。
   >
-  >   ```ts
-  >   let value = null
-  >   console.log(value ?? "default")  // 如果 value 为 null 或 undefined，则返回 "default"
-  >   ```
+  > ```ts
+  > // 后置形式
+  > "JavaScript" as const
+  > // 前置形式
+  > <const>"JavaScript"
+  > ```
   >
-  > ###### 通过这3个运算符可以简化对代码中可能出现的空值情况的处理。
+  > `as const`断言也可以用于枚举。
+  >
+  > ```ts
+  > enum Foo {
+  >     X,
+  >     Y,
+  > }
+  > let e1 = Foo.X  // Foo
+  > let e2 = Foo.X as const  // Foo.X
+  > ```
 
 - ### 类型别名
 
@@ -292,7 +311,7 @@
     >   > - 只读数组还有一种声明方法，就是使用**const 断言**。（其实也是只读元组）
     >   >
     >   >   ```ts
-    >   >   const arr = [0, 1] as const
+    >   >   const arr = [0, 1] as const  // 类型为：readonly [0, 1]
     >   >   // as const告诉 TypeScript，推断类型时要把变量arr推断为只读数组，从而使得数组成员无法改变
     >   >   ```
 
@@ -310,15 +329,15 @@
     >   let hello: (txt: string) => void  // 声明变量为函数类型，其中类型里的参数名(txt)是必须的
     >   hello = function (v) { console.log("hello " + txt) }
     >   ```
-    >   
+    >
     > - 实际赋值的函数的参数个数，可以少于类型指定的参数个数，但是不能多于。
     >
     >   ```ts
-    >  let myFunc: (a: number, b: number) => number
-    >    myFunc = (a: number) => a  // 正确
+    > let myFunc: (a: number, b: number) => number
+    >   myFunc = (a: number) => a  // 正确
     >   ```
-    > 
-    >   这是因为 JavaScript 函数在声明时往往有多余的参数，实际使用时可以只传入一部分参数。
+    >
+    >   这是因为在 JavaScript 中，函数在声明时往往有多余的参数，实际使用时可以只传入一部分参数。
     >
     > - 可以用`typeof`运算符获取一个函数的类型：`const myParseInt: typeof parseInt;`
     >
@@ -327,70 +346,70 @@
     >   ```ts
     >   let add: {
     >   	(x: number, y?: number): number  // 格式为 (参数列表):返回值，其中y?:表示该参数是可选的
-    >    }
+    >   }
     >   add = function (x, y) { return x + y }
     >   ```
-    >   
+    >
     > - TypeScript 提供了一个内置的函数类型 Function ，任何函数都属于这个类型。（用的很少，了解即可）
-    > 
+    >
     >   ```ts
     >   declare type Function = (...args: any[]) => any
     >   ```
     >
     > - 函数参数如果存在变量解构，类型写法如下。（注意：如果解构时给变量重命名了，那么就无法指定类型了）
-    > 
+    >
     >   ```ts
-    >  function f([x, y]: [number, number]) {
-    >     // ...
-    >  }
+    > function f([x, y]: [number, number]) {
+    >   	// ...
+    > }
     >   function sum({ a, b, c }: { a: number; b: number; c: number }) {
-    >     // ...
+    >   	// ...
     >   }
     >   ```
-    > 
+    >
     > - rest 参数表示函数剩余的所有参数，它的类型可以是数组类型（剩余参数类型相同），也可以是元组类型（剩余参数类型不同）。
-    > 
+    >
     > - 如果函数内部不能修改某个参数，可以在函数定义时，在参数类型前面加上`readonly`关键字，表示这是只读参数。
     >
     >   ```ts
-    >  function arraySum(arr: readonly number[]) {
-    >       // ...
-    >      arr[0] = 0; // 报错
+    > function arraySum(arr: readonly number[]) {
+    >   	// ...
+    >   	arr[0] = 0  // 报错
     >   }
     >   ```
-    > 
+    >
     > - 构造函数的类型写法，就是在参数列表前面加上`new`命令。
-    > 
+    >
     >   ```ts
-    >  type AnimalConstructor = new () => Animal
+    >   type AnimalConstructor = new () => Animal
     >   ```
     >
     >   > 构造函数还有另一种接口的写法：（后面会讲接口）
     >   >
     >   > ```ts
-    >  > type F = {
+    >   > type F = {
     >   > 	new (s: string): object
     >   > }
     >   > ```
-    > 
-    > - 某些函数既是构造函数，又可以当作普通函数使用，比如`Date()`。这时，类型声明可以写成下面这样。
-    > 
-    >   ```ts
-    >  type F = {
-    >       new (s: string): object
-    >      (n?: number): number
-    >   }
-    >   ```
+    >   >
+    >   > 某些函数既是构造函数，又可以当作普通函数使用，比如`Date()`。这时，类型声明可以写成下面这样。
+    >   >
+    >   > ```ts
+    >   >  type F = {
+    >   >    	new (s: string): object
+    >   >    	(n?: number): number
+    >   > }
+    >   > ```
     
   - **TS中的函数重载：**
-  
+
     > 有些函数可以接受不同类型或不同个数的参数，并且根据参数的不同，会有不同的函数行为。这种根据参数类型不同，执行不同逻辑的行为，称为函数重载（function overload）。
     >
     > ```ts
     > reverse("abc"); // 'cba'
     > reverse([1, 2, 3]); // [3, 2, 1]
     > ```
-  
+
     > TypeScript 对于“函数重载”的类型声明方法是，逐一定义每一种情况的类型。（**不支持箭头函数重载**）
     >
     > ```ts
@@ -437,18 +456,18 @@
     >   ```
     >
     > - 由于重载是一种比较复杂的类型声明方法，为了降低复杂性，一般来说，如果可以的话，应该优先使用联合类型替代函数重载。
-  
+
   - **symbol：**TS 中用`symbol`表示 Symbol 类型，该类型包含所有的 Symbol 值。为了表示唯一的Symbol值，TS 设计了`symbol`的一个子类型`unique symbol`，它表示某个唯一的 Symbol 值。并且由于所以这个类型的变量是不能被赋其他值的，因此必须用`const`不能用`let`：`const x: unique symbol = Symbol()`。（两个`unique symbol`类型的变量其实类型并不相同，但可以用typeof拿到某个变量的`unique symbol`类型）
-  
+
     > - unique symbol 类型的一个作用，就是用作属性名，这可以保证不会跟其他属性名冲突。**如果要把某一个特定的 Symbol 值当作属性名，那么它的类型只能是 unique symbol，不能是 symbol。**
     > - `unique symbol`类型也可以用作类的属性值，但只能赋值给类的`readonly static`属性。
     > - 如果变量声明时没有给出类型，TypeScript 会推断某个 Symbol 值变量的类型。`let`命令声明的变量，推断类型为 symbol；`const`命令声明的变量，推断类型为 unique symbol。
-  
-  
+
+
   *除此之外还增加了以下几个基本类型：*
-  
+
   - **any：**表示没有任何限制，该类型的变量可以赋予任意类型的值。any类型的范围最大，类似于*全集*的概念，适合不确定数据类型的情况。但是使用时需谨慎，变量类型一旦设为`any`，TypeScript 实际上会关闭对这个变量的类型检查。即使有明显的类型错误，只要句法正确，都不会报错。由于这个原因，应该尽量避免使用`any`类型，否则就失去了使用 TypeScript 的意义（而是AnyScript）。
-  
+
     > - 对于开发者没有指定类型、TypeScript 必须自己推断类型的那些变量，如果无法推断出类型，TypeScript 就会认为该变量的类型是`any`。（TypeScript 提供了一个编译选项`noImplicitAny`，打开该选项，只要推断出`any`类型就会报错）
     >
     > - **污染问题：**`any`类型还有一个很大的问题，就是它会*污染*其他变量。any类型的变量可以赋值给其他任何类型的变量（因为没有类型检查），导致使用其他变量时出错。
@@ -467,37 +486,37 @@
     >   1. 变量的值会任意改变时。
     >   2. 定义存储各种类型数据的数组时（`let a: any[]`）。
     >   3. 改写现有代码时，任意值允许在编译时可选择地包含或移除类型检查。
-  
+
   - **unknown：**为了解决`any`“污染”其他变量的问题，TS3.0引入了`unknown`。它与`any`含义相同，表示类型不确定，可能是任意类型，但是它的使用有一些限制，不像`any`那样自由，可以视为严格版的`any`。`unknown`跟`any`的相似之处在于，所有类型的值都可以分配给`unknown`类型（范围最大）；不同之处在于，它不能直接使用，用之前有以下限制：
-  
+
     > 1. 首先，`unknown`类型的变量，不能直接赋值给其他类型的变量（除了`any`和`unknown`类型）。这就避免了污染问题，从而克服了`any`的一大缺点。
     > 2. 其次，调用`unknown`类型变量身上的任何方法、属性，都会报错。必须先指定为具体的类型后，再使用。
     > 3. 最后，`unknown`类型变量能够进行的运算是有限的，只能进行比较运算（`==`、`===`、`!=`、`!==`、`||`、`&&`、`?`）、取反运算（运算符`!`）、`typeof`、`instanceof`，其他运算都会报错。
     >
-  
+
     > - 那么怎么才能使用`unknown`类型变量呢？答案是，只有经过“类型缩小”，`unknown`类型变量才可以使用。所谓“类型缩小”，就是缩小`unknown`变量的类型范围，给其指定确定的类型，确保不会出错。
     > - 这样设计的目的是，只有明确`unknown`变量的实际类型，才允许使用它，防止像`any`那样可以随意乱用，“污染”其他变量。
     > - 总之，`unknown`可以看作是更安全的`any`。一般来说，凡是需要设为`any`类型的地方，通常都应该优先考虑设为`unknown`类型。在集合论上，`unknown`也可以视为所有其他类型（除了`any`）的全集，所以它和`any`一样，也属于 TypeScript 的顶层类型。
-  
+
   - **never**：为了保持与集合论的对应关系，以及类型运算的完整性，TS引入了“空类型”的概念，即该类型为空集，不包含任何值。即*never是其它所有类型的子类型（包括 null 和 undefined）*。表示**任何值都不是**，不存在这样的类型。这意味着声明为`never`类型的变量只能被`never`类型所赋值，在函数中它通常表现为抛出异常或无法执行到终止点（例如无限循环或抛出错误）。
-  
+
     > - 就像空集是任何集合的子集一样，`never`类型可以赋值给任意其他类型。TypeScript 把`never`称为“底层类型”（唯一的）。
     > - 几乎不用never去直接限制变量，因为没有意义。never一般是TS主动推断出来的。
     > - never一般用于限制函数的返回值类型，若一个函数的返回值类型为never，那么该函数不能顺利执行结束。
-  
+
   - **字面量类型**：TypeScript 规定，单个值也是一种类型，称为“值类型”。字面量类型可以让变量只能拥有特定的值，通常结合union来定义变量的特定状态：
-  
+
     ```ts
     let direction: "up" | "down" | "left" | 2 | boolean
     direction = "up"
     ```
-  
+
     > **注意**：const定义的变量意味着不会被修改，因此`const a = 1`此时a是字面量类型1。
-  
+
   - **联合类型（union）**：表示一个变量可以是多种类型之一，通过`|`符号实现：`let id: string | number`。
-  
+
   - **交叉类型**：表示多个类型组成的一个新类型，取多个类型的交集，用符号`&`表示：`let x: number & string`。此时变量`x`必须同时是数值和字符串，这当然是不可能的，所以 TypeScript 会认为`x`的类型是`never`。交叉类型一般用于类型的合成和类型的扩展：
-  
+
     ```ts
     // 类型合成
     let obj: { foo: string } & { bar: string }  // 表示对象中必须只包含foo和bar两个属性
@@ -509,15 +528,15 @@
     type A = { foo: number }
     type B = A & { bar: number }
     ```
-  
+
   - **void：**它通常用于声明函数的返回值，含义：函数返回值为空。只是调用者不应该依赖其返回值进行任何操作。（可以return一个null或undefined，但是如果打开了`strictNullChecks`编译选项，那么 void 类型只允许返回`undefined`。如果返回`null`，就会报错）
-  
+
     ```ts
     function demo(): void { console.log('hello') }
     let result = demo()
     if(result){} // 这行代码会编译报错：demo函数没有返回值，不应该拿着空的返回值去做任何操作
     ```
-  
+
     > - **一个特殊的情况：**当声明函数的返回值为void时，TS并不会严格要求函数返回空。只要这个返回值不再用就行：
     >
     >   ```ts
@@ -535,13 +554,13 @@
     >   ```
     >
     > - 除了函数，其他变量声明为`void`类型没有多大意义，因为这时只能赋值为`undefined`或者`null`（假定没有打开`strictNullChecks`) 。
-  
+
   - **tuple（元组）：**它是一种描述**定长数组**的类型。它按序规定了数组中每个元素的类型，用于精确描述一组值。如：
-  
+
     ```ts
     let a: [string, number, boolean?] = ['1', 2, true]  // 定长的数组，不按照要求push会报错
     ```
-  
+
     > - `?`表示元素是可选的，可选的必须放在元组的最后。如：`let a: [string, number?]`。
     >
     > - 使用扩展运算符（`...`）可以表示不限成员数量的元组：`let a: [string, ...string[]]`。（扩展运算符用在元组的任意位置都行，但它后面只能是数组或元组的类型）
@@ -568,10 +587,10 @@
     >
     >   ```ts
     >   function f(point: [number, number]) {
-    >     if (point.length === 3) {
-    >       // 报错
-    >       // ...
-    >     }
+    >       if (point.length === 3) {
+    >       	// 报错
+    >       	// ...
+    >       }
     >   }
     >   ```
     >
@@ -580,13 +599,13 @@
     > - 跟数组一样，通过`as const`断言，TypeScript会将该元组视为一个不可变的常量元组：
     >
     >   ```ts
-    >    let tuple = [42, "Hello"] as const  // 元组类型：[42, "Hello"]
+    >   let tuple = [42, "Hello"] as const  // 元组类型：readonly [42, "Hello"]
     >   ```
     
   - **enum（枚举值/枚举类型）：**TS中新增了枚举值，它可以定义**一组命名常量**。编译后生成的是JS对象，也叫**对象枚举**。（其中枚举类型也是枚举值/枚举常量）
-  
+
     - **数字枚举**：它是一种最常见的枚举类型，其枚举成员的值是数字且会自动递增，具备反向映射的特点。
-  
+
       ```ts
       enum Direction { UP,DOWN,LEFT,RIGHT }
       Direction.LEFT  // 值为2
@@ -594,15 +613,15 @@
       // 一般会指定枚举的值
       enum Direction { UP=1, DOWN, LEFT, RIGHT=12 }
       ```
-  
+
     - **字符串枚举**：枚举成员的值是字符串，字符串枚举没有反向映射，也就是不能这样：`Direction[0]`
-  
+
       ```ts
       enum Direction { UP='up', DOWN='down', LEFT='left', RIGHT='right' }
       ```
-  
+
     - **常量枚举**：一种特殊的、用const定义的枚举，在编译时会被换掉，不会产生定义枚举的代码，提高性能。
-  
+
       ```ts
       const enum Direction { UP='up', DOWN='down', LEFT='left', RIGHT='right' }
       ```

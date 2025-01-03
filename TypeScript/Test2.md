@@ -4,9 +4,9 @@
   >
   > ```ts
   > interface Person {  // 接口的分隔符可以是（; , 换行）
-  >     firstName: string
-  >     lastName: string
-  >     age: number
+  >        firstName: string
+  >        lastName: string
+  >        age: number
   > }
   > ```
   >
@@ -14,9 +14,9 @@
   >
   > ```ts
   > const p: Person = {
-  >     firstName: "John",
-  >     lastName: "Smith",
-  >     age: 25,
+  >        firstName: "John",
+  >        lastName: "Smith",
+  >        age: 25,
   > }
   > ```
   >
@@ -41,7 +41,7 @@
 
   ###### 严格字面量检查：
   
-  > 如果变量赋值了一个对象字面量，此时会触发 TS 的**严格字面量检查**。此时该变量指向的对象中，有且仅能有接口中定义的这些属性，不能多也不能少：（TypeScript 对字面量进行严格检查的目的，主要是防止拼写错误，可以使用类型断言规避严格字面量检查）
+  > 如果变量赋值了一个对象字面量，此时会触发 TS 的**严格字面量检查**。此时该变量指向的对象中，有且仅能有接口中定义的这些属性，不能多也不能少：（TypeScript 对字面量进行严格检查的目的，主要是防止拼写错误，可以使用*类型断言规避严格字面量检查*）
   
   ```ts
   const p: {
@@ -60,9 +60,9 @@
   >
   > ```json
   > {
-  >     "compilerOptions": {
-  >     	"suppressExcessPropertyErrors": true
-  >     }
+  >        "compilerOptions": {
+  >        	"suppressExcessPropertyErrors": true
+  >        }
   > }
   > ```
   
@@ -72,12 +72,12 @@
   >
   > ```ts
   > type Options = {
-  >     a?: number;
-  >     b?: number;
-  >     c?: number;
+  >        a?: number;
+  >        b?: number;
+  >        c?: number;
   > }
   > const obj: Options = {
-  >   d: 123, // 报错
+  >   	d: 123, // 报错
   > }
   > ```
   >
@@ -154,23 +154,23 @@
     >   }
     >   ```
     >
-    >   > interface 里面的函数重载，不需要给出实现。但是，由于对象内部定义方法时，无法使用函数重载的语法，所以需要额外在对象外部给出函数方法的实现。
+    >   > 注意：接口里面的函数重载，不需要给出实现。但是，由于对象内部定义方法时，无法使用函数重载的语法，所以需要额外在对象外部给出函数方法的实现。
     >   >
     >   > ```ts
     >   > interface A {
-    >   >     f(): number;
-    >   >     f(x: boolean): boolean;
-    >   >     f(x: string, y: string): string;
+    >   >        f(): number;
+    >   >        f(x: boolean): boolean;
+    >   >        f(x: string, y: string): string;
     >   > }
     >   > 
     >   > function MyFunc(): number;
     >   > function MyFunc(x: boolean): boolean;
     >   > function MyFunc(x: string, y: string): string;
     >   > function MyFunc(x?: boolean | string, y?: string): number | boolean | string {
-    >   >     if (x === undefined && y === undefined) return 1;
-    >   >     if (typeof x === "boolean" && y === undefined) return true;
-    >   >     if (typeof x === "string" && typeof y === "string") return "hello";
-    >   >     throw new Error("wrong parameters");
+    >   >        if (x === undefined && y === undefined) return 1;
+    >   >        if (typeof x === "boolean" && y === undefined) return true;
+    >   >        if (typeof x === "string" && typeof y === "string") return "hello";
+    >   >        throw new Error("wrong parameters");
     >   > }
     >   > 
     >   > const a: A = {
@@ -216,17 +216,17 @@
   
     > 上面示例中，`clone()`方法有不同的类型声明，会发生函数重载。这时，**越靠后的定义，优先级越高，排在函数重载的越前面。**比如，`clone(animal: Animal)`是最先出现的类型声明，就排在函数重载的最后，属于`clone()`函数最后匹配的类型。**这个规则有一个例外，同名方法之中，如果有一个参数是字面量类型，字面量类型有更高的优先级。**
   
-  - 如果两个 interface 组成的联合类型存在同名属性，那么该属性的类型也是联合类型。
+  - 两个接口组成的联合类型若存在同名属性，那么该属性的类型也是联合类型。
   
     ```ts
     interface Circle {
-      area: bigint;
+        area: bigint;
     }
     interface Rectangle {
-      area: number;
+        area: number;
     }
     declare const s: Circle | Rectangle;
-    s.area; // bigint | number
+    s.area;  // bigint | number
     ```
   
     
