@@ -161,6 +161,91 @@
 
   > `!`是TS中的**非空断言运算符**，用于告诉编译器某个变量一定不是`null`或`undefined`，从而避免类型检查错误。用法：`变量!`。
 
+  ###### 非空断言还可以用于赋值断言：
+
+  > TypeScript 有一个编译设置，要求类的属性必须初始化（即有初始值），如果不对属性赋初值就会报错。这时就可以使用非空断言，表示这两个属性肯定会有值，这样就不会报错了。
+
+  ```ts
+  class Point {
+  	x!: number; // 这里如果没有!非空断言，就会报错
+  	y: number;  // 报错
+  
+  	constructor(x: number, y: number) {
+  		// ...
+  	}
+  }
+  ```
+
+  ###### 注意：非空断言只有在打开编译选项`strictNullChecks`时才有意义。如果不打开这个选项，编译器就不会检查某个变量是否可能为`undefined`或`null`，因此非空断言也就没有必要了。
+
+  > **断言函数：**
+  >
+  > 断言函数是一种特殊函数，用于保证函数参数符合某种类型。如果函数参数达不到要求，就会抛出错误，中断程序执行；如果达到要求，就不进行任何操作，让代码按照正常流程运行。
+  >
+  > ```ts
+  > function isString (value: unknown): void {
+  >     if (typeof value !== "string") throw new Error("Not a string")
+  > }
+  > ```
+  >
+  > 上面示例中，函数`isString()`就是一个断言函数，用来保证参数`value`是一个字符串（是不是unknow都行）。下面是它的用法。
+  >
+  > ```ts
+  > const aValue: string | number = "Hello"
+  > isString(aValue)
+  > ```
+  >
+  > 上面示例中，变量`aValue`可能是字符串，也可能是数组。但是，通过调用`isString()`，后面的代码就可以确定，变量`aValue`一定是字符串。
+  >
+  > 但是此时有个问题：单单从isString函数的类型声明上，完全看不出来它是一个断言函数还是普通函数，因此，为了更清晰地表达断言函数，TypeScript 3.7 引入了新的类型写法。
+  >
+  > ```ts
+  > function isString(value: unknown): asserts value is string {
+  >     if (typeof value !== "string") throw new Error("Not a string");
+  >     // return true; // 报错
+  > }
+  > ```
+  >
+  > 上面示例中，函数`isString()`的返回值类型写成`asserts value is string`，其中`asserts`和`is`都是关键词，`value`是函数的参数名，`string`是函数参数的预期类型。它的意思是，该函数用来断言参数`value`的类型是`string`，如果达不到要求，程序就会在这里中断。
+  >
+  > 使用了断言函数的新写法以后，TypeScript 就会自动识别，只要执行了该函数，对应的变量都为断言的类型。
+  >
+  > 另外，断言函数的`asserts`语句等同于`void`类型，所以如果返回除了`undefined`和`null`以外的值，都会报错。
+  >
+  > 如果要断言参数非空，可以使用工具类型`NonNullable<T>`。
+  >
+  > ```ts
+  > function assertIsDefined<T>(value: T): asserts value is NonNullable<T> {
+  >     if (value === undefined || value === null) {
+  >         throw new Error(`${value} is not defined`);
+  >     }
+  > }
+  > ```
+  >
+  > 上面示例中，工具类型`NonNullable<T>`对应类型`T`去除空类型后的剩余类型。
+  >
+  > 注意，断言函数与类型保护函数（type guard）是两种不同的函数。它们的区别是，断言函数不返回值，而类型保护函数总是返回一个布尔值。
+  >
+  > ```ts
+  > function isString(value: unknown): value is string {
+  >     return typeof value === "string";
+  > }
+  > ```
+  >
+  > 上面示例就是一个类型保护函数`isString()`，作用是检查参数`value`是否为字符串。如果是的，返回`true`，否则返回`false`。该函数的返回值类型是`value is string`，其中的`is`是一个类型运算符，如果左侧的值符合右侧的类型，则返回`true`，否则返回`false`。
+  >
+  > 如果要断言某个参数保证为真（即不等于`false`、`undefined`和`null`等假值），TypeScript 提供了断言函数的一种简写形式。
+  >
+  > ```ts
+  > function assert(x: unknown): asserts x {
+  >     if (!x) {
+  >         throw new Error(`${x} should be a truthy value.`);
+  >     }
+  > }
+  > ```
+  >
+  > 上面示例中，函数`assert()`的断言部分，`asserts x`省略了谓语和宾语，表示参数`x`保证为真（`true`）。
+
 - ### `as const`断言
 
   > TypeScript 提供了一种特殊的类型断言`as const`，用于告诉编译器，推断类型时，可以将这个类型视为值类型。
@@ -190,8 +275,8 @@
   >
   > ```ts
   > enum Foo {
-  >     X,
-  >     Y,
+  >    	X,
+  >    	Y,
   > }
   > let e1 = Foo.X  // Foo
   > let e2 = Foo.X as const  // Foo.X
@@ -629,91 +714,7 @@
 
 - > 
 
-  - **类（class）**：TypeScript 是面向对象的 JavaScript。类描述了所创建的对象共同的属性和方法。TypeScript 支持面向对象的所有特性，比如 类、接口等。TypeScript 类定义方式：`class 类名 {}`。类中包含*属性、方法、构造器*。
-
-    > - **（类中）属性的简写形式**：（类中的override关键字）
-    >
-    >   - 简写前：
-    >
-    >     ```ts
-    >     class Person {
-    >         public name: string
-    >         public age: number
-    >         constructor(name: string, age: number){
-    >         	this.name = name  // 使用this.name时，name必须在类中提前声明好
-    >         	this.age = age
-    >         }
-    >     }
-    >     ```
-    >
-    >   - 简写后：
-    >
-    >     ```ts
-    >     class Person {
-    >         // 此时this.name = name可以省略
-    >     	constructor(public name: string, public age: number){}
-    >     }
-    >     ```
-    >
-    > - **类的继承**：TypeScript 的类支持单继承，类继承使用关键字**extends**。子类除了不能继承父类的私有成员，其他的都可以继承。语法格式：`class A extends 类名 {}`。
-    >
-    > - **方法重写**：类继承后，子类可以对父类的方法重新定义，这个过程称之为方法的重写。其中**super**指向父类的引用，使子类能访问到父类的属性和方法（私有的除外）。
-    >
-    > - **类中的访问控制权限修饰符**：TypeScript 中，可以用访问控制符来保护对类、变量、方法和构造方法的访问。TypeScript 支持 3 种不同的访问权限：
-    >
-    >   - **public（默认）**：公开的，可以在任何地方被访问。
-    >   - **protected**：受保护的，可以被其自身以及其子类访问。
-    >   - **private**：私有的，只能在本类体中使用。
-    >
-    >   > 还有一个`readonly`修饰符，用于设置*只读属性*，在访问控制权限修饰符和属性名之间加：`public readonly name: string`
-    >
-    > - **类和接口**：类可以实现接口，使用关键字`implements`，此时类中必须包含接口中定义的所有属性。
-    >
-    > - **鸭子类型（Duck Typing）**：鸭子类型是动态类型语言中的一种风格，是多态（polymorphism）的一种表现形式。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由*当前对象中所有的方法和属性*来决定。
-    >
-    >   > 可以这样表述："当看到一只鸟走起来像鸭子、游泳起来像鸭子、叫起来也像鸭子，那么这只鸟就可以被称为鸭子。"
-    >
-    >   应用到编程中，这意味着：
-    >
-    >   - **不关心对象是什么**：在鸭子类型中，我们不关心一个对象的具体类型是什么，只关心它能否完成我们需要的操作。
-    >   - **动态检查**：在运行时，系统会检查对象是否具有所需的方法或属性，而不是在编译时检查其类型。
-    >   - **灵活性高**：这种方式使得代码更加灵活，可以更容易地扩展和修改。
-    >
-    >   > 举例说明：
-    >   >
-    >   > 假设你有一个函数 `makeSound`，它接受一个对象并调用其 `quack` 方法：
-    >   >
-    >   > ```ts
-    >   > function makeSound(duck: any) {
-    >   > 	duck.quack()
-    >   > }
-    >   > ```
-    >   >
-    >   > 在这个例子中，我们不关心传入的对象具体是什么类型，只要它有`quack`方法即可。如果传入的对象有一个`quack`方法，那么这个函数就能正常工作。因此参数duck设置为any。但是如果将duck参数的类型指定为`Duck`，那么就必须确保传入的对象实现了`Duck`接口，否则编译报错。
-    >   >
-    >   > 总之：鸭子类型强调的是对象的行为而不是其类型，这使得代码更加灵活和动态。
-
-  - **抽象类（abstract class）**：
-
-    > - TS支持抽象类，抽象类是一种无法被实例化的类，专门用来定义类的结构和行为。
-    > - 抽象类中可以写抽象方法，也可以有具体的实现。
-    > - 抽象类主要用来为其派生类提供一个基础结构，是用来被派生类继承的。继承时要求其派生类必须实现其中的抽象方法。
-    > - 抽象类的派生类也可以是抽象类，此时可以不实现其中的抽象方法。
-    > - 抽象类的作用？
-    >   - 定义通用接口
-    >   - 提供基础实现
-    >   - 确保关键实现
-    >   - 共享代码和逻辑
-
-    ```ts
-    abstract class Package {
-        abstract calculate(): number
-        printPackage(){ console.log('打印包裹重量') }
-    }
-    class StandPackage extends Package {
-    	override calculate(): number { return 100 }
-    }
-    ```
+  - 
 
   - **泛型（Generics）**：泛型是一种编程语言特性，允许在定义*函数、类、接口*等时使用占位符来表示类型，而不是具体的类型。将类型参数化，使代码可以适应不同的类型需求，同时保持类型安全。泛型是一种在编写可重用、灵活且类型安全的代码时非常有用的功能。泛型的优势包括：
 
