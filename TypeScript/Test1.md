@@ -316,6 +316,46 @@
   >   type MyKeys = keyof obj  // 此时MyKeys的类型为：'name' | 'age' 的联合类型
   >   ```
 
+- ### TS中的this
+
+  > 有些场合需要给出`this`类型，但是 JavaScript 函数通常不带有`this`参数，这时 TypeScript 允许函数增加一个名为`this`的参数，**放在参数列表的第一位**，用来描述函数中`this`变量的类型。
+  >
+  > ```ts
+  > // 编译前
+  > function fn(this: SomeType, x: number) {}
+  > // 编译后
+  > function fn(x) {}
+  > ```
+  >
+  > 相当于fn函数其实只有一个参数，调用时也只能传一个实参x，因为this形参实际上会被编译掉。
+  >
+  > TypeScript 提供了一个`noImplicitThis`编译选项。如果打开了这个设置项，如果`this`的值推断为`any`类型，就会报错。
+  >
+  > 在类的内部，`this`本身也可以当作类型使用，表示当前类的实例对象。（注意：`this`类型不允许应用于静态成员）
+  >
+  > ```ts
+  > class Box {
+  > 	contents: string = ""
+  > 	set(value: string): this {
+  > 		this.contents = value
+  > 		return this
+  > 	}
+  > }
+  > ```
+  >
+  > 有些方法返回一个布尔值，表示当前的`this`是否属于某种类型。这时，这些方法的返回值类型可以写成`this is Type`的形式。（`is`运算符后面说）
+  >
+  > ```ts
+  > class FileSystemObject {
+  > 	isFile(): this is FileRep {
+  > 		return this instanceof FileRep;
+  > 	}
+  > 	isDirectory(): this is Directory {
+  > 		return this instanceof Directory;
+  > 	}
+  > }
+  > ```
+
 - ### TS的基本类型
 
   > TypeScript 继承了 JavaScript 的类型，在这个基础上，定义了一套自己的类型系统。JS的`undefined、string、symbol、object、null、number、boolean、bigint`等基础类型，都是TS的基本类型。（并且还有它们的包装对象的类型：`String/Symbol/Object/Number/Boolean/BigInt`。其中，大写类型同时包含包装对象和字面量两种情况，小写类型只包含字面量，不包含包装对象。**建议只使用小写类型**）
