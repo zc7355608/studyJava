@@ -65,19 +65,19 @@
      }
      ```
 
-  > ##### tsc 常用编译参数如下表所示：
-  >
-  > | 序号 |                         编译参数说明                         |
-  > | :--: | :----------------------------------------------------------: |
-  > |  1.  |                   **--help**显示帮助信息。                   |
-  > |  2.  |                  **--module**载入扩展模块。                  |
-  > |  3.  |                 **--target**设置 ECMA 版本。                 |
-  > |  4.  | **--declaration**额外生成一个 .d.ts 扩展名的文件。`tsc ts-hw.ts --declaration`以上命令会生成 ts-hw.d.ts、ts-hw.js 两个文件。 |
-  > |  5.  |              **--removeComments**删除文件的注释              |
-  > |  6.  |         **--out**编译多个文件并合并到一个输出的文件          |
-  > |  7.  | **--sourcemap**生成一个`.map`文件。.map文件是一个存储源代码与编译代码对应位置映射的信息文件。 |
-  > |  8.  | **--module noImplicitAny**在表达式和声明上有隐含的 any 类型时报错 |
-  > |  9.  | **--watch**在监视模式下运行编译器。会监视输出文件，在它们改变时重新编译。 |
+  ##### tsc 常用编译参数如下表所示：
+
+  | 序号 |                         编译参数说明                         |
+  | :--: | :----------------------------------------------------------: |
+  |  1.  |                   **--help**显示帮助信息。                   |
+  |  2.  |                  **--module**载入扩展模块。                  |
+  |  3.  |                 **--target**设置 ECMA 版本。                 |
+  |  4.  | **--declaration**额外生成一个 .d.ts 扩展名的文件。`tsc ts-hw.ts --declaration`以上命令会生成 ts-hw.d.ts、ts-hw.js 两个文件。 |
+  |  5.  |              **--removeComments**删除文件的注释              |
+  |  6.  |         **--out**编译多个文件并合并到一个输出的文件          |
+  |  7.  | **--sourcemap**生成一个`.map`文件。.map文件是一个存储源代码与编译代码对应位置映射的信息文件。 |
+  |  8.  | **--module noImplicitAny**在表达式和声明上有隐含的 any 类型时报错 |
+  |  9.  | **--watch**在监视模式下运行编译器。会监视输出文件，在它们改变时重新编译。 |
 
 - ### 关于TS
 
@@ -154,7 +154,7 @@
   > **需要注意的是：**
   >
   > - 当 S 类型是 T 类型的子集，或 T 是 S 的子集时，S 才能被断言成 T。这是为了在进行类型断言时提供额外的安全性，完全毫无根据的断言是危险的，如果你想这么做，你可以直接用 any。
-  > - 也可以进行多重类型断言：`(obj as string) as any`，但要少用，因为它会破坏原有的关系。
+  > - 也可以进行多重类型断言：`(obj as unknow) as any`，但要少用，因为它会破坏原有的关系。
   > - 和强制类型转换不同的是，类型断言是一个纯编译时语法，也是一种为编译器提供关于如何分析代码的方法。
 
 - ### 非空断言运算符
@@ -184,7 +184,7 @@
   >
   > ```ts
   > function isString (value: unknown): void {
-  >     if (typeof value !== "string") throw new Error("Not a string")
+  >    	if (typeof value !== "string") throw new Error("Not a string")
   > }
   > ```
   >
@@ -201,8 +201,8 @@
   >
   > ```ts
   > function isString(value: unknown): asserts value is string {
-  >     if (typeof value !== "string") throw new Error("Not a string");
-  >     // return true; // 报错
+  >    	if (typeof value !== "string") throw new Error("Not a string")
+  >    	// return true; // 报错
   > }
   > ```
   >
@@ -216,19 +216,19 @@
   >
   > ```ts
   > function assertIsDefined<T>(value: T): asserts value is NonNullable<T> {
-  >     if (value === undefined || value === null) {
-  >         throw new Error(`${value} is not defined`);
-  >     }
+  >        if (value === undefined || value === null) {
+  >        	throw new Error(`${value} is not defined`)
+  >        }
   > }
   > ```
   >
   > 上面示例中，工具类型`NonNullable<T>`对应类型`T`去除空类型后的剩余类型。
   >
-  > 注意，断言函数与类型保护函数（type guard）是两种不同的函数。它们的区别是，断言函数不返回值，而类型保护函数总是返回一个布尔值。
+  > 注意，断言函数与**类型保护函数（type guard）**是两种不同的函数。它们的区别是，断言函数不返回值，而类型保护函数总是返回一个布尔值。
   >
   > ```ts
   > function isString(value: unknown): value is string {
-  >     return typeof value === "string";
+  >    	return typeof value === "string"
   > }
   > ```
   >
@@ -238,9 +238,9 @@
   >
   > ```ts
   > function assert(x: unknown): asserts x {
-  >     if (!x) {
-  >         throw new Error(`${x} should be a truthy value.`);
-  >     }
+  >        if (!x) {
+  >        	throw new Error(`${x} should be a truthy value.`);
+  >        }
   > }
   > ```
   >
@@ -302,7 +302,7 @@
   >   >    type Greeting = `hello ${World}`
   >   >    ```
   >
-  > - TS中的`typeof`还可以用于提取变量的TS类型：（注意：`typeof`后面只能是变量，不能是表达式和类型）
+  > - TS中的`typeof`还可以用于提取变量的TS类型：（注意：`typeof`后面只能是变量，不能是表达式、字面量和类型）
   >
   >   ```ts
   >   const a = { x: 0 }
@@ -310,7 +310,7 @@
   >   type T1 = typeof a.x  // number
   >   ```
   >
-  > - `keyof`关键字可以将对象中的所有key提取为字符串的联合类型：
+  > - `keyof`关键字可以将对象、接口中的所有key提取为字符串的联合类型：
   >
   >   ```ts
   >   type MyKeys = keyof obj  // 此时MyKeys的类型为：'name' | 'age' 的联合类型
@@ -331,7 +331,7 @@
   >
   > TypeScript 提供了一个`noImplicitThis`编译选项。如果打开了这个设置项，如果`this`的值推断为`any`类型，就会报错。
   >
-  > 在类的内部，`this`本身也可以当作类型使用，表示当前类的实例对象。（注意：`this`类型不允许应用于静态成员）
+  > 在类的内部，`this`本身也可以当作类型使用，表示当前类的实例类型。（注意：`this`类型不允许应用于静态成员）
   >
   > ```ts
   > class Box {
@@ -437,7 +437,7 @@
     >   >
     >   >   ```ts
     >   >   const arr = [0, 1] as const  // 类型为：readonly [0, 1]
-    >   >   // as const告诉 TypeScript，推断类型时要把变量arr推断为只读数组，从而使得数组成员无法改变
+    >   >   // as const告诉 TypeScript，推断类型时要把变量arr推断为只读数组/元组，从而使得数组成员无法改变
     >   >   ```
 
   - **函数类型：**TS在定义函数时，需要给出函数参数以及返回值的类型：（返回值类型TS通常会推断出来）
@@ -455,7 +455,7 @@
     >   hello = function (v) { console.log("hello " + txt) }
     >   ```
     >
-    > - 实际赋值的函数的参数个数，可以少于类型指定的参数个数，但是不能多于。
+    > - **实际赋值的函数，参数个数可以少于类型指定的参数个数，但是不能多于。**
     >
     >   ```ts
     > let myFunc: (a: number, b: number) => number
@@ -497,9 +497,9 @@
     > - 如果函数内部不能修改某个参数，可以在函数定义时，在参数类型前面加上`readonly`关键字，表示这是只读参数。
     >
     >   ```ts
-    > function arraySum(arr: readonly number[]) {
+    > function arraySum(arr: readonly string) {
     >   	// ...
-    >   	arr[0] = 0  // 报错
+    >   	arr = '11'  // 报错
     >   }
     >   ```
     >
@@ -517,7 +517,7 @@
     >   > }
     >   > ```
     >   >
-    >   > 某些函数既是构造函数，又可以当作普通函数使用，比如`Date()`。这时，类型声明可以写成下面这样。
+    >   > 某些函数既是构造函数，又可以当作普通函数使用，比如`Date()`。这时，类型声明可以用下面的接口写法。
     >   >
     >   > ```ts
     >   >  type F = {
@@ -554,7 +554,7 @@
     > }
     > ```
     >
-    > - 上面示例中，前两行类型声明列举了重载的各种情况。第三行是函数本身的类型声明，它必须与前面已有的重载声明兼容。
+    > - 上面示例中，前两行类型声明列举了重载的各种情况。第三行是函数本身的类型声明，它必须与前面已有的声明兼容。
     >
     > - 注意，重载的个别类型描述与函数的具体实现之间，不能有其他代码，否则报错。
     >
@@ -615,7 +615,7 @@
   - **unknown：**为了解决`any`“污染”其他变量的问题，TS3.0引入了`unknown`。它与`any`含义相同，表示类型不确定，可能是任意类型，但是它的使用有一些限制，不像`any`那样自由，可以视为严格版的`any`。`unknown`跟`any`的相似之处在于，所有类型的值都可以分配给`unknown`类型（范围最大）；不同之处在于，它不能直接使用，用之前有以下限制：
 
     > 1. 首先，`unknown`类型的变量，不能直接赋值给其他类型的变量（除了`any`和`unknown`类型）。这就避免了污染问题，从而克服了`any`的一大缺点。
-    > 2. 其次，调用`unknown`类型变量身上的任何方法、属性，都会报错。必须先指定为具体的类型后，再使用。
+    > 2. 其次，调用`unknown`类型变量身上的任何方法、属性，都会报错。必须先**断言**为具体的类型后，再使用。
     > 3. 最后，`unknown`类型变量能够进行的运算是有限的，只能进行比较运算（`==`、`===`、`!=`、`!==`、`||`、`&&`、`?`）、取反运算（运算符`!`）、`typeof`、`instanceof`，其他运算都会报错。
     >
 
@@ -640,11 +640,11 @@
 
   - **联合类型（union）**：表示一个变量可以是多种类型之一，通过`|`符号实现：`let id: string | number`。
 
-  - **交叉类型**：表示多个类型组成的一个新类型，取多个类型的交集，用符号`&`表示：`let x: number & string`。此时变量`x`必须同时是数值和字符串，这当然是不可能的，所以 TypeScript 会认为`x`的类型是`never`。交叉类型一般用于类型的合成和类型的扩展：
+  - **交叉类型**：多个类型组成的一个新类型，必须满足这多个类型的约束，用符号`&`表示：`let x: number & string`。此时变量`x`必须同时是数值和字符串，这当然是不可能的，所以 TypeScript 会认为`x`的类型是`never`。交叉类型一般用于类型的合成和类型的扩展：
 
     ```ts
     // 类型合成
-    let obj: { foo: string } & { bar: string }  // 表示对象中必须只包含foo和bar两个属性
+    let obj: { foo: string } & { bar: string }  // 表示对象中必须包含foo和bar两个属性
     obj = {
         foo: "hello",
         bar: "world",
@@ -670,7 +670,7 @@
     >
     >   这是因为：箭头函数省略大括号时，默认会有返回值，此时如果严格限制了，那么箭头函数就不能用简写形式了。因此TS并不严格限制函数返回空。
     >
-    >   **注意，这种情况仅限于变量、对象方法和函数参数，函数字面量如果声明了返回值是 void 类型，还是不能有返回值：**
+    >   **注意，这种情况仅限于变量、对象方法、函数类型形参，函数字面量如果声明了返回值是 void 类型，还是不能有返回值：**
     >
     >   ```ts
     >   function f(): void {
@@ -735,18 +735,17 @@
     >
     > - 手动指定枚举成员的值的话，成员的值甚至可以相同。如果只设定第一个成员的值，后面成员的值就会从这个值开始递增。
     >
-    > - 多个同名的 Enum 结构会自动合并。Enum 结构合并时，只允许其中一个的首成员省略初始值，否则报错。并且不能有同名成员。并且多个同名的枚举要么都是const声明的，要么都是let声明的。
+    > - 多个同名的 Enum 结构会自动合并。合并时，只允许其中一个的首成员省略初始值，并且不能有同名成员。并且这多个同名的枚举要么都是const声明的，要么都是let声明的。
     >
-    > - keyof 运算符也可以取出 Enum 结构的所有成员名，作为联合类型返回：
+    > - keyof 运算符可以取出 Enum 结构的所有成员名（非const声明的枚举），作为联合类型返回：
     >
     >   ```ts
     >   type Foo = keyof typeof MyEnum
     >   ```
     >
-    >   注意前面要加`typeof`。
+    >   注意前面要加`typeof`。因为 MyEnum 作为枚举值而不是类型，本质上属于`number`或`string`的一种变体，而`typeof MyEnum`相当于提取枚举所对应的对象的类型，之后就可以用`keyof`运算符返回该对象的所有属性名。
     >
-    >   这是因为 Enum 作为类型，本质上属于`number`或`string`的一种变体，而`typeof MyEnum`会将`MyEnum`当作一个值处理，从而先其转为对象类型，就可以再用`keyof`运算符返回该对象的所有属性名。
-
+    
     - **数字枚举**：它是一种最常见的枚举类型，其枚举成员的值本质上就是`number`类型常量，且会自动递增，具备反向映射的特点。数字枚举作为类型其实等价于`number`。数字枚举的成员值可以使用 JS 表达式。
     
       ```ts
@@ -757,7 +756,7 @@
       enum Direction { UP=1, DOWN, LEFT, RIGHT=12 }
       ```
     
-    - **字符串枚举**：枚举成员的值也可以是字符串，此时必须指定成员的值，因为默认是数字。并且字符串的枚举成员没有反向映射，也就是不能这样：`Direction[0]`。除了数值和字符串，Enum 成员不允许使用其他值（比如 Symbol ）。
+    - **字符串枚举**：枚举成员的值也可以是字符串，此时必须指定成员的值，因为默认是数字。当然字符串的枚举成员没有反向映射。（除了数值和字符串，Enum 成员不允许使用其他值）
     
       ```ts
       enum Direction { UP='up', DOWN='down', LEFT='left', RIGHT='right' }
