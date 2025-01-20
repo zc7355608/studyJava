@@ -1,7 +1,5 @@
 # TypeScript
 
-------
-
 - ### TS简介
 
   > - TypeScript（简称 TS）是微软公司开发的基于 JavaScript （简称 JS）语言的编程语言。它的目的并不是创造一种全新语言，而是增强 JavaScript 的功能，使其更适合多人合作的企业级项目。
