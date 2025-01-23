@@ -684,46 +684,14 @@
 
 
 
-
-> **泛型约束**：有时候你想限制泛型的类型范围，可以使用泛型约束，使用`extends`。
+> - **鸭子类型（Duck Typing）**：鸭子类型是动态类型语言中的一种风格，是多态（polymorphism）的一种表现形式。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由*当前对象中所有的方法和属性*来决定。（TODO）
 >
-> ```ts
-> interface Lengthwise {
->  length: number;
-> }
-> function f1<T extends Lengthwise>(arg: T): void {
->  console.log(arg.length)
-> }
-> ```
->
-> **泛型默认值**：可以给泛型设置默认值，使得在不指定类型参数时能够使用默认类型。
->
-> ```ts
-> function f1<T = string>(arg: T): T {
->  return arg
-> }
-> ```
-
-
-
-> （类中的override关键字）注意，静态成员不能使用泛型的类型参数。
->
-> - **方法重写**：类继承后，子类可以对父类的方法重新定义，这个过程称之为方法的重写。其中**super**指向父类的引用，使子类能访问到父类的属性和方法（私有的除外）。
->
-> - - 
-> 
->   > 还有一个`readonly`修饰符，用于设置*只读属性*，在访问控制权限修饰符和属性名之间加：`public readonly name: string`
->   
-> - **类和接口**：类可以实现接口，使用关键字`implements`，此时类中必须包含接口中定义的所有属性。
-> 
-> - **鸭子类型（Duck Typing）**：鸭子类型是动态类型语言中的一种风格，是多态（polymorphism）的一种表现形式。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由*当前对象中所有的方法和属性*来决定。
-> 
 >   > 可以这样表述："当看到一只鸟走起来像鸭子、游泳起来像鸭子、叫起来也像鸭子，那么这只鸟就可以被称为鸭子。"
-> 
+>
 >  应用到编程中，这意味着：
 > 
 >  - **不关心对象是什么**：在鸭子类型中，我们不关心一个对象的具体类型是什么，只关心它能否完成我们需要的操作。
->   - **动态检查**：在运行时，系统会检查对象是否具有所需的方法或属性，而不是在编译时检查其类型。
+>     - **动态检查**：在运行时，系统会检查对象是否具有所需的方法或属性，而不是在编译时检查其类型。
 >   - **灵活性高**：这种方式使得代码更加灵活，可以更容易地扩展和修改。
 > 
 >   > 举例说明：
@@ -740,109 +708,5 @@
 >   >
 >   > 总之：鸭子类型强调的是对象的行为而不是其类型，这使得代码更加灵活和动态。
 
-- **抽象类（abstract class）**：
-
-  > - TS支持抽象类，抽象类是一种无法被实例化的类，专门用来定义类的结构和行为。
-  > - 抽象类中可以写抽象方法，也可以有具体的实现。
-  > - 抽象类主要用来为其派生类提供一个基础结构，是用来被派生类继承的。继承时要求其派生类必须实现其中的抽象方法。
-  > - 抽象类的派生类也可以是抽象类，此时可以不实现其中的抽象方法。
-  > - 抽象类的作用？
-  >   - 定义通用接口
-  >   - 提供基础实现
-  >   - 确保关键实现
-  >   - 共享代码和逻辑
-
-  ```ts
-  abstract class Package {
-      abstract calculate(): number
-      printPackage(){ console.log('打印包裹重量') }
-  }
-  class StandPackage extends Package {
-  	override calculate(): number { return 100 }
-  }
-  ```
-
-  
-  
-- 
-
 
 > 子类的那些只设置类型、没有设置初值的顶层成员在基类中被赋值后，会在子类被重置为`undefined`，解决方法就是使用`declare`命令，去声明顶层成员的类型，告诉 TypeScript 这些成员的赋值由基类实现。
-
-> - 定义类的接口：（类要用`implements`来实现某个接口）
->
->   ```ts
->   interface Person {
->       name: string;  // 分隔符可以是; , Enter
->       age: number,
->       speak(n: number): void
->   }
->   class Student implements Person {
->       constructor(public name: string, public age: number){}
->       speak(n: number): void {
->       	console.log('hello')
->       }
->   }
->   ```
->
->   > 
->   >
->   > ```ts
->   > 
->   > ```
->
-> - 定义对象的接口：
->
->   ```ts
->   interface Person {
->       readonly name: string  // 如果属性是只读的，需要加上 readonly 修饰符
->       age?: number,   // 可有可无，相当于：age: number | undefined
->       speak: (n: number) => void
->   }
->   const xiaoming: Person = {
->       name: '小明',
->       age: 14,
->       speak(n){
->       	console.log('hello')
->       }
->   }
->   ```
->
-> - 定义函数的接口：
->
->   ```ts
->   interface Count {
->   	(a: number, b: number): number
->   }
->   const count: Count = (x,y)=>{ return x+y }
->   ```
-
-> 接口的自动合并（可合并性）：
->
-> ```ts
-> interface Person {
-> 	name: string
-> }
-> interface Person {
-> 	age: number
-> }
-> const p: Person = {
->  name: '张三',
->  age: 11
-> }
-> ```
->
-> 接口中我们还可以将数组的索引值和元素设置为不同类型。索引值可以是数字或字符串。
->
-> ```ts
-> // 设置元素为字符串类型
-> interface namelist { 
-> [index: number]: string 
-> }
-> // 类型一致，正确
-> var list2: namelist = ["Google","Runoob","Taobao"]
-> // 错误元素 1 不是 string 类型
-> // var list2: namelist = ["Runoob",1,"Taobao"]
-> ```
->
-> **接口继承**：接口继承就是说接口可以通过继承其他接口来扩展自己。Typescript 允许接口继承多个接口，继承使用关键字**extends**。继承语法格式：`接口名 extends 接口1,接口2,.. {}`。
