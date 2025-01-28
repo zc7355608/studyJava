@@ -307,13 +307,7 @@
   >   type T0 = typeof a  // { x: number }
   >   type T1 = typeof a.x  // number
   >   ```
-  >
-  > - `keyof`关键字可以将对象、接口中的所有key提取为字符串的联合类型：
-  >
-  >   ```ts
-  >   type MyKeys = keyof obj  // 此时MyKeys的类型为：'name' | 'age' 的联合类型
-  >   ```
-
+  
 - ### TS中的this
 
   > 有些场合需要给出`this`类型，但是 JavaScript 函数通常不带有`this`参数，这时 TypeScript 允许函数增加一个名为`this`的参数，**放在参数列表的第一位**，用来描述函数中`this`变量的类型。
@@ -328,7 +322,7 @@
   > 相当于fn函数其实只有一个参数，调用时也只能传一个实参x，因为this形参实际上会被编译掉。
   >
   > TypeScript 提供了一个`noImplicitThis`编译选项。如果打开了这个设置项，如果`this`的值推断为`any`类型，就会报错。
-  >
+
   > 在类的内部，`this`本身也可以当作类型使用，表示当前类的实例类型。（注意：`this`类型不允许应用于静态成员）
   >
   > ```ts
@@ -337,13 +331,13 @@
   > 	set(value: string): this {
   > 		this.contents = value
   > 		return this
-  > 	}
+  >	}
   > }
-  > ```
-  >
-  > 有些方法返回一个布尔值，表示当前的`this`是否属于某种类型。这时，这些方法的返回值类型可以写成`this is Type`的形式。（`is`运算符后面说）
-  >
-  > ```ts
+  >```
+  > 
+  >有些方法返回一个布尔值，表示当前的`this`是否属于某种类型。这时，这些方法的返回值类型可以写成`this is Type`的形式。注意，`this is T`这种写法，只能用来描述类中方法的返回值类型，而不能用来描述属性的类型。（`is`运算符后面会说）
+  > 
+  >```ts
   > class FileSystemObject {
   > 	isFile(): this is FileRep {
   > 		return this instanceof FileRep;

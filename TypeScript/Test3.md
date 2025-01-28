@@ -58,9 +58,9 @@
     >
     > ```ts
     > declare class Animal {
-    >     constructor(name:string)
-    >     eat(): void
-    >     sleep(): void
+    >        constructor(name:string)
+    >        eat(): void
+    >        sleep(): void
     > }
     > ```
     >
@@ -68,26 +68,26 @@
     >
     > ```ts
     > declare class C {
-    >     // 静态成员
-    >     public static s0(): string;
-    >     private static s1: string;
+    >        // 静态成员
+    >        public static s0(): string;
+    >        private static s1: string;
     > 
-    >     // 属性
-    >     public a:number;
-    >     private b:number;
+    >        // 属性
+    >        public a:number;
+    >        private b:number;
     > 
-    >     // 构造函数
-    >     constructor(arg:number);
+    >        // 构造函数
+    >        constructor(arg:number);
     > 
-    >     // 方法
-    >     m(x:number, y:number): number;
+    >        // 方法
+    >        m(x:number, y:number): number;
     > 
-    >     // 存取器
-    >     get c(): number;
-    >     set c(value:number);
+    >        // 存取器
+    >        get c(): number;
+    >        set c(value:number);
     > 
-    >     // 索引签名
-    >     [index:string]:any;
+    >        // 索引签名
+    >        [index:string]:any;
     > }
     > ```
 
@@ -133,8 +133,8 @@
     >
     > ```ts
     > declare namespace myLib {
-    >     function makeGreeting(s:string): string;
-    >     let numberOfGreetings: number;
+    >        function makeGreeting(s:string): string;
+    >        let numberOfGreetings: number;
     > }
     > ```
 
@@ -144,11 +144,11 @@
     > import { Foo as Bar } from 'moduleA';
     > 
     > declare module 'moduleA' {
-    >     interface Foo {
-    >         custom: {
-    >         	prop1: string
-    >         }
-    >     }
+    >        interface Foo {
+    >            custom: {
+    >            	prop1: string
+    >            }
+    >        }
     > }
     > ```
 
@@ -168,13 +168,12 @@
     >
     > ```ts
     > declare module 'my-plugin-*' {
-    >   interface PluginOptions {
-    >     enabled: boolean;
-    >     priority: number;
-    >   }
-    > 
-    >   function initialize(options: PluginOptions): void;
-    >   export = initialize;
+    >        interface PluginOptions {
+    >            enabled: boolean;
+    >            priority: number;
+    >        }
+    >        function initialize(options: PluginOptions): void;
+    >        export = initialize;
     > }
     > ```
     >
@@ -231,9 +230,9 @@
     > export {};
     > 
     > declare global {
-    >     interface Window {
-    >     	myAppConfig:object;
-    >     }
+    >        interface Window {
+    >        	myAppConfig:object;
+    >        }
     > }
     > 
     > const config = window.myAppConfig;
@@ -249,23 +248,23 @@
     >
     > ```ts
     > declare module "url" {
-    >   export interface Url {
-    >     protocol?: string;
-    >     hostname?: string;
-    >     pathname?: string;
-    >   }
+    >       export interface Url {
+    >            protocol?: string;
+    >            hostname?: string;
+    >            pathname?: string;
+    >       }
     > 
-    >   export function parse(
-    >     urlStr: string,
-    >     parseQueryString?,
-    >     slashesDenoteHost?
-    >   ): Url;
+    >       export function parse(
+    >            urlStr: string,
+    >            parseQueryString?,
+    >            slashesDenoteHost?
+    >       ): Url;
     > }
     > 
     > declare module "path" {
-    >   export function normalize(p: string): string;
-    >   export function join(...paths: any[]): string;
-    >   export var sep: string;
+    >        export function normalize(p: string): string;
+    >        export function join(...paths: any[]): string;
+    >        export var sep: string;
     > }
     > ```
     >
@@ -275,8 +274,8 @@
     >
     > ```ts
     > declare module "lodash" {
-    >   export * from "../../dependencies/lodash";
-    >   export default from "../../dependencies/lodash";
+    >        export * from "../../dependencies/lodash";
+    >        export default from "../../dependencies/lodash";
     > }
     > ```
     >
@@ -302,12 +301,12 @@
   > const maxInterval = 12;
   > 
   > function getArrayLength(arr) {
-  >   return arr.length;
+  >   	return arr.length;
   > }
   > 
   > module.exports = {
-  >   getArrayLength,
-  >   maxInterval,
+  >        getArrayLength,
+  >        maxInterval,
   > };
   > ```
   >
@@ -322,8 +321,8 @@
   >
   > ```ts
   > declare module 'moment' {
-  >   function moment(): any;
-  >   export = moment;
+  >        function moment(): any;
+  >        export = moment;
   > }
   > ```
   >
@@ -351,5 +350,238 @@
   >
   > 
 
-- ### xx
+- ### 类型运算符
+
+  > TypeScript 提供强大的类型运算能力，可以使用各种类型运算符，对已有的类型进行计算，得到新类型。
+
+  - ##### `keyof` 运算符
+
+    > TS 中的 `keyof` 是一个单目运算符，接受一个**接口**类型作为参数，返回该接口的所有键名(字符串)组成的联合类型：
+    >
+    > ```ts
+    > type A = {
+    >        name: string,
+    >        age: number,
+    > }
+    > type MyKeys = keyof A  // 此时MyKeys的类型为：'name' | 'age' 的联合类型
+    > ```
+    >
+    > 该运算符的主要用途是：精确表达对象的属性类型，以及用于*属性映射*（后面说）。
+
+    > **注意：**
+    >
+    > - 由于 JS 对象的键名只有三种类型，所以`keyof any`的结果是`string|number|symbol`。
+    >
+    > - 对于没有自定义键名的类型使用 keyof，返回`never`类型，表示不可能有这样类型的键名。
+    >
+    >   ```ts
+    >   type A = keyof {}  // never
+    >   ```
+    >
+    > - 如果接口的属性名采用索引形式，keyof 会返回属性名的索引类型。
+    >
+    >   ```ts
+    >   // 示例一
+    >   interface T {
+    >   	[prop: number]: number;
+    >   }
+    >   type KeyT = keyof T;  // number
+    >   
+    >   // 示例二
+    >   interface T {
+    >   	[prop: string]: number;
+    >   }
+    >   type KeyT = keyof T;  // string|number
+    >   ```
+    >
+    > - 如果 keyof 运算符用于数组或元组类型，得到的结果可能出人意料。
+    >
+    >   ```ts
+    >   type Result = keyof ['a', 'b', 'c'];
+    >   // 返回 number | "0" | "1" | "2" | ... | "length" | "pop" | "push" | ···
+    >   ```
+    >
+    >   > 上面示例中，keyof 会返回数组的所有键名，包括数字键名和继承的键名。
+    >
+    > - 对于联合类型，keyof 返回成员共有的键名。对于交叉类型，keyof 返回所有键名。
+    >
+    >   ```ts 
+    >   type A = { a: string; z: boolean };
+    >   type B = { b: string; z: boolean };
+    >   // 联合类型：返回 'Z'
+    >   type T1 = keyof (A | B);
+    >   // 交叉类型：返回 'a' | 'b' | 'z'
+    >   type T2 = keyof (A & B);  // 相当于 keyof (A & B) ≡ keyof A | keyof B
+    >   ```
+    >
+    > - keyof 取出的是键名组成的联合类型，如果想取出键值组成的联合类型，可以像下面这样写。
+    >
+    >   ```ts
+    >   type MyObj = {
+    >       foo: number,
+    >       bar: string,
+    >   };
+    >   type Keys = keyof MyObj;
+    >   type Values = MyObj[Keys];  // number|string
+    >   ```
+    >
+    >   > 上面示例中，`Keys`是键名组成的联合类型，而`MyObj[Keys]`会取出每个键名对应的键值类型，组成一个新的联合类型，即`number|string`。
+
+  - ##### `in` 运算符
+
+    > 在 JS 中，`in`运算符用来确定对象是否包含某个属性。而在 TS 中，`in`运算符还可以**取出（遍历）联合类型中的每一个成员类型。**
+    >
+    > ```ts
+    > type U = 'a'|'b'|'c';
+    > 
+    > type Foo = {
+    >    	[Prop in U]: number;
+    > };
+    > // 等同于
+    > type Foo = {
+    >        a: number,
+    >        b: number,
+    >        c: number
+    > };
+    > ```
+    >
+    > 上面示例中，`[Prop in U]`表示依次取出联合类型`U`中的每一个成员。
+
+  - ##### `[]` 运算符
+
+    > TS 中，`[]`运算符还可以取出接口中键的类型，比如`T[K]`会返回接口`T`中属性`K`的类型。（`[]`中不能包含值的运算）
+    >
+    > ```ts
+    > type Person = {
+    >        age: number;
+    >        name: string;
+    >        alive: boolean;
+    > };
+    > type Age = Person['age'];  // Age 的类型是 number
+    > ```
+    >
+    > 方括号的参数如果是联合类型，那么返回的也是联合类型。
+    >
+    > ```ts 
+    > type Person = {
+    >        age: number;
+    >        name: string;
+    >        alive: boolean;
+    > };
+    > // number|string
+    > type T = Person['age'|'name'];
+    > // number|string|boolean
+    > type A = Person[keyof Person];
+    > ```
+    >
+    > 如果访问不存在的属性，会报错。
+    >
+    > ```ts
+    > type T = Person['notExisted'];  // 报错
+    > ```
+    >
+    > 方括号运算符的参数也可以是属性名的索引类型。
+    >
+    > ```ts
+    > type Obj = {
+    > 	[key:string]: number,
+    > };
+    > type T = Obj[string];  // number
+    > ```
+    >
+    > 这个语法对于数组也适用，可以使用`number`作为方括号的参数。
+    >
+    > ```ts
+    > // MyArray 的类型是 { [key:number]: string }
+    > const MyArray = ['a','b','c'];
+    > 
+    > // 等同于 (typeof MyArray)[number]
+    > type Person = typeof MyArray[number];  // 返回 string
+    > ```
+
+  - ##### `extends...?:` 条件运算符
+
+    > 条件运算符可以根据当前类型是否符合某种条件，返回不同的类型：`T extends U ? X : Y`。该运算符可以嵌套使用。（注意：条件运算符的参数都是类型）
+    >
+    > 上面式子中的`extends`用来判断，类型`T`是否可以赋值给类型`U`，即`T`是否为`U`的子类型，这里的`T`和`U`可以是任意类型。如果`T`能够赋值给类型`U`，表达式的结果为类型`X`，否则结果为类型`Y`。
+
+    > 如果对泛型使用 extends 条件运算，有一个地方需要注意。当泛型的类型参数是一个联合类型时，那么条件运算符会展开这个类型参数，即`T<A|B> = T<A> | T<B>`，所以 extends 对类型参数的每个部分是分别计算的。也就是说，如果类型参数是联合类型，条件运算的返回结果依然是一个联合类型。
+    >
+    > ```ts
+    > type Cond<T> = T extends U ? X : Y;
+    > 
+    > type MyType = Cond<A|B>;
+    > // 等同于 Cond<A> | Cond<B>
+    > // 等同于 (A extends U ? X : Y) | (B extends U ? X : Y)
+    > ```
+    >
+    > *如果不想分别计算，有一个小窍门是：将泛型参数放在`[T]`中，这样类型就变成了一个元组。（了解即可，不重要）*
+
+  - ##### `infer` 关键字
+
+    > sd
+
+  - ##### `is` 运算符
+
+    > `is`运算符用来**描述**返回值属于`true`还是`false`。函数返回布尔值的时候，可以使用`is`运算符，限定返回的布尔值与参数之间的关系（通常用于类型保护）。
+    >
+    > ```ts
+    > function isFish(pet: Fish|Bird): pet is Fish {
+    > 	return (pet as Fish).swim !== undefined;
+    > }
+    > ```
+    >
+    > 上面示例中，函数`isFish()`的返回值类型为`pet is Fish`，它告诉编译器：表示如果参数`pet`类型为`Fish`，则返回`true`，否则返回`false`。
+    >
+    > `is`运算符总是用于描述函数的返回值类型，写法采用`parameterName is Type`的形式，即左侧为当前函数的参数名，右侧为某一种类型。它返回一个**布尔值**，表示左侧参数是否属于右侧的类型。
+
+  - ##### 模板字符串
+
+    > TS 中的模板字符串还可以用来**构建类型**。TS 中的模板字符串的特点就是：内部可以引用其他类型。
+    >
+    > ```ts
+    > type World = "world";
+    > type Greeting = `hello ${World}`;  // 类型为："hello world"
+    > ```
+    >
+    > 上面示例中，类型`Greeting`是一个模板字符串，里面引用了另一个字符串类型`world`，因此类型`Greeting`实际上是字符串`hello world`。
+    >
+    > 模板字符串可以引用的类型一共7种，分别是：`string、number、bigint、boolean、null、undefined、Enum`。引用这7种以外的类型会报错。
+    >
+    > ```ts
+    > type Num = 123;
+    > type Obj = { n : 123 };
+    > 
+    > type T1 = `${Num} received`; // 正确
+    > type T2 = `${Obj} received`; // 报错
+    > ```
+    >
+    > 模板字符串里面引用的类型，如果是一个联合类型，那么它返回的也是一个联合类型，即模板字符串可以展开联合类型。
+    >
+    > ```ts
+    > type T = 'A'|'B';
+    > type U = `${T}_id`;  // "A_id"|"B_id"
+    > ```
+    >
+    > 如果模板字符串引用两个联合类型，它会交叉展开这两个类型。
+    >
+    > ```ts
+    > type T = 'A'|'B';
+    > type U = '1'|'2';
+    > type V = `${T}${U}`;  // 'A1'|'A2'|'B1'|'B2'
+    > ```
+
+  - ##### `satisfies` 运算符
+
+    > sd
+
+- ### 类型映射
+
+- ### 类型工具
+
+- ### 注释指令
+
+- ### `tsconfig.json` 文件
+
+- ### `tsc` 命令
 
