@@ -648,7 +648,7 @@
   
   - #### v-model指令：
   
-    - Vue2中，v-model的原理：（自定义组件和HTML元素都是如此）
+    - Vue2中，`v-model`的原理：（自定义组件和HTML元素都是如此）
   
       > v-model双向数据绑定，底层是用表单元素的input事件来完成的：
   
@@ -658,7 +658,7 @@
   
       > 它和`<input type='text' v-model="username"/>`是等价的。
   
-    - 而在Vue3中，v-model用在组件标签上则发生了变化。Vue3中v-model加在组件标签上是这样的：
+    - 而在Vue3中，`v-model`用在组件标签上则发生了变化。Vue3中`v-model`加在组件标签上是这样的：
   
       ```js
       <MyComponent :modelValue="username" @update:modelValue="val => (username = val)"/>
@@ -670,7 +670,7 @@
   
   - #### v-bind指令：
   
-    > - 其实v-bind可以不绑定任何属性，此时值必须是一个对象：`<h1 v-bind="{x:100,y:200}"/>`，此时就相当于：`<h1 :x="100" :y="200"/>`。
+    > - 其实`v-bind`可以不绑定任何属性，此时值必须是一个对象：`<h1 v-bind="{x:100,y:200}"/>`，此时就相当于：`<h1 :x="100" :y="200"/>`。
     > - 因此`<Child v-bind="$attrs"/>`其实就是：当前组件的$attrs对象的所有K-V，都以props的形式传给了Child组件。
   
   - #### 其他：
