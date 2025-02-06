@@ -177,7 +177,7 @@
   >
   > 上面示例中，变量`aValue`可能是字符串，也可能是数组。但是，通过调用`isString()`，后面的代码就可以确定，变量`aValue`一定是字符串。
   >
-  > 但是此时有个问题：单单从isString函数的类型声明上，完全看不出来它是一个断言函数还是普通函数，因此，为了更清晰地表达断言函数，TypeScript 3.7 引入了新的类型写法。
+  > 但是此时有个问题：单单从isString函数的类型声明上，完全看不出来它是一个断言函数还是普通函数，因此，为了更清晰地表达断言函数，TypeScript 3.7 引入了新的断言函数的类型写法。
   >
   > ```ts
   > function isString(value: unknown): asserts value is string {
@@ -539,7 +539,7 @@
     >   ```ts
     >   class StringBuilder {
     >       #data = "";
-    >   
+    >     
     >       add(num: number): this;
     >       add(bool: boolean): this;
     >       add(str: string): this;
@@ -547,7 +547,7 @@
     >       	this.#data += String(value);
     >       	return this;
     >       }
-    >   
+    >     
     >       toString() {
     >       	return this.#data;
     >       }
