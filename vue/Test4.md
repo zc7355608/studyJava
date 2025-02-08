@@ -650,7 +650,7 @@
   
     - Vue2中，`v-model`的原理：（自定义组件和HTML元素都是如此）
   
-      > v-model双向数据绑定，底层是用表单元素的input事件来完成的：
+      > v-model双向数据绑定，底层是用表单元素的`input`或`change`事件来完成的：
   
       ```js
       <input type='text' :value="username" @input="username = $event.target.value"/>
