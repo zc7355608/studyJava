@@ -713,14 +713,14 @@
      >
      >   > - 要为具名插槽传入内容，需要使用一个含`v-slot`指令的`<template>`元素，并将目标插槽的名字传给该指令：`v-slot:插槽名`（简写形式：`#插槽名`）
      >   >
-     >   > - 当一个组件中，同时通过默认插槽和具名插槽传递HTML结构时，所有位于顶级的非`<template>`中的标签节点，都被隐式地视为往默认插槽中传递内容。
-     >   >
      >   > - **动态插槽名**：可以在`v-slot`上使用*动态指令参数*，定义动态插槽名
      >   >
      >   >   ```vue
-     >   >   <template v-slot:[变量名]></template>
+     >   >  <template v-slot:[变量名]></template>
      >   >   <template #[变量名]></template>
      >   >   ```
+     >   > 
+     >   > - 当一个组件中，同时通过默认插槽和具名插槽传递HTML结构时，所有位于顶级的非`<template>`中的标签节点，都被隐式地视为往默认插槽中传递内容。
      >
      > - **作用域插槽**：插槽也可以给使用者传递数据，通过给`<slot>`加属性：`<slot :games="g">`。
      >
@@ -742,9 +742,9 @@
   >
   > ```vue
   > <template>
-  >     <div v-if="$slots.default" class="card-header">
-  >     	<slot />
-  >     </div>
+  >    	<div v-if="$slots.default" class="card-header">
+  >            <slot />
+  >        </div>
   > </template>
   > ```
 
