@@ -87,6 +87,8 @@
   >   	return x + y
   >   }
   >   ```
+  >   
+  >   调用该函数时，必须传2个number型作为参数，不能多也不能少。
 
   > **自动类型推断：**
   >
@@ -539,7 +541,7 @@
     >   ```ts
     >   class StringBuilder {
     >       #data = "";
-    >     
+    >       
     >       add(num: number): this;
     >       add(bool: boolean): this;
     >       add(str: string): this;
@@ -547,7 +549,7 @@
     >       	this.#data += String(value);
     >       	return this;
     >       }
-    >     
+    >       
     >       toString() {
     >       	return this.#data;
     >       }

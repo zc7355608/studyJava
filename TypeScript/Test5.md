@@ -491,7 +491,7 @@
 
   ## `Record<Keys, Type>`
 
-  `Record<Keys, Type>`返回一个对象类型，参数`Keys`用作键名，参数`Type`用作键值类型。
+  `Record<Keys, Type>`返回一个接口类型，参数`Keys`用作键名，参数`Type`用作键值类型。
 
   ```
   // { a: number }
