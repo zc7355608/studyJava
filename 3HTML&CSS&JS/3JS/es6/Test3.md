@@ -6,10 +6,10 @@
     >
     > ```js
     > function log(x, y) {
-    >     if (typeof y === 'undefined') {
-    >         y = 'World';
-    >     }
-    >     console.log(x, y);
+    >        if (typeof y === 'undefined') {
+    >            y = 'World';
+    >        }
+    >        console.log(x, y);
     > }
     > log('Hello') // Hello World
     > log('Hello', 'China') // Hello China
@@ -20,7 +20,7 @@
     >
     > ```js
     > function log(x, y = 'World') {
-    >     console.log(x, y);
+    >        console.log(x, y);
     > }
     > log('Hello') // Hello World
     > log('Hello', 'China') // Hello China

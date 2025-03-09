@@ -1,7 +1,7 @@
 - ### 关于 tsconfig.json 文件
 
   > - `tsconfig.json`是 TypeScript 项目的配置文件，放在项目的根目录。反过来说，如果一个目录里面有`tsconfig.json`，TypeScript 就认为这是项目的根目录。
-  > - 如果项目源码是 JavaScript，但是想用 TypeScript 处理，那么配置文件的名字是`jsconfig.json`，它跟`tsconfig`的写法是一样的。
+  > - 如果项目源码是 JS，但是想用 TypeScript 处理，那么配置文件的名字是`jsconfig.json`，它跟`tsconfig`的写法是一样的。
   > - `tsconfig.json`文件主要供`tsc`编译器使用，它的命令行参数`--project`或`-p`可以指定`tsconfig.json`的位置（目录或文件皆可，文件名随意）：`tsc -p ./dir`
   > - 如果不指定配置文件的位置，`tsc`就会在当前目录下搜索`tsconfig.json`文件，如果不存在，就到上一级目录搜索，直到找到为止。
   > - `tsconfig.json`文件的格式，是一个 JSON 对象，最简单的情况可以只放置一个空对象`{}`。（该文件能写注释）
@@ -615,7 +615,7 @@
       > x = null; // 不报错
       > ```
       >
-      > 上面示例中，不打开`strictNullChecks`时，变量`x`的类型是`number`，但是赋值为`undefined`或`null`都不会报错。这是为了继承 JavaScript 的设定：当变量没有赋值时，它的值就为`undefined`。
+      > 上面示例中，不打开`strictNullChecks`时，变量`x`的类型是`number`，但是赋值为`undefined`或`null`都不会报错。这是为了继承 JS 的设定：当变量没有赋值时，它的值就为`undefined`。
       >
       > 一旦打开`strictNullChecks`，就使用严格类型，禁止变量赋值为`undefined`和`null`，除非变量原本就是这两种类型。它相当于从变量的值里面，排除了`undefined`和`null`。
       >
@@ -701,7 +701,7 @@
 
     - **target：**
 
-      > `target`指定编译出来的 JavaScript 代码的 ECMAScript 版本，比如`es2021`，默认是`es3`。
+      > `target`指定编译出来的 JS 代码的 ECMAScript 版本，比如`es2021`，默认是`es3`。
       >
       > 它可以取以下值。
       >
@@ -795,7 +795,7 @@
 
 - ### 关于 tsc 命令
 
-  > tsc 是 TypeScript 官方的命令行编译器，用来检查代码，并将其编译成 JavaScript 代码。
+  > tsc 是 TypeScript 官方的命令行编译器，用来检查代码，并将其编译成 JS 代码。
   >
   > tsc 默认使用当前目录下的配置文件`tsconfig.json`，但也可以接受独立的命令行参数。命令行参数会覆盖`tsconfig.json`中的配置。
 

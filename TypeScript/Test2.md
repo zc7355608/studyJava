@@ -4,28 +4,28 @@
   >
   > ```ts
   > interface Person {  // 接口的分隔符可以是（; , 换行）
-  >        firstName: string
-  >        lastName: string
-  >        age: number
+  >     firstName: string
+  >     lastName: string
+  >     age: number
   > }
   > ```
   >
-  > 上面示例中，定义了一个接口`Person`，它指定一个对象模板，都有三个属性`firstName`、`lastName`和`age`。任何实现这个接口的对象，都必须包含这三个属性，并且必须符合规定的类型。实现该接口很简单，只要指定它作为对象的类型即可：（**注意：TS 不区分对象自身的属性和原型上的属性，只要有就行**）
+  > 上面示例中，定义了一个接口`Person`，它指定一个对象模板，都有三个属性`firstName`、`lastName`和`age`。任何实现这个接口的对象，都必须至少包含这三个属性，并且必须符合规定的类型。实现该接口很简单，只要指定它作为对象的类型即可：（**注意：TS 不区分对象自身的属性和原型上的属性，只要有就行**）
   >
   > ```ts
   > const p: Person = {
-  >        firstName: "John",
-  >        lastName: "Smith",
-  >        age: 25,
+  >     firstName: "John",
+  >     lastName: "Smith",
+  >     age: 25,
   > }
   > ```
   >
   > **注意：**
   >
   > 1. 接口只能定义格式不能包含任何的实现。
-  > 2. 接口描述的是类的对外接口，也就是实例的公开的属性和方法，不能定义私有的属性和方法。即接口都是公开的。
+  > 2. 接口描述的是类的对外接口，也就是实例的公开的属性和方法，不能定义私有的属性和方法。即接口是完全公开的。
 
-  ###### TS中，`[]`方括号运算符可以取出接口中某个键的类型：
+  ###### TS中，`[]`方括号运算符可以用来取出接口中某个键的类型：
 
   ```ts
   interface Foo {
@@ -45,7 +45,7 @@
 
   ###### 严格字面量检查：
 
-  > 如果变量的类型为接口，且赋值了一个对象字面量，此时会触发 TS 的**严格字面量检查**。此时该变量指向的对象中，有且仅能有接口中定义的这些属性，不能多也不能少：（TypeScript 对字面量进行严格检查的目的，主要是防止拼写错误，可以使用*类型断言规避严格字面量检查*）
+  > 如果变量的类型为接口，且赋值了一个对象字面量，此时会触发 TS 的**严格字面量检查**。此时该变量指向的对象中，有且仅能有接口中定义的这些属性，不能多也不能少：
 
   ```ts
   const p: {
@@ -60,13 +60,26 @@
   }
   ```
 
-  > 编译器选项`suppressExcessPropertyErrors`，可以关闭多余属性检查。下面是它在 tsconfig.json 文件里面的写法：
+  > 同样报错：不能多一个sex属性。因为变量p的类型被自动推断为了对应的接口，此时也触发了严格字面量检查：
+
+  ```ts
+  const p = {
+      firstName: "John",
+      lastName: "Smith",
+      age: 25,
+  }
+  p.sex = '女'  // 报错，不能多一个sex属性
+  ```
+
+  > TS 对字面量进行严格检查的目的，主要是防止拼写错误，可以使用*类型断言规避严格字面量检查*。
+
+  > 编译器选项`suppressExcessPropertyErrors`也可以关闭多余属性检查。下面是它在 `tsconfig.json` 文件里面的写法：
   >
   > ```json
   > {
-  >        "compilerOptions": {
-  >        	"suppressExcessPropertyErrors": true
-  >        }
+  >     "compilerOptions": {
+  >     	"suppressExcessPropertyErrors": true
+  >     }
   > }
   > ```
 
@@ -87,13 +100,13 @@
   >
   > 上面示例中，类型`Options`是一个对象，它的所有属性都是可选的，这导致任何对象实际都符合`Options`类型。
   >
-  > 为了避免这种情况，TypeScript 添加了最小可选属性规则，规定这时属于`Options`类型的对象，必须至少存在一个可选属性，不能所有可选属性都不存在。这就是为什么上例的`myObj`对象会报错的原因。
+  > 为了避免这种情况，TS 添加了最小可选属性规则，规定这时属于`Options`类型的对象，必须至少存在一个可选属性，不能所有可选属性都不存在。这就是为什么上例的`myObj`对象会报错的原因。
 
   ###### 接口可以描述对象的各种语法：
 
   - ##### 对象的属性索引（属性名）：
 
-    > TypeScript 允许采用**属性名表达式**的写法来描述类型，称为“属性名的索引类型”。索引类型里面，最常见的就是属性名的字符串索引：
+    > TS 允许采用**属性名表达式**的写法来描述类型，称为“属性名的索引类型”。索引类型中最常见的就是属性名的字符串索引：
 
     ```ts
     interface A {
@@ -101,9 +114,9 @@
     }
     ```
 
-    > - 上面示例中，接口`A`的属性名类型就采用了表达式形式，写在方括号里面。`[prop: string]`的`prop`表示属性名，这个是可以随便起的，它的类型是`string`，即属性名类型为`string`。也就是说，不管这个对象有多少属性，只要属性名为字符串，且属性值是number，就符合这个类型声明。
+    > - 上面示例中，接口`A`的属性名类型就采用了表达式形式，写在方括号里面。`[prop: string]`的`prop`表示属性名，这个是可以随便起的，它的类型是`string`，即属性名类型为`string`。也就是说，不管这个对象有多少属性，只要属性名为字符串，该属性就必须是number类型。
     >
-    > - 属性索引共有`string`、`number`和`symbol`三种类型。一个接口中，字符串索引和数值索引最多定义一个。字符串索引会约束该类型中所有名字为字符串的属性；属性的数值索引，其实约定的是数组里面元素的类型。
+    > - 属性索引共有`string`、`number`和`symbol`三种类型。一个接口中，字符串索引和数值索引最多定义一个。字符串索引会约束该类型中所有名字为字符串的属性；属性的数值索引，其实约定的是数组成员的类型。
     >
     >   ```ts
     >   interface A {
@@ -112,7 +125,7 @@
     >   const obj: A = ["a", "b", "c"]
     >   ```
     >
-    > - 如果一个接口同时定义了字符串索引和数值索引，那么数值索引必须兼容字符串索引的类型声明。因为在 JavaScript 中，数值属性名最终会自动转换成字符串属性名。
+    > - 如果一个接口同时定义了字符串索引和数值索引，那么数值索引必须兼容字符串索引的类型声明。因为在 JS 中，数值属性名最终会自动转换成字符串属性名。
 
   - ##### 对象的方法：
 
@@ -193,7 +206,7 @@
 
   > 多个同名接口会自动合并成一个接口（当然合并时类型也要兼容）。
   >
-  > 这是因为，JavaScript 开发者常常对全局对象或者外部库，添加自己的属性和方法。那么，只要使用 interface 给出这些自定义属性和方法的类型，就能自动跟原始的 interface 合并，使得扩展外部类型非常方便。
+  > 这是因为，JS 开发者常常对全局对象或者外部库，添加自己的属性和方法。那么，只要使用 interface 给出这些自定义属性和方法的类型，就能自动跟原始的 interface 合并，使得扩展外部类型非常方便。
 
   - 同名接口合并时，如果同名方法有不同的类型声明，那么会发生函数重载。而且，后面的定义比前面的定义具有更高的优先级。
 
@@ -234,9 +247,9 @@
 
 - ### 类
 
-  > 类（class）是面向对象编程的基本构件，封装了属性和方法，TypeScript 给予了全面支持。
+  > 类（class）是面向对象编程的基本构件，封装了属性和方法，TS 给予了全面支持。
 
-  - **属性的类型：**类的属性可以在顶层声明，也可以在构造方法内部声明。对于顶层声明的属性，可以在声明时同时给出类型。如果不给出类型，TypeScript 会认为`x`和`y`的类型都是`any`。
+  - **属性的类型：**类的属性可以在顶层声明，也可以在构造方法内部声明。对于顶层声明的属性，可以在声明时同时给出类型。如果不给出类型，TS 会认为`x`和`y`的类型都是`any`。
 
     ```ts
     class Point {
@@ -247,16 +260,17 @@
     }
     ```
 
-    > - 类的定义中，属性和方法后面的感叹号是非空断言，告诉 TypeScript 它们都是非空的，后面会赋值。
-    > - TypeScript 有一个配置项`strictPropertyInitialization`，只要打开，就会检查类的属性是否设置了初值，如果没有就报错。但是某些情况下，不是在声明时赋值或在构造方法里面赋值。为了防止报错，此时就可以在属性名后面使用非空断言`!`，告诉 TS 它们都是非空的，后面会赋值。
+    > 类的定义中，属性和方法后面的感叹号是非空断言，告诉 TS 它们都是非空的，后面会赋值。
+    >
+    > TS 有一个配置项`strictPropertyInitialization`，只要打开，就会检查类的属性是否设置了初值，如果没有就报错。但是某些情况下，不是在声明时赋值或在构造方法里面赋值。为了防止报错，此时就可以在属性名后面使用非空断言`!`，告诉 TS 它们都是非空的，后面会赋值。
 
     ###### 注意：类中的构造方法不能声明返回值类型，否则报错，因为构造器总是返回实例对象。
 
   - **getter和setter：**TS 对存取器有以下规则。
 
-    1. 如果某个属性只有`get`方法，没有`set`方法，那么该属性会被识别为只读属性。
-    2. `set`方法的参数类型，必须兼容`get`方法的返回值类型，否则报错。
-    3. `get`方法与`set`方法的可访问性必须一致，要么都为公开方法，要么都为私有方法。
+    > 1. 如果某个属性只有`get`方法，没有`set`方法，那么该属性会被识别为只读属性。
+    > 2. `get`方法与`set`方法的可访问性必须一致，要么都为公开方法，要么都为私有方法。
+    > 3. （了解）TS 5.1 版之前，`set`方法的参数类型，必须兼容`get`方法的返回值类型，否则报错。TS 5.1 版做出了改变，现在两者可以不兼容。
 
   - **属性索引：**和接口一样，类中同样允许定义属性索引。
 
@@ -269,7 +283,7 @@
     }
     ```
 
-  - **类实现接口（`implements`）：**类用`implements`可以实现某个接口，从而为类指定一组检查条件。
+  - **类实现接口（`implements`）：**类通过`implements`关键字来实现接口，从而为类指定一组检查条件。
 
     > `implements`关键字后面，不仅可以是接口，也可以是另一个类。这时，后面的类将被当作接口。
     >
@@ -299,7 +313,7 @@
     a.y  // 10
     ```
 
-    上面示例中，类`A`与接口`A`同名，后者会被合并进前者的类型定义。
+    > 上面示例中，类`A`与接口`A`同名，后者会被合并进前者的类型定义。
 
   - **类的类型：**TS 中的类本身也是一种类型。
 
@@ -319,44 +333,44 @@
     >
     > ```ts
     > // 报错
-    > function createPoint(PointClass: Point, x: number, y: number) {
-    > 	return new PointClass(x, y);
+    > function createColor(ColorClass: Color, x: number, y: number) {
+    > 	return new ColorClass(x, y);
     > }
     > ```
     >
-    > PointClass变量的类型是Point，但是前面要加上`typeof`，表示取Point类的类型。
+    > ColorClass变量的类型是Color，但是前面要加上`typeof`，表示取Color类的类型。
     >
     > ```ts
-    > function createPoint(PointClass: typeof Point, x: number, y: number): Point {
-    > 	return new PointClass(x, y);
+    > function createColor(ColorClass: typeof Color, x: number, y: number): Color {
+    > 	return new ColorClass(x, y);
     > }
     > ```
     >
-    > 或者这样做：由于在 JS 中，类只是构造函数的一种语法糖，本质上是构造函数的另一种写法。所以，类的自身类型可以写成构造函数的形式。
+    > 这是因为在 JS 中，类只是构造函数的一种语法糖，本质上是构造函数。加了`typeof 变量`之后，让Color被当作构造函数名，此时取的是该构造函数的类型，也就是`new (x: number, y: number) => Color`。或者直接这样做：
     >
     > ```ts
-    > function createPoint(
-    > 	PointClass: new (x: number, y: number) => Point,
-    >    // 或者用接口的写法：
-    > 	// PointClass: {
-    > 	//	new (x: number, y: number): Point;
+    > function createColor(
+    > 	ColorClass: new (x: number, y: number) => Color,
+    > // 或者用接口的写法：
+    > 	// ColorClass: {
+    > 	//	new (x: number, y: number): Color;
     > 	// },
     > 	x: number,
     > 	y: number,
-    > ): Point {
-    > 	return new PointClass(x, y);
+    > ): Color {
+    > 	return new ColorClass(x, y);
     > }
     > ```
 
   - **结构类型原则：**
 
-    > 和接口一样，类也遵循**结构类型原则**。一个对象只要满足类的实例结构，就跟该类属于同一个类型。
+    > 类同样遵循**结构类型原则**。一个对象只要满足类的实例结构，就跟该类属于同一个类型。
     >
     > 由于这种情况，运算符`instanceof`不适用于判断某个对象是否跟某个类属于同一类型，它只是原型链上的判断。
     >
     > **注意，确定两个类的兼容关系时，只检查实例成员，不考虑静态成员和构造方法。**
     >
-    > 如果类中存在私有成员（private）或保护成员（protected），那么确定兼容关系时，TypeScript 要求私有成员和保护成员来自同一个类，这意味着两个类需要存在继承关系。
+    > 如果类中存在私有成员（private）或保护成员（protected），那么确定兼容关系时，TS 要求私有成员和保护成员来自同一个类，这意味着两个类需要存在继承关系。
 
   - **类中的访问控制权限修饰符**：TS中，类的内部成员的外部可访问性，由三个可访问性修饰符（access modifiers）控制：`public`、`private`和`protected`。这三个修饰符的位置，都写在属性或方法的最前面。
 
@@ -366,7 +380,7 @@
 
     - **private**：私有的，只能在本类体中使用。
 
-      > 严格地说，`private`定义的私有成员，并不是真正意义的私有成员。一方面，编译成 JavaScript 后，`private`关键字就被剥离了，这时外部访问该成员就不会报错。另一方面，由于前一个原因，**TypeScript 对于访问`private`成员没有严格禁止，使用方括号写法（`[]`）或者`in`运算符，实例对象就能访问该成员**。
+      > 严格地说，`private`定义的私有成员，并不是真正意义的私有成员。一方面，编译成 JS 后，`private`关键字就被剥离了，这时外部访问该成员就不会报错。另一方面，由于前一个原因，**TS 对于访问`private`成员没有严格禁止，使用方括号写法（`[]`）或者`in`运算符，实例对象就能访问该成员**。
       >
       > 由于`private`存在这些问题，加上它是 ES6 标准发布前出台的，而 ES6 引入了自己的私有成员写法`#propName`。因此**推荐使用 ES6 的私有写法，获得真正意义的私有成员**。
 
@@ -396,12 +410,32 @@
 
     > 除了`public`修饰符，构造方法的参数名只要有`private`、`protected`、`readonly`修饰符，都会自动声明对应修饰符的实例属性。
 
+  - **`override`关键字：**
+
+    > 有些时候，我们继承他人的类，可能会在不知不觉中，就覆盖了他人的方法。为了防止这种情况，TS 4.3 引入了`override`关键字。
+    >
+    > ```ts
+    > class B extends A {
+    >   override show() {
+    >     // ...
+    >   }
+    >   override hide() {
+    >     // ...
+    >   }
+    > }
+    > ```
+    >
+    > 上面示例中，B 类的`show()`方法和`hide()`方法前面加了 override 关键字，明确表明作者的意图，就是要覆盖 A 类里面的这两个同名方法。这时，如果 A 类没有定义自己的`show()`方法和`hide()`方法，就会报错。
+
+    > 但是，这依然没有解决，子类无意中覆盖父类同名方法的问题。因此，TS 又提供了一个编译参数`noImplicitOverride`。一旦打开这个参数，子类覆盖父类的同名方法就会报错，除非使用了`override`关键字。
+
 - ### 抽象类
 
-  > TypeScript 允许在类的定义前面加上关键字`abstract`，来定义一个抽象类。抽象类是不能被实例化的，它是用于被子类继承的，只能当作其他类的模板。这种类就叫做**抽象类（abastract class）**。
+  > TS 允许在类的定义前面加上关键字`abstract`，来定义一个**抽象类（abastract class）**。
 
+  - 抽象类是不能被实例化的，它是用于被子类继承的，只能当作其他类的模板。
   - 抽象类的子类也可以是抽象类。
-  - 抽象类中可以有抽象成员，也可以有非抽象成员（即属性名和方法名前带有`abstract`关键字）。继承抽象类的子类必须实现抽象类中的所有抽象成员，除非子类也是抽象类。
+  - 抽象类中可以有抽象成员，也可以有非抽象成员（即属性名和方法名前带有`abstract`关键字，且不能有具体的实现代码）。抽象成员只能在抽象类中，因此继承抽象类的（非抽象）子类必须实现抽象类中的所有抽象成员。
   - 抽象类不能被实例化，它的构造函数只能在子类的构造函数中调用。
   - 抽象类是半公开的。抽象成员不能被`private`修饰，否则无法在子类中实现该成员。
 
@@ -469,16 +503,16 @@
     getFirst([1, 2, 3]); // 正确
     ```
 
-    > 但是，因为 TypeScript 会从实际参数推断出`T`的值，从而覆盖掉默认值，所以上面的代码不会报错。
+    > 但是，因为 TS 会从实际参数推断出`T`的值，从而覆盖掉默认值，所以上面的代码不会报错。
 
     > 一旦类型参数有默认值，就表示它是可选参数。如果有多个类型参数，可选参数必须在必选参数之后。
     >
     
   - **数组的泛型表示：**
   
-    > 之前说过，数组类型有一种表示方法是`Array<T>`。这就是泛型的写法，`Array`是 TypeScript 原生的一个类型接口，`T`是它的类型参数。事实上，在 TS 内部，数组类型的另一种写法`number[]`、`string[]`，只是`Array<number>`、`Array<string>`的简写形式。
+    > 之前说过，数组类型有一种表示方法是`Array<T>`。这就是泛型的写法，`Array`是 TS 原生的一个类型接口，`T`是它的类型参数。事实上，在 TS 内部，数组类型的另一种写法`number[]`、`string[]`，只是`Array<number>`、`Array<string>`的简写形式。
     >
-    > 在 TypeScript 内部，`Array`是一个泛型接口，类型定义基本是下面的样子。
+    > 在 TS 内部，`Array`是一个泛型接口，类型定义基本是下面的样子。
     >
     > ```ts
     > interface Array<T> {
@@ -489,9 +523,9 @@
     > }
     > ```
     >
-    > 其他的 TypeScript 内部数据结构，比如`Map`、`Set`和`Promise`，其实也是泛型接口，完整的写法是`Map<K, V>`、`Set<T>`和`Promise<T>`。
+    > 其他的 TS 内部数据结构，比如`Map`、`Set`和`Promise`，其实也是泛型接口，完整的写法是`Map<K, V>`、`Set<T>`和`Promise<T>`。
     >
-    > TypeScript 默认还提供一个`ReadonlyArray<T>`接口，表示只读数组。
+    > TS 默认还提供一个`ReadonlyArray<T>`接口，表示只读数组。
     >
     > ```ts
     > function doStuff(values: ReadonlyArray<string>) {
@@ -556,7 +590,7 @@
 
   - #### TS的模块语法：
   
-    > TS 默认支持 ESM 模块化语法，除此之外还允许输出和输入类型。TypeScript 编译器会根据`tsconfig.json`中的`module`配置项，将 TS 模块代码编译为 ES6、CommonJS 或 AMD 的 JS 模块代码，最终再通过打包工具（如Webpack）将 JS 模块打包为Bundle。
+    > TS 默认支持 ESM 模块化语法，除此之外还允许输出和输入类型。TS 编译器会根据`tsconfig.json`中的`module`配置项，将 TS 模块代码编译为 ES6、CommonJS 或 AMD 的 JS 模块代码，最终再通过打包工具（如Webpack）将 JS 模块打包为Bundle。
   
     > a.ts：
     >
@@ -571,7 +605,7 @@
     > let isActive: Bool = true;
     > ```
     > 
-    > 上面示例中，import 语句加载的是一个类型。（注意，加载文件写成`./a`，没有写脚本文件的后缀名。TypeScript 允许加载模块时，省略模块文件的后缀名，它会自动定位，将`./a`定位到`./a.ts`）
+    > 上面示例中，import 语句加载的是一个类型。（注意，加载文件写成`./a`，没有写脚本文件的后缀名。TS 允许加载模块时，省略模块文件的后缀名，它会自动定位，将`./a`定位到`./a.ts`）
   
     > 但是有时需要知道import导入的是一个类型还是实实在在的变量，因为导入的类型本质上是给TS编译器看的，运行时并没有类型代码。因此为了区分导入的是类型还是变量，TS对 ESM 模块化做了扩展：（这里以分别暴露为例）
     >
@@ -591,7 +625,7 @@
   
     > **importsNotUsedAsValues 编译设置：**（过时了，目前推荐使用`verbatimModuleSyntax`）
     >
-    > TS 特有的输入类型（type）的 import 语句，编译成 JavaScript 时怎么处理的呢？
+    > TS 特有的输入类型（type）的 import 语句，编译成 JS 时怎么处理的呢？
     >
     > TS 提供了`importsNotUsedAsValues`编译设置项，有三个值。
     >
@@ -642,7 +676,7 @@
   
     > **路径映射：**
     >
-    > TypeScript 允许开发者在`tsconfig.json`文件里面，手动指定脚本模块的路径。
+    > TS 允许开发者在`tsconfig.json`文件里面，手动指定脚本模块的路径。
     >
     > - `baseUrl`：值是字符串，指定模块路径的基路径（没有任何前缀的模块路径）。
     > - `paths`：指定某个模块去哪些路径下查找该模块文件。它的值是对象，其中对象的value是一个字符串数组，可以指定多个路径。如果第一个脚本路径不存在，那么就加载第二个路径，以此类推。
@@ -660,13 +694,13 @@
 
       > Node 策略就是模拟 Node.js 的模块加载方法。以下是Node策略的模块查找规则：
       >
-      > - **相对路径**依然是以当前脚本的路径作为“基准路径”。比如，脚本文件`a.ts`里面有一行代码`let x = require("./b");`，TypeScript 按照以下顺序查找。
+      > - **相对路径**依然是以当前脚本的路径作为“基准路径”。比如，脚本文件`a.ts`里面有一行代码`let x = require("./b");`，TS 按照以下顺序查找。
       >
       >   1. 当前目录是否包含`b.ts`、`b.tsx`、`b.d.ts`。
       >   2. 当前目录是否有子目录`b`，该子目录是否存在文件`package.json`，该文件的`types`字段是否指定了入口文件，如果是的就加载该文件。
       >   3. 当前目录的子目录`b`是否包含`index.ts`、`index.tsx`、`index.d.ts`。
       >
-      > - **模块路径**则是以当前脚本的路径（`baseUrl`）作为起点，逐级向上层目录查找是否存在子目录`node_modules`。比如，脚本文件`a.js`有一行`let x = require("b");`，TypeScript 按照以下顺序进行查找。
+      > - **模块路径**则是以当前脚本的路径（`baseUrl`）作为起点，逐级向上层目录查找是否存在子目录`node_modules`。比如，脚本文件`a.js`有一行`let x = require("b");`，TS 按照以下顺序进行查找。
       >
       >   1. 当前目录的子目录`node_modules`是否包含`b.ts`、`b.tsx`、`b.d.ts`。
       >   2. 当前目录的子目录`node_modules`，是否存在文件`package.json`，该文件的`types`字段是否指定了入口文件，如果是的就加载该文件。
@@ -678,7 +712,7 @@
   
     - ##### 经典策略：
   
-      > **经典模块解析策略**（`"moduleResolution": "classic"`）是 TypeScript 早期版本的默认模块解析策略。它的行为相对简单，主要用于非 Node.js 环境（如浏览器环境）。以下是经典策略的模块查找规则：
+      > **经典模块解析策略**（`"moduleResolution": "classic"`）是 TS 早期版本的默认模块解析策略。它的行为相对简单，主要用于非 Node.js 环境（如浏览器环境）。以下是经典策略的模块查找规则：
       >
       > - **对于相对路径导入**（以 `./` 或 `../` 开头）：
       >   - 直接根据相对路径解析文件。
@@ -694,10 +728,12 @@
   
     > 有两个选项会影响生成的 JS 模块代码：
     >
-    > - `target`：用于确定哪些 JS 特性会被降级（转换为在旧的 JavaScript 运行时中运行）以及哪些特性保持不变。
+    > - `target`：用于确定哪些 JS 特性会被降级（转换为在旧的 JS 运行时中运行）以及哪些特性保持不变。
     > - `module`：设置编译生成哪种语法的 JS 模块代码（ES2020/CommonJS/UMD）。
 
+------
 
+TODO
 
 > - **鸭子类型（Duck Typing）**：鸭子类型是动态类型语言中的一种风格，是多态（polymorphism）的一种表现形式。在这种风格中，一个对象有效的语义，不是由继承自特定的类或实现特定的接口，而是由*当前对象中所有的方法和属性*来决定。（TODO）
 >
@@ -724,4 +760,144 @@
 >   > 总之：鸭子类型强调的是对象的行为而不是其类型，这使得代码更加灵活和动态。
 
 
-> 子类的那些只设置类型、没有设置初值的顶层成员在基类中被赋值后，会在子类被重置为`undefined`，解决方法就是使用`declare`命令，去声明顶层成员的类型，告诉 TypeScript 这些成员的赋值由基类实现。
+> 子类的那些只设置类型、没有设置初值的顶层成员在基类中被赋值后，会在子类被重置为`undefined`，解决方法就是使用`declare`命令，去声明顶层成员的类型，告诉 TS 这些成员的赋值由基类实现。
+>
+> 注意，静态成员不能使用泛型的类型参数。
+>
+> 类的继承：
+>
+> 注意，`extends`关键字后面不一定是类名，可以是一个表达式，只要它的类型是构造函数就可以了。
+
+> ## 顶层属性的处理方法
+>
+> 对于类的顶层属性，TypeScript 早期的处理方法，与后来的 ES2022 标准不一致。这会导致某些代码的运行结果不一样。
+>
+> 类的顶层属性在 TypeScript 里面，有两种写法。
+>
+> ```
+> class User {
+>   // 写法一
+>   age = 25;
+> 
+>   // 写法二
+>   constructor(private currentYear: number) {}
+> }
+> ```
+>
+> 上面示例中，写法一是直接声明一个实例属性`age`，并初始化；写法二是顶层属性的简写形式，直接将构造方法的参数`currentYear`声明为实例属性。
+>
+> TypeScript 早期的处理方法是，先在顶层声明属性，但不进行初始化，等到运行构造方法时，再完成所有初始化。
+>
+> ```
+> class User {
+>   age = 25;
+> }
+> 
+> // TypeScript 的早期处理方法
+> class User {
+>   age: number;
+> 
+>   constructor() {
+>     this.age = 25;
+>   }
+> }
+> ```
+>
+> 上面示例中，TypeScript 早期会先声明顶层属性`age`，然后等到运行构造函数时，再将其初始化为`25`。
+>
+> ES2022 标准里面的处理方法是，先进行顶层属性的初始化，再运行构造方法。这在某些情况下，会使得同一段代码在 TypeScript 和 JavaScript 下运行结果不一致。
+>
+> 这种不一致一般发生在两种情况。第一种情况是，顶层属性的初始化依赖于其他实例属性。
+>
+> ```
+> class User {
+>   age = this.currentYear - 1998;
+> 
+>   constructor(private currentYear: number) {
+>     // 输出结果将不一致
+>     console.log('Current age:', this.age);
+>   }
+> }
+> 
+> const user = new User(2023);
+> ```
+>
+> 上面示例中，顶层属性`age`的初始化值依赖于实例属性`this.currentYear`。按照 TypeScript 的处理方法，初始化是在构造方法里面完成的，会输出结果为`25`。但是，按照 ES2022 标准的处理方法，初始化在声明顶层属性时就会完成，这时`this.currentYear`还等于`undefined`，所以`age`的初始化结果为`NaN`，因此最后输出的也是`NaN`。
+>
+> 第二种情况与类的继承有关，子类声明的顶层属性在父类完成初始化。
+>
+> ```
+> interface Animal {
+>   animalStuff: any;
+> }
+> 
+> interface Dog extends Animal {
+>   dogStuff: any;
+> }
+> 
+> class AnimalHouse {
+>   resident: Animal;
+> 
+>   constructor(animal:Animal) {
+>     this.resident = animal;
+>   }
+> }
+> 
+> class DogHouse extends AnimalHouse {
+>   resident: Dog;
+> 
+>   constructor(dog:Dog) {
+>     super(dog);
+>   }
+> }
+> ```
+>
+> 上面示例中，类`DogHouse`继承自`AnimalHouse`。它声明了顶层属性`resident`，但是该属性的初始化是在父类`AnimalHouse`完成的。不同的设置运行下面的代码，结果将不一致。
+>
+> ```
+> const dog = {
+>   animalStuff: 'animal',
+>   dogStuff: 'dog'
+> };
+> 
+> const dogHouse = new DogHouse(dog);
+> 
+> console.log(dogHouse.resident) // 输出结果将不一致
+> ```
+>
+> 上面示例中，TypeScript 的处理方法，会使得`resident`属性能够初始化，所以输出参数对象的值。但是，ES2022 标准的处理方法是，顶层属性的初始化先于构造方法的运行。这使得`resident`属性不会得到赋值，因此输出为`undefined`。
+>
+> 为了解决这个问题，同时保证以前代码的行为一致，TypeScript 从3.7版开始，引入了编译设置`useDefineForClassFields`。这个设置设为`true`，则采用 ES2022 标准的处理方法，否则采用 TypeScript 早期的处理方法。
+>
+> 它的默认值与`target`属性有关，如果输出目标设为`ES2022`或者更高，那么`useDefineForClassFields`的默认值为`true`，否则为`false`。关于这个设置的详细说明，参见官方 3.7 版本的[发布说明](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#the-usedefineforclassfields-flag-and-the-declare-property-modifier)。
+>
+> 如果希望避免这种不一致，让代码在不同设置下的行为都一样，那么可以将所有顶层属性的初始化，都放到构造方法里面。
+>
+> ```
+> class User  {
+>   age: number;
+> 
+>   constructor(private currentYear: number) {
+>     this.age = this.currentYear - 1998;
+>     console.log('Current age:', this.age);
+>   }
+> }
+> 
+> const user = new User(2023);
+> ```
+>
+> 上面示例中，顶层属性`age`的初始化就放在构造方法里面，那么任何情况下，代码行为都是一致的。
+>
+> 对于类的继承，还有另一种解决方法，就是使用`declare`命令，去声明子类顶层属性的类型，告诉 TypeScript 这些属性的初始化由父类实现。
+>
+> ```
+> class DogHouse extends AnimalHouse {
+>   declare resident: Dog;
+> 
+>   constructor(dog:Dog) {
+>     super(dog);
+>   }
+> }
+> ```
+>
+> 上面示例中，`resident`属性的类型声明前面用了`declare`命令。这种情况下，这一行代码在编译成 JavaScript 后就不存在，那么也就不会有行为不一致，无论是否设置`useDefineForClassFields`，输出结果都是一样的。
