@@ -618,24 +618,52 @@
     > a.ts：
     >
     > ```ts
-    >export type Bool = true | false;
+    > export type Bool = true | false;
     > ```
-    > 
+    >
     > b.ts：
     >
     > ```ts
-    >import { Bool } from "./a";
+    > import { Bool } from "./a";
     > let isActive: Bool = true;
     > ```
-    > 
+    >
     > 上面示例中，import 语句加载的是一个类型。（注意，加载文件写成`./a`，没有写脚本文件的后缀名。TS 允许加载模块时，省略模块文件的后缀名，它会自动定位，将`./a`定位到`./a.ts`）
+    >
+    > 编译时，可以两个脚本同时编译。
+    >
+    > ```shell
+    > $ tsc a.ts b.ts
+    > ```
+    >
+    > 上面命令会将`a.ts`和`b.ts`分别编译成`a.js`和`b.js`。
+    >
+    > 也可以只编译`b.ts`，因为它是入口脚本，tsc 会自动编译它依赖的所有脚本。
+    >
+    > ```shell
+    > $ tsc b.ts
+    > ```
+    >
+    > 上面命令发现`b.ts`依赖`a.ts`，就会自动寻找`a.ts`，也将其同时编译，因此编译产物还是`a.js`和`b.js`两个文件。
   
     > 但是有时需要知道import导入的是一个类型还是实实在在的变量，因为导入的类型本质上是给TS编译器看的，运行时并没有类型代码。因此为了区分导入的是类型还是变量，TS对 ESM 模块化做了扩展：（这里以分别暴露为例）
     >
     > 1. 在导入的类型前加`type`关键字：`import { type A, a } from './a'`，说明A是一个TS类型，而a是变量。
     > 2. 用TS中的`import type`语句单独导入所有的TS类型：`import type { A } from './a'`，（**注意只能导入TS类型**）
     >
-    > 同样的，为了区分export导出的是类型还是变量，导出类型也有两种语法，表示导出的是TS类型。
+    > import type 语句也可以输入默认类型。
+    >
+    > ```ts
+    > import type DefaultType from 'moduleA';
+    > ```
+    >
+    > import type 在一个名称空间下，输入所有类型的写法如下。
+    >
+    > ```ts
+    > import type * as TypeNS from 'moduleA';
+    > ```
+  
+    > 同样的，为了区分export导出的是类型还是变量，导出类型也有两种语法：（**注意导出的是 TS 类型**）
     >
     > ```ts
     > type A = "a";
@@ -645,6 +673,13 @@
     > // 方法二
     > export type { A, B };
     > ```
+    >
+    > 注意：如果是默认导出一个 TS 类型，那么不能加`type`。
+    >
+    > ```ts
+    > interface A { name: string }
+    > export default A;
+    > ```
   
     > **importsNotUsedAsValues 编译设置：**（过时了，目前推荐使用`verbatimModuleSyntax`）
     >
@@ -653,14 +688,14 @@
     > TS 提供了`importsNotUsedAsValues`编译设置项，有三个值。
     >
     > 1. `remove`：这是默认值，自动删除所有类型的 import 语句。
-    > 2. `preserve`：保留输入类型的 import 语句，但会删掉其中涉及类型的部分。这会引发该导入语句的执行，因此会保留该文件中的副作用。
+    > 2. `preserve`：删除类型的 import 并保留该语句，只是删掉了其中涉及类型的部分。这会引发该导入语句的执行，因此会保留该文件中的副作用。
     > 3. `error`：保留输入类型的 import 语句（与`preserve`相同），但是必须用`import type`的写法，否则报错。
-
-  - #### CommonJS 模块
-
-    > TS 具有 ES 模块语法，会被编译为 ESM、CommonJS 或 AMD 模块代码（在*大多数情况下*会被编译为CommonJS模块代码）。以下这种语法可以确保您的 TS 代码，与 CommonJS 模块化语法之间存在一对一的匹配关系。
   
-    - `import =`语句
+  - #### CommonJS 模块
+  
+    > TS 具有 ES 模块语法，会被编译为 ESM、CommonJS 或 AMD 模块代码（在*大多数情况下*会被编译为 CommonJS 模块代码）。以下这种语法可以确保您的 TS 代码，与编译后的 CommonJS 模块化语法之间存在一对一的匹配关系。
+  
+    - `import =` 语句：
   
       > ```ts
       > import fs = require("fs")
@@ -669,7 +704,7 @@
       >
       > 相当于：`const fs = require("fs")`
   
-    - `export =`语句
+    - `export =` 语句：
   
       > ```ts
       >let obj = { foo: 123 }
@@ -677,8 +712,8 @@
       > ```
       > 
       > 相当于：`module.exports = obj`
-
-    > 注意：`import=`和`export=`它俩是一对，用`export=`导出的模块只能用`import=`导入。
+  
+    ###### 注意：`import=`和`export=`它俩是一对，用`export=`导出的模块只能用`import=`导入。
   
   - #### 模块定位
   
@@ -690,19 +725,23 @@
   
     > **相对模块和非相对模块：**
     >
-    > 加载模块时，根据模块的路径分为相对模块和非相对模块两种。相对模块指的是路径以`/`、`./`、`../`开头的模块（分别相对于磁盘根、当前路径、上级路径）。非相对模块指的是不带有基路径前缀的模块路径。非相对模块的定位，是由`baseUrl`属性或模块映射而确定的，通常用于加载外部模块。
+    > 加载模块时，根据模块的路径，可以分为**相对模块**和**非相对模块**两种。
+    >
+    > 相对模块指的是路径以`/`、`./`、`../`开头的模块（分别相对于磁盘根、当前路径、上级路径）。非相对模块指的是不带有基路径前缀、以模块名为前缀的模块。
+    >
+    > 相对模块通常用于加载内部自己写的模块。非相对模块的定位，是由`baseUrl`属性或`paths`模块映射而确定的，通常用于加载 NodeJS 的内置模块、以及`node_modules/`目录下的第三方模块。
     >
     > ```ts
     > import Entry from "./components/Entry"  // 相对路径
     > import * as $ from "jquery"  // 模块路径
     > ```
   
-    > **路径映射：**
+    > **路径映射：**（针对于非相对模块，对于相对模块没有影响）
     >
     > TS 允许开发者在`tsconfig.json`文件里面，手动指定脚本模块的路径。
     >
-    > - `baseUrl`：值是字符串，指定模块路径的基路径（没有任何前缀的模块路径）。
-    > - `paths`：指定某个模块去哪些路径下查找该模块文件。它的值是对象，其中对象的value是一个字符串数组，可以指定多个路径。如果第一个脚本路径不存在，那么就加载第二个路径，以此类推。
+    > - `baseUrl`：值是字符串，指定非相对模块的基路径（没有任何前缀的模块路径）。
+    > - `paths`：指定某个非相对模块去哪些路径下查找该模块文件。它的值是对象，其中对象的value是一个字符串数组，可以指定多个路径。如果第一个脚本路径不存在，那么就加载第二个路径，以此类推。
     > - `rootDirs`：指定多个项目根目录（`string[]`）。模块定位时必须查找的其他目录。
     >
     > **tsc 的`--traceResolution`参数：**
@@ -714,7 +753,7 @@
     > tsc 命令的`--noResolve`参数，表示在命令行显示模块定位步骤时，只考虑在命令行传入的模块。
   
     - ##### Node策略：
-
+  
       > Node 策略就是模拟 Node.js 的模块加载方法。以下是Node策略的模块查找规则：
       >
       > - **相对路径**依然是以当前脚本的路径作为“基准路径”。比如，脚本文件`a.ts`里面有一行代码`let x = require("./b");`，TS 按照以下顺序查找。
@@ -726,13 +765,12 @@
       > - **模块路径**则是以当前脚本的路径（`baseUrl`）作为起点，逐级向上层目录查找是否存在子目录`node_modules`。比如，脚本文件`a.js`有一行`let x = require("b");`，TS 按照以下顺序进行查找。
       >
       >   1. 当前目录的子目录`node_modules`是否包含`b.ts`、`b.tsx`、`b.d.ts`。
-      >   2. 当前目录的子目录`node_modules`，是否存在文件`package.json`，该文件的`types`字段是否指定了入口文件，如果是的就加载该文件。
+      >   2. 当前目录的子目录`node_modules`，是否包含子目录`b`，其中是否包含文件`package.json`，该文件的`types`字段是否指定了入口文件，如果是的就加载该文件。否则在该目录中查找`index.ts`、`index.tsx`、`index.d.ts`。
       >   3. 当前目录的子目录`node_modules`里面，是否包含子目录`@types`，在该目录中查找文件`b.d.ts`。
-      >   4. 当前目录的子目录`node_modules`里面，是否包含子目录`b`，在该目录中查找`index.ts`、`index.tsx`、`index.d.ts`。
-      >   5. 进入上一层目录，重复上面 4 步，直到找到为止。
-      >
-      >   比如，当`baseUrl`设置为`./src`，此时导入模块`import $ from 'jquery'`后，就会先去src下找`jquery.ts`或`jquery/index.ts`，找不到的话就从src开始逐层向上找`node_modules`，看里面有没有jquery模块。
-  
+      >   5. 进入上一层目录，重复上面 3 步，直到找到为止。（即`node_module`的自动向上查找特性）
+      >   
+      >比如，当`baseUrl`设置为`./src`，此时导入模块`import $ from 'jquery'`后，就会先去src下找`jquery.ts`或`jquery/index.ts`，找不到的话就从src开始逐层向上找`node_modules`，看里面有没有jquery模块。
+      
     - ##### 经典策略：
   
       > **经典模块解析策略**（`"moduleResolution": "classic"`）是 TS 早期版本的默认模块解析策略。它的行为相对简单，主要用于非 Node.js 环境（如浏览器环境）。以下是经典策略的模块查找规则：
