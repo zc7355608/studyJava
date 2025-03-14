@@ -1,6 +1,6 @@
 - ### declare关键字
 
-  > `declare`用来告诉编译器，某个类型是存在的（全局或其他ts文件中），可以在当前文件中使用。
+  > `declare`用来告诉编译器，某个类型是存在的（全局或其他的 TS 文件中），可以在当前文件中使用。
   >
   > 它的主要作用，就是让当前文件可以使用其他文件声明的类型。举例来说，自己的脚本使用外部库定义的函数，编译器会因为不知道外部函数的类型定义而报错，这时就可以在自己的脚本里面使用`declare`关键字，明确声明出该类型。这样的话，编译单个脚本就不会因为使用了外部类型而报错。
   >
@@ -15,7 +15,7 @@
   >
   > declare 关键字的重要特点是，它只是通知编译器某个类型是存在的，不用给出具体实现。比如，只描述函数的类型，不给出函数的实现，如果不使用`declare`，这是做不到的。
   >
-  > declare 只能用来描述已经存在的变量和数据结构，不能用来声明新的变量和数据结构。另外，所有 declare 语句都不会出现在编译后的 JS 文件里面。
+  > declare 只能用来描述已经存在的变量和数据结构，不能用来声明新的变量和数据结构。另外，所有 declare 语句都不会出现在编译后的 JS 文件里面（只是提供给编译器来用的）。
 
   - **变量：**`declare` 可以给出外部变量的类型描述。
 
@@ -55,7 +55,7 @@
     sayHello('张三')
     ```
 
-    > 注意，这种单独的函数类型声明语句，只能用于`declare`命令后面。一方面，TS 不支持单独的函数类型声明语句；另一方面，declare 关键字后面也不能带有函数的具体实现。
+    > 注意，这种单独的函数类型声明，只能用于`declare`命令后面。一方面，TS 不支持单独的函数类型声明语句；另一方面，declare 关键字后面也不能带有函数的具体实现。
 
   - **类：**
 
@@ -100,7 +100,7 @@
 
   - **模块、命名空间：**
 
-    > 如果想把变量、函数、类组织在一起，可以将 declare 与 module 或 namespace 一起使用。
+    > 如果想把变量、函数、类组织在一起，可以将 declare 与 module 或 namespace 一起使用。相当于声明了某个模块/命名空间的存在，让 TS 编译器知道有这个外部模块。尤其是在 TS 中使用外部的 JS 库时，可以手动指定这个库的具体类型。
 
     ```ts
     // 模块
@@ -126,7 +126,22 @@
     }
     ```
 
-    > declare module 和 declare namespace 里面，如果不加`export`关键字则是全局的，可以直接使用。一般都加`export`区分不同模块中的接口，使用时通过`import`来导入。
+    > 注意：**某些第三方库是纯 JS 写的，没有类型声明文件**，此时`import`导入该 JS 模块会报错，因为编译器不认为这是一个合法的 TS 模块。解决办法之一就是，在自己的脚本顶部加上一行命令：`declare module "模块名";`。
+    >
+    > 加上上面的命令以后，外部模块即使没有类型声明，也可以通过编译。但是，从该模块输入的所有接口都将为`any`类型。
+    >
+    > 下面的例子是当前脚本使用了`myLib`这个外部 JS 库，它有方法`makeGreeting()`和属性`numberOfGreetings`。`myLib`的类型描述就可以这样写。这样在 TS 项目中用这个 JS 库时，就能让其拥有 TS 的类型提示了。
+    >
+    > ```ts
+    > declare module myLib {
+    >     function makeGreeting(s:string): string;
+    >     let numberOfGreetings: number;
+    > }
+    > ```
+
+    > *declare module 和 declare namespace 里面，如果不加`export`关键字则是全局的，任何 TS 模块都可以直接用。不过一般都会加`export`区分以及隔离不同模块中的类型接口，这时要用的话就必须通过`import`来导入。(可能不对，TODO)*
+    >
+    > declare module 和 declare namespace 里面，如果不加`export`关键则该类型只能在模块内使用，外部获取不了该类型。一般都会加`export`，这时要用的话就必须通过`import`来导入。
     >
     > ```ts
     > declare module 'io' {
@@ -137,58 +152,33 @@
     > }
     > ```
 
-    > 下面的例子是当前脚本使用了`myLib`这个外部 JS 库，它有方法`makeGreeting()`和属性`numberOfGreetings`。`myLib`的类型描述就可以这样写。
-    >
-    > ```ts
-    > declare namespace myLib {
-    >        function makeGreeting(s:string): string;
-    >        let numberOfGreetings: number;
-    > }
-    > ```
+    ###### declare 关键字的另一个用途，是为外部模块添加属性和方法时，给出新增部分的类型描述（默认导出的值不能扩展）。
 
-    > **declare 关键字的另一个用途，是为外部模块添加属性和方法时，给出新增部分的类型描述（默认导出的值不能扩展）。**
-    >
-    > ```ts
-    > import { Foo as Bar } from 'moduleA';
-    > 
-    > declare module 'moduleA' {
-    >     interface Foo {
-    >         custom: {
-    >         	prop1: string
-    >         }
-    >     }
-    > }
-    > ```
-    >
-    > 下面是另一个例子。一个项目有多个模块，可以在一个模块中，对另一个模块的接口进行类型扩展。
+    > 下面是一个例子。一个项目有多个 TS 模块，可以通过`declare`为导入的外部模块做类型扩展。
     >
     > ```ts
     > // a.ts
     > export interface A {
     > 	x: number;
-    > }
-    > 
-    > // b.ts
-    > import { A } from './a';
-    > 
+    >    }
+    >    
+    >    // b.ts
+    >    import { A } from './a';
+    >    
     > declare module './a' {
-    >     interface A {
-    >     	y: number;
-    >     }
-    > }
+    >  interface A {
+    > 	y: number;
+    >  }
+    >}
     > 
     > const a:A = { x: 0, y: 0 };
     > ```
-    >
+    > 
     > 使用这种语法进行模块的类型扩展时，有两点需要注意：
-    >
-    > 1. `declare module NAME`语法里面的模块名`NAME`，跟 import 和 export 的模块名规则是一样的，且必须跟当前文件加载该模块的语句写法（上例`import { A } from './a'`）保持一致。
+    > 
+    > 1. `declare module NAME`语法里面的模块名`NAME`，跟 import 和 export 的模块名规则是一样的，且必须跟当前文件加载该模块的语句中的模块名保持一致（上例`import { A } from './a'`）。（其实也支持通配符）
     > 2. 不能创建新的顶层类型。也就是说，只能对`a.ts`模块中已经存在的类型进行扩展，不允许增加新的顶层类型，比如新定义一个接口`B`。
-    > 3. 不能对默认的`default`接口进行扩展，只能对 export 命令输出的命名接口进行扩充。这是因为在进行类型扩展时，需要依赖输出的接口名。
-
-    > **某些第三方库是纯 JS 写的，没有类型声明文件**，此时`import`导入该 JS 模块会报错，因为编译器不认为这是一个合法的 TS 模块。解决办法之一就是，在自己的脚本顶部加上一行命令：`declare module "模块名";`。
-    >
-    > 加上上面的命令以后，外部模块即使没有类型声明，也可以通过编译。但是，从该模块输入的所有接口都将为`any`类型。
+    > 3. 不能对默认导出接口进行扩展，只能对 export 分别导出的接口进行扩展。（这是因为在进行类型扩展时，需要依赖输出的接口名）
 
     > declare module 描述的模块名可以使用通配符。
     >
@@ -213,7 +203,7 @@
         B,
     }
     
-    declare enum E2 {
+    declare enum E2 {  // 因为枚举名和枚举值同样都可以作为类型使用，因此这里看似是值，其实是类型
         A = 0,
         B = 1,
     }
@@ -229,7 +219,7 @@
     }
     ```
 
-  - **declare global：**如果要为 JS 的内置对象（`window/document/global/String`等）添加属性和方法，可以使用`declare global {}`语法。
+  - **declare global：**如果要为 JS 的内置对象/模块（`window/document/global/String`等）添加属性和方法，可以使用`declare global {}`语法。
 
     ```ts
     export {};
@@ -268,41 +258,61 @@
 
   - **declare module 用于类型声明文件：**
 
-    > 我们可以为每个模块脚本，定义一个`.d.ts`文件，把该脚本用到的类型定义都放在这个文件里面。但是，更方便的做法是为整个项目，定义一个大的`.d.ts`文件，在这个文件里面使用`declare module`定义每个模块脚本的类型。
+    > 我们可以为每个模块脚本，定义一个`.d.ts`文件，把该脚本用到的类型定义都放在这个文件里面。但是，更方便的做法是为整个项目，定义一个大的`.d.ts`文件，在这个文件里面使用`declare module`定义项目中每个模块的类型。
 
     > 下面的示例是`node.d.ts`文件的一部分。
     >
     > ```ts
     > declare module "url" {
-    >        export interface Url {
-    >            protocol?: string;
-    >            hostname?: string;
-    >            pathname?: string;
-    >        }
+    >     export interface Url {
+    >         protocol?: string;
+    >         hostname?: string;
+    >         pathname?: string;
+    >     }
     >     export function parse(urlStr: string, parseQueryString?, slashesDenoteHost?): Url;
-    >    }
-    >    declare module "path" {
-    >        export function normalize(p: string): string;
-    >        export function join(...paths: any[]): string;
-    >        export var sep: string;
+    > }
+    > declare module "path" {
+    >     export function normalize(p: string): string;
+    >     export function join(...paths: any[]): string;
+    >     export var sep: string;
     > }
     > // ...
     > ```
-    >    
-    >    上面示例中，`url`和`path`都是单独的模块文件，但是它们的类型都定义在`node.d.ts`这个文件里面。
-    >    
-    > 使用时，自己的脚本也可以使用三斜杠命令，来加载这个类型声明文件。（旧方式，目前更推荐使用新方式或`import`引入类型声明文件中的类型声明）
-    > 
+    >
+    > 上面示例中，`url`和`path`都是单独的模块文件，但是它们的类型都定义在`node.d.ts`这个文件里面。
+    >
+    > 使用时，自己的 TS 文件中可以通过三斜杠命令，来导入这个类型声明文件。
+    >
     > ```ts
-    >/// <reference path="node.d.ts" />  // 必须写在文件第一行
+    > /// <reference path="node.d.ts" />  // 必须写在文件第一行
     > ```
     >
-    > 如果没有上面这一行命令，自己的脚本使用外部模块时，就需要在脚本里面使用 declare 命令单独给出外部模块的类型。
+    > 旧方式，目前更推荐使用新方式（`tsconfig.json`中进行配置）或`import`引入类型声明文件中声明的类型：
+    >
+    > ```ts
+    > // my-module.d.ts
+    > declare module 'my-module' {
+    >     export interface MyType {
+    >         name: string;
+    >         age: number;
+    >     }
+    > }
+    > 
+    > // b.ts
+    > import { MyType } from 'my-module';
+    > 
+    > const person: MyType = {
+    >     name: 'Alice',
+    >     age: 25
+    > };
+    > console.log(person);
+    > ```
 
 - ### `.d.ts`类型声明文件
 
   > 单独使用的模块，一般会同时提供一个单独的类型声明文件（declaration file），把本模块的外部接口的所有类型都写在这个文件里面，便于模块使用者了解接口，也便于编译器检查使用者的用法是否正确。它的文件名一般为`[模块名].d.ts`的形式。
   >
+  > （TS 项目最终发布到npm仓库的肯定是 JS 文件，当别人引用该项目，就能通过该项目提供的`d.ts`文件来获取类型了）
 
   - ###### 用法：
 
@@ -326,7 +336,7 @@
     > export const maxInterval: 12;
     > ```
     >
-    > 类型声明文件也可以使用`export =`命令，输出对外接口。下面是 moment 模块的类型声明文件的例子。
+    > 类型声明文件也可以使用`export =`命令，对外输出类型接口。下面是 moment 模块的类型声明文件的例子。
     >
     > ```ts
     > declare module 'moment' {
@@ -335,7 +345,7 @@
     > }
     > ```
     >
-    > 除了使用`export =`，模块输出在类型声明文件中，也可以使用`export default`表示。
+    > 除了使用`export =`，模块输出在类型声明文件中，也可以使用`export default`。
     >
     > ```ts
     > // 写法一
@@ -369,7 +379,7 @@
     > };
     > ```
 
-  - ###### 类型声明文件也可以在 `tsconfig.json` 中通过`files`配置项加入编译，这样的话，编译器打包项目时会自动将该类型声明文件加入编译，而不必在每个脚本里面加载类型声明文件。比如，moment 模块的类型声明文件是`moment.d.ts`，使用 moment 模块的项目可以将其加入项目的 `tsconfig.json` 文件：
+  - ###### （新的类型声明文件引入方式）类型声明文件也可以在 `tsconfig.json` 中通过`files`配置项加入编译，这样的话，编译器打包项目时会自动将该类型声明文件加入编译，而不必在每个脚本里面加载类型声明文件。比如，moment 模块的类型声明文件是`moment.d.ts`，使用 moment 模块的项目可以将其加入项目的 `tsconfig.json` 文件：
 
     ```ts
     {
@@ -398,11 +408,13 @@
     > declare interface Foo {}  // 正确
     > ```
     >
-    > 类型声明文件里面，顶层可以使用`export`命令，也可以不用，除非使用者脚本会显式使用`import`命令导入类型。
+    > *类型声明文件里面，顶层类型可以加`export`也可以不加，取决于使用者是否通过`import`命令导入该模块中的类型。并且加了`export`的话类型会做模块隔离。（TODO,可能不对）*
+    >
+    > declare module 和 declare namespace 里面，如果不加`export`关键则该类型只能在模块内使用，外部获取不了该类型。一般都会加`export`，这时要用的话就必须通过`import`来导入。
     >
     > ```ts
     > export interface Data {
-    >     version: string;
+    >  version: string;
     > }
     > ```
     >
@@ -410,45 +422,45 @@
     >
     > ```ts
     > declare module 'moment' {
-    >    export interface Moment {
-    >     	format(format:string): string;
+    > export interface Moment {
+    >  	format(format:string): string;
     > 
-    >         add(
-    >             amount: number,
-    >             unit: 'days' | 'months' | 'years'
-    >         ): Moment;
+    >      add(
+    >          amount: number,
+    >          unit: 'days' | 'months' | 'years'
+    >      ): Moment;
     > 
-    >         subtract(
-    >             amount:number,
-    >             unit:'days' | 'months' | 'years'
-    >         ): Moment;
-    >    }
+    >      subtract(
+    >          amount:number,
+    >          unit:'days' | 'months' | 'years'
+    >      ): Moment;
+    > }
     > 
-    >    function moment(
-    >         input?: string | Date
-    >    ): Moment;
+    > function moment(
+    >      input?: string | Date
+    > ): Moment;
     > 
-    >    export default moment;
+    > export default moment;
     > }
     > ```
     >
     > ```ts
     > declare namespace D3 {
-    >    export interface Selectors {
-    >         select: {
-    >             (selector: string): Selection;
-    >             (element: EventTarget): Selection;
-    >         };
+    > export interface Selectors {
+    >      select: {
+    >          (selector: string): Selection;
+    >          (element: EventTarget): Selection;
+    >      };
     > 	}
     > 
-    >    export interface Event {
-    >         x: number;
-    >         y: number;
-    >    }
+    > export interface Event {
+    >      x: number;
+    >      y: number;
+    > }
     > 
-    >    export interface Base extends Selectors {
-    >     	event: Event;
-    >    }
+    > export interface Base extends Selectors {
+    >  	event: Event;
+    > }
     > }
     > 
     > declare var d3: D3.Base;
@@ -493,7 +505,7 @@
         > 1. TS 会自动加载`node_modules/@types`目录下的模块，可以使用编译配置项`typeRoots`来改变这种行为。
         > 2. 默认情况下，TS 会自动加载`typeRoots`指定的这些目录中的所有模块，编译选项`types`可以指定加载这些目录中的哪些模块。
 
-      - **找不到类型声明文件，那就需要自己写了。**（或者用declare声明模块名，这样其中的接口都为any类型）
+      - **找不到类型声明文件，那就需要自己写了。**（或者用`declare module '模块名';`，此时模块的接口都为any类型）
 
   - #### 模块发布
 
@@ -522,7 +534,7 @@
     >        "types": "./lib/main.d.ts",
     >        "dependencies": {
     >            "browserify": "latest",
-    >            "@types/browserify": "latest",  // 其实这个包只安装为开发依赖即可
+    >            "@types/browserify": "latest",  // 其实这个包只安装为开发依赖即可，不过打包结果是一样的
     >            "typescript": "next"
     >        }
     > }
@@ -546,7 +558,7 @@
     > - 三斜杠命令（`///`）是一个 TS 编译器命令，用来指定编译器行为。它只能用在文件的头部，如果用在其他地方，会被当作普通的注释。另外，**若一个文件中使用了三斜线命令，那么在三斜线命令之前只允许使用单行注释、多行注释和其他三斜线命令，否则三斜杠命令也会被当作普通的注释**。
     > - 除了拆分类型声明文件，**普通 TS 脚本中也可以使用三斜杠命令来引入类型声明文件**。
     
-    > 三斜杠命令主要包含三个参数，代表三种不同的命令：
+    ##### 三斜杠命令主要包含三个参数，代表三种不同的命令：
     
     - **path：**`/// <reference path="" />`是最常见的三斜杠命令，告诉编译器在编译时需要包括的类型文件（`.d.ts`或`.ts`），常用来声明当前脚本依赖的类型声明文件。
     
@@ -588,7 +600,7 @@
       >
       > 注意，这个命令只在你自己手写类型声明文件（`.d.ts`文件）时，才有必要用到。也就是说，只应该出现在`.d.ts`文件中，普通的`.ts`脚本文件不需要写这个命令。如果是普通的`.ts`脚本，可以使用`tsconfig.json`文件的`types`属性指定依赖的类型库。
       
-    - **lib：**`/// <reference lib="..." />`命令允许脚本文件显式包含内置 lib 库，等同于在`tsconfig.json`文件里面使用`lib`属性指定 lib 库。
+    - **lib：**`/// <reference lib="..." />`命令允许脚本文件显式导入内置 lib 库，等同于在`tsconfig.json`文件里面使用`lib`属性指定 lib 库。
     
       > 前文说过，安装 TS 软件包时，会同时安装一些内置的类型声明文件，即内置的 lib 库。这些库文件位于 TS 安装目录的`lib`文件夹中，它们描述了 JS 语言和引擎的标准 API。
       >
