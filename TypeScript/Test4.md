@@ -1,7 +1,123 @@
+- ### TypeScript 的注释指令
+
+  > TS 的编译器默认不会处理和编译 JS 文件，并且 JS 文件中也不能出现 TS 的类型语法。但是如果就是想让编译器处理 JS 文件怎么办？可以用 TS 的注释指令。
+  >
+  > 所谓“注释指令”其实就是，通过在 JS 文件中写特殊的 JS 注释，向 TS 编译器发出的命令。而对于 JS 来说这只是注释。
+  
+  - ##### 单行注释指令：
+  
+    > 以下这些是单行注释指令，只对当前文件有效，且都需要写在文件的顶部。需要注意的是：
+    >
+    > 1. 单行注释指令必须写在文件中的第一个非空、非注释行。它不能有任何代码或注释在其前面。
+    > 2. 如果文件的第一行是**shebang**（例如`#!/usr/bin/env node`），那么`// @ts-check`可以放在第二行。
+    >
+    > **TIP：**
+    >
+    > **shebang**（也称为 hashbang 或 sha-bang）是一种特殊的注释行，用于在 Unix/Linux 系统中的脚本文件的第一行。它的格式为 `#!`，后面跟着解释器的路径。Shebang 的作用是指定用于执行该脚本的解释器程序。（注意：`shebang`必须是文件的第一行，且不能有任何空行或注释在它之前）
+  
+    - `@ts-nocheck`：`// @ts-nocheck`告诉 TS 编译器不对当前脚本进行类型检查。它可以用于 TS 脚本，也可以用于 JS 脚本。
+  
+    - `@ts-check`：如果一个 JS 脚本顶部添加了`// @ts-check`，那么 TS 编译器将对该脚本进行类型检查，不论是否启用了`checkJs`编译选项。
+  
+    - `@ts-ignore`：`// @ts-ignore`用于告诉编译器，不对下一行代码进行类型检查。它可用于 TS 和 JS 脚本。
+  
+    - `@ts-expect-error`：`// @ts-expect-error`主要用在测试用例，当下一行有类型错误时，它会压制 TS 的报错信息（即不显示报错信息），把错误留给代码自己处理。如果下一行没有类型错误，`// @ts-expect-error`则会显示一行提示：`Unused '@ts-expect-error' directive.`，表示`@ts-expect-error`没有用到。
+  
+  - ##### JsDoc注释：
+  
+    > TS 直接处理 JS 文件时，如果无法推断出类型，会使用 JS 脚本里面的 JSDoc 注释。
+    >
+    > 使用 JSDoc 时要注意：**JSDoc 注释必须与它描述的代码处于相邻的位置，并且注释在上，代码在下**。下面是 JSDoc 的一个简单例子。
+    >
+    > ```js
+    > /**
+    >  * @param {string} somebody
+    >  */
+    > function sayHello(somebody) {
+    >     console.log('Hello ' + somebody);
+    > }
+    > ```
+    >
+    > TS 编译器支持大部分的 JSDoc 声明，下面介绍其中的一些：
+  
+    - `@typedef`：`@typedef`命令创建自定义类型，等同于 TS 里面的类型别名。
+
+      ```js
+      /**
+       * @typedef {(number | string)} NumberLike
+       */
+      ```
+  
+      它等同于：`type NumberLike = string | number;`
+  
+    - `@type`：`@type`用于定义变量的类型。
+  
+      ```js
+      /**
+       * @type {NumberLike}
+       */
+      let a;
+      ```
+  
+      在`@type`命令中可以使用由`@typedef`命令创建的类型。
+  
+    - `@param`：`@param`命令用于定义函数参数的类型。如果是可选参数，需要将参数名放在方括号`[]`里面。
+  
+      ```js
+      /**
+       * @param {string} [x]
+       */
+      function foo(x) {}
+      ```
+  
+      方括号里面，还可以指定参数默认值。
+  
+      ```js
+      /**
+       * @param {string} [x="bar"]
+       */
+      function foo(x) {}
+      ```
+  
+    - `@return/@returns`：`@return`和`@returns`的作用一样，都是指定函数返回值的类型。（推荐使用后者，更规范）
+  
+      ```js
+      /**
+       * @returns {number}
+       */
+      function bar() { return 0; }
+      ```
+  
+    - `@extends`和**类型修饰符**：`@extends`命令用于定义继承的基类。
+  
+      ```js
+      /**
+       * @extends {Base}
+       */
+      class Derived extends Base {}
+      ```
+  
+      `@public`、`@protected`、`@private`分别指定类的公开成员、保护成员和私有成员。`@readonly`指定只读成员。
+  
+      ```js
+      class Base {
+          /**
+           * @public
+           * @readonly
+           */
+      	x = 0;
+      
+          /**
+           *  @protected
+           */
+          y = 0;
+      }
+      ```
+  
 - ### 关于 tsconfig.json 文件
 
-  > - `tsconfig.json`是 TypeScript 项目的配置文件，放在项目的根目录。反过来说，如果一个目录里面有`tsconfig.json`，TypeScript 就认为这是项目的根目录。
-  > - 如果项目源码是 JS，但是想用 TypeScript 处理，那么配置文件的名字是`jsconfig.json`，它跟`tsconfig`的写法是一样的。
+  > - `tsconfig.json`是 TS 项目的配置文件，放在项目的根目录。反过来说，如果一个目录里面有`tsconfig.json`，TS 就认为这是项目的根目录。
+  > - 如果项目源码是 JS，但是想用 TS 处理，那么配置文件的名字是`jsconfig.json`，它跟`tsconfig`的写法是一样的。
   > - `tsconfig.json`文件主要供`tsc`编译器使用，它的命令行参数`--project`或`-p`可以指定`tsconfig.json`的位置（目录或文件皆可，文件名随意）：`tsc -p ./dir`
   > - 如果不指定配置文件的位置，`tsc`就会在当前目录下搜索`tsconfig.json`文件，如果不存在，就到上一级目录搜索，直到找到为止。
   > - `tsconfig.json`文件的格式，是一个 JSON 对象，最简单的情况可以只放置一个空对象`{}`。（该文件能写注释）
@@ -94,7 +210,7 @@
 
   - **compilerOptions：**`compilerOptions`属性用来定制编译行为。这个属性可以省略，这时编译器将使用默认设置。它下面有很多的二级属性。
 
-    - allowJs：`allowJs`允许 TypeScript 项目加载 JS 脚本。编译时，也会将 JS 文件，一起拷贝到输出目录。
+    - allowJs：`allowJs`允许 TS 项目加载 JS 脚本。编译时，也会将 JS 文件，一起拷贝到输出目录。
 
       ```ts
       {
@@ -106,7 +222,7 @@
 
     - **alwaysStrict：**`alwaysStrict`确保每个TS脚本以 ECMAScript 严格模式进行解析，因此脚本头部不用再写`"use strict"`了。它的值是一个布尔值，默认为`true`。
 
-    - **allowSyntheticDefaultImports：**它是`tsconfig.json`中的一个编译选项，用于控制 TypeScript 如何处理默认导入的兼容性问题。值为`true`时允许`import`命令默认加载没有`default`输出的模块，TS 编译器会自动为你创建一个合成的默认导出对象，使得这种代码能够正常工作：`import React from "react";`，而不是`import * as React from "react";`。
+    - **allowSyntheticDefaultImports：**它是`tsconfig.json`中的一个编译选项，用于控制 TS 如何处理默认导入的兼容性问题。值为`true`时允许`import`命令默认加载没有`default`输出的模块，TS 编译器会自动为你创建一个合成的默认导出对象，使得这种代码能够正常工作：`import React from "react";`，而不是`import * as React from "react";`。
 
       > 在 `strict` 模式下，默认情况下 `allowSyntheticDefaultImports` 是禁用的。如果你需要在严格模式下使用此功能，必须显式启用它。
 
@@ -128,7 +244,7 @@
 
     - **baseUrl：**
 
-      > `baseUrl`的值为字符串，指定 TypeScript 项目中，（没有任何前缀的）模块路径的基准目录。
+      > `baseUrl`的值为字符串，指定 TS 项目中，（没有任何前缀的）模块路径的基准目录。
       >
       > 由于默认是以 tsconfig.json 的位置作为基准目录，所以一般情况不需要使用该属性。
       >
@@ -140,7 +256,7 @@
       > }
       > ```
       >
-      > 上面示例中，`baseUrl`为当前目录`./`。那么当遇到下面的语句，TypeScript 将以`./`为起点，寻找`hello/world.ts`。
+      > 上面示例中，`baseUrl`为当前目录`./`。那么当遇到下面的语句，TS 将以`./`为起点，寻找`hello/world.ts`。
       >
       > ```ts
       > import { helloWorld } from "hello/world";
@@ -160,7 +276,7 @@
 
     - **composite：**
 
-      > `composite`打开某些设置，使得 TypeScript 项目可以进行增量构建，往往跟`incremental`属性配合使用。
+      > `composite`打开某些设置，使得 TS 项目可以进行增量构建，往往跟`incremental`属性配合使用。
 
     - **declaration：**
 
@@ -214,7 +330,7 @@
       >
       > 如果`module`属性为`node16`或`nodenext`，则`esModuleInterop`默认为`true`，其他情况默认为`false`。
       >
-      > 打开这个属性，使用`import`命令加载 CommonJS 模块时，TypeScript 会严格检查兼容性问题是否存在。
+      > 打开这个属性，使用`import`命令加载 CommonJS 模块时，TS 会严格检查兼容性问题是否存在。
       >
       > ```ts
       > import * as moment from 'moment'
@@ -257,7 +373,7 @@
 
     - **incremental：**
 
-      > `incremental`让 TypeScript 项目构建时产生文件`tsbuildinfo`，从而完成增量构建。
+      > `incremental`让 TS 项目构建时产生文件`tsbuildinfo`，从而完成增量构建。
 
     - **inlineSourceMap：**
 
@@ -271,7 +387,7 @@
 
     - **isolatedModules：**
 
-      > `isolatedModules`设置如果当前 TypeScript 脚本作为单个模块编译，是否会因为缺少其他脚本的类型信息而报错，主要便于非官方的编译工具（比如 Babel）正确编译单个脚本。
+      > `isolatedModules`设置如果当前 TS 脚本作为单个模块编译，是否会因为缺少其他脚本的类型信息而报错，主要便于非官方的编译工具（比如 Babel）正确编译单个脚本。
 
     - **jsx：**
 
@@ -293,7 +409,7 @@
 
     - **lib：**
 
-      > `lib`值是一个数组，描述项目需要加载的 TypeScript 内置类型描述文件，跟三斜线指令`/// <reference lib="" />`作用相同。
+      > `lib`值是一个数组，描述项目需要加载的 TS 内置类型描述文件，跟三斜线指令`/// <reference lib="" />`作用相同。
       >
       > ```ts 
       > {
@@ -303,7 +419,7 @@
       > }
       > ```
       >
-      > TypeScript 内置的类型描述文件，以下是重要的几个：
+      > TS 内置的类型描述文件，以下是重要的几个：
       >
       > - ES5
       > - ES2015
@@ -377,9 +493,9 @@
       > `moduleResolution`确定模块路径的算法，即如何查找模块。它可以取以下四种值。
       >
       > - `node`：采用 Node.js 的 CommonJS 模块算法。
-      > - `node16`或`nodenext`：采用 Node.js 的 ECMAScript 模块算法，从 TypeScript 4.7 开始支持。
-      > - `classic`：TypeScript 1.6 之前的算法，新项目不建议使用。
-      > - `bundler`：TypeScript 5.0 新增的选项，表示当前代码会被其他打包器（比如 Webpack、Vite、esbuild、Parcel、rollup、swc）处理，从而放宽加载规则，它要求`module`设为`es2015`或更高版本，详见加入该功能的 [PR 说明](https://github.com/microsoft/TypeScript/pull/51669)。
+      > - `node16`或`nodenext`：采用 Node.js 的 ECMAScript 模块算法，从 TS 4.7 开始支持。
+      > - `classic`：TS 1.6 之前的算法，新项目不建议使用。
+      > - `bundler`：TS 5.0 新增的选项，表示当前代码会被其他打包器（比如 Webpack、Vite、esbuild、Parcel、rollup、swc）处理，从而放宽加载规则，它要求`module`设为`es2015`或更高版本，详见加入该功能的 [PR 说明](https://github.com/microsoft/TypeScript/pull/51669)。
       >
       > 它的默认值与`module`属性有关，如果`module`为`AMD`、`UMD`、`System`或`ES6/ES2015`，默认值为`classic`；如果`module`为`node16`或`nodenext`，默认值为这两个值；其他情况下,默认值为`Node`。
 
@@ -395,7 +511,7 @@
       > }
       > ```
       >
-      > 上面的设置使得 TypeScript 对于语句`import * as foo from "./foo";`，会搜索以下脚本`./foo.ios.ts`、`./foo.native.ts`和`./foo.ts`。
+      > 上面的设置使得 TS 对于语句`import * as foo from "./foo";`，会搜索以下脚本`./foo.ios.ts`、`./foo.native.ts`和`./foo.ts`。
 
     - **newLine：**
 
@@ -403,11 +519,11 @@
 
     - **noEmit：**
 
-      > `noEmit`设置是否产生编译结果。如果不生成，TypeScript 编译就纯粹作为类型检查了。
+      > `noEmit`设置是否产生编译结果。如果不生成，TS 编译就纯粹作为类型检查了。
 
     - **noEmitHelpers：**
 
-      > `noEmitHelpers`设置在编译结果文件不插入 TypeScript 辅助函数，而是通过外部引入辅助函数来解决，比如 NPM 模块`tslib`。
+      > `noEmitHelpers`设置在编译结果文件不插入 TS 辅助函数，而是通过外部引入辅助函数来解决，比如 NPM 模块`tslib`。
 
     - **noEmitOnError：**
 
@@ -447,7 +563,7 @@
 
     - **paths：**
 
-      > `paths`设置模块名和模块路径的映射，也就是 TypeScript 如何导入`require`或`imports`语句加载的模块。
+      > `paths`设置模块名和模块路径的映射，也就是 TS 如何导入`require`或`imports`语句加载的模块。
       >
       > `paths`基于`baseUrl`进行加载，所以必须同时设置它俩。
       >
@@ -495,7 +611,7 @@
 
     - **removeComments：**
 
-      > `removeComments`移除 TypeScript 脚本里面的注释，默认为`false`。
+      > `removeComments`移除 TS 脚本里面的注释，默认为`false`。
 
     - **resolveJsonModule：**
 
@@ -525,7 +641,7 @@
 
     - **sourceRoot：**
 
-      > `sourceRoot`在 SourceMap 里面设置 TypeScript 源文件的位置。
+      > `sourceRoot`在 SourceMap 里面设置 TS 源文件的位置。
       >
       > ```ts
       > {
@@ -538,7 +654,7 @@
 
     - **strict：**
 
-      > `strict`用来打开 TypeScript 的严格检查。它的值是一个布尔值，默认是关闭的。
+      > `strict`用来打开 TS 的严格检查。它的值是一个布尔值，默认是关闭的。
       >
       > ```ts
       > {
@@ -763,7 +879,7 @@
 
     - **useDefineForClassFields：**
 
-      > `useDefineForClassFields`这个设置针对的是，在类（class）的顶部声明的属性。TypeScript 早先对这一类属性的处理方法，与写入 ES2022 标准的处理方法不一致。这个设置设为`true`，就用来开启 ES2022 的处理方法，设为`false`就是 TypeScript 原有的处理方法。
+      > `useDefineForClassFields`这个设置针对的是，在类（class）的顶部声明的属性。TS 早先对这一类属性的处理方法，与写入 ES2022 标准的处理方法不一致。这个设置设为`true`，就用来开启 ES2022 的处理方法，设为`false`就是 TS 原有的处理方法。
       >
       > 它的默认值跟`target`属性有关，如果编译目标是`ES2022`或更高，那么`useDefineForClassFields`默认值为`true`，否则为`false`。
 
@@ -795,7 +911,7 @@
 
 - ### 关于 tsc 命令
 
-  > tsc 是 TypeScript 官方的命令行编译器，用来检查代码，并将其编译成 JS 代码。
+  > tsc 是 TS 官方的命令行编译器，用来检查代码，并将其编译成 JS 代码。
   >
   > tsc 默认使用当前目录下的配置文件`tsconfig.json`，但也可以接受独立的命令行参数。命令行参数会覆盖`tsconfig.json`中的配置。
 
@@ -875,7 +991,7 @@
   >
   > `--inlineSourceMap`：SourceMap 信息嵌入 JS 文件，而不是生成独立的`.js.map`文件。
   >
-  > `--inlineSources`：将 TypeScript 源码作为 SourceMap 嵌入编译出来的 JS 文件。
+  > `--inlineSources`：将 TS 源码作为 SourceMap 嵌入编译出来的 JS 文件。
   >
   > `--isolatedModules`：确保每个模块能够独立编译，不依赖其他输入的模块。
   >
@@ -943,7 +1059,7 @@
   >
   > `--rootDirs`：允许模块定位时，多个目录被当成一个虚拟目录。
   >
-  > `--skipDefaultLibCheck`：跳过 TypeScript 内置类型声明文件的类型检查。
+  > `--skipDefaultLibCheck`：跳过 TS 内置类型声明文件的类型检查。
   >
   > `--skipLibCheck`：跳过`.d.ts`类型声明文件的类型检查。这样可以加快编译速度。
   >
@@ -951,9 +1067,9 @@
   >
   > `--sourcemap`：为编译产生的 JS 文件生成 SourceMap 文件（.map 文件）。
   >
-  > `--sourceRoot`：指定 SourceMap 文件里面的 TypeScript 源码根目录位置。
+  > `--sourceRoot`：指定 SourceMap 文件里面的 TS 源码根目录位置。
   >
-  > `--strict`：打开 TypeScript 严格检查模式。
+  > `--strict`：打开 TS 严格检查模式。
   >
   > `--strictBindCallApply`：bind, call、apply 这三个函数的类型，匹配原始函数。
   >
@@ -965,7 +1081,7 @@
   >
   > `--suppressExcessPropertyErrors`：关闭对象字面量的多余参数的报错。
   >
-  > `--target`：指定编译出来的 JS 代码的版本，TypeScript 还会在编译时自动加入对应的库类型声明文件。
+  > `--target`：指定编译出来的 JS 代码的版本，TS 还会在编译时自动加入对应的库类型声明文件。
   >
   > `--traceResolution`：编译时在终端输出模块解析（moduleResolution）的具体步骤。
   >
@@ -976,120 +1092,6 @@
   > `--version`：终端输出 tsc 的版本号。
   >
   > `--watch`（或者`-w`）：进入观察模式，只要文件有修改，就会自动重新编译。
-
-- ### TypeScript 的注释指令
-
-  > TS 的编译器默认不会处理和编译JS文件，并且JS文件中也不应该出现TS的类型语法。但是如果就是想让编译器处理JS文件怎么办？可以用TS的注释指令。
-  >
-  > 所谓“注释指令”其实就是，通过在JS文件中写特殊的JS注释，向编译器发出的命令。
-
-  - ##### 单行注释指令：
-
-    > 以下这些是单行注释指令，只对当前文件有效，且都需要写在文件的顶部。需要注意的是：
-    >
-    > 1. 单行注释指令必须写在文件中的第一个非空、非注释行。它不能有任何代码或注释在其前面。
-    > 2. 如果文件的第一行是**shebang**（例如`#!/usr/bin/env node`），那么`// @ts-check`可以放在第二行。
-    >
-    > **TIP：**
-    >
-    > **shebang**（也称为 hashbang 或 sha-bang）是一种特殊的注释行，用于在 Unix/Linux 系统中的脚本文件的第一行。它的格式为 `#!`，后面跟着解释器的路径。Shebang 的作用是指定用于执行该脚本的解释器程序。（注意：`shebang`必须是文件的第一行，且不能有任何空行或注释在它之前）
-
-    - `@ts-nocheck`：`// @ts-nocheck`告诉编译器不对当前脚本进行类型检查，可以用于 TS 脚本，也可以用于 JS 脚本。
-
-    - `@ts-check`：如果一个 JS 脚本顶部添加了`// @ts-check`，那么编译器将对该脚本进行类型检查，不论是否启用了`checkJs`编译选项。
-
-    - `@ts-ignore`：`// @ts-ignore`用于告诉编译器，不对下一行代码进行类型检查。它可用于 TS 和 JS 脚本。
-
-    - `@ts-expect-error`：`// @ts-expect-error`主要用在测试用例，当下一行有类型错误时，它会压制 TS 的报错信息（即不显示报错信息），把错误留给代码自己处理。如果下一行没有类型错误，`// @ts-expect-error`则会显示一行提示：`Unused '@ts-expect-error' directive.`，表示`@ts-expect-error`没有用到。
-
-  - ##### jsDoc注释：
-
-    > TS 直接处理 JS 文件时，如果无法推断出类型，会使用 JS 脚本里面的 JSDoc 注释。使用 JSDoc 时要注意：JSDoc 注释必须与它描述的代码处于相邻的位置，并且注释在上，代码在下。下面是 JSDoc 的一个简单例子。
-    >
-    > ```js
-    > /**
-    >  * @param {string} somebody
-    >  */
-    > function sayHello(somebody) {
-    >     console.log('Hello ' + somebody);
-    > }
-    > ```
-    >
-    > TypeScript 编译器支持大部分的 JSDoc 声明，下面介绍其中的一些：
-
-    - `@typedef`：`@typedef`命令创建自定义类型，等同于 TypeScript 里面的类型别名。
-
-      ```js
-      /**
-       * @typedef {(number | string)} NumberLike
-       */
-      ```
-
-      它等同于：`type NumberLike = string | number;`
-
-    - `@type`：`@type`用于定义某个变量的类型。
-
-      ```js
-      /**
-       * @type {NumberLike}
-       */
-      let a;
-      ```
-
-      在`@type`命令中可以使用由`@typedef`命令创建的类型。
-
-    - `@param`：`@param`命令用于定义函数参数的类型。如果是可选参数，需要将参数名放在方括号`[]`里面。
-
-      ```js
-      /**
-       * @param {string}  [x]
-       */
-      function foo(x) {}
-      ```
-
-      方括号里面，还可以指定参数默认值。
-
-      ```js
-      /**
-       * @param {string} [x="bar"]
-       */
-      function foo(x) {}
-      ```
-
-    - `@return/@returns`：`@return`和`@returns`的作用一样，都是指定函数返回值的类型。（推荐使用后者，更规范）
-
-      ```js
-      /**
-       * @returns {number}
-       */
-      function bar() { return 0; }
-      ```
-
-    - `@extends`和**类型修饰符**：`@extends`命令用于定义继承的基类。
-
-      ```js
-      /**
-       * @extends {Base}
-       */
-      class Derived extends Base {}
-      ```
-
-      `@public`、`@protected`、`@private`分别指定类的公开成员、保护成员和私有成员。`@readonly`指定只读成员。
-
-      ```js
-      class Base {
-          /**
-           * @public
-           * @readonly
-           */
-      	x = 0;
-      
-          /**
-           *  @protected
-           */
-          y = 0;
-      }
-      ```
 
 ------
 

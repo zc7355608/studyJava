@@ -324,8 +324,8 @@
     > 	return arr.length;
     > }
     > module.exports = {
-    >     getArrayLength,
-    >     maxInterval,
+    >  getArrayLength,
+    >  maxInterval,
     > };
     > ```
     >
@@ -340,10 +340,12 @@
     >
     > ```ts
     > declare module 'moment' {
-    >     function moment(): any;
-    >     export = moment;
+    >  function moment(): any;
+    >  export = moment;
     > }
     > ```
+    >
+    > 上面示例中，模块`moment`内部有一个函数`moment()`，而`export =`表示`module.exports`输出的就是这个函数。
     >
     > 除了使用`export =`，模块输出在类型声明文件中，也可以使用`export default`。
     >
@@ -362,8 +364,8 @@
     > ```ts
     > // types.d.ts
     > export interface Character {
-    >     catchphrase?: string;
-    >     name: string;
+    >  catchphrase?: string;
+    >  name: string;
     > }
     > ```
     >
@@ -374,8 +376,8 @@
     > import { Character } from "./types";
     > 
     > export const character:Character = {
-    >     catchphrase: "Yee-haw!",
-    >     name: "Sandy Cheeks",
+    >  catchphrase: "Yee-haw!",
+    >  name: "Sandy Cheeks",
     > };
     > ```
 
@@ -503,7 +505,7 @@
         > **注意：**
         >
         > 1. TS 会自动加载`node_modules/@types`目录下的模块，可以使用编译配置项`typeRoots`来改变这种行为。
-        > 2. 默认情况下，TS 会自动加载`typeRoots`指定的这些目录中的所有模块，编译选项`types`可以指定加载这些目录中的哪些模块。
+        > 2. 默认情况下，TS 会自动加载`typeRoots`指定的这些目录中的所有模块，编译选项`types`可以指定加载这些目录中的哪些模块。这时 TS 就不再去加载`node_modules/@types`目录下的模块了。
 
       - **找不到类型声明文件，那就需要自己写了。**（或者用`declare module '模块名';`，此时模块的接口都为any类型）
 
@@ -586,7 +588,9 @@
       > - `path`参数必须指向一个存在的文件，若文件不存在会报错。
       > - `path`参数不允许指向当前文件。
       >
-      > 默认情况下，每个三斜杠命令引入的脚本，都会编译成单独的 JS 文件。如果希望编译后只产出一个合并文件，可以使用编译选项`outFile`。但是，**`outFile`编译选项不支持合并 CommonJS 模块和 ES 模块**。只有当编译参数`module`的值设为 None、System 或 AMD 时，才能编译成一个文件。
+      > 默认情况下，每个三斜杠命令引入的脚本，都会编译成单独的 JS 文件。
+      >
+      > 如果希望编译后只产出一个合并文件，可以使用编译选项`outFile`。但是，**`outFile`编译选项不支持合并 CommonJS 模块和 ES 模块**。只有当编译参数`module`的值设为 None、System 或 AMD 时，才能编译成一个文件。
       >
       > 如果打开了编译参数`noResolve`，则忽略三斜杠指令，将其当作一般的注释，原样保留在编译产物中。
     
@@ -643,7 +647,7 @@
     >   	[prop: number]: number;
     >   }
     >   type KeyT = keyof T;  // number
-    >   
+    >     
     >   // 示例二
     >   interface T {
     >   	[prop: string]: number;
@@ -651,38 +655,38 @@
     >   type KeyT = keyof T;  // string|number
     >   ```
     >
-    > - 如果 keyof 运算符用于数组或元组类型，得到的结果可能出人意料。
-    >
-    >   ```ts
-    >   type Result = keyof ['a', 'b', 'c'];
-    >   // 返回 number | "0" | "1" | "2" | ... | "length" | "pop" | "push" | ···
-    >   ```
-    >
-    >   > 上面示例中，keyof 会返回数组的所有键名，包括数字键名和继承的键名。
-    >
     > - 对于联合类型，keyof 返回成员共有的键名。对于交叉类型，keyof 返回所有键名。
     >
     >   ```ts 
     >   type A = { a: string; z: boolean };
     >   type B = { b: string; z: boolean };
     >   // 联合类型：返回 'Z'
-    >   type T1 = keyof (A | B);
+    >  type T1 = keyof (A | B);
     >   // 交叉类型：返回 'a' | 'b' | 'z'
-    >   type T2 = keyof (A & B);  // 相当于 keyof (A & B) ≡ keyof A | keyof B
+    >  type T2 = keyof (A & B);  // 相当于 keyof (A & B) ≡ keyof A | keyof B
     >   ```
     >
     > - keyof 取出的是键名组成的联合类型，如果想取出键值组成的联合类型，可以像下面这样写。
-    >
+    > 
     >   ```ts
     >   type MyObj = {
     >       foo: number,
     >       bar: string,
     >   };
     >   type Keys = keyof MyObj;
-    >   type Values = MyObj[Keys];  // number|string
+    >  type Values = MyObj[Keys];  // number|string
     >   ```
     >
     >   > 上面示例中，`Keys`是键名组成的联合类型，而`MyObj[Keys]`会取出每个键名对应的键值类型，组成一个新的联合类型，即`number|string`。
+    > 
+    > - 如果 keyof 运算符用于数组或元组类型，得到的结果可能出人意料。
+    > 
+    >   ```ts
+    >   type Result = keyof ['a', 'b', 'c'];
+    >   // 返回 number | "0" | "1" | "2" | ... | "length" | "pop" | "push" | ···
+    >   ```
+    >
+    >   > 上面示例中，keyof 会返回数组的所有键名，包括数字键名和继承的键名。
 
   - ##### `in` 运算符
 
@@ -706,7 +710,7 @@
 
   - ##### `[]` 运算符
 
-    > TS 中，`[]`运算符用于取出接口中键的类型，比如`T[K]`会返回接口`T`中属性`K`的类型。（`[]`中不能包含值的运算）
+    > TS 中，`[]`运算符用于取出**接口**中键的类型，比如`T[K]`会返回接口`T`中属性`K`的类型。（`[]`中不能包含值的运算）
     >
     > ```ts
     > type Person = {
@@ -766,7 +770,7 @@
     >
     > 上面式子中，`1`是`number`的子类型，所以返回`true`类型。
 
-    > 如果对泛型使用 extends 条件运算，有一个地方需要注意。当泛型的类型参数是一个联合类型时，那么条件运算符会展开这个类型参数，即`T<A|B> = T<A> | T<B>`，所以 extends 对类型参数的每个部分是分别计算的。也就是说，如果类型参数是联合类型，条件运算的返回结果依然是一个联合类型。
+    > 如果对泛型使用`extends...?:`，有一个地方需要注意。当泛型的类型参数是一个联合类型时，那么`extends...?:`运算符会展开这个类型参数，即`T<A|B> = T<A> | T<B>`，所以 extends 对类型参数的每个部分是分别计算的。也就是说，如果类型参数是联合类型，条件运算的返回结果依然是一个联合类型。
     >
     > ```ts
     > type Cond<T> = T extends U ? X : Y;
@@ -827,7 +831,7 @@
     > }
     > ```
     >
-    > 上面示例中，函数`isFish()`的返回值类型为`pet is Fish`，它告诉编译器：表示如果参数`pet`类型为`Fish`，则返回`true`，否则返回`false`。
+    > 上面示例中，函数`isFish()`的返回值类型为`pet is Fish`（也就是`boolean`），它告诉编译器：表示如果参数`pet`类型为`Fish`，则返回`true`，否则返回`false`。
     >
     > `is`运算符总是用于描述函数的返回值类型，写法采用`parameterName is Type`的形式，即左侧为当前函数的参数名，右侧为某一种类型。它返回一个布尔值，表示左侧参数是否属于右侧的类型。
 
@@ -869,7 +873,7 @@
 
   - ##### `satisfies` 运算符
 
-    > TS中的 `satisfies` 运算符用于检查一个值是否满足某个类型，但不会改变值的类型推断。
+    > TS中的 `satisfies` 运算符用于检查一个值是否满足某个类型，但不会改变值的类型推断，不满足则编译报错。
     >
     > ```ts
     > type Colors = "red" | "green" | "blue";
@@ -914,7 +918,7 @@
   > - `in`：运算符，遍历右侧的联合类型的每一个成员。
   > - `keyof A`：返回类型`A`的每一个属性名，组成一个联合类型。
   >
-  > 下面是复制原始类型的例子。
+  > 下面是复制原类型的例子。
   >
   > ```ts
   > type A = {
@@ -1072,12 +1076,10 @@
     > }
     > ```
     >
-    > 注意，`–?`修饰符移除了可选属性以后，该属性就不能等于`undefined`了，实际变成必选属性了。但是，这个修饰符不会移除`null`类型。
-    >
     > 另外，`+?`修饰符可以简写成`?`，`+readonly`修饰符可以简写成`readonly`。
     >
     > ```ts
-    > type A<T> = {
+    >type A<T> = {
     > 	+readonly [P in keyof T]+?: T[P];
     > };
     > // 等同于
@@ -1085,10 +1087,10 @@
     > 	readonly [P in keyof T]?: T[P];
     > };
     > ```
-
+    
   - ##### 键名重映射
 
-    > TS 4.1 引入了键名重映射（key remapping），允许改变接口的键名。
+    > TS 4.1 引入了键名重映射（key remapping），允许用`as`改变接口的键名。
     >
     > ```ts
     > type A = {
@@ -1139,7 +1141,7 @@
     > - `get`：为键名添加的前缀。
     > - `Capitalize<T>`：一个原生的工具泛型，用来将`T`的首字母变成大写。
     > - `string & P`：一个交叉类型，其中的`P`是 keyof 运算符返回的键名联合类型`string|number|symbol`，但是`Capitalize<T>`只能接受字符串作为类型参数，因此`string & P`只返回`P`的字符串属性名。
-
+  
     - **属性过滤：**
 
       > 键名重映射还可以过滤掉某些属性。下面的例子是只保留字符串属性。
@@ -1161,10 +1163,10 @@
       > 上面示例中，映射`K in keyof T`获取类型`T`的每一个属性以后，然后使用`as Type`修改键名。
       >
       > 它的键名重映射`as T[K] extends string ? K : never]`，使用了条件运算符。如果属性值`T[K]`的类型是字符串，那么属性名不变，否则属性名类型改为`never`，即这个属性名不存在。这样就等于过滤了不符合条件的属性，只保留属性值为字符串的属性。
-
+  
     - **联合类型的映射：**
 
-      > 由于键名重映射可以修改键名类型，所以原始键名的类型不必是`string|number|symbol`，任意的联合类型都可以用来进行键名重映射。（TODO）
+      > 由于键名重映射可以修改键名类型，所以原始键名的类型不必是`string|number|symbol`，任意的联合类型都可以用来进行键名重映射。
       >
       > ```ts
       > type S = {
@@ -1190,8 +1192,8 @@
       > }
       > ```
       >
-      > 上面示例中，原始键名的映射是`E in Events`，这里的`Events`是两个对象组成的联合类型`S|C`。所以，`E`是一个对象，然后再通过键名重映射，得到字符串键名`E['kind']`。
-
+      > 上面示例中，原始键名的映射是`E in Events`，这里的`Events`是两个对象组成的联合类型`S|C`。所以，`E`是一个接口，然后再通过键名重映射，得到字符串键名`E['kind']`。
+  
 - ### TS中的装饰器（Decorator）
 
   - ##### 概述：

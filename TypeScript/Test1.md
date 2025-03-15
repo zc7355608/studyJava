@@ -495,15 +495,6 @@
     >   let arr:(number|string)[];
     >   ```
     >
-    > - TS 允许使用`[]`运算符读取数组类型：（`[]`运算符后面会说，目前了解即可）
-    >
-    >   ```ts
-    >   type Names = string[]
-    >   type Name = Names[0]  // string
-    >   // 由于数组成员的索引类型都是number，所以读取成员类型也可以写成下面这样：
-    >   type Name = Names[number]  // string
-    >   ```
-    >
     > - TS 允许声明只读数组，方法是在数组类型前面加上`readonly`关键字：
     >
     >   ```ts
@@ -534,6 +525,15 @@
     >   >   ```
     >   >   
     >   >   > 上面示例中，`as const`告诉 TS，推断类型时要把变量`arr`推断为值类型，也就是只读数组/元组。
+    >
+    > - TS 允许使用`[]`运算符读取数组类型：（`[]`运算符后面会说，目前了解即可）
+    >
+    >   ```ts
+    >   type Names = string[]
+    >   type Name = Names[0]  // string
+    >   // 由于数组成员的索引类型都是number，所以读取成员类型也可以写成下面这样：
+    >   type Name = Names[number]  // string
+    >   ```
 
   - **symbol：**TS 中用`symbol`表示 Symbol 类型，该类型表示所有的 Symbol 值。
 
@@ -659,13 +659,6 @@
     >
     > - 使用扩展运算符（`...`）可以表示不限成员数量的元组：`let a: [string, ...string[]]`。（扩展运算符用在元组的任意位置都行，但它后面只能跟数组或元组的类型）
     >
-    > - 和上放的数组类型一样，元组同样可以通过方括号读取其类型：（`[]`运算符后面会说，目前了解即可）
-    >
-    >   ```ts
-    >   type Tuple = [string, number]
-    >   type Age = Tuple[1]  // number
-    >   ```
-    >
     > - 给元组的成员命名：`let a: [a:string, b:number]`。这个成员名是说明性的，可以任意取名，没有实际作用。
     >
     > - 只读元组：
@@ -695,6 +688,13 @@
     >   ```ts
     >   let tuple = [42, "Hello"] as const  // 元组类型：readonly [42, "Hello"]
     >   ```
+    >
+    > - 和上放的数组类型一样，元组同样可以通过方括号读取其类型：（`[]`运算符后面会说，目前了解即可）
+    >
+    >   ```ts
+    >   type Tuple = [string, number]
+    >   type Age = Tuple[1]  // number
+    >   ```
 
   - **enum（枚举值/枚举类型）：**TS中新增了枚举，它是一种类型（枚举名和枚举值都是类型），并且可以定义**一组命名常量（枚举值）**。因此不同于其他类型，枚举类型编译后不会消失，会生成 JS 对象（也叫对象枚举）。
 
@@ -706,7 +706,7 @@
     >
     > - 多个同名的 Enum 结构会自动合并。合并时，只允许其中一个的首成员省略初始值，并且不能有同名成员。并且这多个同名的枚举要么都是const声明的，要么都是let声明的。
     >
-    > - keyof 运算符可以取出 Enum 结构的所有成员名（非const声明的枚举），作为联合类型返回：（`keyof`后面说）
+    > - keyof 运算符还可以取出 Enum 结构的所有成员名（非const声明的枚举），作为联合类型返回：（`keyof`后面说）
     >
     >   ```ts
     >   type Foo = keyof typeof MyEnum
@@ -721,7 +721,7 @@
     >     A = 'a',
     >     B = 'b'
     >   }
-    >   
+    >     
     >   // { a: any, b: any }
     >   type Foo = { [key in MyEnum]: any };
     >   ```
