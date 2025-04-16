@@ -155,10 +155,9 @@
       >
       > 上面代码中，`Object.defineProperty()`方法定义了`obj.p`属性。由于属性描述对象的`writable`属性为`false`，所以`obj.p`属性不能被重新赋值。注意，这里的`Object.defineProperty`方法的第一个参数是`{}`（一个新建的空对象），`p`属性直接定义在这个空对象上面，然后返回这个对象，这是`Object.defineProperty()`的常见用法。
       >
-      > 
-  
+      
     - `Object.defineProperties()`：通过属性描述对象，定义多个属性。
-  
+    
       > ```js
       > var obj = Object.defineProperties({}, {
       >   p1: { value: 123, enumerable: true },
@@ -191,11 +190,11 @@
       > ```
       >
       > 上面代码中，定义`obj.foo`时用了一个空的属性描述对象，就可以看到各个元属性的默认值。
-  
+    
     ##### 属性描述对象的各个属性称为“元属性”，因为它们可以看作是控制属性的属性：
-  
+    
     - value：`value`属性是目标属性的值。
-  
+    
       ```js
       var obj = {};
       obj.p = 123;
@@ -206,11 +205,11 @@
       Object.defineProperty(obj, 'p', { value: 246 });
       obj.p // 246
       ```
-  
+    
       上面代码是通过属性描述对象的`value`属性，读写`obj.p`的例子。
-  
+    
     - writable：`writable`属性是一个布尔值，决定了目标属性的值（value）是否可以被修改。
-  
+    
       ```js
       var obj = {};
       
@@ -223,11 +222,11 @@
       obj.a = 25;
       obj.a // 37
       ```
-  
+    
       > 上面代码中，`obj.a`的`writable`属性是`false`。然后，改变`obj.a`的值，不会有任何效果，只会默默失败。（严格模式下会报错，即使赋相同的值）
-  
+    
       注意：如果原型对象上某个属性的`writable`为`false`，那么子对象自身将无法添加该属性了。（严格模式下还会报错）
-  
+    
       ```js
       var proto = Object.defineProperty({}, 'foo', {
         value: 'a',
@@ -239,9 +238,9 @@
       obj.foo = 'b';
       obj.foo // 'a'
       ```
-  
+    
       除非通过覆盖属性描述对象来绕过这个限制：（这种情况下，原型链会被完全忽视）
-  
+    
       ```js
       var proto = Object.defineProperty({}, 'foo', {
         value: 'a',
@@ -255,9 +254,9 @@
       
       obj.foo // "b"
       ```
-  
+    
     - enumerable：`enumerable`（可遍历性）返回一个布尔值，表示目标属性是否可遍历。
-  
+    
       > JS 的早期版本，`for...in`循环是基于`in`运算符的。我们知道，`in`运算符不管某个属性是对象自身的还是继承的，都会返回`true`。这显然不太合理，后来就引入了“可遍历性”这个概念。只有可遍历的属性，才会被`for...in`循环遍历，同时还规定`toString`这一类实例对象继承的原生属性，都是不可遍历的，这样就保证了`for...in`循环的可用性。
       >
       > 具体来说，如果一个属性的`enumerable`为`false`，下面三个操作不会取到该属性：
@@ -269,9 +268,9 @@
       > 因此，`enumerable`可以用来设置“秘密”属性。但不是真正的私有属性，还是可以直接获取它的值。
       >
       > `JSON.stringify`方法会排除`enumerable`为`false`的属性，有时可以利用这一点。如果对象的 JSON 格式输出要排除某些属性，就可以把这些属性的`enumerable`设为`false`。
-  
+    
     - configurable：`configurable`(可配置性）返回一个布尔值，决定了是否可以修改属性描述对象。也就是说，`configurable`为`false`时，`writable`、`enumerable`和`configurable`都不能被修改了。另外，可配置性决定了目标属性是否可以被`delete`关键字删除。
-  
+    
       > 注意，`writable`属性只有在`false`改为`true`时会报错，`true`改为`false`是允许的。
       >
       > `value`属性的情况比较特殊。只要`writable`和`configurable`有一个为`true`，就允许改动`value`。
@@ -295,9 +294,9 @@
       > Object.defineProperty(o2, 'p', {value: 2})
       > // 修改成功
       > ```
-  
+    
     - 存取器（getter/setter）：除了直接定义以外，属性还可以用存取器（accessor）定义。其中，存值函数称为`setter`，使用属性描述对象的`set`属性；取值函数称为`getter`，使用属性描述对象的`get`属性。一旦对目标属性定义了存取器，那么存取的时候，都将执行对应的函数。利用这个功能，可以实现许多高级特性，比如定制属性的读取和赋值行为。
-  
+    
       > ```js
       > var obj = Object.defineProperty({}, 'p', {
       >   get: function () {
@@ -315,9 +314,9 @@
       > 上面代码中，`obj.p`定义了`get`和`set`属性。`obj.p`取值时，就会调用`get`；赋值时，就会调用`set`。
       >
       > 注意，取值函数`get`不能接受参数，存值函数`set`只能接受一个参数（即属性的值）。
-  
+    
       JS 还提供了存取器的另一种写法：
-  
+    
       ```js
       // 写法二
       var obj = {
@@ -329,15 +328,15 @@
         }
       };
       ```
-  
+    
       > 上面两种写法，虽然属性`p`的读取和赋值行为是一样的，但是有一些细微的区别。
       >
       > 第一种写法，属性`p`的`configurable`和`enumerable`默认都是`false`，从而导致属性`p`是不可遍历的；第二种写法，属性`p`的`configurable`和`enumerable`默认为`true`，因此属性`p`是可遍历的。因此，实际开发中，写法二更常用。
-  
+    
       ###### 注意：一旦定义了取值函数`get`或存值函数`set`，就不能同时再设置`writable`和`value`属性了。
-  
+    
     ##### 对象的拷贝：
-  
+    
     > 有时，我们需要将一个对象的所有属性，拷贝到另一个对象，可以用下面的方法实现。
     >
     > ```js
@@ -385,8 +384,8 @@
     > ```
     >
     > 上面代码中，`hasOwnProperty`那一行用来过滤掉继承的属性，否则可能会报错，因为`Object.getOwnPropertyDescriptor`读不到继承属性的属性描述对象。
-  
-  - ### Array 对象
+    
+  - ### Array 对象(TODO)
   
     > ## 构造函数
     >
@@ -1205,14 +1204,12 @@
   
   - ### 包装对象
   
-    > ## 定义
-    >
-    > 对象是 JavaScript 语言最主要的数据类型，三种原始类型的值——数值、字符串、布尔值——在一定条件下，也会自动转为对象，也就是原始类型的“包装对象”（wrapper）。
+    > 对象是 JS 语言最主要的数据类型，三种原始类型的值——数值、字符串、布尔值——在一定条件下，也会自动转为对象，也就是原始类型的“包装对象”（wrapper）。
     >
     > 所谓“包装对象”，指的是与数值、字符串、布尔值分别相对应的`Number`、`String`、`Boolean`三个原生对象。这三个原生对象可以把原始类型的值变成（包装成）对象。
     >
-    > ```
-    > var v1 = new Number(123);
+    > ```js
+    >var v1 = new Number(123);
     > var v2 = new String('abc');
     > var v3 = new Boolean(true);
     > 
@@ -1224,15 +1221,15 @@
     > v2 === 'abc' // false
     > v3 === true // false
     > ```
-    >
+    > 
     > 上面代码中，基于原始类型的值，生成了三个对应的包装对象。可以看到，`v1`、`v2`、`v3`都是对象，且与对应的简单类型值不相等。
     >
-    > 包装对象的设计目的，首先是使得“对象”这种类型可以覆盖 JavaScript 所有的值，整门语言有一个通用的数据模型，其次是使得原始类型的值也有办法调用自己的方法。
+    > 包装对象的设计目的，首先是使得“对象”这种类型可以覆盖 JS 所有的值，整门语言有一个通用的数据模型，其次是使得原始类型的值也有办法调用自己的方法。
     >
     > `Number`、`String`和`Boolean`这三个原生对象，如果不作为构造函数调用（即调用时不加`new`），而是作为普通函数调用，常常用于将任意类型的值转为数值、字符串和布尔值。
     >
-    > ```
-    > // 字符串转为数值
+    > ```js
+    >// 字符串转为数值
     > Number('123') // 123
     > 
     > // 数值转为字符串
@@ -1241,48 +1238,52 @@
     > // 数值转为布尔值
     > Boolean(123) // true
     > ```
-    >
+    > 
     > 上面这种数据类型的转换，详见《数据类型转换》一节。
     >
     > 总结一下，这三个对象作为构造函数使用（带有`new`）时，可以将原始类型的值转为对象；作为普通函数使用时（不带有`new`），可以将任意类型的值，转为原始类型的值。
+  
+    > 三种包装对象各自提供了许多实例方法，详见后文。这里介绍两种它们共同具有、从`Object`对象继承的2个实例方法：
     >
-    > ## 实例方法
+    > - `valueOf()`：`valueOf()`方法返回包装对象实例对应的原始类型的值。
     >
-    > 三种包装对象各自提供了许多实例方法，详见后文。这里介绍两种它们共同具有、从`Object`对象继承的方法：`valueOf()`和`toString()`。
+    >   > 在编程中，*valueOf* 方法用于返回对象的原始值。不同编程语言中，*valueOf* 方法的实现和用途有所不同。
+    >  >
+    >   > 在 Java 中，*valueOf* 方法是一个静态方法，用于将给定参数转换为相应的包装类对象。该方法可以接收基本数据类型或字符串作为参数，并返回相应的包装类对象。
+    >   >
+    >   > ```java
+    >   > Integer x = Integer.valueOf(9);
+    >   > ```
+    >   >
+    >   > 而在 JS 中，*valueOf* 方法用于返回包装对象实例对应的原始类型的值。
+    >   >
+    >   > ```js
+    >   > new Number(123).valueOf()  // 123
+    >   > new String('abc').valueOf() // "abc"
+    >   > new Boolean(true).valueOf() // true
+    >   > ```
     >
-    > ### valueOf()
+    > - `toString()`：`toString()`方法返回对应的字符串形式。
     >
-    > `valueOf()`方法返回包装对象实例对应的原始类型的值。
-    >
-    > ```
-    > new Number(123).valueOf()  // 123
-    > new String('abc').valueOf() // "abc"
-    > new Boolean(true).valueOf() // true
-    > ```
-    >
-    > ### toString()
-    >
-    > `toString()`方法返回对应的字符串形式。
-    >
-    > ```
-    > new Number(123).toString() // "123"
-    > new String('abc').toString() // "abc"
-    > new Boolean(true).toString() // "true"
-    > ```
-    >
-    > ## 原始类型与实例对象的自动转换
-    >
-    > 某些场合，原始类型的值会自动当作包装对象调用，即调用包装对象的属性和方法。这时，JavaScript 引擎会自动将原始类型的值转为包装对象实例，并在使用后立刻销毁实例。
+    >   ```js
+    >    new Number(123).toString() // "123"
+    >   new String('abc').toString() // "abc"
+    >    new Boolean(true).toString() // "true"
+    >   ```
+  
+    ###### 原始类型与实例对象的自动转换：
+  
+    > 某些场合，原始类型的值会自动当作包装对象调用，即调用包装对象的属性和方法。这时，JS 引擎会自动将原始类型的值转为包装对象实例（临时的），并在**使用后立刻销毁该实例**。
     >
     > 比如，字符串可以调用`length`属性，返回字符串的长度。
     >
+    > ```js
+    >'abc'.length // 3
     > ```
-    > 'abc'.length // 3
-    > ```
-    >
-    > 上面代码中，`abc`是一个字符串，本身不是对象，不能调用`length`属性。JavaScript 引擎自动将其转为包装对象，在这个对象上调用`length`属性。调用结束后，这个临时对象就会被销毁。这就叫原始类型与实例对象的自动转换。
-    >
-    > ```
+    > 
+    > 上面代码中，`abc`是一个字符串，本身不是对象，不能调用`length`属性。JS 引擎自动将其转为包装对象，在这个对象上调用`length`属性。调用结束后，这个临时对象就会被销毁。这就叫原始类型与实例对象的自动转换。
+    > 
+    > ```js
     > var str = 'abc';
     > str.length // 3
     > 
@@ -1291,45 +1292,22 @@
     > // String {
     > //   0: "a", 1: "b", 2: "c", length: 3, [[PrimitiveValue]]: "abc"
     > // }
-    > strObj.length // 3
+    >strObj.length // 3
     > ```
     >
     > 上面代码中，字符串`abc`的包装对象提供了多个属性，`length`只是其中之一。
     >
-    > 自动转换生成的包装对象是只读的，无法修改。所以，字符串无法添加新属性。
+    > **自动转换生成的包装对象是只读的，无法修改**。所以，字符串无法添加新属性。
     >
-    > ```
+    > ```js
     > var s = 'Hello World';
     > s.x = 123;
     > s.x // undefined
     > ```
-    >
+    > 
     > 上面代码为字符串`s`添加了一个`x`属性，结果无效，总是返回`undefined`。
-    >
+    > 
     > 另一方面，调用结束后，包装对象实例会自动销毁。这意味着，下一次调用字符串的属性时，实际是调用一个新生成的对象，而不是上一次调用时生成的那个对象，所以取不到赋值在上一个对象的属性。如果要为字符串添加属性，只有在它的原型对象`String.prototype`上定义（参见《面向对象编程》章节）。
-    >
-    > ## 自定义方法
-    >
-    > 除了原生的实例方法，包装对象还可以自定义方法和属性，供原始类型的值直接调用。
-    >
-    > 比如，我们可以新增一个`double`方法，使得字符串和数字翻倍。
-    >
-    > ```
-    > String.prototype.double = function () {
-    >   return this.valueOf() + this.valueOf();
-    > };
-    > 
-    > 'abc'.double()
-    > // abcabc
-    > 
-    > Number.prototype.double = function () {
-    >   return this.valueOf() + this.valueOf();
-    > };
-    > 
-    > (123).double() // 246
-    > ```
-    >
-    > 上面代码在`String`和`Number`这两个对象的原型上面，分别自定义了一个方法，从而可以在所有实例对象上调用。注意，最后一行的`123`外面必须要加上圆括号，否则后面的点运算符（`.`）会被解释成小数点。
   
   - ### Boolean 对象
   
@@ -1674,9 +1652,9 @@
   
   - ### String 对象
   
-    > `String`对象是 JavaScript 原生提供的三个包装对象之一，用来生成字符串对象。
+    > `String`对象是 JS 原生提供的三个包装对象之一，用来生成字符串对象。
     >
-    > ```
+    > ```js
     >var s1 = 'abc';
     > var s2 = new String('abc');
     > 
@@ -1688,9 +1666,9 @@
     > 
     > 上面代码中，变量`s1`是字符串，`s2`是对象。由于`s2`是字符串对象，`s2.valueOf`方法返回的就是它所对应的原始字符串。
     >
-    > 字符串对象是一个类似数组的对象（很像数组，但不是数组）。
+    > 字符串对象是一个类似数组的对象（很像数组，但不是数组，伪数组）。
     >
-    > ```
+    > ```js
     >new String('abc')
     > // String {0: "a", 1: "b", 2: "c", length: 3}
     > 
@@ -1701,887 +1679,384 @@
     >
     > 除了用作构造函数，`String`对象还可以当作工具方法使用，将任意类型的值转为字符串。
     >
-    > ```
+    > ```js
     >String(true) // "true"
     > String(5) // "5"
     > ```
     > 
     > 上面代码将布尔值`true`和数值`5`，分别转换为字符串。
-    >
-    > ## 静态方法
-    >
-    > ### String.fromCharCode()
-    >
-    > `String`对象提供的静态方法（即定义在对象本身，而不是定义在对象实例的方法），主要是`String.fromCharCode()`。该方法的参数是一个或多个数值，代表 Unicode 码点，返回值是这些码点组成的字符串。
-    >
-    > ```
-    >String.fromCharCode() // ""
-    > String.fromCharCode(97) // "a"
-    > String.fromCharCode(104, 101, 108, 108, 111)
-    > // "hello"
-    > ```
-    > 
-    > 上面代码中，`String.fromCharCode`方法的参数为空，就返回空字符串；否则，返回参数对应的 Unicode 字符串。
-    >
-    > 注意，该方法不支持 Unicode 码点大于`0xFFFF`的字符，即传入的参数不能大于`0xFFFF`（即十进制的 65535）。
-    >
-    > ```
-    >String.fromCharCode(0x20BB7)
-    > // "ஷ"
-    > String.fromCharCode(0x20BB7) === String.fromCharCode(0x0BB7)
-    > // true
-    > ```
-    > 
-    > 上面代码中，`String.fromCharCode`参数`0x20BB7`大于`0xFFFF`，导致返回结果出错。`0x20BB7`对应的字符是汉字`𠮷`，但是返回结果却是另一个字符（码点`0x0BB7`）。这是因为`String.fromCharCode`发现参数值大于`0xFFFF`，就会忽略多出的位（即忽略`0x20BB7`里面的`2`）。
-    >
-    > 这种现象的根本原因在于，码点大于`0xFFFF`的字符占用四个字节，而 JavaScript 默认支持两个字节的字符。这种情况下，必须把`0x20BB7`拆成两个字符表示。
-    >
-    > ```
-    >String.fromCharCode(0xD842, 0xDFB7)
-    > // "𠮷"
-    > ```
-    > 
-    > 上面代码中，`0x20BB7`拆成两个字符`0xD842`和`0xDFB7`（即两个两字节字符，合成一个四字节字符），就能得到正确的结果。码点大于`0xFFFF`的字符的四字节表示法，由 UTF-16 编码方法决定。
   
-    ES6新增：
+    ###### 静态方法：
   
-    > ## String.fromCodePoint()
-    >
-    > ES5 提供`String.fromCharCode()`方法，用于从 Unicode 码点返回对应字符，但是这个方法不能识别码点大于`0xFFFF`的字符。
-    >
-    > ```
-    > String.fromCharCode(0x20BB7)
-    > // "ஷ"
-    > ```
-    >
-    > 上面代码中，`String.fromCharCode()`不能识别大于`0xFFFF`的码点，所以`0x20BB7`就发生了溢出，最高位`2`被舍弃了，最后返回码点`U+0BB7`对应的字符，而不是码点`U+20BB7`对应的字符。
-    >
-    > ES6 提供了`String.fromCodePoint()`方法，可以识别大于`0xFFFF`的字符，弥补了`String.fromCharCode()`方法的不足。在作用上，正好与下面的`codePointAt()`方法相反。
-    >
-    > ```
-    > String.fromCodePoint(0x20BB7)
-    > // "𠮷"
-    > String.fromCodePoint(0x78, 0x1f680, 0x79) === 'x\uD83D\uDE80y'
-    > // true
-    > ```
-    >
-    > 上面代码中，如果`String.fromCodePoint`方法有多个参数，则它们会被合并成一个字符串返回。
-    >
-    > 注意，`fromCodePoint`方法定义在`String`对象上，而`codePointAt`方法定义在字符串的实例对象上。
-    >
-    > ## String.raw()
-    >
-    > ES6 还为原生的 String 对象，提供了一个`raw()`方法。该方法返回一个斜杠都被转义（即斜杠前面再加一个斜杠）的字符串，往往用于模板字符串的处理方法。
-    >
-    > ```
-    > String.raw`Hi\n${2+3}!`
-    > // 实际返回 "Hi\\n5!"，显示的是转义后的结果 "Hi\n5!"
-    > 
-    > String.raw`Hi\u000A!`;
-    > // 实际返回 "Hi\\u000A!"，显示的是转义后的结果 "Hi\u000A!"
-    > ```
-    >
-    > 如果原字符串的斜杠已经转义，那么`String.raw()`会进行再次转义。
-    >
-    > ```
-    > String.raw`Hi\\n`
-    > // 返回 "Hi\\\\n"
-    > 
-    > String.raw`Hi\\n` === "Hi\\\\n" // true
-    > ```
-    >
-    > `String.raw()`方法可以作为处理模板字符串的基本方法，它会将所有变量替换，而且对斜杠进行转义，方便下一步作为字符串来使用。
-    >
-    > `String.raw()`本质上是一个正常的函数，只是专用于模板字符串的标签函数。如果写成正常函数的形式，它的第一个参数，应该是一个具有`raw`属性的对象，且`raw`属性的值应该是一个数组，对应模板字符串解析后的值。
-    >
-    > ```
-    > // `foo${1 + 2}bar`
-    > // 等同于
-    > String.raw({ raw: ['foo', 'bar'] }, 1 + 2) // "foo3bar"
-    > ```
-    >
-    > 上面代码中，`String.raw()`方法的第一个参数是一个对象，它的`raw`属性等同于原始的模板字符串解析后得到的数组。
-    >
-    > 作为函数，`String.raw()`的代码实现基本如下。
-    >
-    > ```js
-    > String.raw = function (strings, ...values) {
-    >   let output = '';
-    >   let index;
-    >   for (index = 0; index < values.length; index++) {
-    >     output += strings.raw[index] + values[index];
-    >   }
-    > 
-    >   output += strings.raw[index]
-    >   return output;
-    > }
-    > ```
+    - `String.fromCharCode()`：该方法的参数是一个或多个数值，代表 Unicode 码点，返回值是这些码点组成的字符串。
   
-    > ## 实例属性
-    >
-    > ### String.prototype.length
-    >
-    > 字符串实例的`length`属性返回字符串的长度。
-    > 
-    > ```
-    > 'abc'.length // 3
-    > ```
-    > 
-    > ## 实例方法
-    > 
-    > ### String.prototype.charAt()
-    >
-    > `charAt`方法返回指定位置的字符，参数是从`0`开始编号的位置。
-    >
-    > ```
-    >var s = new String('abc');
-    > 
-    > s.charAt(1) // "b"
-    > s.charAt(s.length - 1) // "c"
-    > ```
-    > 
-    > 这个方法完全可以用数组下标替代。
-    >
-    > ```
-    >'abc'.charAt(1) // "b"
-    > 'abc'[1] // "b"
-    >```
-    > 
-    > 如果参数为负数，或大于等于字符串的长度，`charAt`返回空字符串。
-    > 
-    > ```
-    >'abc'.charAt(-1) // ""
-    > 'abc'.charAt(3) // ""
-    >```
-    > 
-    >### String.prototype.charCodeAt()
-    > 
-    >`charCodeAt()`方法返回字符串指定位置的 Unicode 码点（十进制表示），相当于`String.fromCharCode()`的逆操作。
-    > 
-    >```
-    > 'abc'.charCodeAt(1) // 98
-    > ```
-    > 
-    > 上面代码中，`abc`的`1`号位置的字符是`b`，它的 Unicode 码点是`98`。
-    > 
-    > 如果没有任何参数，`charCodeAt`返回首字符的 Unicode 码点。
-    >
-    > ```
-    >'abc'.charCodeAt() // 97
-    > ```
-    >
-    > 如果参数为负数，或大于等于字符串的长度，`charCodeAt`返回`NaN`。
-    > 
-    > ```
-    > 'abc'.charCodeAt(-1) // NaN
-    > 'abc'.charCodeAt(4) // NaN
-    > ```
-    >
-    > 注意，`charCodeAt`方法返回的 Unicode 码点不会大于65536（0xFFFF），也就是说，只返回两个字节的字符的码点。如果遇到码点大于 65536 的字符（四个字节的字符），必须连续使用两次`charCodeAt`，不仅读入`charCodeAt(i)`，还要读入`charCodeAt(i+1)`，将两个值放在一起，才能得到准确的字符。
-    >
-    > ### String.prototype.concat()
-    >
-    > `concat`方法用于连接两个字符串，返回一个新字符串，不改变原字符串。
-    > 
-    > ```
-    > var s1 = 'abc';
-    >var s2 = 'def';
-    > 
-    >s1.concat(s2) // "abcdef"
-    > s1 // "abc"
-    >```
-    > 
-    >该方法可以接受多个参数。
-    > 
-    >```
-    > 'a'.concat('b', 'c') // "abc"
-    > ```
-    > 
-    >如果参数不是字符串，`concat`方法会将其先转为字符串，然后再连接。
-    > 
-    >```
-    > var one = 1;
-    >var two = 2;
-    > var three = '3';
-    >
-    > ''.concat(one, two, three) // "123"
-    > one + two + three // "33"
-    > ```
-    > 
-    > 上面代码中，`concat`方法将参数先转成字符串再连接，所以返回的是一个三个字符的字符串。作为对比，加号运算符在两个运算数都是数值时，不会转换类型，所以返回的是一个两个字符的字符串。
-    > 
-    >### String.prototype.slice()
-    > 
-    >`slice()`方法用于从原字符串取出子字符串并返回，不改变原字符串。它的第一个参数是子字符串的开始位置，第二个参数是子字符串的结束位置（不含该位置）。
-    > 
-    > ```
-    > 'JavaScript'.slice(0, 4) // "Java"
-    > ```
-    >
-    > 如果省略第二个参数，则表示子字符串一直到原字符串结束。
-    >
-    > ```
-    > 'JavaScript'.slice(4) // "Script"
-    > ```
-    > 
-    >如果参数是负值，表示从结尾开始倒数计算的位置，即该负值加上字符串长度。
-    > 
-    >```
-    > 'JavaScript'.slice(-6) // "Script"
-    >'JavaScript'.slice(0, -6) // "Java"
-    > 'JavaScript'.slice(-2, -1) // "p"
-    > ```
-    > 
-    >如果第一个参数大于第二个参数（正数情况下），`slice()`方法返回一个空字符串。
-    > 
-    >```
-    > 'JavaScript'.slice(2, 1) // ""
-    >```
-    > 
-    > ### String.prototype.substring()
-    > 
-    >`substring`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`方法很相像。它的第一个参数表示子字符串的开始位置，第二个位置表示结束位置（返回结果不含该位置）。
-    > 
-    >```
-    > 'JavaScript'.substring(0, 4) // "Java"
-    > ```
-    > 
-    > 如果省略第二个参数，则表示子字符串一直到原字符串的结束。
-    >
-    > ```
-    >'JavaScript'.substring(4) // "Script"
-    > ```
-    >
-    > 如果第一个参数大于第二个参数，`substring`方法会自动更换两个参数的位置。
-    >
-    > ```
-    > 'JavaScript'.substring(10, 4) // "Script"
-    > // 等同于
-    > 'JavaScript'.substring(4, 10) // "Script"
-    > ```
-    > 
-    > 上面代码中，调换`substring`方法的两个参数，都得到同样的结果。
-    >
-    > 如果参数是负数，`substring`方法会自动将负数转为0。
-    >
-    > ```
-    > 'JavaScript'.substring(-3) // "JavaScript"
-    > 'JavaScript'.substring(4, -3) // "Java"
-    >```
-    > 
-    >上面代码中，第二个例子的参数`-3`会自动变成`0`，等同于`'JavaScript'.substring(4, 0)`。由于第二个参数小于第一个参数，会自动互换位置，所以返回`Java`。
-    > 
-    > 由于这些规则违反直觉，因此不建议使用`substring`方法，应该优先使用`slice`。
-    > 
-    > ### String.prototype.substr()
-    > 
-    > `substr`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`和`substring`方法的作用相同。
-    > 
-    > `substr`方法的第一个参数是子字符串的开始位置（从0开始计算），第二个参数是子字符串的长度。
-    >
-    > ```
-    >'JavaScript'.substr(4, 6) // "Script"
-    > ```
-    >
-    > 如果省略第二个参数，则表示子字符串一直到原字符串的结束。
-    >
-    > ```
-    > 'JavaScript'.substr(4) // "Script"
-    > ```
-    >
-    > 如果第一个参数是负数，表示倒数计算的字符位置。如果第二个参数是负数，将被自动转为0，因此会返回空字符串。
-    >
-    > ```
-    > 'JavaScript'.substr(-6) // "Script"
-    > 'JavaScript'.substr(4, -1) // ""
-    >```
-    > 
-    >上面代码中，第二个例子的参数`-1`自动转为`0`，表示子字符串长度为`0`，所以返回空字符串。
-    > 
-    > ### String.prototype.indexOf()，String.prototype.lastIndexOf()
-    > 
-    > `indexOf`方法用于确定一个字符串在另一个字符串中第一次出现的位置，返回结果是匹配开始的位置。如果返回`-1`，就表示不匹配。
-    > 
-    >```
-    > 'hello world'.indexOf('o') // 4
-    >'JavaScript'.indexOf('script') // -1
-    > ```
-    > 
-    > `indexOf`方法还可以接受第二个参数，表示从该位置开始向后匹配。
-    >
-    > ```
-    >'hello world'.indexOf('o', 6) // 7
-    > ```
-    >
-    > `lastIndexOf`方法的用法跟`indexOf`方法一致，主要的区别是`lastIndexOf`从尾部开始匹配，`indexOf`则是从头部开始匹配。
-    > 
-    > ```
-    >'hello world'.lastIndexOf('o') // 7
-    > ```
-    >
-    > 另外，`lastIndexOf`的第二个参数表示从该位置起向前匹配。
-    > 
-    > ```
-    >'hello world'.lastIndexOf('o', 6) // 4
-    > ```
-    >
-    > ### String.prototype.trim()
-    > 
-    > `trim`方法用于去除字符串两端的空格，返回一个新字符串，不改变原字符串。
-    > 
-    > ```
-    >'  hello world  '.trim()
-    > // "hello world"
-    >```
-    > 
-    >该方法去除的不仅是空格，还包括制表符（`\t`、`\v`）、换行符（`\n`）和回车符（`\r`）。
-    > 
-    > ```
-    > '\r\nabc \t'.trim() // 'abc'
-    > ```
-    >
-    > ### String.prototype.toLowerCase()，String.prototype.toUpperCase()
-    >
-    > `toLowerCase`方法用于将一个字符串全部转为小写，`toUpperCase`则是全部转为大写。它们都返回一个新字符串，不改变原字符串。
-    >
-    > ```
-    >'Hello World'.toLowerCase()
-    > // "hello world"
-    >
-    > 'Hello World'.toUpperCase()
-    >// "HELLO WORLD"
-    > ```
-    > 
-    > ### String.prototype.match()
-    >
-    > `match`方法用于确定原字符串是否匹配某个子字符串，返回一个数组，成员为匹配的第一个字符串。如果没有找到匹配，则返回`null`。
-    >
-    > ```
-    > 'cat, bat, sat, fat'.match('at') // ["at"]
-    > 'cat, bat, sat, fat'.match('xt') // null
-    >```
-    > 
-    >返回的数组还有`index`属性和`input`属性，分别表示匹配字符串开始的位置和原始字符串。
-    > 
-    > ```
-    > var matches = 'cat, bat, sat, fat'.match('at');
-    > matches.index // 1
-    >matches.input // "cat, bat, sat, fat"
-    > ```
-    >
-    > `match`方法还可以使用正则表达式作为参数，详见《正则表达式》一章。
-    >
-    > ### String.prototype.search()，String.prototype.replace()
-    >
-    > `search`方法的用法基本等同于`match`，但是返回值为匹配的第一个位置。如果没有找到匹配，则返回`-1`。
-    > 
-    > ```
-    > 'cat, bat, sat, fat'.search('at') // 1
-    >```
-    > 
-    >`search`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
-    > 
-    > `replace`方法用于替换匹配的子字符串，一般情况下只替换第一个匹配（除非使用带有`g`修饰符的正则表达式）。
-    > 
-    >```
-    > 'aaa'.replace('a', 'b') // "baa"
-    >```
-    > 
-    > `replace`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
-    > 
-    >### String.prototype.split()
-    > 
-    >`split`方法按照给定规则分割字符串，返回一个由分割出来的子字符串组成的数组。
-    > 
-    > ```
-    > 'a|b|c'.split('|') // ["a", "b", "c"]
-    >```
-    > 
-    >如果分割规则为空字符串，则返回数组的成员是原字符串的每一个字符。
-    > 
-    >```
-    > 'a|b|c'.split('') // ["a", "|", "b", "|", "c"]
-    > ```
-    > 
-    > 如果省略参数，则返回数组的唯一成员就是原字符串。
-    >
-    > ```
-    >'a|b|c'.split() // ["a|b|c"]
-    > ```
-    > 
-    > 如果满足分割规则的两个部分紧邻着（即两个分割符中间没有其他字符），则返回数组之中会有一个空字符串。
-    >
-    > ```
-    >'a||c'.split('|') // ['a', '', 'c']
-    > ```
-    >
-    > 如果满足分割规则的部分处于字符串的开头或结尾（即它的前面或后面没有其他字符），则返回数组的第一个或最后一个成员是一个空字符串。
-    > 
-    > ```
-    > '|b|c'.split('|') // ["", "b", "c"]
-    > 'a|b|'.split('|') // ["a", "b", ""]
-    > ```
-    > 
-    >`split`方法还可以接受第二个参数，限定返回数组的最大成员数。
-    > 
-    >```
-    > 'a|b|c'.split('|', 0) // []
-    >'a|b|c'.split('|', 1) // ["a"]
-    > 'a|b|c'.split('|', 2) // ["a", "b"]
-    > 'a|b|c'.split('|', 3) // ["a", "b", "c"]
-    > 'a|b|c'.split('|', 4) // ["a", "b", "c"]
-    > ```
-    >
-    > 上面代码中，`split`方法的第二个参数，决定了返回数组的成员数。
-    >
-    > `split`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
-    > 
-    > ### String.prototype.localeCompare()
-    > 
-    > `localeCompare`方法用于比较两个字符串。它返回一个整数，如果小于0，表示第一个字符串小于第二个字符串；如果等于0，表示两者相等；如果大于0，表示第一个字符串大于第二个字符串。
-    >
-    > ```
-    >'apple'.localeCompare('banana') // -1
-    > 'apple'.localeCompare('apple') // 0
-    >```
-    > 
-    >该方法的最大特点，就是会考虑自然语言的顺序。举例来说，正常情况下，大写的英文字母小于小写字母。
-    > 
-    > ```
-    > 'B' > 'a' // false
-    >```
-    > 
-    >上面代码中，字母`B`小于字母`a`。因为 JavaScript 采用的是 Unicode 码点比较，`B`的码点是66，而`a`的码点是97。
-    > 
-    >但是，`localeCompare`方法会考虑自然语言的排序情况，将`B`排在`a`的前面。
-    > 
-    > ```
-    > 'B'.localeCompare('a') // 1
-    >```
-    > 
-    >上面代码中，`localeCompare`方法返回整数1，表示`B`较大。
-    > 
-    >`localeCompare`还可以有第二个参数，指定所使用的语言（默认是英语），然后根据该语言的规则进行比较。
-    > 
-    >```
-    > 'ä'.localeCompare('z', 'de') // -1
-    > 'ä'.localeCompare('z', 'sv') // 1
-    > ```
-    >
-    > 上面代码中，`de`表示德语，`sv`表示瑞典语。德语中，`ä`小于`z`，所以返回`-1`；瑞典语中，`ä`大于`z`，所以返回`1`。
+      ```js
+      String.fromCharCode() // ""
+      String.fromCharCode(97) // "a"
+      String.fromCharCode(104, 101, 108, 108, 111)
+      // "hello"
+      ```
   
-    ###### ES6新增：
+      > 上面代码中，`String.fromCharCode`方法的参数为空，就返回空字符串；否则，返回参数对应的 Unicode 字符串。
+      >
+      > 注意，该方法不支持 Unicode 码点大于`0xFFFF`的字符，即传入的参数不能大于`0xFFFF`（即十进制的 65535）。
+      >
+      > ```js
+      > String.fromCharCode(0x20BB7)  // "ஷ"
+      > String.fromCharCode(0x20BB7) === String.fromCharCode(0x0BB7)  // true
+      > ```
+      >
+      > 上面代码中，`String.fromCharCode`参数`0x20BB7`大于`0xFFFF`，导致返回结果出错。`0x20BB7`对应的字符是汉字`𠮷`，但是返回结果却是另一个字符（码点`0x0BB7`）。这是因为`String.fromCharCode`发现参数值大于`0xFFFF`，就会忽略多出的位（即忽略`0x20BB7`最高位的`2`）。
+      >
+      > 这种现象的根本原因在于，码点大于`0xFFFF`的字符占用四个字节，而 JS 默认只支持两个字节的字符（ES5）。这种情况下，必须把`0x20BB7`拆成两个字符的UTF-16编码表示：
+      >
+      > ```js
+      > String.fromCharCode(0xD842, 0xDFB7)  // "𠮷"
+      > ```
+      >
+      > 上面代码中，`0x20BB7`拆成两个字符`0xD842`和`0xDFB7`（即两个两字节字符，合成一个四字节字符），就能得到正确的结果。码点大于`0xFFFF`的字符的四字节表示法，由 UTF-16 编码方法决定。
   
-    > ## 实例方法：codePointAt()
-    >
-    > JavaScript 内部，字符以 UTF-16 的格式储存，每个字符固定为`2`个字节。对于那些需要`4`个字节储存的字符（Unicode 码点大于`0xFFFF`的字符），JavaScript 会认为它们是两个字符。
-    >
-    > ```
-    > var s = "𠮷";
-    > 
-    > s.length // 2
-    > s.charAt(0) // ''
-    > s.charAt(1) // ''
-    > s.charCodeAt(0) // 55362
-    > s.charCodeAt(1) // 57271
-    > ```
-    >
-    > 上面代码中，汉字“𠮷”（注意，这个字不是“吉祥”的“吉”）的码点是`0x20BB7`，UTF-16 编码为`0xD842 0xDFB7`（十进制为`55362 57271`），需要`4`个字节储存。对于这种`4`个字节的字符，JavaScript 不能正确处理，字符串长度会误判为`2`，而且`charAt()`方法无法读取整个字符，`charCodeAt()`方法只能分别返回前两个字节和后两个字节的值。
-    >
-    > ES6 提供了`codePointAt()`方法，能够正确处理 4 个字节储存的字符，返回一个字符的码点。
-    >
-    > ```
-    > let s = '𠮷a';
-    > 
-    > s.codePointAt(0) // 134071
-    > s.codePointAt(1) // 57271
-    > 
-    > s.codePointAt(2) // 97
-    > ```
-    >
-    > `codePointAt()`方法的参数，是字符在字符串中的位置（从 0 开始）。上面代码中，JavaScript 将“𠮷a”视为三个字符，codePointAt 方法在第一个字符上，正确地识别了“𠮷”，返回了它的十进制码点 134071（即十六进制的`20BB7`）。在第二个字符（即“𠮷”的后两个字节）和第三个字符“a”上，`codePointAt()`方法的结果与`charCodeAt()`方法相同。
-    >
-    > 总之，`codePointAt()`方法会正确返回 32 位的 UTF-16 字符的码点。对于那些两个字节储存的常规字符，它的返回结果与`charCodeAt()`方法相同。
-    >
-    > `codePointAt()`方法返回的是码点的十进制值，如果想要十六进制的值，可以使用`toString()`方法转换一下。
-    >
-    > ```
-    > let s = '𠮷a';
-    > 
-    > s.codePointAt(0).toString(16) // "20bb7"
-    > s.codePointAt(2).toString(16) // "61"
-    > ```
-    >
-    > 你可能注意到了，`codePointAt()`方法的参数，仍然是不正确的。比如，上面代码中，字符`a`在字符串`s`的正确位置序号应该是 1，但是必须向`codePointAt()`方法传入 2。解决这个问题的一个办法是使用`for...of`循环，因为它会正确识别 32 位的 UTF-16 字符。
-    >
-    > ```
-    > let s = '𠮷a';
-    > for (let ch of s) {
-    >   console.log(ch.codePointAt(0).toString(16));
-    > }
-    > // 20bb7
-    > // 61
-    > ```
-    >
-    > 另一种方法也可以，使用扩展运算符（`...`）进行展开运算。
-    >
-    > ```
-    > let arr = [...'𠮷a']; // arr.length === 2
-    > arr.forEach(
-    >   ch => console.log(ch.codePointAt(0).toString(16))
-    > );
-    > // 20bb7
-    > // 61
-    > ```
-    >
-    > `codePointAt()`方法是测试一个字符由两个字节还是由四个字节组成的最简单方法。
-    >
-    > ```
-    > function is32Bit(c) {
-    >   return c.codePointAt(0) > 0xFFFF;
-    > }
-    > 
-    > is32Bit("𠮷") // true
-    > is32Bit("a") // false
-    > ```
-    >
-    > ## 实例方法：normalize()
-    >
-    > 许多欧洲语言有语调符号和重音符号。为了表示它们，Unicode 提供了两种方法。一种是直接提供带重音符号的字符，比如`Ǒ`（\u01D1）。另一种是提供合成符号（combining character），即原字符与重音符号的合成，两个字符合成一个字符，比如`O`（\u004F）和`ˇ`（\u030C）合成`Ǒ`（\u004F\u030C）。
-    >
-    > 这两种表示方法，在视觉和语义上都等价，但是 JavaScript 不能识别。
-    >
-    > ```
-    > '\u01D1'==='\u004F\u030C' //false
-    > 
-    > '\u01D1'.length // 1
-    > '\u004F\u030C'.length // 2
-    > ```
-    >
-    > 上面代码表示，JavaScript 将合成字符视为两个字符，导致两种表示方法不相等。
-    >
-    > ES6 提供字符串实例的`normalize()`方法，用来将字符的不同表示方法统一为同样的形式，这称为 Unicode 正规化。
-    >
-    > ```
-    > '\u01D1'.normalize() === '\u004F\u030C'.normalize()
-    > // true
-    > ```
-    >
-    > `normalize`方法可以接受一个参数来指定`normalize`的方式，参数的四个可选值如下。
-    >
-    > - `NFC`，默认参数，表示“标准等价合成”（Normalization Form Canonical Composition），返回多个简单字符的合成字符。所谓“标准等价”指的是视觉和语义上的等价。
-    > - `NFD`，表示“标准等价分解”（Normalization Form Canonical Decomposition），即在标准等价的前提下，返回合成字符分解的多个简单字符。
-    > - `NFKC`，表示“兼容等价合成”（Normalization Form Compatibility Composition），返回合成字符。所谓“兼容等价”指的是语义上存在等价，但视觉上不等价，比如“囍”和“喜喜”。（这只是用来举例，`normalize`方法不能识别中文。）
-    > - `NFKD`，表示“兼容等价分解”（Normalization Form Compatibility Decomposition），即在兼容等价的前提下，返回合成字符分解的多个简单字符。
-    >
-    > ```
-    > '\u004F\u030C'.normalize('NFC').length // 1
-    > '\u004F\u030C'.normalize('NFD').length // 2
-    > ```
-    >
-    > 上面代码表示，`NFC`参数返回字符的合成形式，`NFD`参数返回字符的分解形式。
-    >
-    > 不过，`normalize`方法目前不能识别三个或三个以上字符的合成。这种情况下，还是只能使用正则表达式，通过 Unicode 编号区间判断。
-    >
-    > ## 实例方法：includes(), startsWith(), endsWith()
-    >
-    > 传统上，JavaScript 只有`indexOf`方法，可以用来确定一个字符串是否包含在另一个字符串中。ES6 又提供了三种新方法。
-    >
-    > - **includes()**：返回布尔值，表示是否找到了参数字符串。
-    > - **startsWith()**：返回布尔值，表示参数字符串是否在原字符串的头部。
-    > - **endsWith()**：返回布尔值，表示参数字符串是否在原字符串的尾部。
-    >
-    > ```
-    > let s = 'Hello world!';
-    > 
-    > s.startsWith('Hello') // true
-    > s.endsWith('!') // true
-    > s.includes('o') // true
-    > ```
-    >
-    > 这三个方法都支持第二个参数，表示开始搜索的位置。
-    >
-    > ```
-    > let s = 'Hello world!';
-    > 
-    > s.startsWith('world', 6) // true
-    > s.endsWith('Hello', 5) // true
-    > s.includes('Hello', 6) // false
-    > ```
-    >
-    > 上面代码表示，使用第二个参数`n`时，`endsWith`的行为与其他两个方法有所不同。它针对前`n`个字符，而其他两个方法针对从第`n`个位置直到字符串结束。
-    >
-    > ## 实例方法：repeat()
-    >
-    > `repeat`方法返回一个新字符串，表示将原字符串重复`n`次。
-    >
-    > ```
-    > 'x'.repeat(3) // "xxx"
-    > 'hello'.repeat(2) // "hellohello"
-    > 'na'.repeat(0) // ""
-    > ```
-    >
-    > 参数如果是小数，会被取整。
-    >
-    > ```
-    > 'na'.repeat(2.9) // "nana"
-    > ```
-    >
-    > 如果`repeat`的参数是负数或者`Infinity`，会报错。
-    >
-    > ```
-    > 'na'.repeat(Infinity)
-    > // RangeError
-    > 'na'.repeat(-1)
-    > // RangeError
-    > ```
-    >
-    > 但是，如果参数是 0 到-1 之间的小数，则等同于 0，这是因为会先进行取整运算。0 到-1 之间的小数，取整以后等于`-0`，`repeat`视同为 0。
-    >
-    > ```
-    > 'na'.repeat(-0.9) // ""
-    > ```
-    >
-    > 参数`NaN`等同于 0。
-    >
-    > ```
-    > 'na'.repeat(NaN) // ""
-    > ```
-    >
-    > 如果`repeat`的参数是字符串，则会先转换成数字。
-    >
-    > ```
-    > 'na'.repeat('na') // ""
-    > 'na'.repeat('3') // "nanana"
-    > ```
-    >
-    > ## 实例方法：padStart()，padEnd()
-    >
-    > ES2017 引入了字符串补全长度的功能。如果某个字符串不够指定长度，会在头部或尾部补全。`padStart()`用于头部补全，`padEnd()`用于尾部补全。
-    >
-    > ```
-    > 'x'.padStart(5, 'ab') // 'ababx'
-    > 'x'.padStart(4, 'ab') // 'abax'
-    > 
-    > 'x'.padEnd(5, 'ab') // 'xabab'
-    > 'x'.padEnd(4, 'ab') // 'xaba'
-    > ```
-    >
-    > 上面代码中，`padStart()`和`padEnd()`一共接受两个参数，第一个参数是字符串补全生效的最大长度，第二个参数是用来补全的字符串。
-    >
-    > 如果原字符串的长度，等于或大于最大长度，则字符串补全不生效，返回原字符串。
-    >
-    > ```
-    > 'xxx'.padStart(2, 'ab') // 'xxx'
-    > 'xxx'.padEnd(2, 'ab') // 'xxx'
-    > ```
-    >
-    > 如果用来补全的字符串与原字符串，两者的长度之和超过了最大长度，则会截去超出位数的补全字符串。
-    >
-    > ```
-    > 'abc'.padStart(10, '0123456789')
-    > // '0123456abc'
-    > ```
-    >
-    > 如果省略第二个参数，默认使用空格补全长度。
-    >
-    > ```
-    > 'x'.padStart(4) // '   x'
-    > 'x'.padEnd(4) // 'x   '
-    > ```
-    >
-    > `padStart()`的常见用途是为数值补全指定位数。下面代码生成 10 位的数值字符串。
-    >
-    > ```
-    > '1'.padStart(10, '0') // "0000000001"
-    > '12'.padStart(10, '0') // "0000000012"
-    > '123456'.padStart(10, '0') // "0000123456"
-    > ```
-    >
-    > 另一个用途是提示字符串格式。
-    >
-    > ```
-    > '12'.padStart(10, 'YYYY-MM-DD') // "YYYY-MM-12"
-    > '09-12'.padStart(10, 'YYYY-MM-DD') // "YYYY-09-12"
-    > ```
-    >
-    > ## 实例方法：trimStart()，trimEnd()
-    >
-    > [ES2019](https://github.com/tc39/proposal-string-left-right-trim) 对字符串实例新增了`trimStart()`和`trimEnd()`这两个方法。它们的行为与`trim()`一致，`trimStart()`消除字符串头部的空格，`trimEnd()`消除尾部的空格。它们返回的都是新字符串，不会修改原始字符串。
-    >
-    > ```
-    > const s = '  abc  ';
-    > 
-    > s.trim() // "abc"
-    > s.trimStart() // "abc  "
-    > s.trimEnd() // "  abc"
-    > ```
-    >
-    > 上面代码中，`trimStart()`只消除头部的空格，保留尾部的空格。`trimEnd()`也是类似行为。
-    >
-    > 除了空格键，这两个方法对字符串头部（或尾部）的 tab 键、换行符等不可见的空白符号也有效。
-    >
-    > 浏览器还部署了额外的两个方法，`trimLeft()`是`trimStart()`的别名，`trimRight()`是`trimEnd()`的别名。
-    >
-    > ## 实例方法：matchAll()
-    >
-    > `matchAll()`方法返回一个正则表达式在当前字符串的所有匹配，详见《正则的扩展》的一章。
-    >
-    > ## 实例方法：replaceAll()
-    >
-    > 历史上，字符串的实例方法`replace()`只能替换第一个匹配。
-    >
-    > ```
-    > 'aabbcc'.replace('b', '_')
-    > // 'aa_bcc'
-    > ```
-    >
-    > 上面例子中，`replace()`只将第一个`b`替换成了下划线。
-    >
-    > 如果要替换所有的匹配，不得不使用正则表达式的`g`修饰符。
-    >
-    > ```
-    > 'aabbcc'.replace(/b/g, '_')
-    > // 'aa__cc'
-    > ```
-    >
-    > 正则表达式毕竟不是那么方便和直观，[ES2021](https://github.com/tc39/proposal-string-replaceall) 引入了`replaceAll()`方法，可以一次性替换所有匹配。
-    >
-    > ```
-    > 'aabbcc'.replaceAll('b', '_')
-    > // 'aa__cc'
-    > ```
-    >
-    > 它的用法与`replace()`相同，返回一个新字符串，不会改变原字符串。
-    >
-    > ```
-    > String.prototype.replaceAll(searchValue, replacement)
-    > ```
-    >
-    > 上面代码中，`searchValue`是搜索模式，可以是一个字符串，也可以是一个全局的正则表达式（带有`g`修饰符）。
-    >
-    > 如果`searchValue`是一个不带有`g`修饰符的正则表达式，`replaceAll()`会报错。这一点跟`replace()`不同。
-    >
-    > ```
-    > // 不报错
-    > 'aabbcc'.replace(/b/, '_')
-    > 
-    > // 报错
-    > 'aabbcc'.replaceAll(/b/, '_')
-    > ```
-    >
-    > 上面例子中，`/b/`不带有`g`修饰符，会导致`replaceAll()`报错。
-    >
-    > `replaceAll()`的第二个参数`replacement`是一个字符串，表示替换的文本，其中可以使用一些特殊字符串。
-    >
-    > - `$&`：匹配的字符串。
-    > - `$``：匹配结果前面的文本。
-    > - `$'`：匹配结果后面的文本。
-    > - `$n`：匹配成功的第`n`组内容，`n`是从1开始的自然数。这个参数生效的前提是，第一个参数必须是正则表达式。
-    > - `$$`：指代美元符号`$`。
-    >
-    > 下面是一些例子。
-    >
-    > ```
-    > // $& 表示匹配的字符串，即`b`本身
-    > // 所以返回结果与原字符串一致
-    > 'abbc'.replaceAll('b', '$&')
-    > // 'abbc'
-    > 
-    > // $` 表示匹配结果之前的字符串
-    > // 对于第一个`b`，$` 指代`a`
-    > // 对于第二个`b`，$` 指代`ab`
-    > 'abbc'.replaceAll('b', '$`')
-    > // 'aaabc'
-    > 
-    > // $' 表示匹配结果之后的字符串
-    > // 对于第一个`b`，$' 指代`bc`
-    > // 对于第二个`b`，$' 指代`c`
-    > 'abbc'.replaceAll('b', `$'`)
-    > // 'abccc'
-    > 
-    > // $1 表示正则表达式的第一个组匹配，指代`ab`
-    > // $2 表示正则表达式的第二个组匹配，指代`bc`
-    > 'abbc'.replaceAll(/(ab)(bc)/g, '$2$1')
-    > // 'bcab'
-    > 
-    > // $$ 指代 $
-    > 'abc'.replaceAll('b', '$$')
-    > // 'a$c'
-    > ```
-    >
-    > `replaceAll()`的第二个参数`replacement`除了为字符串，也可以是一个函数，该函数的返回值将替换掉第一个参数`searchValue`匹配的文本。
-    >
-    > ```
-    > 'aabbcc'.replaceAll('b', () => '_')
-    > // 'aa__cc'
-    > ```
-    >
-    > 上面例子中，`replaceAll()`的第二个参数是一个函数，该函数的返回值会替换掉所有`b`的匹配。
-    >
-    > 这个替换函数可以接受多个参数。第一个参数是捕捉到的匹配内容，第二个参数是捕捉到的组匹配（有多少个组匹配，就有多少个对应的参数）。此外，最后还可以添加两个参数，倒数第二个参数是捕捉到的内容在整个字符串中的位置，最后一个参数是原字符串。
-    >
-    > ```
-    > const str = '123abc456';
-    > const regex = /(\d+)([a-z]+)(\d+)/g;
-    > 
-    > function replacer(match, p1, p2, p3, offset, string) {
-    >   return [p1, p2, p3].join(' - ');
-    > }
-    > 
-    > str.replaceAll(regex, replacer)
-    > // 123 - abc - 456
-    > ```
-    >
-    > 上面例子中，正则表达式有三个组匹配，所以`replacer()`函数的第一个参数`match`是捕捉到的匹配内容（即字符串`123abc456`），后面三个参数`p1`、`p2`、`p3`则依次为三个组匹配。
-    >
-    > ## 实例方法：at()
-    >
-    > `at()`方法接受一个整数作为参数，返回参数指定位置的字符，支持负索引（即倒数的位置）。
-    >
-    > ```
-    > const str = 'hello';
-    > str.at(1) // "e"
-    > str.at(-1) // "o"
-    > ```
-    >
-    > 如果参数位置超出了字符串范围，`at()`返回`undefined`。
-    >
-    > 该方法来自数组添加的`at()`方法，目前还是一个第三阶段的提案，可以参考《数组》一章的介绍。
-    >
-    > ## 实例方法：toWellFormed()
-    >
-    > ES2024 引入了新的字符串方法`toWellFormed()`，用来处理 Unicode 的代理字符对问题（surrogates）。
-    >
-    > JavaScript 语言内部使用 UTF-16 格式，表示每个字符。UTF-16 只有16位，只能表示码点在`U+0000`到`U+FFFF`之间的 Unicode 字符。对于码点大于`U+FFFF`的 Unicode 字符（即码点大于16位的字符，`U+10000`到`U+10FFFF`），解决办法是使用代理字符对，即用两个 UTF-16 字符组合表示。
-    >
-    > 具体来说，UTF-16 规定，`U+D800`至`U+DFFF`是空字符段，专门留给代理字符对使用。只要遇到这个范围内的码点，就知道它是代理字符对，本身没有意义，必须两个字符结合在一起解读。其中，前一个字符的范围规定为`0xD800`到`0xDBFF`之间，后一个字符的范围规定为`0xDC00`到`0xDFFF`之间。举例来说，码点`U+1D306`对应的字符为`𝌆`，它写成 UTF-16 就是`0xD834 0xDF06`。
-    >
-    > 但是，字符串里面可能会出现单个代理字符对，即`U+D800`至`U+DFFF`里面的字符，它没有配对的另一个字符，无法进行解读，导致出现各种状况。
-    >
-    > `.toWellFormed()`就是为了解决这个问题，不改变原始字符串，返回一个新的字符串，将原始字符串里面的单个代理字符对，都替换为`U+FFFD`，从而可以在任何正常处理字符串的函数里面使用。
-    >
-    > ```
-    > "ab\uD800".toWellFormed() // 'ab�'
-    > ```
-    >
-    > 上面示例中，`\uD800`是单个的代理字符对，单独使用时没有意义。`toWellFormed()`将这个字符转为`\uFFFD`。
-    >
-    > 再看下面的例子，`encodeURI()`遇到单个的代理字符对，会报错。
-    >
-    > ```
-    > const illFormed = "https://example.com/search?q=\uD800";
-    > 
-    > encodeURI(illFormed) // 报错
-    > ```
-    >
-    > `toWellFormed()`将其转换格式后，再使用`encodeURI()`就不会报错了。
-    >
-    > ```js
-    > const illFormed = "https://example.com/search?q=\uD800";
-    > 
-    > encodeURI(illFormed.toWellFormed()) // 正确
-    > ```
+    ###### 实例方法：
+  
+    - `String.prototype.charAt()`：`charAt`方法返回指定位置的字符，参数是从`0`开始编号的位置。
+  
+      ```js
+      var s = new String('abc');
+      
+      s.charAt(1) // "b"
+      s.charAt(s.length - 1) // "c"
+      ```
+  
+      > 这个方法完全可以用数组下标替代。
+      >
+  
+      ```js
+      'abc'.charAt(1) // "b"
+      'abc'[1] // "b"
+      ```
+  
+      > 如果参数为负数，或大于等于字符串的长度，`charAt`返回空字符串。
+      >
+  
+      ```js
+      'abc'.charAt(-1) // ""
+      'abc'.charAt(3) // ""
+      ```
+  
+    - `String.prototype.charCodeAt()`：`charCodeAt()`方法返回字符串指定位置的 Unicode 码点（十进制表示），相当于`String.fromCharCode()`的逆操作。
+  
+      ```js
+      'abc'.charCodeAt(1) // 98
+      ```
+  
+      > 上面代码中，`abc`的`1`号位置的字符是`b`，它的 Unicode 码点是`98`。
+      >
+  
+      > 如果没有任何参数，`charCodeAt`返回首字符的 Unicode 码点。
+      >
+  
+      ```js
+      'abc'.charCodeAt() // 97
+      ```
+  
+      > 如果参数为负数，或大于等于字符串的长度，`charCodeAt`返回`NaN`。
+      >
+  
+      ```js
+      'abc'.charCodeAt(-1) // NaN
+      'abc'.charCodeAt(4) // NaN
+      ```
+  
+      > 注意，`charCodeAt`方法返回的 Unicode 码点不会大于65536（0xFFFF），也就是说，只返回两个字节的字符的码点。如果遇到码点大于 65536 的字符（四个字节的字符），必须连续使用两次`charCodeAt`，不仅读入`charCodeAt(i)`，还要读入`charCodeAt(i+1)`，将两个值放在一起，才能得到准确的字符。
+  
+    - `String.prototype.concat()`：`concat`方法用于连接两个字符串，返回一个新字符串，不改变原字符串。
+  
+      ```js
+      var s1 = 'abc';
+      var s2 = 'def';
+      
+      s1.concat(s2) // "abcdef"
+      s1 // "abc"
+      ```
+  
+      > 该方法可以接受多个参数。
+      >
+  
+      ```js
+      'a'.concat('b', 'c') // "abc"
+      ```
+  
+      > 如果参数不是字符串，`concat`方法会将其先转为字符串，然后再连接。
+      >
+  
+      ```js
+      var one = 1;
+      var two = 2;
+      var three = '3';
+      
+      ''.concat(one, two, three) // "123"
+      one + two + three // "33"
+      ```
+  
+      > 上面代码中，`concat`方法将参数先转成字符串再连接，所以返回的是一个三个字符的字符串。作为对比，加号运算符在两个运算数都是数值时，不会转换类型，所以返回的是一个两个字符的字符串。
+  
+    - `String.prototype.slice()`：`slice()`方法（切片）用于从原字符串取出子字符串并返回，不改变原字符串。它的第一个参数是子字符串的开始位置，第二个参数是子字符串的结束位置（不含该位置）。
+  
+      ```js
+      'JavaScript'.slice(0, 4) // "Java"
+      ```
+  
+      > 如果省略第二个参数，则表示子字符串一直到原字符串结束。
+      >
+  
+      ```js
+      'JavaScript'.slice(4) // "Script"
+      ```
+  
+      > 如果参数是负值，表示从结尾开始倒数计算的位置，即该负值加上字符串长度。
+      >
+  
+      ```js
+      'JavaScript'.slice(-6) // "Script"
+      'JavaScript'.slice(0, -6) // "Java"
+      'JavaScript'.slice(-2, -1) // "p"
+      ```
+  
+      > 如果第一个参数大于第二个参数（正数情况下），`slice()`方法返回一个空字符串。
+      >
+  
+      ```js
+      'JavaScript'.slice(2, 1) // ""
+      ```
+  
+    - `String.prototype.substring()`：`substring`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`方法很相像。它的第一个参数表示子字符串的开始位置，第二个位置表示结束位置（返回结果不含该位置）。
+  
+      ```js
+      'JavaScript'.substring(0, 4) // "Java"
+      ```
+  
+      > 如果省略第二个参数，则表示子字符串一直到原字符串的结束。
+      >
+  
+      ```js
+      'JavaScript'.substring(4) // "Script"
+      ```
+  
+      > 如果第一个参数大于第二个参数，`substring`方法会自动更换两个参数的位置。
+      >
+  
+      ```js
+      'JavaScript'.substring(10, 4) // "Script"
+      // 等同于
+      'JavaScript'.substring(4, 10) // "Script"
+      ```
+  
+      > 上面代码中，调换`substring`方法的两个参数，都得到同样的结果。
+      >
+  
+      > 如果参数是负数，`substring`方法会自动将负数转为0。
+      >
+  
+      ```js
+      'JavaScript'.substring(-3) // "JavaScript"
+      'JavaScript'.substring(4, -3) // "Java"
+      ```
+  
+      > 上面代码中，第二个例子的参数`-3`会自动变成`0`，等同于`'JavaScript'.substring(4, 0)`。由于第二个参数小于第一个参数，会自动互换位置，所以返回`Java`。
+      >
+  
+      > 由于这些规则违反直觉，因此不建议使用`substring`方法，应该优先使用`slice`。
+  
+    - `String.prototype.substr()`：`substr`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`和`substring`方法的作用相同。
+  
+      > `substr`方法的第一个参数是子字符串的开始位置（从0开始计算），第二个参数是子字符串的长度。
+  
+      ```js
+      'JavaScript'.substr(4, 6) // "Script"
+      ```
+  
+      > 如果省略第二个参数，则表示子字符串一直到原字符串的结束。
+      >
+  
+      ```js
+      'JavaScript'.substr(4) // "Script"
+      ```
+  
+      > 如果第一个参数是负数，表示倒数计算的字符位置。如果第二个参数是负数，将被自动转为0，因此会返回空字符串。
+      >
+  
+      ```js
+      'JavaScript'.substr(-6) // "Script"
+      'JavaScript'.substr(4, -1) // ""
+      ```
+  
+      > 上面代码中，第二个例子的参数`-1`自动转为`0`，表示子字符串长度为`0`，所以返回空字符串。
+  
+    - `String.prototype.indexOf()`，`String.prototype.lastIndexOf()`：`indexOf`方法用于确定一个字符串在另一个字符串中第一次出现的位置，返回结果是匹配开始的位置。如果返回`-1`，就表示不匹配。
+  
+      ```js
+      'hello world'.indexOf('o') // 4
+      'JavaScript'.indexOf('script') // -1
+      ```
+  
+      > `indexOf`方法还可以接受第二个参数，表示从该位置开始向后匹配。
+  
+      ```js
+      'hello world'.indexOf('o', 6) // 7
+      ```
+  
+      > `lastIndexOf`方法的用法跟`indexOf`方法一致，主要的区别是`lastIndexOf`从尾部开始匹配，`indexOf`则是从头部开始匹配。
+  
+      ```js
+      'hello world'.lastIndexOf('o') // 7
+      ```
+  
+      > 另外，`lastIndexOf`的第二个参数表示从该位置起向前匹配。
+      >
+  
+      ```js
+      'hello world'.lastIndexOf('o', 6) // 4
+      ```
+  
+    - `String.prototype.trim()`：`trim`方法用于去除字符串两端的空格，返回一个新字符串，不改变原字符串。
+  
+      ```js
+      '  hello world  '.trim()
+      // "hello world"
+      ```
+  
+      > 该方法去除的不仅是空格，还包括制表符（`\t`、`\v`）、换行符（`\n`）和回车符（`\r`）。
+      >
+  
+      ```js
+      '\r\nabc \t'.trim() // 'abc'
+      ```
+  
+    - `String.prototype.toLowerCase()`，`String.prototype.toUpperCase()`：`toLowerCase`方法用于将一个字符串全部转为小写，`toUpperCase`则是全部转为大写。它们都返回一个新字符串，不改变原字符串。
+  
+      ```js
+      'Hello World'.toLowerCase()  // "hello world"
+      'Hello World'.toUpperCase()  // "HELLO WORLD"
+      ```
+  
+    - `String.prototype.match()`：`match`方法用于确定原字符串是否匹配某个子字符串，返回一个数组，成员为匹配的第一个字符串。如果没有找到匹配，则返回`null`。
+  
+      ```js
+      'cat, bat, sat, fat'.match('at') // ["at"]
+      'cat, bat, sat, fat'.match('xt') // null
+      ```
+  
+      > 返回的数组还有`index`属性和`input`属性，分别表示匹配字符串开始的位置和原始字符串。
+      >
+  
+      ```
+      var matches = 'cat, bat, sat, fat'.match('at');
+      matches.index // 1
+      matches.input // "cat, bat, sat, fat"
+      ```
+  
+      > `match`方法还可以使用正则表达式作为参数，详见《正则表达式》一章。
+  
+    - `String.prototype.search()`，`String.prototype.replace()`：`search`方法的用法基本等同于`match`，但是返回值为匹配的第一个位置。如果没有找到匹配，则返回`-1`。
+  
+      ```
+      'cat, bat, sat, fat'.search('at') // 1
+      ```
+  
+      > `search`方法也可以使用正则表达式作为参数，详见《正则表达式》一节。
+  
+      > `replace`方法用于替换匹配的子字符串，一般情况下只替换第一个匹配（除非使用带有`g`修饰符的正则表达式）。
+  
+      ```
+      'aaa'.replace('a', 'b') // "baa"
+      ```
+  
+      > `replace`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
+  
+    - `String.prototype.split()`：`split`方法按照给定规则分割字符串，返回一个由分割出来的子字符串组成的数组。
+  
+      ```js
+      'a|b|c'.split('|') // ["a", "b", "c"]
+      ```
+  
+      > 如果分割规则为空字符串，则返回数组的成员是原字符串的每一个字符。
+      >
+  
+      ```js
+      'a|b|c'.split('') // ["a", "|", "b", "|", "c"]
+      ```
+  
+      > 如果省略参数，则返回数组的唯一成员就是原字符串。
+      >
+  
+      ```js
+      'a|b|c'.split() // ["a|b|c"]
+      ```
+  
+      > 如果满足分割规则的两个部分紧邻着（即两个分割符中间没有其他字符），则返回数组之中会有一个空字符串。
+      >
+  
+      ```js
+      'a||c'.split('|') // ['a', '', 'c']
+      ```
+  
+      > 如果满足分割规则的部分处于字符串的开头或结尾（即它的前面或后面没有其他字符），则返回数组的第一个或最后一个成员是一个空字符串。
+      >
+  
+      ```js
+      '|b|c'.split('|') // ["", "b", "c"]
+      'a|b|'.split('|') // ["a", "b", ""]
+      ```
+  
+      > `split`方法还可以接受第二个参数，限定返回数组的最大成员数。
+  
+      ```js
+      'a|b|c'.split('|', 0) // []
+      'a|b|c'.split('|', 1) // ["a"]
+      'a|b|c'.split('|', 2) // ["a", "b"]
+      'a|b|c'.split('|', 3) // ["a", "b", "c"]
+      'a|b|c'.split('|', 4) // ["a", "b", "c"]
+      ```
+  
+      > 上面代码中，`split`方法的第二个参数，决定了返回数组的成员数。
+      >
+      > `split`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
+  
+    - `String.prototype.localeCompare()`：`localeCompare`方法用于比较两个字符串。它返回一个整数，如果小于0，表示第一个字符串小于第二个字符串；如果等于0，表示两者相等；如果大于0，表示第一个字符串大于第二个字符串。
+  
+      ```js
+      'apple'.localeCompare('banana') // -1
+      'apple'.localeCompare('apple') // 0
+      ```
+  
+      > 该方法的最大特点，就是会考虑自然语言的顺序。举例来说，正常情况下，大写的英文字母小于小写字母。
+      >
+  
+      ```js
+      'B' > 'a' // false
+      ```
+  
+      > 上面代码中，字母`B`小于字母`a`。因为 JavaScript 采用的是 Unicode 码点比较，`B`的码点是66，而`a`的码点是97。
+      >
+  
+      > 但是，`localeCompare`方法会考虑自然语言的排序情况，将`B`排在`a`的前面。
+      >
+  
+      ```js
+      'B'.localeCompare('a') // 1
+      ```
+  
+      > 上面代码中，`localeCompare`方法返回整数1，表示`B`较大。
+      >
+  
+      > `localeCompare`还可以有第二个参数，指定所使用的语言（默认是英语），然后根据该语言的规则进行比较。
+  
+      ```js
+      'ä'.localeCompare('z', 'de') // -1
+      'ä'.localeCompare('z', 'sv') // 1
+      ```
+  
+      > 上面代码中，`de`表示德语，`sv`表示瑞典语。德语中，`ä`小于`z`，所以返回`-1`；瑞典语中，`ä`大于`z`，所以返回`1`。
   
   - ### Math 对象
   

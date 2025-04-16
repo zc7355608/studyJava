@@ -403,7 +403,7 @@
 - （了解）复合属性`flex-flow: row wrap;`，同时指定主轴方向和换行方式。（顺序随意）
 - `justify-content: flex-start;`，设置主轴的对齐方式，默认值`flex-start`靠主轴起始位置对齐，`flex-end`靠主轴结束位置对齐。`center`是居中对齐，`space-around`是伸缩项目在一行上均匀分布，项目之间的距离是项目距边缘的2倍。`space-between`是项目之间等距离，项目与边缘紧挨着。`space-evenly`是无论和边缘还是项目之间，都是等距离。
 
-- 设置伸缩项目，在侧轴上的对齐方式：
+- 设置伸缩项目，在侧轴（伸缩轴）上的对齐方式：
   - 一行内容：`align-items: flex-start/flex-end/center;`，侧轴起始位置/结束位置/中间位置对齐。`baseline`是沿着内部文字基线对齐，默认值`stretch`，表示高度拉伸至撑满整个父容器，它只有当所有伸缩项目都没给高度时才起作用（是伸的）。
   - 多行内容：`align-content: flex-start/flex-end/center;`，侧轴起始位置/结束位置/中间位置对齐。还有其他值：`space-around`、`space-between`、`space-evenly`、`stretch`是默认值。
 - 借助flex布局来实现内部元素水平垂直居中：父元素开启伸缩布局，然后再加`justify-content: center; align-items: center;`
