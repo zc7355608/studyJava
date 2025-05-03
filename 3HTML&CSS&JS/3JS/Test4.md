@@ -155,13 +155,13 @@
   
       > `setTimeout`和`setInterval`函数，都返回一个整数值，表示计数器编号。将该整数传入`clearTimeout`和`clearInterval`函数，就可以取消对应的定时器。
       >
-      > 并且`setTimeout`和`setInterval`返回的整数值是连续的，也就是说，第二个`setTimeout`方法返回的整数值，将比第一个的整数值大1。
+      > 并且在一个同步执行的代码中开启的定时器（`setTimeout`和`setInterval`），返回的整数值是连续的。也就是说，第二个`setTimeout`方法返回的整数值，将比第一个的整数值大1。
   
     - 定时器的运行机制：
   
       > `setTimeout`和`setInterval`的运行机制，是将指定的代码移出本轮事件循环，等到下一轮事件循环，再检查是否到了指定时间。如果到了，就执行对应的代码；如果不到，就继续等待。
       >
-      > 这意味着，`setTimeout`和`setInterval`指定的回调函数，必须等到本轮事件循环的所有同步任务都执行完，才会开始执行。由于前面的任务到底需要多少时间执行完，是不确定的，所以没有办法保证，`setTimeout`和`setInterval`指定的任务，一定会按照预定时间执行。注意，生效后`setInterval`不会产生累积效应。
+      > 这意味着，`setTimeout`和`setInterval`指定的回调函数，必须等到本轮事件循环的所有同步任务都执行完，才会开始执行。由于前面的任务到底需要多少时间执行完，是不确定的，所以**没有办法保证`setTimeout`和`setInterval`指定的任务，一定会按照预定时间执行**。注意，生效后`setInterval`不会产生累积效应。
       >
       > ```js
       > setTimeout(someTask, 100);

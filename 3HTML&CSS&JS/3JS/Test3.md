@@ -106,7 +106,7 @@
       
       - `Object.prototype.hasOwnProperty()`：判断某个属性是否为当前对象自身拥有的属性，继承自原型的属性不算。
       
-      - `Object.prototype.isPrototypeOf()`：判断当前对象是否为参数对象的原型。只要当实例对象处在参数对象的原型链上，`isPrototypeOf`方法都返回`true`。
+      - `Object.prototype.isPrototypeOf()`：判断当前对象是否为参数对象的原型。只要当前实例对象在参数对象的原型链上，`isPrototypeOf`方法都返回`true`。
       
       - `Object.prototype.__proto__`：返回该对象的原型。该属性可读可写。
       
@@ -174,22 +174,22 @@
       > ```
       >
       > 上面代码中，`Object.defineProperties()`同时定义了`obj`对象的三个属性。其中，`p3`属性定义了取值函数`get`，即每次读取该属性，都会调用这个取值函数。
-      >
+      
       > `Object.defineProperty()`和`Object.defineProperties()`参数里面的属性描述对象，`writable`、`configurable`、`enumerable`这三个属性的默认值都为`false`：
-      >
-      > ```js
-      > var obj = {};
-      > Object.defineProperty(obj, 'foo', {});
-      > Object.getOwnPropertyDescriptor(obj, 'foo')
-      > // {
-      > //   value: undefined,
+      > 
+      >   ```js
+      >   var obj = {};
+      >   Object.defineProperty(obj, 'foo', {});
+      >    Object.getOwnPropertyDescriptor(obj, 'foo')
+      >    // {
+      >   //   value: undefined,
       > //   writable: false,
       > //   enumerable: false,
       > //   configurable: false
       > // }
       > ```
-      >
-      > 上面代码中，定义`obj.foo`时用了一个空的属性描述对象，就可以看到各个元属性的默认值。
+      > 
+      >上面代码中，定义`obj.foo`时用了一个空的属性描述对象，就可以看到各个元属性的默认值。
     
     ##### 属性描述对象的各个属性称为“元属性”，因为它们可以看作是控制属性的属性：
     
@@ -1652,10 +1652,10 @@
   
   - ### String 对象
   
-    > `String`对象是 JS 原生提供的三个包装对象之一，用来生成字符串对象。
+    > `String`对象是 JS 原生提供的三个包装对象之一，用来生成字符串对应的包装对象。
     >
     > ```js
-    >var s1 = 'abc';
+    > var s1 = 'abc';
     > var s2 = new String('abc');
     > 
     > typeof s1 // "string"
@@ -1663,27 +1663,28 @@
     > 
     > s2.valueOf() // "abc"
     > ```
-    > 
+    >
     > 上面代码中，变量`s1`是字符串，`s2`是对象。由于`s2`是字符串对象，`s2.valueOf`方法返回的就是它所对应的原始字符串。
     >
-    > 字符串对象是一个类似数组的对象（很像数组，但不是数组，伪数组）。
+    > 字符串的包装对象是一个类似数组的对象（即**伪数组**）。
     >
     > ```js
-    >new String('abc')
+    > new String('abc')
     > // String {0: "a", 1: "b", 2: "c", length: 3}
     > 
     > (new String('abc'))[1] // "b"
+    > 'abc'[1]  // 其实也是创建了一个临时的包装对象然后再取值的
     > ```
-    > 
+    >
     > 上面代码中，字符串`abc`对应的字符串对象，有数值键（`0`、`1`、`2`）和`length`属性，所以可以像数组那样取值。
     >
     > 除了用作构造函数，`String`对象还可以当作工具方法使用，将任意类型的值转为字符串。
     >
     > ```js
-    >String(true) // "true"
+    > String(true) // "true"
     > String(5) // "5"
     > ```
-    > 
+    >
     > 上面代码将布尔值`true`和数值`5`，分别转换为字符串。
   
     ###### 静态方法：
@@ -1699,7 +1700,7 @@
   
       > 上面代码中，`String.fromCharCode`方法的参数为空，就返回空字符串；否则，返回参数对应的 Unicode 字符串。
       >
-      > 注意，该方法不支持 Unicode 码点大于`0xFFFF`的字符，即传入的参数不能大于`0xFFFF`（即十进制的 65535）。
+      > 注意，**该方法不支持 Unicode 码点大于`0xFFFF`的字符，即传入的参数不能大于`0xFFFF`（即十进制的 65535）**。
       >
       > ```js
       > String.fromCharCode(0x20BB7)  // "ஷ"
