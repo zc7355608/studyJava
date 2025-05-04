@@ -382,62 +382,7 @@ TODO:
 
 # JS高级
 
-------
-
-## JSON
-
-- #### 什么是JSON：
-
-  > - JSON全称JavaScript Object Notation（JavaScript对象标记），它是一种标准的轻量级的“数据交换格式”，主要用于做数据的交换，目前非常流行，90%以上的系统数据，交换数据用的就是JSON。JSON的特点：体积小、易解析。
-  > - 在实际的开发中，有两种数据交换格式用的最多：
-  >   1. JSON
-  >   2. XML：缺点是体积较大、解析麻烦。优点是语法严谨。通常银行的数据交换会用XML。HTML和XML有一个父亲：SGML（标准通用的标记语言）。HTML主要做页面展示，所以语法松散，很随意。XML主要做数据存储和数据描述的，所以语法相当严格。XML文件可以用浏览器打开，验证是否有语法错误（浏览器打开如果显示的是xml的代码就没问题）。XML也常用来做程序的配置文件（重结构轻数据）。
-  > - 本质上来说JSON是一种文本规范，字符串的规范。它和JS的对象格式很像，`{key:value,..}`的格式。不同的是，JSON的key必须是字符串型且必须加**双引号**（单引号不行），value可以是JS中的：`null、number、boolean、string`，且这几种不允许嵌套。还可以是：JSON对象、JS数组，数组中的类型可以是任何JSON的value支持的类型。
-  > - 由于JSON对象和JS数组这两种类型存在，JSON可以表示复杂的树形结构，并且**JSON数据必须以`{}/[]`作为最外层**（`.json`文件必须以`{}`作为最外层）。另外JSON中的换行和空格不会有任何影响，仅仅是方便阅读。
-  > - JSON不支持注释，JSON数据中不允许出现多余的逗号。JSON本质上是可处理的文本，如果要在JS中将JSON串真正当作对象去处理，就需要`JSON.parse(str)`将JSON串传进去，解析成JS对象返回才行。
-  > - 由于JSON的灵活性大、数据量小、简单易读的特点，所以有些数据库的数据也是JSON格式（MongoDB）。
-  > - 由于JSON来源于JS，所以JS对JSON对象有原生的支持。其他的如Java或C中，就只能将它作为规范化的字符串去处理。
-
-- #### JS对象 => JSON串：
-
-  > 用内置对象`JSON`的字符串化方法`JSON.stringify(obj)`，可以将对象转换成JSON字符串并返回。
-
-- #### JSON串 => JS对象：
-
-  > `JSON.parse(jsonStr)`，返回值是JS对象。
-
-- #### 示例代码：
-
-  ```js
-  //JS原生支持JSON，创建JSON对象，特点是无类型。{"key":value,"key":value,"key":value,...}
-  var studentObj = {
-      "sno" : 111,
-      "sname" : "张三",
-      "sex" : "男"
-  };
-  //访问JSON对象的属性
-  alert(studentObj.sno +","+ studentObj.sname +","+ studentObj.sex);
-  //JSON数组
-  var students = [
-      {"sno" : 111,"sname" : "张三","sex" : "男"},
-      {"sno" : 11,"sname" : "张","sex" : "男"},
-      {"sno" : 1,"sname" : "三","sex" : "男"}
-  ];
-  //JSON的嵌套
-  var user = {
-      "sno" : 111,
-      "sname" : "张三",
-      "sex" : true,
-      "address" : {"city" : "北京", "street" : "大兴区", "zipcode" : 123134},
-      "hobby" : ["smoke", "drink", "tt"]
-  };
-  //访问人名以及居住地
-  alert(user["sno"] + user.address.city);
-  ```
-
-------
-
-## JS的正则表达式
+### JS的正则表达式
 
 - JS中创建正则表达式对象：
 
