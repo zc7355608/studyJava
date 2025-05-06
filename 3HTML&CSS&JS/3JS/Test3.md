@@ -1967,795 +1967,636 @@
   
       > 上面代码中，`de`表示德语，`sv`表示瑞典语。德语中，`ä`小于`z`，所以返回`-1`；瑞典语中，`ä`大于`z`，所以返回`1`。
   
-  - ### Math 对象(TODO)
+  - ### Math 对象
   
-    > `Math`是 JavaScript 的原生对象，提供各种数学功能。该对象不是构造函数，不能生成实例，所有的属性和方法都必须在`Math`对象上调用。
-    >
-    > ## 静态属性
-    >
-    > `Math`对象的静态属性，提供以下一些数学常数。
-    >
-    > - `Math.E`：常数`e`。
-    > - `Math.LN2`：2 的自然对数。
-    > - `Math.LN10`：10 的自然对数。
-    > - `Math.LOG2E`：以 2 为底的`e`的对数。
-    > - `Math.LOG10E`：以 10 为底的`e`的对数。
-    > - `Math.PI`：常数`π`。
-    > - `Math.SQRT1_2`：0.5 的平方根。
-    > - `Math.SQRT2`：2 的平方根。
-    >
-    > ```
-    > Math.E // 2.718281828459045
-    > Math.LN2 // 0.6931471805599453
-    > Math.LN10 // 2.302585092994046
-    > Math.LOG2E // 1.4426950408889634
-    > Math.LOG10E // 0.4342944819032518
-    > Math.PI // 3.141592653589793
-    > Math.SQRT1_2 // 0.7071067811865476
-    > Math.SQRT2 // 1.4142135623730951
-    > ```
-    >
-    > 这些属性都是只读的，不能修改。
-    >
-    > ## 静态方法
-    >
-    > `Math`对象提供以下一些静态方法。
-    >
-    > - `Math.abs()`：绝对值
-    > - `Math.ceil()`：向上取整
-    > - `Math.floor()`：向下取整
-    > - `Math.max()`：最大值
-    > - `Math.min()`：最小值
-    > - `Math.pow()`：幂运算
-    > - `Math.sqrt()`：平方根
-    > - `Math.log()`：自然对数
-    > - `Math.exp()`：`e`的指数
-    > - `Math.round()`：四舍五入
-    > - `Math.random()`：随机数
-    >
-    > ### Math.abs()
-    >
-    > `Math.abs`方法返回参数值的绝对值。
-    >
-    > ```
-    > Math.abs(1) // 1
-    > Math.abs(-1) // 1
-    > ```
-    >
-    > ### Math.max()，Math.min()
-    >
-    > `Math.max`方法返回参数之中最大的那个值，`Math.min`返回最小的那个值。如果参数为空, `Math.min`返回`Infinity`, `Math.max`返回`-Infinity`。
-    >
-    > ```
-    > Math.max(2, -1, 5) // 5
-    > Math.min(2, -1, 5) // -1
-    > Math.min() // Infinity
-    > Math.max() // -Infinity
-    > ```
-    >
-    > ### Math.floor()，Math.ceil()
-    >
-    > `Math.floor`方法返回小于或等于参数值的最大整数（地板值）。
-    >
-    > ```
-    > Math.floor(3.2) // 3
-    > Math.floor(-3.2) // -4
-    > ```
-    >
-    > `Math.ceil`方法返回大于或等于参数值的最小整数（天花板值）。
-    >
-    > ```
-    > Math.ceil(3.2) // 4
-    > Math.ceil(-3.2) // -3
-    > ```
-    >
-    > 这两个方法可以结合起来，实现一个总是返回数值的整数部分的函数。
-    >
-    > ```
-    > function ToInteger(x) {
-    >   x = Number(x);
-    >   return x < 0 ? Math.ceil(x) : Math.floor(x);
-    > }
-    > 
-    > ToInteger(3.2) // 3
-    > ToInteger(3.5) // 3
-    > ToInteger(3.8) // 3
-    > ToInteger(-3.2) // -3
-    > ToInteger(-3.5) // -3
-    > ToInteger(-3.8) // -3
-    > ```
-    >
-    > 上面代码中，不管正数或负数，`ToInteger`函数总是返回一个数值的整数部分。
-    >
-    > ### Math.round()
-    >
-    > `Math.round`方法用于四舍五入。
-    >
-    > ```
-    > Math.round(0.1) // 0
-    > Math.round(0.5) // 1
-    > Math.round(0.6) // 1
-    > 
-    > // 等同于
-    > Math.floor(x + 0.5)
-    > ```
-    >
-    > 注意，它对负数的处理（主要是对`0.5`的处理）。
-    >
-    > ```
-    > Math.round(-1.1) // -1
-    > Math.round(-1.5) // -1
-    > Math.round(-1.6) // -2
-    > ```
-    >
-    > ### Math.pow()
-    >
-    > `Math.pow`方法返回以第一个参数为底数、第二个参数为指数的幂运算值。
-    >
-    > ```
-    > // 等同于 2 ** 2
-    > Math.pow(2, 2) // 4
-    > // 等同于 2 ** 3
-    > Math.pow(2, 3) // 8
-    > ```
-    >
-    > 下面是计算圆面积的方法。
-    >
-    > ```
-    > var radius = 20;
-    > var area = Math.PI * Math.pow(radius, 2);
-    > ```
-    >
-    > ### Math.sqrt()
-    >
-    > `Math.sqrt`方法返回参数值的平方根。如果参数是一个负值，则返回`NaN`。
-    >
-    > ```
-    > Math.sqrt(4) // 2
-    > Math.sqrt(-4) // NaN
-    > ```
-    >
-    > ### Math.log()
-    >
-    > `Math.log`方法返回以`e`为底的自然对数值。
-    >
-    > ```
-    > Math.log(Math.E) // 1
-    > Math.log(10) // 2.302585092994046
-    > ```
-    >
-    > 如果要计算以10为底的对数，可以先用`Math.log`求出自然对数，然后除以`Math.LN10`；求以2为底的对数，可以除以`Math.LN2`。
-    >
-    > ```
-    > Math.log(100)/Math.LN10 // 2
-    > Math.log(8)/Math.LN2 // 3
-    > ```
-    >
-    > ### Math.exp()
-    >
-    > `Math.exp`方法返回常数`e`的参数次方。
-    >
-    > ```
-    > Math.exp(1) // 2.718281828459045
-    > Math.exp(3) // 20.085536923187668
-    > ```
-    >
-    > ### Math.random()
-    >
-    > `Math.random()`返回0到1之间的一个伪随机数，可能等于0，但是一定小于1。
-    >
-    > ```
-    > Math.random() // 0.7151307314634323
-    > ```
-    >
-    > 任意范围的随机数生成函数如下。
-    >
-    > ```
-    > function getRandomArbitrary(min, max) {
-    >   return Math.random() * (max - min) + min;
-    > }
-    > 
-    > getRandomArbitrary(1.5, 6.5)
-    > // 2.4942810038223864
-    > ```
-    >
-    > 任意范围的随机整数生成函数如下。
-    >
-    > ```
-    > function getRandomInt(min, max) {
-    >   return Math.floor(Math.random() * (max - min + 1)) + min;
-    > }
-    > 
-    > getRandomInt(1, 6) // 5
-    > ```
-    >
-    > 返回随机字符的例子如下。
-    >
-    > ```
-    > function random_str(length) {
-    >   var ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    >   ALPHABET += 'abcdefghijklmnopqrstuvwxyz';
-    >   ALPHABET += '0123456789-_';
-    >   var str = '';
-    >   for (var i = 0; i < length; ++i) {
-    >     var rand = Math.floor(Math.random() * ALPHABET.length);
-    >     str += ALPHABET.substring(rand, rand + 1);
-    >   }
-    >   return str;
-    > }
-    > 
-    > random_str(6) // "NdQKOr"
-    > ```
-    >
-    > 上面代码中，`random_str`函数接受一个整数作为参数，返回变量`ALPHABET`内的随机字符所组成的指定长度的字符串。
-    >
-    > ### 三角函数方法
-    >
-    > `Math`对象还提供一系列三角函数方法。
-    >
-    > - `Math.sin()`：返回参数的正弦（参数为弧度值）
-    > - `Math.cos()`：返回参数的余弦（参数为弧度值）
-    > - `Math.tan()`：返回参数的正切（参数为弧度值）
-    > - `Math.asin()`：返回参数的反正弦（返回值为弧度值）
-    > - `Math.acos()`：返回参数的反余弦（返回值为弧度值）
-    > - `Math.atan()`：返回参数的反正切（返回值为弧度值）
-    >
-    > ```
-    > Math.sin(0) // 0
-    > Math.cos(0) // 1
-    > Math.tan(0) // 0
-    > 
-    > Math.sin(Math.PI / 2) // 1
-    > 
-    > Math.asin(1) // 1.5707963267948966
-    > Math.acos(1) // 0
-    > Math.atan(1) // 0.7853981633974483
-    > ```
+    > `Math`是 JS 的原生对象，提供各种数学功能。该对象不是构造函数，不能生成实例，所有的属性和方法都必须在`Math`对象上调用。
   
-  - ### Date 对象(TODO)
+    - #### 静态属性
   
-    > `Date`对象是 JavaScript 原生的时间库。它以国际标准时间（UTC）1970年1月1日00:00:00作为时间的零点，可以表示的时间范围是前后各1亿天（单位为毫秒）。
-    >
-    > ## 普通函数的用法
-    >
-    > `Date`对象可以作为普通函数直接调用，返回一个代表当前时间的字符串。
-    >
-    > ```
-    > Date()
-    > // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
-    > ```
-    >
-    > 注意，即使带有参数，`Date`作为普通函数使用时，返回的还是当前时间。
-    >
-    > ```
-    > Date(2000, 1, 1)
-    > // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
-    > ```
-    >
-    > 上面代码说明，无论有没有参数，直接调用`Date`总是返回当前时间。
-    >
-    > ## 构造函数的用法
-    >
-    > `Date`还可以当作构造函数使用。对它使用`new`命令，会返回一个`Date`对象的实例。如果不加参数，实例代表的就是当前时间。
-    >
-    > ```
-    > var today = new Date();
-    > ```
-    >
-    > `Date`实例有一个独特的地方。其他对象求值的时候，都是默认调用`.valueOf()`方法，但是`Date`实例求值的时候，默认调用的是`toString()`方法。这导致对`Date`实例求值，返回的是一个字符串，代表该实例对应的时间。
-    >
-    > ```
-    > var today = new Date();
-    > 
-    > today
-    > // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
-    > 
-    > // 等同于
-    > today.toString()
-    > // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
-    > ```
-    >
-    > 上面代码中，`today`是`Date`的实例，直接求值等同于调用`toString`方法。
-    >
-    > 作为构造函数时，`Date`对象可以接受多种格式的参数，返回一个该参数对应的时间实例。
-    >
-    > ```
-    > // 参数为时间零点开始计算的毫秒数
-    > new Date(1378218728000)
-    > // Tue Sep 03 2013 22:32:08 GMT+0800 (CST)
-    > 
-    > // 参数为日期字符串
-    > new Date('January 6, 2013');
-    > // Sun Jan 06 2013 00:00:00 GMT+0800 (CST)
-    > 
-    > // 参数为多个整数，
-    > // 代表年、月、日、小时、分钟、秒、毫秒
-    > new Date(2013, 0, 1, 0, 0, 0, 0)
-    > // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > 关于`Date`构造函数的参数，有几点说明。
-    >
-    > 第一点，参数可以是负整数，代表1970年元旦之前的时间。
-    >
-    > ```
-    > new Date(-1378218728000)
-    > // Fri Apr 30 1926 17:27:52 GMT+0800 (CST)
-    > ```
-    >
-    > 第二点，只要是能被`Date.parse()`方法解析的字符串，都可以当作参数。
-    >
-    > ```
-    > new Date('2013-2-15')
-    > new Date('2013/2/15')
-    > new Date('02/15/2013')
-    > new Date('2013-FEB-15')
-    > new Date('FEB, 15, 2013')
-    > new Date('FEB 15, 2013')
-    > new Date('February, 15, 2013')
-    > new Date('February 15, 2013')
-    > new Date('15 Feb 2013')
-    > new Date('15, February, 2013')
-    > // Fri Feb 15 2013 00:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > 上面多种日期字符串的写法，返回的都是同一个时间。
-    >
-    > 第三，参数为年、月、日等多个整数时，年和月是不能省略的，其他参数都可以省略的。也就是说，这时至少需要两个参数，因为如果只使用“年”这一个参数，`Date`会将其解释为毫秒数。
-    >
-    > ```
-    > new Date(2013)
-    > // Thu Jan 01 1970 08:00:02 GMT+0800 (CST)
-    > ```
-    >
-    > 上面代码中，2013被解释为毫秒数，而不是年份。
-    >
-    > ```
-    > new Date(2013, 0)
-    > // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
-    > new Date(2013, 0, 1)
-    > // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
-    > new Date(2013, 0, 1, 0)
-    > // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
-    > new Date(2013, 0, 1, 0, 0, 0, 0)
-    > // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > 上面代码中，不管有几个参数，返回的都是2013年1月1日零点。
-    >
-    > 最后，各个参数的取值范围如下。
-    >
-    > - 年：使用四位数年份，比如`2000`。如果写成两位数或个位数，则加上`1900`，即`10`代表1910年。如果是负数，表示公元前。
-    > - 月：`0`表示一月，依次类推，`11`表示12月。
-    > - 日：`1`到`31`。
-    > - 小时：`0`到`23`。
-    > - 分钟：`0`到`59`。
-    > - 秒：`0`到`59`
-    > - 毫秒：`0`到`999`。
-    >
-    > 注意，月份从`0`开始计算，但是，天数从`1`开始计算。另外，除了日期的默认值为`1`，小时、分钟、秒钟和毫秒的默认值都是`0`。
-    >
-    > 这些参数如果超出了正常范围，会被自动折算。比如，如果月设为`15`，就折算为下一年的4月。
-    >
-    > ```
-    > new Date(2013, 15)
-    > // Tue Apr 01 2014 00:00:00 GMT+0800 (CST)
-    > new Date(2013, 0, 0)
-    > // Mon Dec 31 2012 00:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > 上面代码的第二个例子，日期设为`0`，就代表上个月的最后一天。
-    >
-    > 参数还可以使用负数，表示扣去的时间。
-    >
-    > ```
-    > new Date(2013, -1)
-    > // Sat Dec 01 2012 00:00:00 GMT+0800 (CST)
-    > new Date(2013, 0, -1)
-    > // Sun Dec 30 2012 00:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > 上面代码中，分别对月和日使用了负数，表示从基准日扣去相应的时间。
-    >
-    > ## 日期的运算
-    >
-    > 类型自动转换时，`Date`实例如果转为数值，则等于对应的毫秒数；如果转为字符串，则等于对应的日期字符串。所以，两个日期实例对象进行减法运算时，返回的是它们间隔的毫秒数；进行加法运算时，返回的是两个字符串连接而成的新字符串。
-    >
-    > ```
-    > var d1 = new Date(2000, 2, 1);
-    > var d2 = new Date(2000, 3, 1);
-    > 
-    > d2 - d1
-    > // 2678400000
-    > d2 + d1
-    > // "Sat Apr 01 2000 00:00:00 GMT+0800 (CST)Wed Mar 01 2000 00:00:00 GMT+0800 (CST)"
-    > ```
-    >
-    > ## 静态方法
-    >
-    > ### Date.now()
-    >
-    > `Date.now`方法返回当前时间距离时间零点（1970年1月1日 00:00:00 UTC）的毫秒数，相当于 Unix 时间戳乘以1000。
-    >
-    > ```
-    > Date.now() // 1364026285194
-    > ```
-    >
-    > ### Date.parse()
-    >
-    > `Date.parse`方法用来解析日期字符串，返回该时间距离时间零点（1970年1月1日 00:00:00）的毫秒数。
-    >
-    > 日期字符串应该符合 RFC 2822 和 ISO 8061 这两个标准，即`YYYY-MM-DDTHH:mm:ss.sssZ`格式，其中最后的`Z`表示时区。但是，其他格式也可以被解析，请看下面的例子。
-    >
-    > ```
-    > Date.parse('Aug 9, 1995')
-    > Date.parse('January 26, 2011 13:51:50')
-    > Date.parse('Mon, 25 Dec 1995 13:30:00 GMT')
-    > Date.parse('Mon, 25 Dec 1995 13:30:00 +0430')
-    > Date.parse('2011-10-10')
-    > Date.parse('2011-10-10T14:48:00')
-    > ```
-    >
-    > 上面的日期字符串都可以解析。
-    >
-    > 如果解析失败，返回`NaN`。
-    >
-    > ```
-    > Date.parse('xxx') // NaN
-    > ```
-    >
-    > ### Date.UTC()
-    >
-    > `Date.UTC`方法接受年、月、日等变量作为参数，返回该时间距离时间零点（1970年1月1日 00:00:00 UTC）的毫秒数。
-    >
-    > ```
-    > // 格式
-    > Date.UTC(year, month[, date[, hrs[, min[, sec[, ms]]]]])
-    > 
-    > // 用法
-    > Date.UTC(2011, 0, 1, 2, 3, 4, 567)
-    > // 1293847384567
-    > ```
-    >
-    > 该方法的参数用法与`Date`构造函数完全一致，比如月从`0`开始计算，日期从`1`开始计算。区别在于`Date.UTC`方法的参数，会被解释为 UTC 时间（世界标准时间），`Date`构造函数的参数会被解释为当前时区的时间。
-    >
-    > ## 实例方法
-    >
-    > `Date`的实例对象，有几十个自己的方法，除了`valueOf`和`toString`，可以分为以下三类。
-    >
-    > - `to`类：从`Date`对象返回一个字符串，表示指定的时间。
-    > - `get`类：获取`Date`对象的日期和时间。
-    > - `set`类：设置`Date`对象的日期和时间。
-    >
-    > ### Date.prototype.valueOf()
-    >
-    > `valueOf`方法返回实例对象距离时间零点（1970年1月1日00:00:00 UTC）对应的毫秒数，该方法等同于`getTime`方法。
-    >
-    > ```
-    > var d = new Date();
-    > 
-    > d.valueOf() // 1362790014817
-    > d.getTime() // 1362790014817
-    > ```
-    >
-    > 预期为数值的场合，`Date`实例会自动调用该方法，所以可以用下面的方法计算时间的间隔。
-    >
-    > ```
-    > var start = new Date();
-    > // ...
-    > var end = new Date();
-    > var elapsed = end - start;
-    > ```
-    >
-    > ### to 类方法
-    >
-    > **（1）Date.prototype.toString()**
-    >
-    > `toString`方法返回一个完整的日期字符串。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > 
-    > d.toString()
-    > // "Tue Jan 01 2013 00:00:00 GMT+0800 (CST)"
-    > d
-    > // "Tue Jan 01 2013 00:00:00 GMT+0800 (CST)"
-    > ```
-    >
-    > 因为`toString`是默认的调用方法，所以如果直接读取`Date`实例，就相当于调用这个方法。
-    >
-    > **（2）Date.prototype.toUTCString()**
-    >
-    > `toUTCString`方法返回对应的 UTC 时间，也就是比北京时间晚8个小时。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > 
-    > d.toUTCString()
-    > // "Mon, 31 Dec 2012 16:00:00 GMT"
-    > ```
-    >
-    > **（3）Date.prototype.toISOString()**
-    >
-    > `toISOString`方法返回对应时间的 ISO8601 写法。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > 
-    > d.toISOString()
-    > // "2012-12-31T16:00:00.000Z"
-    > ```
-    >
-    > 注意，`toISOString`方法返回的总是 UTC 时区的时间。
-    >
-    > **（4）Date.prototype.toJSON()**
-    >
-    > `toJSON`方法返回一个符合 JSON 格式的 ISO 日期字符串，与`toISOString`方法的返回结果完全相同。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > 
-    > d.toJSON()
-    > // "2012-12-31T16:00:00.000Z"
-    > ```
-    >
-    > **（5）Date.prototype.toDateString()**
-    >
-    > `toDateString`方法返回日期字符串（不含小时、分和秒）。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > d.toDateString() // "Tue Jan 01 2013"
-    > ```
-    >
-    > **（6）Date.prototype.toTimeString()**
-    >
-    > `toTimeString`方法返回时间字符串（不含年月日）。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > d.toTimeString() // "00:00:00 GMT+0800 (CST)"
-    > ```
-    >
-    > **（7）本地时间**
-    >
-    > 以下三种方法，可以将 Date 实例转为表示本地时间的字符串。
-    >
-    > - `Date.prototype.toLocaleString()`：完整的本地时间。
-    > - `Date.prototype.toLocaleDateString()`：本地日期（不含小时、分和秒）。
-    > - `Date.prototype.toLocaleTimeString()`：本地时间（不含年月日）。
-    >
-    > 下面是用法实例。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > 
-    > d.toLocaleString()
-    > // 中文版浏览器为"2013/1/1 00:00:00"
-    > // 英文版浏览器为"1/1/2013 12:00:00 AM"
-    > 
-    > d.toLocaleDateString()
-    > // 中文版浏览器为"2013/1/1"
-    > // 英文版浏览器为"1/1/2013"
-    > 
-    > d.toLocaleTimeString()
-    > // 中文版浏览器为"00:00:00"
-    > // 英文版浏览器为"12:00:00 AM"
-    > ```
-    >
-    > 这三个方法都有两个可选的参数。
-    >
-    > ```
-    > dateObj.toLocaleString([locales[, options]])
-    > dateObj.toLocaleDateString([locales[, options]])
-    > dateObj.toLocaleTimeString([locales[, options]])
-    > ```
-    >
-    > 这两个参数中，`locales`是一个指定所用语言的字符串，`options`是一个配置对象。下面是`locales`的例子，分别采用`en-US`和`zh-CN`语言设定。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > 
-    > d.toLocaleString('en-US') // "1/1/2013, 12:00:00 AM"
-    > d.toLocaleString('zh-CN') // "2013/1/1 00:00:00"
-    > 
-    > d.toLocaleDateString('en-US') // "1/1/2013"
-    > d.toLocaleDateString('zh-CN') // "2013/1/1"
-    > 
-    > d.toLocaleTimeString('en-US') // "12:00:00 AM"
-    > d.toLocaleTimeString('zh-CN') // "00:00:00"
-    > ```
-    >
-    > `options`配置对象有以下属性。
-    >
-    > - `dateStyle`：可能的值为`full`、`long`、`medium`、`short`。
-    > - `timeStyle`：可能的值为`full`、`long`、`medium`、`short`。
-    > - `month`：可能的值为`numeric`、`2-digit`、`long`、`short`、`narrow`。
-    > - `year`：可能的值为`numeric`、`2-digit`。
-    > - `weekday`：可能的值为`long`、`short`、`narrow`。
-    > - `day`、`hour`、`minute`、`second`：可能的值为`numeric`、`2-digit`。
-    > - `timeZone`：可能的值为 IANA 的时区数据库。
-    > - `timeZoneName`：可能的值为`long`、`short`。
-    > - `hour12`：24小时周期还是12小时周期，可能的值为`true`、`false`。
-    >
-    > 下面是用法实例。
-    >
-    > ```
-    > var d = new Date(2013, 0, 1);
-    > 
-    > d.toLocaleDateString('en-US', {
-    >   weekday: 'long',
-    >   year: 'numeric',
-    >   month: 'long',
-    >   day: 'numeric'
-    > })
-    > // "Tuesday, January 1, 2013"
-    > 
-    > d.toLocaleDateString('en-US', {
-    >   day: "2-digit",
-    >   month: "long",
-    >   year: "2-digit"
-    > });
-    > // "January 01, 13"
-    > 
-    > d.toLocaleTimeString('en-US', {
-    >   timeZone: 'UTC',
-    >   timeZoneName: 'short'
-    > })
-    > // "4:00:00 PM UTC"
-    > 
-    > d.toLocaleTimeString('en-US', {
-    >   timeZone: 'Asia/Shanghai',
-    >   timeZoneName: 'long'
-    > })
-    > // "12:00:00 AM China Standard Time"
-    > 
-    > d.toLocaleTimeString('en-US', {
-    >   hour12: false
-    > })
-    > // "00:00:00"
-    > 
-    > d.toLocaleTimeString('en-US', {
-    >   hour12: true
-    > })
-    > // "12:00:00 AM"
-    > ```
-    >
-    > ### get 类方法
-    >
-    > `Date`对象提供了一系列`get*`方法，用来获取实例对象某个方面的值。
-    >
-    > - `getTime()`：返回实例距离1970年1月1日00:00:00的毫秒数，等同于`valueOf`方法。
-    > - `getDate()`：返回实例对象对应每个月的几号（从1开始）。
-    > - `getDay()`：返回星期几，星期日为0，星期一为1，以此类推。
-    > - `getFullYear()`：返回四位的年份。
-    > - `getMonth()`：返回月份（0表示1月，11表示12月）。
-    > - `getHours()`：返回小时（0-23）。
-    > - `getMilliseconds()`：返回毫秒（0-999）。
-    > - `getMinutes()`：返回分钟（0-59）。
-    > - `getSeconds()`：返回秒（0-59）。
-    > - `getTimezoneOffset()`：返回当前时间与 UTC 的时区差异，以分钟表示，返回结果考虑到了夏令时因素。
-    >
-    > 所有这些`get*`方法返回的都是整数，不同方法返回值的范围不一样。
-    >
-    > - 分钟和秒：0 到 59
-    > - 小时：0 到 23
-    > - 星期：0（星期天）到 6（星期六）
-    > - 日期：1 到 31
-    > - 月份：0（一月）到 11（十二月）
-    >
-    > ```
-    > var d = new Date('January 6, 2013');
-    > 
-    > d.getDate() // 6
-    > d.getMonth() // 0
-    > d.getFullYear() // 2013
-    > d.getTimezoneOffset() // -480
-    > ```
-    >
-    > 上面代码中，最后一行返回`-480`，即 UTC 时间减去当前时间，单位是分钟。`-480`表示 UTC 比当前时间少480分钟，即当前时区比 UTC 早8个小时。
-    >
-    > 下面是一个例子，计算本年度还剩下多少天。
-    >
-    > ```
-    > function leftDays() {
-    >   var today = new Date();
-    >   var endYear = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999);
-    >   var msPerDay = 24 * 60 * 60 * 1000;
-    >   return Math.round((endYear.getTime() - today.getTime()) / msPerDay);
-    > }
-    > ```
-    >
-    > 上面这些`get*`方法返回的都是当前时区的时间，`Date`对象还提供了这些方法对应的 UTC 版本，用来返回 UTC 时间。
-    >
-    > - `getUTCDate()`
-    > - `getUTCFullYear()`
-    > - `getUTCMonth()`
-    > - `getUTCDay()`
-    > - `getUTCHours()`
-    > - `getUTCMinutes()`
-    > - `getUTCSeconds()`
-    > - `getUTCMilliseconds()`
-    >
-    > ```
-    > var d = new Date('January 6, 2013');
-    > 
-    > d.getDate() // 6
-    > d.getUTCDate() // 5
-    > ```
-    >
-    > 上面代码中，实例对象`d`表示当前时区（东八时区）的1月6日0点0分0秒，这个时间对于当前时区来说是1月6日，所以`getDate`方法返回6，对于 UTC 时区来说是1月5日，所以`getUTCDate`方法返回5。
-    >
-    > ### set 类方法
-    >
-    > `Date`对象提供了一系列`set*`方法，用来设置实例对象的各个方面。
-    >
-    > - `setDate(date)`：设置实例对象对应的每个月的几号（1-31），返回改变后毫秒时间戳。
-    > - `setFullYear(year [, month, date])`：设置四位年份。
-    > - `setHours(hour [, min, sec, ms])`：设置小时（0-23）。
-    > - `setMilliseconds(ms)`：设置毫秒（0-999）。
-    > - `setMinutes(min [, sec, ms])`：设置分钟（0-59）。
-    > - `setMonth(month [, date])`：设置月份（0-11）。
-    > - `setSeconds(sec [, ms])`：设置秒（0-59）。
-    > - `setTime(milliseconds)`：设置毫秒时间戳。
-    >
-    > 这些方法基本是跟`get*`方法一一对应的，但是没有`setDay`方法，因为星期几是计算出来的，而不是设置的。另外，需要注意的是，凡是涉及到设置月份，都是从0开始算的，即`0`是1月，`11`是12月。
-    >
-    > ```
-    > var d = new Date ('January 6, 2013');
-    > 
-    > d // Sun Jan 06 2013 00:00:00 GMT+0800 (CST)
-    > d.setDate(9) // 1357660800000
-    > d // Wed Jan 09 2013 00:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > `set*`方法的参数都会自动折算。以`setDate()`为例，如果参数超过当月的最大天数，则向下一个月顺延，如果参数是负数，表示从上个月的最后一天开始减去的天数。
-    >
-    > ```
-    > var d1 = new Date('January 6, 2013');
-    > 
-    > d1.setDate(32) // 1359648000000
-    > d1 // Fri Feb 01 2013 00:00:00 GMT+0800 (CST)
-    > 
-    > var d2 = new Date ('January 6, 2013');
-    > 
-    > d2.setDate(-1) // 1356796800000
-    > d2 // Sun Dec 30 2012 00:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > 上面代码中，`d1.setDate(32)`将日期设为1月份的32号，因为1月份只有31号，所以自动折算为2月1日。`d2.setDate(-1)`表示设为上个月的倒数第二天，即12月30日。
-    >
-    > `set`类方法和`get`类方法，可以结合使用，得到相对时间。
-    >
-    > ```
-    > var d = new Date();
-    > 
-    > // 将日期向后推1000天
-    > d.setDate(d.getDate() + 1000);
-    > // 将时间设为6小时后
-    > d.setHours(d.getHours() + 6);
-    > // 将年份设为去年
-    > d.setFullYear(d.getFullYear() - 1);
-    > ```
-    >
-    > `set*`系列方法除了`setTime()`，都有对应的 UTC 版本，即设置 UTC 时区的时间。
-    >
-    > - `setUTCDate()`
-    > - `setUTCFullYear()`
-    > - `setUTCHours()`
-    > - `setUTCMilliseconds()`
-    > - `setUTCMinutes()`
-    > - `setUTCMonth()`
-    > - `setUTCSeconds()`
-    >
-    > ```
-    > var d = new Date('January 6, 2013');
-    > d.getUTCHours() // 16
-    > d.setUTCHours(22) // 1357423200000
-    > d // Sun Jan 06 2013 06:00:00 GMT+0800 (CST)
-    > ```
-    >
-    > 上面代码中，本地时区（东八时区）的1月6日0点0分，是 UTC 时区的前一天下午16点。设为 UTC 时区的22点以后，就变为本地时区的上午6点。
+      > `Math`对象的静态属性，提供以下一些数学常数。这些属性都是**只读的**，不能修改。
+  
+      - `Math.E`：常数`e`。
+      - `Math.LN2`：2 的自然对数。
+      - `Math.LN10`：10 的自然对数。
+      - `Math.LOG2E`：以 2 为底的`e`的对数。
+      - `Math.LOG10E`：以 10 为底的`e`的对数。
+      - `Math.PI`：常数`π`。
+      - `Math.SQRT1_2`：0.5 的平方根。
+      - `Math.SQRT2`：2 的平方根。
+  
+    - #### 静态方法
+  
+      > `Math`对象提供以下一些静态方法。
+  
+      - `Math.abs()`：绝对值
+  
+      - `Math.ceil()`：向上取整
+  
+      - `Math.floor()`：向下取整
+  
+      - `Math.max()/Math.min()`：返回参数之中最大的那个值、最小的那个值。如果参数为空，`Math.min`返回`Infinity`，`Math.max`返回`-Infinity`，这在逻辑上是合理的。
+  
+      - `Math.pow()`：幂运算。ES6 出现了幂运算符（`**`）之后，这个方法就用的少了。
+  
+      - `Math.sqrt()`：`Math.sqrt`方法返回参数值的平方根。如果参数是一个负值，则返回`NaN`。
+  
+      - `Math.log()`：返回以`e`为底的自然对数值。
+  
+        ```js
+        Math.log(Math.E) // 1
+        Math.log(10) // 2.302585092994046
+        ```
+  
+        > 如果要计算以10为底的对数，可以先用`Math.log`求出自然对数，然后除以`Math.LN10`；求以2为底的对数，可以除以`Math.LN2`。
+        >
+        > ```js
+        > Math.log(100)/Math.LN10 // 2
+        > Math.log(8)/Math.LN2 // 3
+        > ```
+  
+      - `Math.exp()`：`Math.exp`方法返回常数`e`的参数次方。
+  
+      - `Math.round()`：标准的四舍五入。注意，它对负数的处理（主要是对`0.5`的处理）。
+  
+        ```js
+        Math.round(0.1) // 0
+        Math.round(0.5) // 1
+        Math.round(0.6) // 1
+        // 等同于
+        Math.floor(x + 0.5)
+        
+        Math.round(-1.1) // -1
+        Math.round(-1.5) // -1
+        Math.round(-1.6) // -2
+        ```
+  
+      - `Math.random()`：`Math.random()`返回0到1之间的一个伪随机数，可能等于0，但是一定小于1。
+  
+        > 任意范围的随机数生成函数如下。
+        >
+  
+        ```js
+        function getRandomArbitrary(min, max) {
+          return Math.random() * (max - min) + min;
+        }
+        
+        getRandomArbitrary(1.5, 6.5)
+        // 2.4942810038223864
+        ```
+  
+        > 任意范围的随机整数生成函数如下。
+        >
+  
+        ```js
+        function getRandomInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        getRandomInt(1, 6) // 5
+        ```
+  
+        > 返回随机字符的例子如下。
+        >
+  
+        ```js
+        function random_str(length) {
+          var ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          ALPHABET += 'abcdefghijklmnopqrstuvwxyz';
+          ALPHABET += '0123456789-_';
+          var str = '';
+          for (var i = 0; i < length; ++i) {
+            var rand = Math.floor(Math.random() * ALPHABET.length);
+            str += ALPHABET.substring(rand, rand + 1);
+          }
+          return str;
+        }
+        
+        random_str(6) // "NdQKOr"
+        ```
+  
+        > 上面的`random_str`函数接受一个整数作为参数，返回变量`ALPHABET`内的随机字符所组成的指定长度的字符串。
+  
+      > `Math`对象还提供一系列三角函数方法。
+  
+      - `Math.sin()`：返回参数的正弦（参数为弧度值）
+      - `Math.cos()`：返回参数的余弦（参数为弧度值）
+      - `Math.tan()`：返回参数的正切（参数为弧度值）
+      - `Math.asin()`：返回参数的反正弦（返回值为弧度值）
+      - `Math.acos()`：返回参数的反余弦（返回值为弧度值）
+      - `Math.atan()`：返回参数的反正切（返回值为弧度值）
+  
+  - ### Date 对象
+  
+    > `Date`对象是 JS 原生的时间库。它以国际标准时间（UTC）1970年1月1日00:00:00作为时间的零点，可以表示的时间范围是前后各1亿天（单位为毫秒）。
+  
+    - #### 普通函数的用法
+  
+      `Date`对象可以作为普通函数直接调用，返回一个代表当前时间的字符串。
+  
+      ```js
+      Date()  // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
+      ```
+  
+      注意，即使带有参数，`Date`作为普通函数使用时，返回的还是当前时间。
+  
+      ```js
+      Date(2000, 1, 1)  // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
+      ```
+  
+      上面代码说明，无论有没有参数，直接调用`Date`总是返回当前时间。
+  
+    - #### 构造函数的用法
+  
+      `Date`还可以当作构造函数使用。对它使用`new`命令，会返回一个`Date`对象的实例。如果不加参数，实例代表的就是当前时间。
+  
+      ```js
+      var today = new Date();
+      ```
+  
+      `Date`实例有一个独特的地方。其他对象求值的时候，都是默认调用`.valueOf()`方法，但是`Date`实例求值的时候，默认调用的是`toString()`方法。这导致对`Date`实例求值，返回的是一个字符串，代表该实例对应的时间。
+  
+      ```js
+      var today = new Date();
+      
+      today
+      // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
+      
+      // 等同于
+      today.toString()
+      // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
+      ```
+  
+      上面代码中，`today`是`Date`的实例，直接求值等同于调用`toString`方法。
+  
+      作为构造函数时，`Date`对象可以接受多种格式的参数，返回一个该参数对应的时间实例。
+  
+      ```js
+      // 参数为时间零点开始计算的毫秒数
+      new Date(1378218728000)
+      // Tue Sep 03 2013 22:32:08 GMT+0800 (CST)
+      
+      // 参数为日期字符串
+      new Date('January 6, 2013');
+      // Sun Jan 06 2013 00:00:00 GMT+0800 (CST)
+      
+      // 参数为多个整数，
+      // 代表年、月、日、小时、分钟、秒、毫秒
+      new Date(2013, 0, 1, 0, 0, 0, 0)
+      // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
+      ```
+  
+      关于`Date`构造函数的参数，有几点说明：
+  
+      1. 参数可以是负整数，代表1970年元旦之前的时间。
+  
+         ```js
+         new Date(-1378218728000)  // Fri Apr 30 1926 17:27:52 GMT+0800 (CST)
+         ```
+  
+      2. 只要是能被`Date.parse()`方法解析的字符串，都可以当作参数。
+  
+         ```js
+         new Date('2013-2-15')
+         new Date('2013/2/15')
+         new Date('02/15/2013')
+         new Date('2013-FEB-15')
+         new Date('FEB, 15, 2013')
+         new Date('FEB 15, 2013')
+         new Date('February, 15, 2013')
+         new Date('February 15, 2013')
+         new Date('15 Feb 2013')
+         new Date('15, February, 2013')
+         // Fri Feb 15 2013 00:00:00 GMT+0800 (CST)
+         ```
+  
+         > 上面多种日期字符串的写法，返回的都是同一个时间。
+  
+      3. 参数为年、月、日等多个整数时，年和月是不能省略的，其他参数都可以省略的。也就是说，这时至少需要两个参数，因为如果只使用“年”这一个参数，`Date`会将其解释为毫秒数。
+  
+         ```js
+         new Date(2013)  // Thu Jan 01 1970 08:00:02 GMT+0800 (CST)
+         ```
+  
+         > 上面代码中，2013被解释为毫秒数，而不是年份。
+  
+         ```js
+         new Date(2013, 0)
+         // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
+         new Date(2013, 0, 1)
+         // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
+         new Date(2013, 0, 1, 0)
+         // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
+         new Date(2013, 0, 1, 0, 0, 0, 0)
+         // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
+         ```
+  
+         > 上面代码中，不管有几个参数，返回的都是2013年1月1日零点。
+  
+      4. 各个参数的取值范围如下。
+  
+         - 年：使用四位数年份，比如`2000`。如果写成两位数或个位数，则加上`1900`，即`10`代表1910年。如果是负数，表示公元前。
+         - 月：`0`表示一月，依次类推，`11`表示12月。
+         - 日：`1`到`31`。
+         - 小时：`0`到`23`。
+         - 分钟：`0`到`59`。
+         - 秒：`0`到`59`
+         - 毫秒：`0`到`999`。
+  
+         > 注意，月份从`0`开始计算，但是，天数从`1`开始计算。另外，除了日期的默认值为`1`，小时、分钟、秒钟和毫秒的默认值都是`0`。
+         >
+         > 这些参数如果超出了正常范围，会被自动折算。比如，如果月设为`15`，就折算为下一年的4月。
+         >
+         > ```js
+         > new Date(2013, 15)
+         > // Tue Apr 01 2014 00:00:00 GMT+0800 (CST)
+         > new Date(2013, 0, 0)
+         > // Mon Dec 31 2012 00:00:00 GMT+0800 (CST)
+         > ```
+         >
+         > 上面代码的第二个例子，日期设为`0`，就代表上个月的最后一天。
+         >
+         > 参数还可以使用负数，表示扣去的时间。
+         >
+         > ```js
+         > new Date(2013, -1)
+         > // Sat Dec 01 2012 00:00:00 GMT+0800 (CST)
+         > new Date(2013, 0, -1)
+         > // Sun Dec 30 2012 00:00:00 GMT+0800 (CST)
+         > ```
+         >
+         > 上面代码中，分别对月和日使用了负数，表示从基准日扣去相应的时间。
+  
+    - #### 日期的运算
+  
+      类型自动转换时，`Date`实例如果转为数值，则等于对应的毫秒数；如果转为字符串，则等于对应的日期字符串。所以，**两个日期实例对象进行减法运算时，返回的是它们间隔的毫秒数；进行加法运算时，返回的是两个字符串连接而成的新字符串。**
+  
+      ```js
+      var d1 = new Date(2000, 2, 1);
+      var d2 = new Date(2000, 3, 1);
+      
+      d2 - d1
+      // 2678400000
+      d2 + d1
+      // "Sat Apr 01 2000 00:00:00 GMT+0800 (CST)Wed Mar 01 2000 00:00:00 GMT+0800 (CST)"
+      ```
+  
+    - #### 静态方法
+  
+      - `Date.now()`：返回时间戳（单位毫秒ms）。
+  
+      - `Date.parse()`：该方法用来解析日期字符串，返回该时间距离时间零点（1970年1月1日 00:00:00）的毫秒数（`number`类型）。如果解析失败，返回`NaN`。
+  
+        日期字符串应该符合 RFC 2822 和 ISO 8061 这两个标准，即`YYYY-MM-DDTHH:mm:ss.sssZ`格式，其中最后的`Z`表示时区。但是，其他格式也可以被解析，请看下面的例子。
+  
+        ```js
+        Date.parse('Aug 9, 1995')
+        Date.parse('January 26, 2011 13:51:50')
+        Date.parse('Mon, 25 Dec 1995 13:30:00 GMT')
+        Date.parse('Mon, 25 Dec 1995 13:30:00 +0430')
+        Date.parse('2011-10-10')
+        Date.parse('2011-10-10T14:48:00')
+        ```
+  
+      - `Date.UTC()`：该方法接受年、月、日等变量作为参数，返回该时间距离时间零点（1970年1月1日 00:00:00 UTC）的毫秒数。
+  
+        ```
+        // 格式
+        Date.UTC(year, month[, date[, hrs[, min[, sec[, ms]]]]])
+        
+        // 用法
+        Date.UTC(2011, 0, 1, 2, 3, 4, 567)
+        // 1293847384567
+        ```
+  
+        该方法的参数的用法与`Date`构造函数完全一致，比如月从`0`开始计算，日期从`1`开始计算。区别在于`Date.UTC`方法的参数，会被解释为 UTC 时间（世界标准时间），`Date`构造函数的参数会被解释为当前时区的时间。
+  
+    - #### 实例方法
+  
+      - `valueOf()`：返回实例对象距离时间零点（1970年1月1日00:00:00 UTC）对应的毫秒数（`number`类型），该方法等同于`getTime`方法。
+  
+        ```js
+        var d = new Date();
+        
+        d.valueOf() // 1362790014817
+        d.getTime() // 1362790014817
+        ```
+  
+        预期为数值的场合，`Date`实例会自动调用该方法，所以可以用下面的方法计算时间的间隔。
+  
+        ```js
+        var start = new Date();
+        // ...
+        var end = new Date();
+        var elapsed = end - start;
+        ```
+  
+      - ##### to 类方法
+  
+        > 从`Date`对象返回一个日期和时间字符串。
+  
+        - `Date.prototype.toString()`：`toString`方法返回一个完整的日期字符串。
+  
+          ```
+          var d = new Date(2013, 0, 1);
+          
+          d.toString()
+          // "Tue Jan 01 2013 00:00:00 GMT+0800 (CST)"
+          d
+          // "Tue Jan 01 2013 00:00:00 GMT+0800 (CST)"
+          ```
+  
+          因为`toString`是默认的调用方法，所以如果直接读取`Date`实例，就相当于调用这个方法。
+  
+        - `Date.prototype.toUTCString()`：
+  
+          `toUTCString`方法返回对应的 UTC 时间，也就是比北京时间晚8个小时。
+  
+          ```
+          var d = new Date(2013, 0, 1);
+          
+          d.toUTCString()
+          // "Mon, 31 Dec 2012 16:00:00 GMT"
+          ```
+  
+        - `Date.prototype.toISOString()`
+  
+          `toISOString`方法返回对应时间的 ISO8601 写法。
+  
+          ```
+          var d = new Date(2013, 0, 1);
+          
+          d.toISOString()
+          // "2012-12-31T16:00:00.000Z"
+          ```
+  
+          注意，`toISOString`方法返回的总是 UTC 时区的时间。
+  
+        - `Date.prototype.toJSON()`
+  
+          `toJSON`方法返回一个符合 JSON 格式的 ISO 日期字符串，与`toISOString`方法的返回结果完全相同。
+  
+          ```
+          var d = new Date(2013, 0, 1);
+          
+          d.toJSON()
+          // "2012-12-31T16:00:00.000Z"
+          ```
+  
+        - `Date.prototype.toDateString()`
+  
+          `toDateString`方法返回日期字符串（不含小时、分和秒）。
+  
+          ```
+          var d = new Date(2013, 0, 1);
+          d.toDateString() // "Tue Jan 01 2013"
+          ```
+  
+        - `Date.prototype.toTimeString()`
+  
+          `toTimeString`方法返回时间字符串（不含年月日）。
+  
+          ```
+          var d = new Date(2013, 0, 1);
+          d.toTimeString() // "00:00:00 GMT+0800 (CST)"
+          ```
+  
+        - **本地时间**：以下3个方法，可以将 Date 实例转为表示本地时间的字符串。
+  
+          - `Date.prototype.toLocaleString()`：完整的本地时间。
+          - `Date.prototype.toLocaleDateString()`：本地日期（不含小时、分和秒）。
+          - `Date.prototype.toLocaleTimeString()`：本地时间（不含年月日）。
+  
+          下面是用法实例。
+  
+          ```js
+          var d = new Date(2013, 0, 1);
+          
+          d.toLocaleString()
+          // 中文版浏览器为"2013/1/1 00:00:00"
+          // 英文版浏览器为"1/1/2013 12:00:00 AM"
+          
+          d.toLocaleDateString()
+          // 中文版浏览器为"2013/1/1"
+          // 英文版浏览器为"1/1/2013"
+          
+          d.toLocaleTimeString()
+          // 中文版浏览器为"00:00:00"
+          // 英文版浏览器为"12:00:00 AM"
+          ```
+  
+          这三个方法都有两个可选的参数。
+  
+          ```js
+          dateObj.toLocaleString([locales[, options]])
+          dateObj.toLocaleDateString([locales[, options]])
+          dateObj.toLocaleTimeString([locales[, options]])
+          ```
+  
+          这两个参数中，`locales`是一个指定所用语言的字符串，`options`是一个配置对象。下面是`locales`的例子，分别采用`en-US`和`zh-CN`语言设定。
+  
+          ```js
+          var d = new Date(2013, 0, 1);
+          
+          d.toLocaleString('en-US') // "1/1/2013, 12:00:00 AM"
+          d.toLocaleString('zh-CN') // "2013/1/1 00:00:00"
+          
+          d.toLocaleDateString('en-US') // "1/1/2013"
+          d.toLocaleDateString('zh-CN') // "2013/1/1"
+          
+          d.toLocaleTimeString('en-US') // "12:00:00 AM"
+          d.toLocaleTimeString('zh-CN') // "00:00:00"
+          ```
+  
+          `options`配置对象有以下属性。
+  
+          - `dateStyle`：可能的值为`full`、`long`、`medium`、`short`。
+          - `timeStyle`：可能的值为`full`、`long`、`medium`、`short`。
+          - `month`：可能的值为`numeric`、`2-digit`、`long`、`short`、`narrow`。
+          - `year`：可能的值为`numeric`、`2-digit`。
+          - `weekday`：可能的值为`long`、`short`、`narrow`。
+          - `day`、`hour`、`minute`、`second`：可能的值为`numeric`、`2-digit`。
+          - `timeZone`：可能的值为 IANA 的时区数据库。
+          - `timeZoneName`：可能的值为`long`、`short`。
+          - `hour12`：24小时周期还是12小时周期，可能的值为`true`、`false`。
+  
+          下面是用法实例。
+  
+          ```js
+          var d = new Date(2013, 0, 1);
+          
+          d.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+          })
+          // "Tuesday, January 1, 2013"
+          
+          d.toLocaleDateString('en-US', {
+            day: "2-digit",
+            month: "long",
+            year: "2-digit"
+          });
+          // "January 01, 13"
+          
+          d.toLocaleTimeString('en-US', {
+            timeZone: 'UTC',
+            timeZoneName: 'short'
+          })
+          // "4:00:00 PM UTC"
+          
+          d.toLocaleTimeString('en-US', {
+            timeZone: 'Asia/Shanghai',
+            timeZoneName: 'long'
+          })
+          // "12:00:00 AM China Standard Time"
+          
+          d.toLocaleTimeString('en-US', {
+            hour12: false
+          })
+          // "00:00:00"
+          
+          d.toLocaleTimeString('en-US', {
+            hour12: true
+          })
+          // "12:00:00 AM"
+          ```
+  
+      - ##### get 类方法
+  
+        > `Date`对象提供了一系列`get*`方法，用来获取`Date`对象的日期和时间。
+  
+        - `getTime()`：返回实例距离1970年1月1日00:00:00的毫秒数，等同于`valueOf`方法。
+        - `getDate()`：返回实例对象对应每个月的几号（从1开始）。
+        - `getDay()`：返回星期几，星期日为0，星期一为1，以此类推。
+        - `getFullYear()`：返回四位的年份。
+        - `getMonth()`：返回月份（0表示1月，11表示12月）。
+        - `getHours()`：返回小时（0-23）。
+        - `getMilliseconds()`：返回毫秒（0-999）。
+        - `getMinutes()`：返回分钟（0-59）。
+        - `getSeconds()`：返回秒（0-59）。
+        - `getTimezoneOffset()`：返回当前时间与 UTC 的时区差异，以分钟表示，返回结果考虑到了夏令时因素。
+  
+        所有这些`get*`方法返回的都是整数，不同方法返回值的范围不一样。
+  
+        - 分钟和秒：0 到 59
+        - 小时：0 到 23
+        - 星期：0（星期天）到 6（星期六）
+        - 日期：1 到 31
+        - 月份：0（一月）到 11（十二月）
+  
+        ```js
+        var d = new Date('January 6, 2013');
+        
+        d.getDate() // 6
+        d.getMonth() // 0
+        d.getFullYear() // 2013
+        d.getTimezoneOffset() // -480
+        ```
+  
+        上面代码中，最后一行返回`-480`，即 UTC 时间减去当前时间，单位是分钟。`-480`表示 UTC 比当前时间少480分钟，即当前时区比 UTC 早8个小时。
+  
+        下面是一个例子，计算本年度还剩下多少天。
+  
+        ```js
+        function leftDays() {
+          var today = new Date();
+          var endYear = new Date(today.getFullYear(), 11, 31, 23, 59, 59, 999);
+          var msPerDay = 24 * 60 * 60 * 1000;
+          return Math.round((endYear.getTime() - today.getTime()) / msPerDay);
+        }
+        ```
+  
+        上面这些`get*`方法返回的都是当前时区的时间，`Date`对象还提供了这些方法对应的 UTC 版本，用来返回 UTC 时间。
+  
+        - `getUTCDate()`
+        - `getUTCFullYear()`
+        - `getUTCMonth()`
+        - `getUTCDay()`
+        - `getUTCHours()`
+        - `getUTCMinutes()`
+        - `getUTCSeconds()`
+        - `getUTCMilliseconds()`
+  
+        ```js
+        var d = new Date('January 6, 2013');
+        
+        d.getDate() // 6
+        d.getUTCDate() // 5
+        ```
+  
+        上面代码中，实例对象`d`表示当前时区（东八时区）的1月6日0点0分0秒，这个时间对于当前时区来说是1月6日，所以`getDate`方法返回6，对于 UTC 时区来说是1月5日，所以`getUTCDate`方法返回5。
+  
+      - ##### set 类方法
+  
+        > `Date`对象提供了一系列`set*`方法，用来设置`Date`对象的日期和时间。
+  
+        - `setDate(date)`：设置实例对象对应的每个月的几号（1-31），返回改变后毫秒时间戳。
+        - `setFullYear(year [, month, date])`：设置四位年份。
+        - `setHours(hour [, min, sec, ms])`：设置小时（0-23）。
+        - `setMilliseconds(ms)`：设置毫秒（0-999）。
+        - `setMinutes(min [, sec, ms])`：设置分钟（0-59）。
+        - `setMonth(month [, date])`：设置月份（0-11）。
+        - `setSeconds(sec [, ms])`：设置秒（0-59）。
+        - `setTime(milliseconds)`：设置毫秒时间戳。
+  
+        这些方法基本是跟`get*`方法一一对应的，但是没有`setDay`方法，因为星期几是计算出来的，而不是设置的。另外，需要注意的是，凡是涉及到设置月份，都是从0开始算的，即`0`是1月，`11`是12月。
+  
+        ```js
+        var d = new Date ('January 6, 2013');
+        
+        d // Sun Jan 06 2013 00:00:00 GMT+0800 (CST)
+        d.setDate(9) // 1357660800000
+        d // Wed Jan 09 2013 00:00:00 GMT+0800 (CST)
+        ```
+  
+        `set*`方法的参数都会自动折算。以`setDate()`为例，如果参数超过当月的最大天数，则向下一个月顺延，如果参数是负数，表示从上个月的最后一天开始减去的天数。
+  
+        ```js
+        var d1 = new Date('January 6, 2013');
+        
+        d1.setDate(32) // 1359648000000
+        d1 // Fri Feb 01 2013 00:00:00 GMT+0800 (CST)
+        
+        var d2 = new Date ('January 6, 2013');
+        
+        d2.setDate(-1) // 1356796800000
+        d2 // Sun Dec 30 2012 00:00:00 GMT+0800 (CST)
+        ```
+  
+        上面代码中，`d1.setDate(32)`将日期设为1月份的32号，因为1月份只有31号，所以自动折算为2月1日。`d2.setDate(-1)`表示设为上个月的倒数第二天，即12月30日。
+  
+        `set`类方法和`get`类方法，可以结合使用，得到相对时间。
+  
+        ```js
+        var d = new Date();
+        
+        // 将日期向后推1000天
+        d.setDate(d.getDate() + 1000);
+        // 将时间设为6小时后
+        d.setHours(d.getHours() + 6);
+        // 将年份设为去年
+        d.setFullYear(d.getFullYear() - 1);
+        ```
+  
+        `set*`系列方法除了`setTime()`，都有对应的 UTC 版本，即设置 UTC 时区的时间。
+  
+        - `setUTCDate()`
+        - `setUTCFullYear()`
+        - `setUTCHours()`
+        - `setUTCMilliseconds()`
+        - `setUTCMinutes()`
+        - `setUTCMonth()`
+        - `setUTCSeconds()`
+  
+        ```js
+        var d = new Date('January 6, 2013');
+        d.getUTCHours() // 16
+        d.setUTCHours(22) // 1357423200000
+        d // Sun Jan 06 2013 06:00:00 GMT+0800 (CST)
+        ```
+  
+        上面代码中，本地时区（东八时区）的1月6日0点0分，是 UTC 时区的前一天下午16点。设为 UTC 时区的22点以后，就变为本地时区的上午6点。
   
   - ### JSON 对象
   
