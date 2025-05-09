@@ -1346,9 +1346,9 @@
   
     - ##### 含义和基本用法
   
-      JavaScript 的对象（Object），本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。这给它的使用带来了很大的限制。
+      JS 的对象（Object），本质上是键值对的集合（Hash 结构），但是传统上只能用字符串当作键。这给它的使用带来了很大的限制。
   
-      ```
+      ```js
       const data = {};
       const element = document.getElementById('myDiv');
       
@@ -1360,7 +1360,7 @@
   
       为了解决这个问题，ES6 提供了 Map 数据结构。它类似于对象，也是键值对的集合，但是“键”的范围不限于字符串，各种类型的值（包括对象）都可以当作键。也就是说，Object 结构提供了“字符串—值”的对应，Map 结构提供了“值—值”的对应，是一种更完善的 Hash 结构实现。如果你需要“键值对”的数据结构，Map 比 Object 更合适。
   
-      ```
+      ```js
       const m = new Map();
       const o = {p: 'Hello World'};
       
@@ -1376,7 +1376,7 @@
   
       上面的例子展示了如何向 Map 添加成员。作为构造函数，Map 也可以接受一个数组作为参数。该数组的成员是一个个表示键值对的数组。
   
-      ```
+      ```js
       const map = new Map([
         ['name', '张三'],
         ['title', 'Author']
@@ -1393,7 +1393,7 @@
   
       `Map`构造函数接受数组作为参数，实际上执行的是下面的算法。
   
-      ```
+      ```js
       const items = [
         ['name', '张三'],
         ['title', 'Author']
@@ -1406,9 +1406,9 @@
       );
       ```
   
-      事实上，不仅仅是数组，任何具有 Iterator 接口、且每个成员都是一个双元素的数组的数据结构（详见《Iterator》一章）都可以当作`Map`构造函数的参数。这就是说，`Set`和`Map`都可以用来生成新的 Map。
+      事实上，不仅仅是数组，**任何具有 Iterator 接口、且每个成员都是一个双元素的数组的数据结构（详见《Iterator》一章）都可以当作`Map`构造函数的参数**。这就是说，`Set`和`Map`都可以用来生成新的 Map。
   
-      ```
+      ```js
       const set = new Set([
         ['foo', 1],
         ['bar', 2]
@@ -1425,7 +1425,7 @@
   
       如果对同一个键多次赋值，后面的值将覆盖前面的值。
   
-      ```
+      ```js
       const map = new Map();
       
       map
@@ -1437,16 +1437,15 @@
   
       上面代码对键`1`连续赋值两次，后一次的值覆盖前一次的值。
   
-      如果读取一个未知的键，则返回`undefined`。
+      如果读取一个 Map 中不存在的键，则返回`undefined`。
   
-      ```
-      new Map().get('asfddfsasadf')
-      // undefined
+      ```js
+      new Map().get('asfddfsasadf')  // undefined
       ```
   
       注意，只有对同一个对象的引用，Map 结构才将其视为同一个键。这一点要非常小心。
   
-      ```
+      ```js
       const map = new Map();
       
       map.set(['a'], 555);
@@ -1457,7 +1456,7 @@
   
       同理，同样的值的两个实例，在 Map 结构中被视为两个键。
   
-      ```
+      ```js
       const map = new Map();
       
       const k1 = ['a'];
@@ -1475,7 +1474,7 @@
   
       由上可知，Map 的键实际上是跟内存地址绑定的，只要内存地址不一样，就视为两个键。这就解决了同名属性碰撞（clash）的问题，我们扩展别人的库的时候，如果使用对象作为键名，就不用担心自己的属性与原作者的属性同名。
   
-      如果 Map 的键是一个简单类型的值（数字、字符串、布尔值），则只要两个值严格相等，Map 将其视为一个键，比如`0`和`-0`就是一个键，布尔值`true`和字符串`true`则是两个不同的键。另外，`undefined`和`null`也是两个不同的键。虽然`NaN`不严格相等于自身，但 Map 将其视为同一个键。
+      Map 内部判断两个键相等与否和 Set 是一样的，都是用的“Same-value-zero equality”。它类似于精确相等运算符（`===`），主要的区别是向 Map 加入键时认为`NaN`等于自身，而精确相等运算符认为`NaN`不等于自身。
   
       ```js
       let map = new Map();
@@ -1503,7 +1502,7 @@
   
       `size`属性返回 Map 结构的成员总数。
   
-      ```
+      ```js
       const map = new Map();
       map.set('foo', true);
       map.set('bar', false);
@@ -1515,7 +1514,7 @@
   
       `set`方法设置键名`key`对应的键值为`value`，然后返回整个 Map 结构。如果`key`已经有值，则键值会被更新，否则就新生成该键。
   
-      ```
+      ```js
       const m = new Map();
       
       m.set('edition', 6)        // 键是字符串
@@ -1525,7 +1524,7 @@
   
       `set`方法返回的是当前的`Map`对象，因此可以采用链式写法。
   
-      ```
+      ```js
       let map = new Map()
         .set(1, 'a')
         .set(2, 'b')
@@ -1536,7 +1535,7 @@
   
       `get`方法读取`key`对应的键值，如果找不到`key`，返回`undefined`。
   
-      ```
+      ```js
       const m = new Map();
       
       const hello = function() {console.log('hello');};
@@ -1549,7 +1548,7 @@
   
       `has`方法返回一个布尔值，表示某个键是否在当前 Map 对象之中。
   
-      ```
+      ```js
       const m = new Map();
       
       m.set('edition', 6);
@@ -1564,9 +1563,9 @@
   
       **（5）Map.prototype.delete(key)**
   
-      `delete()`方法删除某个键，返回`true`。如果删除失败，返回`false`。
+      `delete()`方法删除某个键。删除成功返回`true`，反之返回`false`。
   
-      ```
+      ```js
       const m = new Map();
       m.set(undefined, 'nah');
       m.has(undefined)     // true
@@ -1598,9 +1597,9 @@
       - `Map.prototype.entries()`：返回所有成员的遍历器。
       - `Map.prototype.forEach()`：遍历 Map 的所有成员。
   
-      需要特别注意的是，Map 的遍历顺序就是插入顺序。
+      需要特别注意的是，**Map 的遍历顺序就是插入顺序。**
   
-      ```
+      ```js
       const map = new Map([
         ['F', 'no'],
         ['T',  'yes'],
@@ -1641,14 +1640,13 @@
   
       上面代码最后的那个例子，表示 Map 结构的默认遍历器接口（`Symbol.iterator`属性），就是`entries`方法。
   
+      ```js
+      map[Symbol.iterator] === map.entries  // true
       ```
-      map[Symbol.iterator] === map.entries
-      // true
-      ```
-  
+      
       Map 结构转为数组结构，比较快速的方法是使用扩展运算符（`...`）。
-  
-      ```
+      
+      ```js
       const map = new Map([
         [1, 'one'],
         [2, 'two'],
@@ -1667,10 +1665,10 @@
       [...map]
       // [[1,'one'], [2, 'two'], [3, 'three']]
       ```
-  
+      
       结合数组的`map`方法、`filter`方法，可以实现 Map 的遍历和过滤（Map 本身没有`map`和`filter`方法）。
-  
-      ```
+      
+      ```js
       const map0 = new Map()
         .set(1, 'a')
         .set(2, 'b')
@@ -1686,18 +1684,18 @@
           );
       // 产生 Map 结构 {2 => '_a', 4 => '_b', 6 => '_c'}
       ```
-  
+      
       此外，Map 还有一个`forEach`方法，与数组的`forEach`方法类似，也可以实现遍历。
-  
-      ```
+      
+      ```js
       map.forEach(function(value, key, map) {
         console.log("Key: %s, Value: %s", key, value);
       });
       ```
-  
-      `forEach`方法还可以接受第二个参数，用来绑定`this`。
-  
-      ```
+      
+      Map 的`forEach`方法同样可以接受第二个参数，用来绑定`this`。
+      
+      ```js
       const reporter = {
         report: function(key, value) {
           console.log("Key: %s, Value: %s", key, value);
@@ -1708,16 +1706,16 @@
         this.report(key, value);
       }, reporter);
       ```
-  
+      
       上面代码中，`forEach`方法的回调函数的`this`，就指向`reporter`。
-  
+      
     - ##### 与其他数据结构的互相转换
   
       **（1）Map 转为数组**
   
       前面已经提过，Map 转为数组最方便的方法，就是使用扩展运算符（`...`）。
   
-      ```
+      ```js
       const myMap = new Map()
         .set(true, 7)
         .set({foo: 3}, ['abc']);
@@ -1729,7 +1727,7 @@
   
       将数组传入 Map 构造函数，就可以转为 Map。
   
-      ```
+      ```js
       new Map([
         [true, 7],
         [{foo: 3}, ['abc']]
@@ -1744,7 +1742,7 @@
   
       如果所有 Map 的键都是字符串，它可以无损地转为对象。
   
-      ```
+      ```js
       function strMapToObj(strMap) {
         let obj = Object.create(null);
         for (let [k,v] of strMap) {
@@ -1766,14 +1764,14 @@
   
       对象转为 Map 可以通过`Object.entries()`。
   
-      ```
+      ```js
       let obj = {"a":1, "b":2};
       let map = new Map(Object.entries(obj));
       ```
   
       此外，也可以自己实现一个转换函数。
   
-      ```
+      ```js
       function objToStrMap(obj) {
         let strMap = new Map();
         for (let k of Object.keys(obj)) {
@@ -1790,7 +1788,7 @@
   
       Map 转为 JSON 要区分两种情况。一种情况是，Map 的键名都是字符串，这时可以选择转为对象 JSON。
   
-      ```
+      ```js
       function strMapToJson(strMap) {
         return JSON.stringify(strMapToObj(strMap));
       }
@@ -1802,7 +1800,7 @@
   
       另一种情况是，Map 的键名有非字符串，这时可以选择转为数组 JSON。
   
-      ```
+      ```js
       function mapToArrayJson(map) {
         return JSON.stringify([...map]);
       }
@@ -1816,7 +1814,7 @@
   
       JSON 转为 Map，正常情况下，所有键名都是字符串。
   
-      ```
+      ```js
       function jsonToStrMap(jsonStr) {
         return objToStrMap(JSON.parse(jsonStr));
       }
@@ -1842,7 +1840,7 @@
   
       `WeakMap`结构与`Map`结构类似，也是用于生成键值对的集合。
   
-      ```
+      ```js
       // WeakMap 可以使用 set 方法添加成员
       const wm1 = new WeakMap();
       const key = {foo: 1};
@@ -1857,24 +1855,24 @@
       wm2.get(k2) // "bar"
       ```
   
-      `WeakMap`与`Map`的区别有两点。
+      类似于`WeakSet`，`WeakMap`与`Map`的区别同样是两点：
   
-      首先，`WeakMap`只接受对象（`null`除外）和 [Symbol 值](https://github.com/tc39/proposal-symbols-as-weakmap-keys)作为键名，不接受其他类型的值作为键名。
+      1. `WeakMap`只接受对象（`null`除外）和 [Symbol 值](https://github.com/tc39/proposal-symbols-as-weakmap-keys)作为键名，不接受其他类型的值作为键名。
   
-      ```
-      const map = new WeakMap();
-      map.set(1, 2) // 报错
-      map.set(null, 2) // 报错
-      map.set(Symbol(), 2) // 不报错
-      ```
+         ```js
+         const map = new WeakMap();
+         map.set(1, 2) // 报错
+         map.set(null, 2) // 报错
+         map.set(Symbol(), 2) // 不报错
+         ```
   
-      上面代码中，如果将数值`1`和`null`作为 WeakMap 的键名，都会报错，将 Symbol 值作为键名不会报错。
+         > 上面代码中，如果将数值`1`和`null`作为 WeakMap 的键名，都会报错，将 Symbol 值作为键名不会报错。
   
-      其次，`WeakMap`的键名所指向的对象，不计入垃圾回收机制。
+      2. 其次，`WeakMap`的**键名**所指向的对象，不计入垃圾回收机制。
   
       `WeakMap`的设计目的在于，有时我们想在某个对象上面存放一些数据，但是这会形成对于这个对象的引用。请看下面的例子。
   
-      ```
+      ```js
       const e1 = document.getElementById('foo');
       const e2 = document.getElementById('bar');
       const arr = [
@@ -1887,7 +1885,7 @@
   
       一旦不再需要这两个对象，我们就必须手动删除这个引用，否则垃圾回收机制就不会释放`e1`和`e2`占用的内存。
   
-      ```
+      ```js
       // 不需要 e1 和 e2 的时候
       // 必须手动删除引用
       arr [0] = null;
@@ -1900,7 +1898,7 @@
   
       基本上，如果你要往对象上添加数据，又不想干扰垃圾回收机制，就可以使用 WeakMap。一个典型应用场景是，在网页的 DOM 元素上添加数据，就可以使用`WeakMap`结构。当该 DOM 元素被清除，其所对应的`WeakMap`记录就会自动被移除。
   
-      ```
+      ```js
       const wm = new WeakMap();
       
       const element = document.getElementById('example');
@@ -1917,7 +1915,7 @@
   
       注意，WeakMap 弱引用的只是键名，而不是键值。键值依然是正常引用。
   
-      ```
+      ```js
       const wm = new WeakMap();
       let key = {};
       let obj = {foo: 1};
@@ -1959,7 +1957,7 @@
   
       然后，执行下面的代码。
   
-      ```
+      ```js
       // 手动执行一次垃圾回收，保证获取的内存使用状态准确
       > global.gc();
       undefined
@@ -2021,7 +2019,7 @@
   
       前文说过，WeakMap 应用的典型场合就是 DOM 节点作为键名。下面是一个例子。
   
-      ```
+      ```js
       let myWeakmap = new WeakMap();
       
       myWeakmap.set(
@@ -2039,7 +2037,7 @@
   
       WeakMap 的另一个用处是部署私有属性。
   
-      ```
+      ```js
       const _counter = new WeakMap();
       const _action = new WeakMap();
       
@@ -2072,16 +2070,16 @@
   
     WeakSet 和 WeakMap 是基于弱引用的数据结构，[ES2021](https://github.com/tc39/proposal-weakrefs) 更进一步，提供了 WeakRef 对象，用于直接创建对象的弱引用。
   
-    ```
+    ```js
     let target = {};
     let wr = new WeakRef(target);
     ```
   
     上面示例中，`target`是原始对象，构造函数`WeakRef()`创建了一个基于`target`的新对象`wr`。这里，`wr`就是一个 WeakRef 的实例，属于对`target`的弱引用，垃圾回收机制不会计入这个引用，也就是说，`wr`的引用不会妨碍原始对象`target`被垃圾回收机制清除。
   
-    WeakRef 实例对象有一个`deref()`方法，如果原始对象存在，该方法返回原始对象；如果原始对象已经被垃圾回收机制清除，该方法返回`undefined`。
+    **WeakRef 实例对象有一个`deref()`方法，如果原始对象存在，该方法返回原始对象；如果原始对象已经被垃圾回收机制清除，该方法返回`undefined`。**
   
-    ```
+    ```js
     let target = {};
     let wr = new WeakRef(target);
     
@@ -2091,11 +2089,11 @@
     }
     ```
   
-    上面示例中，`deref()`方法可以判断原始对象是否已被清除。
+    上面示例中，**`deref()`方法可以判断原始对象是否已被清除。**
   
     弱引用对象的一大用处，就是作为缓存，未被清除时可以从缓存取值，一旦清除缓存就自动失效。
   
-    ```
+    ```js
     function makeWeakCached(f) {
       const cache = new Map();
       return key => {
@@ -2116,49 +2114,51 @@
   
     上面示例中，`makeWeakCached()`用于建立一个缓存，缓存里面保存对原始文件的弱引用。
   
-    注意，标准规定，一旦使用`WeakRef()`创建了原始对象的弱引用，那么在本轮事件循环（event loop），原始对象肯定不会被清除，只会在后面的事件循环才会被清除。
+    注意，**标准规定，一旦使用`WeakRef()`创建了原始对象的弱引用，那么在本轮事件循环（event loop），原始对象肯定不会被清除，只会在后面的事件循环才会被清除。**
   
   - #### `FinalizationRegistry`
   
-    [ES2021](https://github.com/tc39/proposal-weakrefs#finalizers) 引入了清理器注册表功能 FinalizationRegistry，用来指定目标对象被垃圾回收机制清除以后，所要执行的回调函数。
+    [ES2021](https://github.com/tc39/proposal-weakrefs#finalizers) 引入了 `FinalizationRegistry`，用来**指定目标对象被垃圾回收机制清除以后，所要执行的回调函数。**
   
     首先，新建一个注册表实例。
   
-    ```
+    ```js
     const registry = new FinalizationRegistry(heldValue => {
       // ....
     });
     ```
   
-    上面代码中，`FinalizationRegistry()`是系统提供的构造函数，返回一个清理器注册表实例，里面登记了所要执行的回调函数。回调函数作为`FinalizationRegistry()`的参数传入，它本身有一个参数`heldValue`。
+    上面代码中，**`FinalizationRegistry()`是系统提供的构造函数，返回一个清理器注册表实例，里面登记了所要执行的回调函数。**回调函数作为`FinalizationRegistry()`的参数传入，它本身有一个参数`heldValue`。
   
     然后，注册表实例的`register()`方法，用来注册所要观察的目标对象。
   
-    ```
+    ```js
     registry.register(theObject, "some value");
     ```
   
-    上面示例中，`theObject`就是所要观察的目标对象，一旦该对象被垃圾回收机制清除，注册表就会在清除完成后，调用早前注册的回调函数，并将`some value`作为参数（前面的`heldValue`）传入回调函数。
+    上面示例中，`theObject`就是所要观察的目标对象，一旦该对象被垃圾回收机制清除，注册表就会在清除完成后，调用早前注册的回调函数，并将`some value`作为参数（前面的`heldValue`）传入回调函数。（注意：如果浏览器窗口关闭或者进程意外退出，注册的回调函数就不会运行了）
   
-    注意，注册表不对目标对象`theObject`构成强引用，属于弱引用。因为强引用的话，原始对象就不会被垃圾回收机制清除，这就失去使用注册表的意义了。
+    注意，**注册表不对目标对象`theObject`构成强引用，属于弱引用。**因为强引用的话，原始对象就不会被垃圾回收机制清除，这就失去使用注册表的意义了。
   
-    回调函数的参数`heldValue`可以是任意类型的值，字符串、数值、布尔值、对象，甚至可以是`undefined`。
+    **回调函数的参数（`heldValue`）可以是任意类型的值**，字符串、数值、布尔值、对象，甚至可以是`undefined`。
   
-    最后，如果以后还想取消已经注册的回调函数，则要向`register()`传入第三个参数，作为标记值。这个标记值必须是对象，一般都用原始对象。接着，再使用注册表实例对象的`unregister()`方法取消注册。
+    最后，**如果以后还想取消已经注册的回调函数，则要向`register()`传入第三个参数，作为标记值。这个标记值必须是对象，一般都用原始对象。接着，再使用注册表实例对象的`unregister()`方法取消注册。**（第3个和第1个参数可以不是同一个对象）
   
-    ```
-    registry.register(theObject, "some value", theObject);
+    ```js
+    registry.register(theObject, "some value", theObject);  // 第3个和第1个参数可以不是同一个对象
     // ...其他操作...
     registry.unregister(theObject);
     ```
   
-    上面代码中，`register()`方法的第三个参数就是标记值`theObject`。取消回调函数时，要使用`unregister()`方法，并将标记值作为该方法的参数。这里`register()`方法对第三个参数的引用，也属于弱引用。如果没有这个参数，则回调函数无法取消。
+    上面代码中，`register()`方法的第三个参数就是标记值`theObject`。取消回调函数时，要使用`unregister()`方法，并将标记值作为该方法的参数。这里`register()`方法对**第三个参数的引用，也属于弱引用**。如果没有这个参数，则回调函数无法取消。
+  
+    注意：
   
     由于回调函数被调用以后，就不再存在于注册表之中了，所以执行`unregister()`应该是在回调函数还没被调用之前。
   
     下面使用`FinalizationRegistry`，对前一节的缓存函数进行增强。
-  
-    ```
+    
+    ```js
     function makeWeakCached(f) {
       const cache = new Map();
       const cleanup = new FinalizationRegistry(key => {
@@ -2186,8 +2186,8 @@
     上面示例与前一节的例子相比，就是增加一个清理器注册表，一旦缓存的原始对象被垃圾回收机制清除，会自动执行一个回调函数。该回调函数会清除缓存里面已经失效的键。
   
     下面是另一个例子。
-  
-    ```
+    
+    ```js
     class Thingy {
       #file;
       #cleanup = file => {
@@ -2213,7 +2213,7 @@
     ```
   
     上面示例中，如果由于某种原因，`Thingy`类的实例对象没有调用`release()`方法，就被垃圾回收机制清除了，那么清理器就会调用回调函数`#cleanup()`，输出一条错误信息。
-  
+    
     由于无法知道清理器何时会执行，所以最好避免使用它。另外，如果浏览器窗口关闭或者进程意外退出，清理器则不会运行。
   
 
