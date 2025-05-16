@@ -238,7 +238,7 @@
       >
       > - 回调函数的返回值不是一个 Promise 实例，此时新的 Promise 实例的状态为成功fulfilled，结果值为回调函数的返回值。（若回调函数没有显示的返回值，相当于返回了`undefined`，此时新的 Promise 实例的状态为成功fulfilled，结果值为`undefined`）
       >
-      > - 如果回调执行中抛出了异常，此时新的 Promise 实例的状态为失败rejected，结果值为抛出的异常。由于此时异常在 Promise 中因此程序并不会崩溃退出。并且如果 Promise 的状态为失败rejected，但是没有指定失败的回调，此时then方法返回的新的 Promise 对象的状态和结果值都来自这个失败的 Promise 对象。（因为失败的 Promise 没有人去处理，因此会继续向上传递）
+      > - 如果回调执行中抛出了异常，此时返回的新的 Promise 实例的状态为失败rejected，结果值为抛出的异常。由于此时异常在 Promise 中因此程序并不会崩溃退出。并且如果 Promise 的状态为失败rejected，但是没有指定失败的回调，此时then方法返回的新的 Promise 对象的状态和结果值都来自这个失败的 Promise 对象。（因为失败的 Promise 没有人去处理，因此会继续向上传递）
       >
       > 
       >注意：当 Promise 状态为失败rejected，且没有指定错误处理回调（如catch或then的第二个参数），那么这个失败状态会一直传递直到被处理。如果未被处理，会触发`unhandledrejection`事件（Node和浏览器中都有），但不会导致程序崩溃。Promise 中的抛异常和同步代码中的抛异常不同，异常会被 Promise 偷偷“吃掉”（即Promise内部对所有错误都进行了`try...catch`），其实错误已经发生且没有人处理，因此要小心。
@@ -255,7 +255,7 @@
       
       上面的代码使用`then`方法，依次指定了两个回调函数。第一个回调函数完成以后，会将返回结果作为参数，传入第二个回调函数。
       
-      采用链式的`then`，可以指定一组按照次序调用的回调函数。这时，前一个回调函数，有可能返回的还是一个`Promise`对象（即有异步操作），这时后一个回调函数，就会等待该`Promise`对象的状态发生变化，才会被调用。
+      采用链式的`then`，可以指定一组按照次序调用的回调函数。这时，前一个回调函数返回的还是一个`Promise`对象（即有异步操作），这时后一个回调函数，就会等待该`Promise`对象的状态发生变化，才会被调用。
       
       ```js
       getJSON("/post/1.json").then(function(post) {
@@ -536,7 +536,7 @@
         .finally(server.stop);
       ```
   
-      `finally`方法的回调函数不接受任何参数，这意味着没有办法知道，前面的 Promise 状态到底是`fulfilled`还是`rejected`。这表明，`finally`方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果。
+      **`finally`方法的回调函数不接受任何参数**，这意味着没有办法知道，前面的 Promise 状态到底是`fulfilled`还是`rejected`。这表明，**`finally`方法里面的操作，应该是与状态无关的，不依赖于 Promise 的执行结果**。
   
       `finally`本质上是`then`方法的特例。
   
@@ -596,7 +596,7 @@
   
     - ##### Promise的异常穿透
   
-      > 当使用then()进行多次链式调用时，可以在最后去指定一个失败的回调即可，中间的then()不需要指定失败的回调。因为如果其中任何一层的异步任务失败了，都会抛出一个Error对象，如果错误没有指定失败的回调去捕获处理的话，会一直传递到最后的catch()方法中。
+      > 当使用then()进行多次链式调用时，可以在最后去指定一个失败的catch()回调即可，中间的then()不需要指定失败的回调。因为如果其中任何一层的异步任务失败了，都会抛出一个Error对象，如果错误没有指定失败的回调去捕获处理的话，会一直传递到最后的catch()方法中。
   
     - ##### 中断Promise链
   
@@ -706,7 +706,7 @@
   
       `Promise.race()`方法的参数与`Promise.all()`方法一样，如果不是 Promise 实例，就会先调用下面讲到的`Promise.resolve()`方法，将参数转为 Promise 实例，再进一步处理。
   
-      下面是一个例子，如果指定时间内没有获得结果，就将 Promise 的状态变为`reject`，否则变为`resolve`。
+      下面是一个例子，如果指定时间内没有获得结果，就将 Promise 的状态变为`reject`，否则变为`fulfilled`。
   
       ```js
       const p = Promise.race([
@@ -866,7 +866,7 @@
   
       上面代码将 jQuery 生成的`deferred`对象，转为一个新的 Promise 对象。
   
-      `Promise.resolve()`等价于下面的写法。
+      **`Promise.resolve()`等价于下面的写法**。（`Promise.resolve()` 和 `new Promise(resolve => resolve(x))` 对参数的处理逻辑完全一致，均遵循 Promise 的同化规则，只是语法和使用场景不同）
   
       ```js
       Promise.resolve('foo')
@@ -876,11 +876,11 @@
   
       `Promise.resolve()`方法的参数分成4种情况：
   
-      1. **参数是一个 Promise 实例**
+      1. **参数是一个 Promise 实例**：（`new Promise(resolve => resolve(x))`中参数x如果是一个 Promise 实例，那么最终该 Promise 实例的状态及结果，和参数 Promise 的状态及结果保持一致）
   
          如果参数是 Promise 实例，那么`Promise.resolve`将不做任何修改、**原封不动地返回这个实例**。（还是同一个）
   
-      2. **参数是一个具有`then`方法的对象**
+      2. **参数是一个具有`then`方法的对象**：
   
          如果参数对象具有`then`方法，比如下面这个对象。
   
@@ -909,7 +909,7 @@
   
          上面代码中，该对象的`then()`方法执行后，对象`p1`的状态就变为`fulfilled`，从而立即执行最后那个`then()`方法指定的回调函数，输出42。
   
-      3. **参数不是具有`then()`方法的对象，或根本就不是对象**
+      3. **参数不是具有`then()`方法的对象，或根本就不是对象**：
   
          如果参数是一个原始值，或者是一个不具有`then()`方法的对象，则`Promise.resolve()`方法返回一个新的 Promise 对象，状态为`fulfilled`，结果值为传入的参数值。
   
@@ -924,7 +924,7 @@
   
          上面代码生成一个新的 Promise 对象的实例`p`。由于字符串`Hello`不属于异步操作（判断方法是字符串对象不具有 then 方法），返回 Promise 实例的状态从一生成就是`fulfilled`，成功回调会在本轮事件循环结束时执行。`Promise.resolve()`方法的参数，会作为 Promise 对象的结果值传给回调函数。
   
-      4. **不带有任何参数**
+      4. **不带有任何参数**：
   
          `Promise.resolve()`方法允许调用时不带参数，直接返回一个`fulfilled`状态的 Promise 对象，结果值为`undefined`。
   
