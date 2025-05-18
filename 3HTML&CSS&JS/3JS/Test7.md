@@ -3998,7 +3998,7 @@
     >
     > 上面代码中，URL 实例的`searchParams`属性就是一个`URLSearchParams`实例，所以可以使用`URLSearchParams`接口的`get`方法。
     >
-    > `URLSearchParams`实例有遍历器接口，可以用`for...of`循环遍历（详见《ES6 标准入门》的《Iterator》一章）。
+    > `URLSearchParams`实例有迭代器接口，可以用`for...of`循环遍历（详见《ES6 标准入门》的《Iterator》一章）。
     >
     > ```
     > var params = new URLSearchParams({'foo': 1 , 'bar': 2});
@@ -4153,7 +4153,7 @@
     >
     > ### URLSearchParams.keys()，URLSearchParams.values()，URLSearchParams.entries()
     >
-    > 这三个方法都返回一个遍历器对象，供`for...of`循环遍历。它们的区别在于，`keys`方法返回的是键名的遍历器，`values`方法返回的是键值的遍历器，`entries`返回的是键值对的遍历器。
+    > 这三个方法都返回一个迭代器对象，供`for...of`循环遍历。它们的区别在于，`keys`方法返回的是键名的迭代器，`values`方法返回的是键值的迭代器，`entries`返回的是键值对的迭代器。
     >
     > ```
     > var params = new URLSearchParams('a=1&b=2');
@@ -4700,9 +4700,9 @@
     > - `FormData.delete(key)`：删除一个键值对，参数为键名。
     > - `FormData.append(key, value)`：添加一个键值对。如果键名重复，则会生成两个相同键名的键值对。如果第二个参数是文件，还可以使用第三个参数，表示文件名。
     > - `FormData.has(key)`：返回一个布尔值，表示是否具有该键名的键值对。
-    > - `FormData.keys()`：返回一个遍历器对象，用于`for...of`循环遍历所有的键名。
-    > - `FormData.values()`：返回一个遍历器对象，用于`for...of`循环遍历所有的键值。
-    > - `FormData.entries()`：返回一个遍历器对象，用于`for...of`循环遍历所有的键值对。如果直接用`for...of`循环遍历 FormData 实例，默认就会调用这个方法。
+    > - `FormData.keys()`：返回一个迭代器对象，用于`for...of`循环遍历所有的键名。
+    > - `FormData.values()`：返回一个迭代器对象，用于`for...of`循环遍历所有的键值。
+    > - `FormData.entries()`：返回一个迭代器对象，用于`for...of`循环遍历所有的键值对。如果直接用`for...of`循环遍历 FormData 实例，默认就会调用这个方法。
     >
     > 下面是`get()`、`getAll()`、`set()`、`append()`方法的例子。
     >
@@ -4718,7 +4718,7 @@
     > formData.append('userpic[]', myFileInput.files[1], 'user2.jpg');
     > ```
     >
-    > 下面是遍历器的例子。
+    > 下面是迭代器的例子。
     >
     > ```
     > var formData = new FormData();
@@ -6614,3 +6614,4 @@
     > - self.close()：关闭 Worker 线程。
     > - self.postMessage()：向产生这个 Worker 的线程发送消息。
     > - self.importScripts()：加载 JS 脚本。
+

@@ -1590,11 +1590,11 @@
   
     - ##### 遍历方法
   
-      Map 结构原生提供三个遍历器生成函数和一个遍历方法。
+      Map 结构原生提供三个迭代器生成函数和一个遍历方法。
   
-      - `Map.prototype.keys()`：返回键名的遍历器。
-      - `Map.prototype.values()`：返回键值的遍历器。
-      - `Map.prototype.entries()`：返回所有成员的遍历器。
+      - `Map.prototype.keys()`：返回键名的迭代器。
+      - `Map.prototype.values()`：返回键值的迭代器。
+      - `Map.prototype.entries()`：返回所有成员的迭代器。
       - `Map.prototype.forEach()`：遍历 Map 的所有成员。
   
       需要特别注意的是，**Map 的遍历顺序就是插入顺序。**
@@ -1638,7 +1638,7 @@
       // "T" "yes"
       ```
   
-      上面代码最后的那个例子，表示 Map 结构的默认遍历器接口（`Symbol.iterator`属性），就是`entries`方法。
+      上面代码最后的那个例子，表示 Map 结构的默认迭代器接口（`Symbol.iterator`属性），就是`entries`方法。
   
       ```js
       map[Symbol.iterator] === map.entries  // true

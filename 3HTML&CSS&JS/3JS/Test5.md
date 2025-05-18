@@ -724,7 +724,7 @@
     >
     > ### NodeList.prototype.keys()，NodeList.prototype.values()，NodeList.prototype.entries()
     >
-    > 这三个方法都返回一个 ES6 的遍历器对象，可以通过`for...of`循环遍历获取每一个成员的信息。区别在于，`keys()`返回键名的遍历器，`values()`返回键值的遍历器，`entries()`返回的遍历器同时包含键名和键值的信息。
+    > 这三个方法都返回一个 ES6 的迭代器对象，可以通过`for...of`循环遍历获取每一个成员的信息。区别在于，`keys()`返回键名的迭代器，`values()`返回键值的迭代器，`entries()`返回的迭代器同时包含键名和键值的信息。
     >
     > ```
     > var children = document.body.childNodes;
@@ -1763,7 +1763,7 @@
     >
     > ### document.createNodeIterator()
     >
-    > `document.createNodeIterator`方法返回一个子节点遍历器。
+    > `document.createNodeIterator`方法返回一个子节点迭代器。
     >
     > ```
     > var nodeIterator = document.createNodeIterator(
@@ -1772,7 +1772,7 @@
     > );
     > ```
     >
-    > 上面代码返回`<body>`元素子节点的遍历器。
+    > 上面代码返回`<body>`元素子节点的迭代器。
     >
     > `document.createNodeIterator`方法第一个参数为所要遍历的根节点，第二个参数为所要遍历的节点类型，这里指定为元素节点（`NodeFilter.SHOW_ELEMENT`）。几种主要的节点类型写法如下。
     >
@@ -1781,7 +1781,7 @@
     > - 文本节点：NodeFilter.SHOW_TEXT
     > - 评论节点：NodeFilter.SHOW_COMMENT
     >
-    > `document.createNodeIterator`方法返回一个“遍历器”对象（`NodeFilter`实例）。该实例的`nextNode()`方法和`previousNode()`方法，可以用来遍历所有子节点。
+    > `document.createNodeIterator`方法返回一个“迭代器”对象（`NodeFilter`实例）。该实例的`nextNode()`方法和`previousNode()`方法，可以用来遍历所有子节点。
     >
     > ```
     > var nodeIterator = document.createNodeIterator(document.body);
@@ -1793,7 +1793,7 @@
     > }
     > ```
     >
-    > 上面代码中，使用遍历器的`nextNode`方法，将根节点的所有子节点，依次读入一个数组。`nextNode`方法先返回遍历器的内部指针所在的节点，然后会将指针移向下一个节点。所有成员遍历完成后，返回`null`。`previousNode`方法则是先将指针移向上一个节点，然后返回该节点。
+    > 上面代码中，使用迭代器的`nextNode`方法，将根节点的所有子节点，依次读入一个数组。`nextNode`方法先返回迭代器的内部指针所在的节点，然后会将指针移向下一个节点。所有成员遍历完成后，返回`null`。`previousNode`方法则是先将指针移向上一个节点，然后返回该节点。
     >
     > ```
     > var nodeIterator = document.createNodeIterator(
@@ -1809,7 +1809,7 @@
     >
     > 上面代码中，`currentNode`和`previousNode`都指向同一个的节点。
     >
-    > 注意，遍历器返回的第一个节点，总是根节点。
+    > 注意，迭代器返回的第一个节点，总是根节点。
     >
     > ```
     > pars[0] === document.body // true
@@ -1817,7 +1817,7 @@
     >
     > ### document.createTreeWalker()
     >
-    > `document.createTreeWalker`方法返回一个 DOM 的子树遍历器。它与`document.createNodeIterator`方法基本是类似的，区别在于它返回的是`TreeWalker`实例，后者返回的是`NodeIterator`实例。另外，它的第一个节点不是根节点。
+    > `document.createTreeWalker`方法返回一个 DOM 的子树迭代器。它与`document.createNodeIterator`方法基本是类似的，区别在于它返回的是`TreeWalker`实例，后者返回的是`NodeIterator`实例。另外，它的第一个节点不是根节点。
     >
     > `document.createTreeWalker`方法的第一个参数是所要遍历的根节点，第二个参数指定所要遍历的节点类型（与`document.createNodeIterator`方法的第二个参数相同）。
     >

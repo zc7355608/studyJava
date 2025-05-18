@@ -121,7 +121,7 @@
   > >       constructor(name) {
   > >       	this.name = name;
   > >       }
-  > >   
+  > >     
   > >       sayHello() {
   > >       	console.log(`Hello, ${this.name}!`);
   > >       }
@@ -1142,7 +1142,7 @@
   >// world
   > ```
   >
-  > 上面代码中，`Foo`类的`Symbol.iterator`方法前有一个星号，表示该方法是一个 Generator 函数。`Symbol.iterator`方法返回一个`Foo`类的默认遍历器，`for...of`循环会自动调用这个遍历器。
+  > 上面代码中，`Foo`类的`Symbol.iterator`方法前有一个星号，表示该方法是一个 Generator 函数。`Symbol.iterator`方法返回一个`Foo`类的默认迭代器，`for...of`循环会自动调用这个迭代器。
   > 
   > ### this 的指向
   > 
