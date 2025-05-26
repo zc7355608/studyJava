@@ -10,7 +10,7 @@
 
         执行 Generator 函数会返回一个迭代器对象，也就是说，Generator 函数除了状态机，还是一个迭代器对象生成函数。返回的迭代器对象，可以依次遍历 Generator 函数内部的每一个状态。
 
-        形式上，Generator 函数是一个普通函数，但是有两个特征。一是，`function`关键字与函数名之间有一个星号；二是，函数体内部使用`yield`表达式，定义不同的内部状态（`yield`在英语里的意思就是“产出”）。
+        形式上，Generator 函数是一个普通函数，但是有两个特征。一是，`function`关键字与函数名之间有一个星号`*`；二是，函数体内部使用`yield`表达式，定义不同的内部状态（`yield`在英语里的意思就是“产出”）。
 
         ```js
         function* helloWorldGenerator() {
@@ -24,7 +24,7 @@
 
         上面代码定义了一个 Generator 函数`helloWorldGenerator`，它内部有两个**`yield`表达式**（`hello`和`world`），即该函数有三个状态：hello，world 和 return 语句（结束执行）。
 
-        然后，Generator 函数的调用方法与普通函数一样，也是在函数名后面加上一对圆括号。不同的是，调用 Generator 函数后，该函数并不执行，返回的也不是函数运行结果，而是一个指向内部状态的指针对象，也就是上一章介绍的迭代器对象（Iterator Object）。
+        然后，Generator 函数的调用方法与普通函数一样，也是在函数名后面加上一对圆括号。不同的是，调用 Generator 函数后，该函数并不执行，返回的也不是函数运行结果，而是一个指向内部状态的迭代器对象（Iterator Object）。
 
         下一步，必须调用迭代器对象的`next`方法，使得指针移向下一个状态。也就是说，每次调用`next`方法，内部指针就从函数头部或上一次停下来的地方开始执行，直到遇到下一个`yield`表达式（或`return`语句）为止。换言之，Generator 函数是分段执行的，`yield`表达式是暂停执行的标记，而`next`方法可以恢复执行。
 
@@ -312,7 +312,7 @@
 
   3. #### for...of 循环
 
-     `for...of`循环可以自动遍历 Generator 函数运行时生成的`Iterator`对象，且此时不再需要调用`next`方法。
+     **`for...of`循环可以自动遍历`Iterator`迭代器对象**，因此不再需要调用`next`方法。
 
      ```js
      function* foo() {
@@ -621,7 +621,7 @@
 
      上面代码中，第二个`next`方法向函数体内传入一个参数 42，数值是没有`toUpperCase`方法的，所以会抛出一个 TypeError 错误，被函数体外的`catch`捕获。
 
-     注意：**一旦 Generator 执行过程中抛出错误，且没有被内部捕获，就不会再执行下去了。如果此后还调用`next`方法，将返回一个`value`属性等于`undefined`、`done`属性等于`true`的对象，即 JS 引擎认为这个 Generator 已经运行结束了**。（函数挂掉了）
+     注意：**一旦 Generator 函数执行时内部抛出了错误，且没有被捕获处理，那么该函数的状态就变为结束状态了。此后再调用`next`方法将返回一个`value`属性等于`undefined`、`done`属性等于`true`的对象，即 JS 引擎认为这个 Generator 已经运行结束了**。
 
      ```js
      function* g() {
@@ -669,7 +669,7 @@
 
   5. #### `Generator.prototype.return()`
 
-     Generator 函数返回的迭代器对象，还有一个**`return()`方法，可以返回给定的值，并且终结遍历 Generator 函数**。
+     Generator 函数返回的迭代器对象，还有一个**`return()`方法，可以返回给定的值，并且将 Generator 函数终止掉**。
 
      ```js
      function* gen() {
@@ -724,13 +724,13 @@
      g.next() // { value: 7, done: true }
      ```
 
-     上面代码中，**调用`return()`方法后，就开始执行`finally`代码块，不执行`try`里面剩下的代码了，然后等到`finally`代码块执行完，再返回`return()`方法指定的返回值**。
+     上面代码中，调用`return()`方法后，就开始执行`finally`代码块，不执行`try`里面剩下的代码了，然后等到`finally`代码块执行完，再返回`return()`方法指定的返回值。
 
   6. #### next()、throw()、return() 的共同点
 
      `next()`、`throw()`、`return()`这三个方法本质上是同一件事，可以放在一起理解。它们的作用都是让 Generator 函数恢复执行，并且使用不同的语句替换`yield`表达式。
 
-     `next()`是将`yield`表达式替换成一个值。
+     **`next()`是将`yield`表达式替换成一个值**。
 
      ```js
      const g = function* (x, y) {
@@ -748,7 +748,7 @@
 
      上面代码中，第二个`next(1)`方法就相当于将`yield`表达式替换成一个值`1`。如果`next`方法没有参数，就相当于替换成`undefined`。
 
-     `throw()`是将`yield`表达式替换成一个`throw`语句。
+     **`throw()`是将`yield`表达式替换成一个`throw`语句**。
 
      ```js
      gen.throw(new Error('出错了')); // Uncaught Error: 出错了
@@ -756,7 +756,7 @@
      // 替换成 let result = throw(new Error('出错了'));
      ```
 
-     `return()`是将`yield`表达式替换成一个`return`语句。
+     **`return()`是将`yield`表达式替换成一个`return`语句**。
 
      ```js
      gen.return(2); // Object {value: 2, done: true}
@@ -794,7 +794,7 @@
 
      上面代码中，`foo`和`bar`都是 Generator 函数，在`bar`里面调用`foo`，就需要手动遍历`foo`。如果有多个 Generator 函数嵌套，写起来就非常麻烦。
 
-     ES6 提供了`yield*`表达式，作为解决办法，用来在一个 Generator 函数里面执行另一个 Generator 函数。
+     作为解决办法，**ES6 提供了`yield*`表达式，用来在一个 Generator 函数里面执行另一个 Generator 函数**。
 
      ```js
      function* bar() {
@@ -861,7 +861,7 @@
 
      上面例子中，`outer2`使用了`yield*`，`outer1`没使用。结果就是，`outer1`返回一个迭代器对象，`outer2`返回该迭代器对象的内部值。
 
-     从语法角度看，如果`yield`表达式后面跟的是一个迭代器对象，需要在`yield`表达式后面加上星号，表明它返回的是一个迭代器对象。这被称为`yield*`表达式。
+     从语法角度看，**如果`yield`表达式后面跟的是一个迭代器对象，需要在`yield`表达式后面加上星号，表明它返回的是一个迭代器对象。这被称为`yield*`表达式**。（否则就会将该迭代器对象当作`yield`语句的产出了）
 
      ```js
      let delegatedIterator = (function* () {
@@ -886,7 +886,7 @@
 
      上面代码中，`delegatingIterator`是代理者，`delegatedIterator`是被代理者。由于`yield* delegatedIterator`语句得到的值，是一个迭代器，所以要用星号表示。运行结果就是使用一个迭代器，遍历了多个 Generator 函数，有递归的效果。
 
-     `yield*`后面的 Generator 函数（没有`return`语句时），等同于在 Generator 函数内部，部署一个`for...of`循环。
+     **`yield*`后面的 Generator 函数（没有`return`语句时），等同于在 Generator 函数内部，部署一个`for...of`循环**。
 
      ```js
      function* concat(iter1, iter2) {
@@ -906,7 +906,7 @@
      }
      ```
 
-     上面代码说明，`yield*`后面的 Generator 函数（没有`return`语句时），不过是`for...of`的一种简写形式，完全可以用后者替代前者。反之，在有`return`语句时，则需要用`var value = yield* iterator`的形式获取`return`语句的值。
+     上面代码说明，`yield*`后面的 Generator 函数（没有`return`语句时），不过是`for...of`的一种简写形式，完全可以用后者替代前者。反之，**在有`return`语句时，则需要用`var value = yield* iterator`的形式获取`return`语句的值**。
 
      如果`yield*`后面跟着一个数组，由于数组原生支持迭代器，因此就会遍历数组成员。
 
@@ -920,7 +920,7 @@
 
      上面代码中，`yield`命令后面如果不加星号，返回的是整个数组，加了星号就表示返回的是数组的迭代器对象。
 
-     实际上，任何数据结构只要有 Iterator 接口，就可以被`yield*`遍历。
+     实际上，**任何可迭代结构都可以被`yield*`遍历，`yield*`相当于是在对后面的可迭代结构进行`for...of`**。
 
      ```js
      let read = (function* () {
@@ -1060,7 +1060,7 @@
 
   8. #### 作为对象属性的 Generator 函数
 
-     如果一个对象的属性是 Generator 函数，可以简写成下面的形式。
+     如果一个对象的属性是 Generator 函数，可以简写成下面的形式。即在方法前加`*`号。
 
      ```js
      let obj = {
