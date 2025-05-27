@@ -1084,7 +1084,7 @@
 
   9. #### Generator 函数的this
 
-     Generator 函数总是返回一个迭代器，ES6 规定这个迭代器是 Generator 函数的实例，也继承了 Generator 函数的`prototype`对象上的方法。
+     **Generator 函数总是返回一个迭代器对象，ES6 规定这个迭代器对象是 Generator 函数的实例，也继承了 Generator 函数的`prototype`对象上的方法**。
 
      ```js
      function* g() {}
@@ -1099,7 +1099,9 @@
      obj.hello() // 'hi!'
      ```
 
-     上面代码表明，Generator 函数`g`返回的迭代器`obj`，是`g`的实例，而且继承了`g.prototype`。但是，如果把`g`当作普通的构造函数，并不会生效，因为`g`返回的总是迭代器对象，而不是`this`对象。
+     上面代码表明，Generator 函数`g`返回的迭代器`obj`，是`g`的实例，而且继承了`g.prototype`。
+
+     但是，如果**把 Generator 函数当作普通的构造函数，并不会生效**，因为 **Generator 函数回的总是迭代器对象，而不是返回`this`指的对象**。
 
      ```js
      function* g() {
@@ -1113,7 +1115,7 @@
 
      上面代码中，Generator 函数`g`在`this`对象上面添加了一个属性`a`，但是`obj`对象拿不到这个属性。
 
-     Generator 函数也不能跟`new`命令一起用，会报错。
+     **Generator 函数也不能跟`new`命令一起用，会报错**。
 
      ```js
      function* F() {
