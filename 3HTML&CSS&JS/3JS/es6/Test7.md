@@ -78,7 +78,7 @@
   
     上面代码中，`timeout`方法返回一个`Promise`实例，表示一段时间以后才会发生的结果。过了指定的时间（`ms`参数）以后，`Promise`实例的状态变为`fulfilled`，就会触发`then`方法绑定的回调函数。
   
-    **可以多次调用`then()`方法去指定多个成功或失败的回调，这些回调会按照注册的顺序依次执行**。（注意不是链式调用，而是多次调用同一个 Promise 实例的then方法）
+    **可以多次调用`then()`方法去指定多个成功或失败的回调，这些回调会按照注册的顺序依次执行**。注意不是链式调用，而是多次调用同一个 Promise 实例的then方法。此时每个`then()`方法返回的新的 Promise 对象都是不同的。
   
     Promise 新建后就会立即执行，即 **`Promise()` 构造器中的回调是同步代码**。
   
@@ -238,12 +238,11 @@
       >
       > - 回调函数的返回值不是一个 Promise 实例，此时新的 Promise 实例的状态为成功fulfilled，结果值为回调函数的返回值。（若回调函数没有显示的返回值，相当于返回了`undefined`，此时新的 Promise 实例的状态为成功fulfilled，结果值为`undefined`）
       >
-      > - 如果回调执行中抛出了异常且没有被处理，此时返回的新的 Promise 实例的状态为失败rejected，结果值为抛出的异常。由于此时异常在 Promise 中因此程序并不会崩溃退出。并且如果 Promise 的状态为失败rejected，但是没有指定失败的回调（相当于抛出了异常且没有被处理），此时then方法返回的新的 Promise 对象的状态和结果值都来自这个失败的 Promise 对象。（因为失败的 Promise 没有人去处理，因此会继续向上传递）
+      > - 如果没有指定成功/失败的回调，那么这个`then()`方法返回的新的 Promise 对象的状态和结果值来自前一个Promise（称为“值透传”或“状态穿透”）。
       >
-      > - 如果压根没有指定成功/失败的回调，那么这个`then()`方法返回的新的 Promise 对象的状态和结果值来自前一个Promise（称为“值透传”或“状态穿透”）。
+      >   > - 或者回调执行中抛出了异常且没有被处理，此时返回的新的 Promise 实例的状态为失败rejected，结果值为抛出的异常。由于此时异常在 Promise 中因此程序并不会崩溃退出。并且如果 Promise 的状态为失败rejected，但是没有指定失败的回调（相当于抛出了异常且没有被处理），此时then方法返回的新的 Promise 对象的状态和结果值都来自这个失败的 Promise 对象。（因为失败的 Promise 没有人去处理，因此会继续向上传递）
+      >   > - 注意：当 Promise 状态为失败rejected，且没有指定错误处理回调（如catch或then的第二个参数），那么这个失败状态会一直传递直到被处理。如果未被处理，会触发`unhandledrejection`事件（Node和浏览器中都有），但不会导致程序崩溃。Promise 中的抛异常和同步代码中的抛异常不同，异常会被 Promise 偷偷“吃掉”（即Promise内部对所有错误都进行了`try...catch`），其实错误已经发生且没有人处理，因此要小心。
       >
-      >
-      > 注意：当 Promise 状态为失败rejected，且没有指定错误处理回调（如catch或then的第二个参数），那么这个失败状态会一直传递直到被处理。如果未被处理，会触发`unhandledrejection`事件（Node和浏览器中都有），但不会导致程序崩溃。Promise 中的抛异常和同步代码中的抛异常不同，异常会被 Promise 偷偷“吃掉”（即Promise内部对所有错误都进行了`try...catch`），其实错误已经发生且没有人处理，因此要小心。
       
       由于`then`方法返回的是一个新的`Promise`实例。因此可以采用链式写法，即`then`方法后面再调用另一个`then`方法。
       
@@ -415,7 +414,7 @@
   
       上面代码中，`someAsyncThing()`函数产生的 Promise 对象，内部有语法错误。浏览器运行到这一行，会打印出错误提示`ReferenceError: x is not defined`，但是不会退出进程、终止脚本执行，2 秒之后还是会输出`123`。这就是说，**Promise 内部的错误不会影响到 Promise 外部的代码，通俗的说法就是“Promise 会吃掉错误”**。
   
-      这个脚本放在服务器执行，退出码就是`0`（即表示执行成功）。不过，Node.js 有一个`unhandledRejection`事件，专门监听未捕获的`reject`错误，上面的脚本会触发这个事件的监听函数，可以在监听函数里面抛出错误。
+      这个脚本放在服务器执行，退出码就是`0`（即表示执行成功）。不过，Node.js 有一个`unhandledRejection`事件（Node和浏览器中都有），专门监听未捕获的`reject`错误，上面的脚本会触发这个事件的监听函数，可以在监听函数里面抛出错误。
   
       ```js
       process.on('unhandledRejection', function (err, p) {
@@ -725,7 +724,7 @@
   
       上面代码中，如果 5 秒之内`fetch`方法无法返回结果，变量`p`的状态就会变为`rejected`，从而触发`catch`方法指定的回调函数。
   
-    - `Promise.allSettled()`：有时候，我们希望等到一组异步操作都结束了，不管每一个操作是成功还是失败，再进行下一步操作。但是，现有的 Promise 方法很难实现这个要求。
+    - `Promise.allSettled()`：有时候，我们希望等到一组异步操作都结束了（即状态变为`resolved`），不管每一个操作是成功还是失败，再进行下一步操作。但是，现有的 Promise 方法很难实现这个要求。
   
       `Promise.all()`方法只适合所有异步操作都成功的情况，如果有一个操作失败，就无法满足要求。
   
@@ -760,7 +759,7 @@
   
       上面示例中，数组`promises`包含了三个请求，只有等到这三个请求都结束了（不管请求成功还是失败），`removeLoadingIndicator()`才会执行。
   
-      该方法返回的新的 Promise 实例，一旦发生状态变更，**状态总是`fulfilled`，不会变成`rejected`**。状态变成`fulfilled`后，它的回调函数会接收到一个数组作为参数，该数组的每个成员都是一个对象，对应前面数组的每个 Promise 对象的状态和结果值。
+      该方法返回的新的 Promise 实例，一旦发生状态变更，**状态总是`fulfilled`，不会变成`rejected`**。状态变成`fulfilled`后，它的回调函数会接收到一个数组作为参数，该数组的每个成员都是一个对象，对应前面数组的每个 Promise 对象的状态和结果值（和参数数组中的顺序一致）。
   
       ```js
       const fulfilled = Promise.resolve(42);
@@ -880,9 +879,9 @@
   
       1. **参数是一个 Promise 实例**：（`new Promise(resolve => resolve(x))`中参数x如果是一个 Promise 实例，那么最终该 Promise 实例的状态及结果，和参数 Promise 的状态及结果保持一致）
   
-         如果参数是 Promise 实例，那么`Promise.resolve`将不做任何修改、**原封不动地返回这个实例**。（还是同一个）
+         如果参数是 Promise 实例，那么`Promise.resolve`将不做任何修改、**原封不动地返回这个实例**（还是同一个）。
   
-      2. **参数是一个具有`then`方法的对象**：
+      2. **参数是一个具有`then`方法的普通对象**：
   
          如果参数对象具有`then`方法，比如下面这个对象。
   
@@ -894,7 +893,7 @@
          };
          ```
   
-         `Promise.resolve()`方法会将这个对象转为 Promise 对象，然后就立即执行该对象的`then()`方法。根据`then()`方法的返回值情况来决定转换后的 Promise 对象的状态是怎样的（逻辑和 Promise 实例的`then`方法的逻辑相同）。
+         `Promise.resolve()`方法会将这个对象转为 Promise 对象：即立即执行该对象的`then()`方法，根据`then()`方法的返回值情况来决定转换后的 Promise 对象的状态是怎样的（逻辑和 Promise 实例的`then`方法的逻辑相同）。
   
          ```js
          let thenable = {
@@ -930,7 +929,7 @@
   
          `Promise.resolve()`方法允许调用时不带参数，直接返回一个`fulfilled`状态的 Promise 对象，结果值为`undefined`。
   
-         需要注意的是，立即`resolve()`的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行，而不是在下一轮“事件循环”的开始时。
+         需要注意的是，立即`resolve()`的 Promise 对象，是在本轮“事件循环”（event loop）的结束时执行。（而不是下一轮“事件循环”的开始）
   
          ```js
          setTimeout(function () {
@@ -950,7 +949,7 @@
   
          上面代码中，`setTimeout(fn, 0)`在下一轮“事件循环”开始时执行，`Promise.resolve()`在本轮“事件循环”结束时执行，`console.log('one')`则是立即执行，因此最先输出。
   
-    - `Promise.reject()`：`Promise.reject(reason)`方法也会返回一个新的 Promise 实例，该实例的状态为`rejected`。
+    - `Promise.reject()`：`Promise.reject(reason)`方法返回一个新的`rejected`状态的 Promise 实例。
   
       ```js
       const p = Promise.reject('出错了');
@@ -965,7 +964,7 @@
   
       上面代码生成一个 Promise 对象的实例`p`，状态为`rejected`，失败回调会在本轮事件循环结束时执行。
   
-      **`Promise.reject()`方法的参数，会原封不动地作为`reject`的参数**，变成后续失败回调的参数。
+      **`Promise.reject()`方法的参数，会原封不动地作为后续失败回调的参数，即失败状态的 Promise 的结果值**。
   
       ```js
       Promise.reject('出错了')
