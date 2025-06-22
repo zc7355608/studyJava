@@ -253,9 +253,7 @@
 
    - #### 关于Java程序的一些说明
 
-      - Java中严格区分大小写。
-
-      - 每个**Java语句必须以`;`结束**。
+      - Java中严格区分大小写。每个**Java语句必须以`;`结束**。
 
       - 程序中，程序员可以自由命名的被称为**标识符**。**Java中的标识符由字母、数字、下划线、美元符号组成，且不能以数字开头**。哪些地方可以用标识符：类名、变量名、包名、方法名、接口名、常量名。
 
@@ -268,7 +266,7 @@
       - Java中switch语句的值只能是如下类型：整型、枚举型（JDK5）、String（jdk7）。
 
         > 从JDK12开始，`switch`语句升级为更简洁的表达式语法，使用类似模式匹配（Pattern Matching）的方法，保证只有一种路径会被执行，并且不需要`break`语句，没有**Case穿透**问题：
-        >
+  >
         > ```java
         > public class Main {
         >     public static void main(String[] args) {
@@ -322,14 +320,14 @@
         >     }
         > }
         > ```
-
-      - Java中的`for each`循环可以遍历所有**可迭代**的数据类型，包括数组及后面的`List`、`Map`等。虽然`for each`的写法更简洁，但是`for each`循环无法指定遍历顺序，也无法获取数组的索引。
+  
+      - Java中的`for each`循环可以遍历所有**可迭代**的数据类型（实现了 `Iterator` 接口），包括数组及后面的`List`、`Map`等。虽然`for each`的写法更简洁，但是`for each`循环无法指定遍历顺序，也无法获取数组的索引。
 
    - #### 变量
 
       - **定义变量**：`数据类型 变量名 = 值;`，Java中的**变量必须先定义再使用**。
 
-      - **局部变量**：
+      - **局部变量**：在方法内部定义的变量称为局部变量，局部变量作用域从变量声明处开始到对应的块结束。方法参数也是局部变量。
 
       - **成员变量**：
 
@@ -340,13 +338,13 @@
       - **变量的作用域**：变量只在离它最近的`{}`中有效，这就是它的作用域。
 
         > - 在语句块中定义的变量，它有一个作用域，就是从定义处开始，到语句块结束。超出了作用域引用这些变量，编译器会报错。
-        > - 定义变量时，要遵循作用域最小化原则，尽量将变量定义在尽可能小的作用域。局部变量必须先初始化再使用。
-
+     > - 定义变量时，要遵循作用域最小化原则，尽量将变量定义在尽可能小的作用域。局部变量必须先初始化再使用。
+  
    - #### 基本运算
 
       - ##### 整数运算：
 
-        - Java的整数运算遵循四则运算规则，可以使用任意嵌套的小括号。四则运算规则和初等数学一致。
+        - Java的整数运算遵循四则运算规则，可以任意嵌套小括号。四则运算规则和初等数学一致。
 
         - 整数的数值表示不但是精确的，而且整数运算永远是精确的，即使是除法也是精确的，因为两个整数相除只能得到结果的整数部分（向下取整）。注意：整数的除法对于除数为0时运行时将报错，但编译不会报错。
 
@@ -361,7 +359,7 @@
       - ##### 浮点数运算：
 
         - 浮点数运算和整数运算相比，只能进行加减乘除这些数值计算，不能做位运算和移位运算。
-        - 整数运算在除数为`0`时会报错，而浮点数运算在除数为`0`时，不会报错，但会返回几个特殊值：
+     - 整数运算在除数为`0`时会报错，而浮点数运算在除数为`0`时，不会报错，但会返回几个特殊值：
           - `NaN`表示Not a Number
           - `Infinity`表示无穷大
           - `-Infinity`表示负无穷大
@@ -370,14 +368,14 @@
         - 因为浮点数常常无法精确表示，因此，浮点数运算常常会产生误差。于浮点数存在运算误差，所以比较两个浮点数是否相等常常会出现错误的结果。正确的比较方法是判断两个浮点数之差的绝对值是否小于一个很小的数。
         - 由于float/double在计算机内存中是按照IEEE754标准来存的，故float4个字节也比long8个字节能表示的数字大。因此如果参与运算的两个数其中一个是整型，那么整型会自动提升到浮点型。这依然遵循“小类型”会被自动转为“大类型”。
         - 可以将浮点数强制转型为整数。在转型时，浮点数的小数部分会被丢掉。如果转型后超过了整型能表示的最大范围，将返回整型的最大值。如果要进行四舍五入，可以对浮点数加上`0.5`再强制转型。
-
+  
       - **布尔运算**：布尔运算是一种关系运算，包括以下几类。
 
         - 比较运算符：`>`，`>=`，`<`，`<=`，`==`，`!=`
-        - 与运算 `&&`、`&`
+     - 与运算 `&&`、`&`
         - 或运算 `||`、`&`
         - 非运算 `!`
-
+  
         > 注意：`&&`、`||`和`&`、`|`的区别是， 前者会短路，后者不会。一般`&&`更常用，因短路特性更安全高效。
 
       - **自动类型转换（类型提升）与强制类型转换**：
@@ -385,8 +383,8 @@
         - ###### 自动类型转换：
 
           > 1. 在整型做运算时，如果参与运算的两个整型类型不一致，那么首先会自动转成较大的那个，然后再计算。特殊的是：byte、short、char在做运算时，各自会先转成int，再做计算。
-          > 2. “小类型”变量被赋值给“大类型”变量时，会存在**自动类型转换**：`byte` -> `short` -> `int` -> `long` -> `float` -> `double`。如果是引用类型，子类会自动转为父类。
-
+       > 2. “小类型”变量被赋值给“大类型”变量时，会存在**自动类型转换**：`byte` -> `short` -> `int` -> `long` -> `float` -> `double`。如果是引用类型，子类会自动转为父类。
+  
         - ###### 强制类型转换：
 
           > “大类型”被赋值给“小类型”时，则需要手动做强制类型转换。语法：`(类型)变量名`。如果对整数型做强转，则高位会被丢弃掉，仅保留低位的字节。
@@ -537,7 +535,7 @@
 
    > Java是一种面向对象的编程语言。面向对象编程（Object-Oriented Programming）简称OOP。那什么是面向对象编程？
 
-   - ##### 面向对象编程：
+   - #### 面向对象编程：
 
      > 和面向对象编程不同的，是面向过程编程。面向过程编程，是把模型分解成一步一步的过程。比如，老板告诉你，要编写一个TODO任务，必须按照以下步骤一步一步来：
      >
@@ -545,9 +543,9 @@
      > 2. 编写TODO；
      > 3. 保存文件。
      >
-     > 而面向对象编程则是：将现实世界中的某种事物抽象为类，将事物本身所具有的特征和行为，抽象为类的属性和方法，通过类之间的关系来描述现实世界中不同事物之间的关系。从而用类来创建出一个个的对象，对应现实中的一个个事物个体。进而通过一个个的对象来模拟现实中的事物，完成对应的工作过程。这种编程的方式被称为**面向对象编程**。
+     > 而面向对象编程则是：将现实世界中的某种事物抽象为类，将事物本身所具有的特征和行为，抽象为类的属性和方法，用类之间的关系来描述现实世界中不同事物之间的联系。然后通过类来创建出一个个的对象，对应现实中的一个个事物个体。进而通过一个个的对象来模拟现实中的事物，完成对应的工作过程。这种编程的方式被称为**面向对象编程**。
 
-   - ##### 面向对象的基本概念：
+   - #### 面向对象的基本概念：
 
      - **类（class）**：类是对象的模板，用于创建具有同一种特征的不同的对象个体。类中包含了一类事物的**属性**和**方法**，对应现实中某类事物的特征和行为。比如：学生就是一个类，学生类中包含姓名、年龄等特征，并且学生可以进行学习。对应的代码为：
 
@@ -561,7 +559,7 @@
        }
        ```
 
-       > - Java是面向对象的语言，它通过类来组织代码，所有的Java代码都必须放在类中。类通过关键字`class`来定义：`访问权限修饰符 class 类名{/*类体*/}`。
+       > - Java是面向对象的语言，它通过类来组织代码，所有的Java代码都必须放在类中。类通过关键字`class`来定义：`修饰符列表 class 类名{/*类体*/}`。
        >
        > - 类中的属性有时也称为“成员”或“字段”。类中的属性如果没有赋值会有默认值。（引用类型的默认值为`null`）
        >
@@ -593,7 +591,7 @@
        >   >
        >   > 而可变参数可以保证无法传入`null`，因为传入0个参数时，接收到的实际值是一个空数组而不是`null`。
    
-     - **对象/实例（object/instance）**：通过类可以创建一个个具有相同特征的不同实例对象，每个对象都是独立的个体。虽然它们的值可能不同，但都具有一样的结构。对应的代码为：
+     - **对象/实例（object/instance）**：通过类可以创建一个个具有相同特征的不同实例，每个对象实例都是独立的个体。虽然它们的值可能不同，但都具有一样的结构。对应的代码为：
    
        ```java
        public static void main(String[] args) {
@@ -611,9 +609,9 @@
        > - 类和对象是“模版”和“实例”的关系。定义类的同时也定义了一种数据类型，对应的对象是这种类型的值。
        > - 同一个类的对象必然有相同的属性和方法，但它们各自的值不同，且在内存中相互独立互不干扰。
        > - 通过`new`操作符调用类的**构造函数**可以创建对应类的对象实例，然后用该类型的变量指向它，即可通过变量来引用这个对象。（变量中保存的是对象在堆中的引用地址）
-       > - 访问对象的属性或方法通过`.`运算符：`变量名.属性名/方法名();`
+       > - 访问对象的属性/方法通过`.`运算符：`变量名.属性名/方法名();`
    
-   - ##### 访问控制权限修饰符：
+   - #### 访问控制权限修饰符：
    
      > Java中，类中的属性和方法（还有内部类）有以下4种访问权限：
    
@@ -628,7 +626,7 @@
      >
      > 如果一个类没有被public修饰，那么其他包的类中`import`导入该类时会编译报错，无法导入默认权限类！
    
-   - ##### 构造方法：
+   - #### 构造方法：
    
      > 当我们通过new来创建类的实例时，实际上是在调用类的构造方法。类中定义构造方法：
    
@@ -662,7 +660,7 @@
      >
      > - 构造方法不会被子类所继承。
    
-   - ##### 类的继承：
+   - #### 类的继承：
    
      > - 继承是面向对象编程中非常强大的一种机制，它首先可以复用代码。当我们让`Student`从`Person`继承时，`Student`就获得了`Person`的所有功能，我们只需要为`Student`编写新增的功能。其次还可以节省内存，避免相似的类的属性和方法在内存中被重复定义多次。
      >
@@ -694,14 +692,98 @@
      > - 在OOP的术语中，我们把`Person`称为超类（super class），父类（parent class），基类（base class），把`Student`称为子类（subclass），扩展类（extended class）。
      >
      > - Java中的类只允许单继承，一个类有且仅有一个父类。并且一个类如果没有显式的写`extends`，默认会继承`Object`类。而`Object`类比较特殊，它是继承链的顶端，没有父类。
-     >
-     > - `final`关键字：final修饰的类无法被继承，并且final修饰的属性和方法不能被覆盖。final修饰的属性，对象初始化时系统不会赋默认值。
-     >
-     >   > 通常实例变量不会加final，因为实例变量一个对象一份，且每个对象都一样的话为什么不设置为静态变量来节省空间呢？
-     >   >
-     >   > 因此通常静态变量会加final，变成了常量，只有一个且不能被改。且常变量一般用`public static final`来修饰，因为公开也不怕被改，称为“全局常量”，一般全部大写。此时这个引用是永久指向，永远不会为`null`，垃圾回收器回收不走。
    
-   - ##### `this`和`super`关键字：
+   - #### 区分继承和组合：
+   
+     > 在使用继承时，我们要注意逻辑一致性。
+     >
+     > 考察下面的`Book`类：
+     >
+     > ```java
+     > class Book {
+     >     protected String name;
+     >     public String getName() {...}
+     >     public void setName(String name) {...}
+     > }
+     > ```
+     >
+     > 这个`Book`类也有`name`字段，那么，我们能不能让`Student`继承自`Book`呢？
+     >
+     > ```java
+     > class Student extends Book {
+     >     protected int score;
+     > }
+     > ```
+     >
+     > 显然，从逻辑上讲，这是不合理的，`Student`不应该从`Book`继承，而应该从`Person`继承。
+     >
+     > 究其原因，是因为`Student`是`Person`的一种，它们是is关系，而`Student`并不是`Book`。实际上`Student`和`Book`的关系是has关系。
+     >
+     > 具有has关系不应该使用继承，而是使用组合，即`Student`可以持有一个`Book`实例：
+     >
+     > ```java
+     > class Student extends Person {
+     >     protected Book book;
+     >     protected int score;
+     > }
+     > ```
+     >
+     > 因此，继承是is关系，组合是has关系。子类和父类的关系是is，has关系不能用继承。
+   
+   - #### 方法的重写/覆盖（Override）：
+   
+     > 在继承关系中，子类如果定义了一个与父类方法签名完全相同的方法，被称为**覆写/重写（Override）**。子类可以覆写父类的方法（Override），覆写在子类中改变了父类方法的行为；
+     >
+     > 方法上可以加`@Override`注解，来让编译器帮助检查是否进行了正确的覆写。希望进行覆写，但是不小心写错了方法签名，编译会报错。
+   
+     ###### `final`关键字：
+   
+     - final修饰的类无法被继承，并且final修饰的属性和方法不能被覆盖。final修饰的属性，对象初始化时系统不会赋默认值，因此`final`修饰的field必须在创建对象时初始化，随后就不可更改了。
+   
+     - 通常实例变量不会加final，因为实例变量一个对象一份，且每个对象都一样的话为什么不设置为静态变量来节省空间呢？
+   
+       因此通常静态变量会加final，变成了常量，只有一个且不能被改。且常变量一般用`public static final`来修饰，因为公开也不怕被改，称为“全局常量”，一般全部大写。此时这个引用是永久指向，永远不会为`null`，垃圾回收器回收不走。
+   
+     ###### 重写Object方法：
+   
+     > 因为所有的`class`最终都继承自`Object`，而`Object`定义了几个重要的方法：
+     >
+     > - `toString()`：把对象输出为`String`；
+     > - `equals()`：判断两个对象是否逻辑相等。（`==`判断的是对象的内存地址/引用地址）
+     > - `hashCode()`：计算一个对象的哈希值。
+     >
+     > 在必要的情况下，我们可以覆写`Object`的这几个方法。例如：
+     >
+     > ```java
+     > class Person {
+     >     ...
+     >     // 显示更有意义的字符串:
+     >     @Override
+     >     public String toString() {
+     >         return "Person:name=" + name;
+     >     }
+     > 
+     >     // 比较是否相等:
+     >     @Override
+     >     public boolean equals(Object o) {
+     >         // 当且仅当o为Person类型:
+     >         if (o instanceof Person) {
+     >             Person p = (Person) o;
+     >             // 并且name字段相同时，返回true:
+     >             return this.name.equals(p.name);
+     >         }
+     >         return false;
+     >     }
+     > 
+     >     // 计算hash:
+     >     @Override
+     >     public int hashCode() {
+     >         return this.name.hashCode();
+     >     }
+     > }
+     > ```
+   
+   - #### `this`和`super`关键字：
    
      > 在类体中有2个特殊的变量this和super，它们只能在**实例相关的上下文中使用**（实例方法、构造方法、实例代码块、实例变量初始化）。静态上下文中不能使用 `this`，因为静态成员不依赖于对象。
    
@@ -711,26 +793,1078 @@
    
        > Java中，构造方法中如果没有显式调用 `this()` 或 `super()`，那么编译器会自动在第一行插入 `super()`。这是因为代码要通过这行代码来初始化继承过来的父类属性。（`Object` 类是 Java 所有类的根类，它的构造方法没有 `super()`，因为它是继承链的顶端）
        >
-       > 因此一定要小心：如果父类没有提供无参数构造方法的话，子类就必须显式调用`super()`并给出参数以便让编译器定位到父类的一个合适的构造方法。
+       > 因此一定要小心：如果父类没有提供无参数构造方法的话，子类的构造器中必须显式调用`super()`并给出参数以便让编译器定位到父类的一个合适的构造方法。
    
-   - ##### 多态：
+   - #### 多态（Polymorphic）：
    
-   - ##### 抽象类：
+     > Java的方法调用总是作用于运行期对象的实际类型，这种行为称为多态。多态是指，针对某个类型的方法调用，其真正执行的方法取决于运行时期实际类型的方法。
+     >
+     > 多态的一个非常强大的功能就是，允许添加更多类型的子类实现功能扩展，却不需要修改基于父类的代码。
    
-   - ##### 接口：
+     - ###### 向上转型：
    
-   - ##### 静态方法和静态字段：
+       > 如果一个引用变量的类型是`Student`，那么它可以指向一个`Student`类型的实例：`Student s = new Student();`；如果一个引用类型的变量是`Person`，那么它可以指向一个`Person`类型的实例：`Person p = new Person();`；
+       >
+       > 现在问题来了：如果`Student`是从`Person`继承下来的，那么，一个引用类型为`Person`的变量，能否指向`Student`类型的实例？
+       >
+       > ```java
+       > Person p = new Student(); // ???
+       > ```
+       >
+       > 测试一下就可以发现，这种指向是允许的！
+       >
+       > 这是因为`Student`继承自`Person`，因此，它拥有`Person`的全部功能（属性和方法）。`Person`类型的变量，如果指向`Student`类型的实例，对它进行操作，是没有问题的！
+       >
+       > 这种把一个子类型安全地变为父类型的赋值，被称为**向上转型（upcasting）**。
+       >
+       > 向上转型实际上是把一个子类型安全地变为更加抽象的父类型：
+       >
+       > ```java
+       > Student s = new Student();
+       > Person p = s; // upcasting, ok
+       > Object o1 = p; // upcasting, ok
+       > Object o2 = s; // upcasting, ok
+       > ```
+       >
+       > 注意到继承树是`Student > Person > Object`，所以，可以把`Student`类型转型为`Person`，或者更高层次的`Object`。
    
-   - 速度
+     - ###### 向下转型：
+   
+       > 和向上转型相反，如果把一个父类型**强制转型**为子类型，就是**向下转型（downcasting）**。例如：
+       >
+       > ```java
+       > Person p1 = new Student(); // upcasting, ok
+       > Person p2 = new Person();
+       > Student s1 = (Student) p1; // ok
+       > Student s2 = (Student) p2; // runtime error! ClassCastException!
+       > ```
+       >
+       > 如果测试上面的代码，可以发现：
+       >
+       > `Person`类型`p1`实际指向`Student`实例，`Person`类型变量`p2`实际指向`Person`实例。在向下转型的时候，把`p1`转型为`Student`会成功，因为`p1`确实是一个`Student`实例；而把`p2`转型为`Student`会失败，因为`p2`的实际类型是`Person`，不能把父类变为子类，因为子类功能比父类多，多的功能无法凭空变出来。
+       >
+       > 因此，向下转型很可能会失败。失败的时候，Java虚拟机会报`ClassCastException`（类型转换异常）。
+       >
+       > 为了避免向下转型出错，Java提供了`instanceof`操作符，可以在运行时判断一个实例究竟是不是某种类型：
+       >
+       > ```java
+       > Person p = new Person();
+       > System.out.println(p instanceof Person); // true
+       > System.out.println(p instanceof Student); // false
+       > 
+       > Student s = new Student();
+       > System.out.println(s instanceof Person); // true
+       > System.out.println(s instanceof Student); // true
+       > 
+       > Student n = null;
+       > System.out.println(n instanceof Student); // false
+       > ```
+       >
+       > **`instanceof`实际上判断一个变量所指向的实例是否是指定类型，或者这个类型的子类**。注意：**如果一个引用变量为`null`，那么对任何`instanceof`的判断都为`false`**。
+       >
+       > 利用`instanceof`，在向下转型前可以先判断：
+       >
+       > ```java
+       > Person p = new Student();
+       > if (p instanceof Student) {
+       >     // 只有判断成功才会向下转型:
+       >     Student s = (Student) p; // 一定会成功
+       > }
+       > ```
+       >
+       > 从Java 14开始，判断`instanceof`后，可以直接转型为指定变量，避免再次强制转型。例如，对于以下代码：
+       >
+       > ```java
+       > Object obj = "hello";
+       > if (obj instanceof String) {
+       >     String s = (String) obj;
+       >     System.out.println(s.toUpperCase());
+       > }
+       > ```
+       >
+       > 可以改写如下：
+       >
+       > ```java
+       > // instanceof variable:
+       > public class Main {
+       >     public static void main(String[] args) {
+       >         Object obj = "hello";
+       >         if (obj instanceof String s) {
+       >             // 可以直接使用变量s:
+       >             System.out.println(s.toUpperCase());
+       >         }
+       >     }
+       > }
+       > ```
+       >
+       > 这种使用`instanceof`的写法更加简洁。
+   
+   - #### 抽象类（Abstract Class）：
+   
+     > 如果父类的方法本身不需要实现任何功能，仅仅是为了定义方法签名，目的是让子类去覆盖它，此时就可以将父类的方法声明为**抽象方法**：
+     >
+     > ```java
+     > abstract class Person {
+     >     public abstract void run();
+     > }
+     > ```
+     >
+     > 此时必须把`Person`类本身也声明为`abstract`的**抽象类**，才能正确编译它。因为**抽象方法只能出现在抽象类中**。
+     >
+     > 把一个方法声明为`abstract`，表示它是一个抽象方法，本身没有实现任何方法语句。因为抽象方法本身是无法执行的，抽线方法所在的`Person`抽象类也无法被实例化，无法`new`出`Person`对象。因为**抽象类就是用来被子类所继承的**。
+   
+     - ##### 抽象方法：
+   
+       > - 如果一个`class`定义了方法，但没有具体执行代码，这个方法就是抽象方法，抽象方法用`abstract`修饰。
+       > - **抽象方法只能出现在抽象类中**。
+   
+     - ##### 抽象类：
+   
+       > - 使用`abstract`修饰的类就是抽象类。
+       > - 抽象类无法被实例化，无法`new`创建出对应的抽象类实例。因为抽象类本身被设计成只能用于被继承，因此，抽象类可以强迫子类实现其定义的抽象方法，否则编译会报错。因此，抽象方法实际上相当于定义了某个类的“规范”。
+       > - 继承抽象类的子类必须实现父抽象类中所有的抽象方法，除非子类也是抽象类。
+   
+     - ##### 面向抽象编程：
+   
+       > 当我们定义了抽象类`Person`，以及具体的`Student`、`Teacher`子类的时候，我们可以通过抽象类`Person`类型去引用具体的子类的实例：
+       >
+       > ```java
+       > Person s = new Student();
+       > Person t = new Teacher();
+       > ```
+       >
+       > 这种引用抽象类的好处在于，我们对其进行方法调用，并不关心`Person`类型变量的具体子类型：
+       >
+       > ```java
+       > // 不关心Person变量的具体子类型:
+       > s.run();
+       > t.run();
+       > ```
+       >
+       > 同样的代码，如果引用的是一个新的子类，我们仍然不关心具体类型：
+       >
+       > ```java
+       > // 同样不关心新的子类是如何实现run()方法的：
+       > Person e = new Employee();
+       > e.run();
+       > ```
+       >
+       > 这种尽量引用高层类型，避免引用实际子类型的方式，称之为面向抽象编程。
+       >
+       > 面向抽象编程的本质就是：
+       >
+       > - 上层代码只定义规范（例如：`abstract class Person`）；
+       > - 不需要子类就可以实现业务逻辑（正常编译）；
+       > - 具体的业务逻辑由不同的子类实现，调用者不关心子类的具体实现。
+   
+   - #### 接口（Interface）：
+   
+     > 在抽象类中，抽象方法本质上是定义接口规范：即规定高层类的接口，从而保证所有子类都有相同的接口实现，这样，多态就能发挥出威力。
+     >
+     > 如果一个抽象类没有字段，所有方法全部都是抽象方法：
+     >
+     > ```java
+     > abstract class Person {
+     >     public abstract void run();
+     >     public abstract String getName();
+     > }
+     > ```
+     >
+     > 此时就可以把该抽象类改写为接口：`interface`。相对于抽象类来说，**接口是完全抽象的**。并且接口也是数据类型，适用于向上转型和向下转型。
+     >
+     > 在Java中，使用`interface`可以声明一个接口：
+     >
+     > ```java
+     > interface Person {
+     >     void run();
+     >     String getName();
+     > }
+     > ```
+     >
+     > 所谓`interface`，就是比抽象类还要抽象的纯抽象接口，因为它连实例属性都不能有。接口中的属性都是`public static final`修饰的常量（写不写效果都一样）。
+     >
+     > 由于接口中定义的所有方法默认都是`public abstract`的，因此这两个修饰符不需要写出来（写不写效果都一样）。
+     >
+     > 当一个具体的`class`要实现一个`interface`时，需要使用`implements`关键字。举个例子：
+     >
+     > ```java
+     > class Student implements Person {
+     >     private String name;
+     > 
+     >     public Student(String name) {
+     >         this.name = name;
+     >     }
+     > 
+     >     @Override
+     >     public void run() {
+     >         System.out.println(this.name + " run");
+     >     }
+     > 
+     >     @Override
+     >     public String getName() {
+     >         return this.name;
+     >     }
+     > }
+     > ```
+     >
+     > 我们知道，在Java中，一个类只能继承自另一个类，不能从多个类继承。但是，**一个类可以实现多个接口**，例如：
+     >
+     > ```java
+     > class Student implements Person, Hello { // 实现了两个interface
+     >     ...
+     > }
+     > ```
+   
+     - ##### 抽象类和接口的对比如下：
+   
+       > |            | abstract class       | interface                   |
+       > | ---------- | :------------------- | :-------------------------- |
+       > | 继承       | 只能extends一个class | 可以implements多个interface |
+       > | 字段       | 可以定义实例字段     | 不能定义实例字段            |
+       > | 抽象方法   | 可以定义抽象方法     | 可以定义抽象方法            |
+       > | 非抽象方法 | 可以定义非抽象方法   | 可以定义default方法         |
+   
+     - ##### 接口继承：
+   
+       > 接口也可以使用`extends`来继承另一个接口，它相当于扩展了接口的方法。与类继承不同的是，**接口之间允许多继承**：
+       >
+       > ```java
+       > interface Hello {
+       >     void hello();
+       > }
+       > interface Runable {
+       >     void run();
+       > }
+       > 
+       > interface Person extends Hello, Runable {
+       >     String getName();
+       > }
+       > ```
+       >
+       > 此时，`Person`接口继承了`Hello、Runable`接口，因此，`Person`接口现在实际上有3个抽象方法签名，其中2个来自继承的接口。
+   
+     - ##### `default`方法：
+   
+       > 在接口中，可以定义`default`默认方法（>=Java 8）。例如，把`Person`接口的`run()`方法改为`default`方法：
+       >
+       > ```java
+       > public class Main {
+       >     public static void main(String[] args) {
+       >         Person p = new Student("Xiao Ming");
+       >         p.run();
+       >     }
+       > }
+       > 
+       > interface Person {
+       >     String getName();
+       >     default void run() {
+       >         System.out.println(getName() + " run");
+       >     }
+       > }
+       > 
+       > class Student implements Person {
+       >     private String name;
+       > 
+       >     public Student(String name) {
+       >         this.name = name;
+       >     }
+       > 
+       >     public String getName() {
+       >         return this.name;
+       >     }
+       > }
+       > ```
+       >
+       > **子类可以不实现接口中的`default`默认方法，因为它有默认实现了**。`default`方法的目的是，当我们需要给接口新增一个方法时，会涉及到修改全部子类。如果新增的是`default`方法，那么子类就不必全部修改，只需要在需要覆写的地方去覆写新增方法。
+       >
+       > `default`方法和抽象类中的普通方法是有所不同的。因为`interface`没有实例属性，`default`方法无法访问实例属性，而抽象类的普通方法可以访问实例属性。
+   
+   - #### 静态方法和静态字段：
+   
+     - ##### 静态属性：
+   
+       > - 在一个类中定义的实例属性，我们称之为实例字段。实例字段的特点是，每个实例都有独立的字段，各个实例的同名字段互不影响。还有一种字段，是用`static`修饰的字段，称为静态字段。
+       > - `static`关键字修饰的字段和方法是静态的，调用时通过`类名.`去调用。因为静态相关的内容绑定的是类片段，和实例没有关系。有没有创建出对应的实例对象都无所谓，类代码加载时它们就存在了。
+       > - 实例字段在每个实例中都有自己的一个独立“空间”，但是静态字段只有一个共享“空间”，所有实例都会共享该字段。
+       > - 虽然实例可以访问静态字段，但是它们指向的其实都是`Person class`的静态字段。所以，所有实例共享一个静态字段。因此，不推荐用`实例变量.静态字段`去访问静态字段，因为在Java程序中，实例对象并没有静态字段。在代码中，实例对象能访问静态字段只是因为编译器可以根据实例类型自动转换为`类名.静态字段`来访问静态对象。推荐用类名来访问静态字段。
+   
+     - ##### 静态方法：
+   
+       > - 有静态字段，就有静态方法。用`static`修饰的方法称为静态方法。调用静态方法不需要先创建实例对象，直接通过类名就可以调用。静态方法类似其它编程语言的函数。
+       >
+       > - 因为静态方法属于`class`而不属于实例，因此，静态方法内部，无法访问`this`变量，也无法访问实例字段，它只能访问静态字段。
+       >
+       > - 静态方法经常用于工具类。例如：
+       >
+       >   - `Arrays.sort()`
+       >
+       >   - `Math.random()`
+       >
+       > - 静态方法也经常用于辅助方法。注意到Java程序的入口`main()`也是静态方法。
+   
+     - ##### 接口的静态字段：
+   
+       > 因为`interface`是一个纯抽象类，所以它不能定义实例字段。但是，`interface`是可以有静态字段的，并且接口中的静态字段必须被`final`修饰。
+       >
+       > ```java
+       > public interface Person {
+       >     public static final int MALE = 1;
+       >     public static final int FEMALE = 2;
+       > }
+       > ```
+       >
+       > 实际上，因为`interface`的字段只能是`public static final`类型，所以我们可以把这些修饰符都去掉，上述代码可以简写为：
+       >
+       > ```java
+       > public interface Person {
+       >     // 编译器会自动加上public static final:
+       >     int MALE = 1;
+       >     int FEMALE = 2;
+       > }
+       > ```
+       >
+       > 编译器会自动把该字段变为`public static final`类型。
+   
+   - #### 包：
+   
+     > Java定义了一种名字空间，称之为包：`package`。一个类总是属于某个包，类名（比如`Person`）只是一个简写，真正的完整类名是`包名.类名`。例如：JDK的`Arrays`类存放在包`java.util`下面，因此，完整类名是`java.util.Arrays`。
+     >
+     > 在定义`class`的时候，我们需要在第一行通过`package`关键字来声明这个`class`属于哪个包：
+     >
+     > ```java
+     > package com.wangdao; // 申明包名com.wangdao
+     > 
+     > public class Student {  // 完整类名为：com.wangdao.Student
+     > }
+     > ```
+     >
+     > 在Java虚拟机执行的时候，JVM只看完整类名，因此，只要包名不同，类就不同。
+     >
+     > 包可以是多层结构，用`.`隔开。一个点就是一层目录，JVM会按照目录层级去对应的目录下加载`.class`字节码文件。例如：`java.util`。
+   
+     - ##### import：
+   
+       > 在一个类中，我们总会引用其他的类。如果用到的每个地方都写完整类名，那么代码会很难看。因此Java提供了`import`语句，这样我们只需要写简类名即可，具体的完整类名通过`import`语句去指定。
+       >
+       > ```java
+       > // Person.java
+       > package ming;
+       > 
+       > // 导入完整类名:
+       > import mr.jun.Arrays;
+       > 
+       > public class Person {
+       >     public void run() {
+       >         // 写简单类名: Arrays
+       >         Arrays arrays = new Arrays();
+       >     }
+       > }
+       > ```
+       >
+       > 在写`import`的时候，可以使用`*`，表示把这个包下面的所有类都导入进来（浅层次的）：
+       >
+       > ```java
+       > // Person.java
+       > package ming;
+       > 
+       > // 导入mr.jun包的所有class:
+       > import mr.jun.*;
+       > 
+       > public class Person {
+       >     public void run() {
+       >         Arrays arrays = new Arrays();
+       >     }
+       > }
+       > ```
+       >
+       > 还有一种`import static`的语法，用于导入一个类中的静态字段和静态方法：
+       >
+       > ```java
+       > package main;
+       > 
+       > // 导入System类的所有静态字段和静态方法:
+       > import static java.lang.System.*;
+       > 
+       > public class Main {
+       >     public static void main(String[] args) {
+       >         // 相当于调用System.out.println(…)
+       >         out.println("Hello, world!");
+       >     }
+       > }
+       > ```
+       >
+       > `import static`很少使用。
+   
+       > Java编译器最终编译出的`.class`文件只使用*完整类名*，因此，在代码中，当编译器遇到一个类名时：
+       >
+       > - 如果是完整类名，就直接根据完整类名查找这个`class`；
+       > - 如果是简单类名，按下面的顺序依次查找：
+       >   1. 查找当前`package`是否存在这个`class`；
+       >   2. 查找`import`的包是否包含这个`class`；
+       >   3. 查找`java.lang`包下是否包含这个`class`。
+       >
+       > - 如果按照上面的规则还无法确定类名，则编译报错。
+       >
+       > 因此，编写class的时候，编译器会自动帮我们做两个`import`动作：
+       >
+       > - 默认自动`import`当前`package`的其他`class`；
+       > - 默认自动`import java.lang.*`。
+       >
+       > 如果有两个`class`名称相同，例如，`mr.jun.Arrays`和`java.util.Arrays`，那么只能`import`其中一个，另一个必须写完整类名。
+   
+     - ##### 最佳实践：
+   
+       > 为了避免全球所有的开发者之间写的类冲突，我们需要确定唯一的包名。推荐的做法是使用倒置的域名来确保唯一性。例如：
+       >
+       > - org.apache
+       > - org.apache.commons.log
+       > - com.liaoxuefeng.sample
+       >
+       > 子包就可以根据功能自行命名。
+       >
+       > 注意：不要和JDK中的类重名，即自己的类不要使用这些名字：`java.lang.String/java.util.List`
+   
+     - ##### 带包编译：
+   
+       ```bash
+       javac -d . src/**/*.java
+       ```
+   
+       > `-d`代表带包编译，`.`代表生成的字节码文件夹（包含`.class`文件）放在当前目录下，最后的参数`src/**/*.java`表示`src`目录下的所有`.java`文件，包括任意深度的子目录。
+       >
+       > 注意：Windows环境不支持`**`这种搜索全部子目录的做法，所以在Windows下编译必须依次列出所有`.java`文件：
+       >
+       > ```bash
+       > C:\work> javac -d bin src\com\itranswarp\sample\Main.java src\com\itranswarp\world\Persion.java
+       > ```
+       >
+       > 使用Windows的PowerShell可以利用`Get-ChildItem`来列出指定目录下的所有`.java`文件：
+       >
+       > ```bash
+       > PS C:\work> (Get-ChildItem -Path .\src -Recurse -Filter *.java).FullName
+       > C:\work\src\com\itranswarp\sample\Main.java
+       > C:\work\src\com\itranswarp\world\Person.java
+       > ```
+       >
+       > 因此，编译命令可写为：
+       >
+       > ```bash
+       > PS C:\work> javac -d .\bin (Get-ChildItem -Path .\src -Recurse -Filter *.java).FullName
+       > ```
+   
+   - #### 内部类
+   
+     > Java中还有一种类，它被定义在另一个类的内部，所以称为**内部类（Nested Class）**。
+     >
+     > Java的内部类分为好几种，通常情况用得不多，但也需要了解它们是如何使用的。
+   
+     - ##### 实例内部类：（类似于实例成员）
+   
+       > 与普通类有个最大的不同，就是Inner Class的实例不能单独存在，必须依附于一个Outer Class的实例。示例代码如下：
+       >
+       > ```java
+       > // inner class
+       > public class Main {
+       >     public static void main(String[] args) {
+       >         Outer outer = new Outer("Nested"); // 实例化一个Outer
+       >         Outer.Inner inner = outer.new Inner(); // 实例化一个Inner
+       >         inner.hello();
+       >     }
+       > }
+       > 
+       > class Outer {
+       >     private String name;
+       > 
+       >     Outer(String name) {
+       >         this.name = name;
+       >     }
+       > 
+       >     class Inner {
+       >         void hello() {
+       >             System.out.println("Hello, " + Outer.this.name);
+       >         }
+       >     }
+       > }
+       > ```
+       >
+       > 观察上述代码，要实例化一个实例内部类`Inner`，必须首先创建它所在的外部类`Outer`的实例，然后通过外部类`Outer`实例的`new`来创建内部类`Inner`实例：
+       >
+       > ```java
+       > Outer.Inner inner = outer.new Inner();
+       > ```
+       >
+       > 这是因为Inner Class除了有一个`this`指向它自己，还隐含地持有一个Outer Class实例，可以用`Outer.this`访问这个实例。所以，实例化一个Inner Class不能脱离Outer实例。
+       >
+       > Inner Class和普通Class相比，除了能引用Outer实例外，还有一个额外的“特权”，就是可以修改Outer Class的`private`字段，因为Inner Class的作用域在Outer Class内部，所以能访问Outer Class的`private`字段和方法。
+       >
+       > 观察Java编译器编译后的`.class`文件可以发现，`Outer`类被编译为`Outer.class`，而`Inner`类被编译为`Outer$Inner.class`。
+       >
+       
+     - ##### 静态内部类：（类似于静态成员）
+     
+       > 静态内部类（Static Nested Class）使用`static`修饰，类似于静态成员：
+       >
+       > ```java
+       > // Static Nested Class
+       > public class Main {
+       >     public static void main(String[] args) {
+       >         Outer.StaticNested sn = new Outer.StaticNested();
+       >         sn.hello();
+       >     }
+       > }
+       > 
+       > class Outer {
+       >     private static String NAME = "OUTER";
+       > 
+       >     private String name;
+       > 
+       >     Outer(String name) {
+       >         this.name = name;
+       >     }
+       > 
+       >     static class StaticNested {
+       >         void hello() {
+       >             System.out.println("Hello, " + Outer.NAME);
+       >         }
+       >     }
+       > }
+       > ```
+       >
+       > 用`static`修饰的内部类和Inner Class有很大的不同，它不再依附于`Outer`的实例，而是一个完全独立的类，因此无法引用`Outer.this`，但它可以访问`Outer`的`private`静态字段和静态方法。如果把`StaticNested`移到`Outer`之外，就失去了访问`private`的权限。
+       >
+       
+     - ##### 局部内部类/匿名内部类：
+     
+       > 还有一种局部内部类（匿名内部类），它不需要在Outer Class中明确地定义这个Class，而是在方法内部，通过匿名类（Anonymous Class）来定义。示例代码如下：
+       >
+       > ```java
+       > // Anonymous Class
+       > public class Main {
+       >     public static void main(String[] args) {
+       >         Outer outer = new Outer("Nested");
+       >         outer.asyncHello();
+       >     }
+       > }
+       > 
+       > class Outer {
+       >     private String name;
+       > 
+       >     Outer(String name) {
+       >         this.name = name;
+       >     }
+       > 
+       >     void asyncHello() {
+       >         Runnable r = new Runnable() {
+       >             @Override
+       >             public void run() {
+       >                 System.out.println("Hello, " + Outer.this.name);
+       >             }
+       >         };
+       >         new Thread(r).start();
+       >     }
+       > }
+       > ```
+       >
+       > 观察`asyncHello()`方法，我们在方法内部实例化了一个`Runnable`。`Runnable`本身是接口，接口是不能实例化的，所以这里实际上是定义了一个实现了`Runnable`接口的匿名类，并且通过`new`实例化该匿名类，然后转型为`Runnable`。在定义匿名类的时候就必须实例化它，定义匿名类的写法如下：
+       >
+       > ```java
+       > Runnable r = new Runnable() {
+       >     // 实现必要的抽象方法...
+       > };
+       > ```
+       >
+       > 匿名类和Inner Class一样，可以访问Outer Class的`private`字段和方法。之所以我们要定义匿名类，是因为在这里我们通常不关心类名，比直接定义Inner Class可以少写很多代码。
+       >
+       > 观察Java编译器编译后的`.class`文件可以发现，`Outer`类被编译为`Outer.class`，而匿名类被编译为`Outer$1.class`。如果有多个匿名类，Java编译器会将每个匿名类依次命名为`Outer$1`、`Outer$2`、`Outer$3`……
+       >
+       > **除了接口外，匿名类也完全可以继承自普通类**。观察以下代码：
+       >
+       > ```java
+       > // Anonymous Class
+       > import java.util.HashMap;
+       > 
+       > public class Main {
+       >     public static void main(String[] args) {
+       >         HashMap<String, String> map1 = new HashMap<>();
+       >         HashMap<String, String> map2 = new HashMap<>() {}; // 匿名类!
+       >         HashMap<String, String> map3 = new HashMap<>() {
+       >             {
+       >                 put("A", "1");
+       >                 put("B", "2");
+       >             }
+       >         };
+       >         System.out.println(map3.get("A"));
+       >     }
+       > }
+       > ```
+       >
+       > `map1`是一个普通的`HashMap`实例，但`map2`是一个匿名类实例，只是该匿名类继承自`HashMap`。`map3`也是一个继承自`HashMap`的匿名类实例，并且添加了静态代码块来初始化数据。观察编译输出可发现`Main$1.class`和`Main$2.class`两个匿名类文件。
+       >
+       > 匿名内部类和实例内部类本质上是相同的，都必须依附于Outer Class的实例，即隐含地持有`Outer.this`实例，并拥有Outer Class的`private`访问权限。
+     
+   - #### classpath和jar
+   
+     - ##### classpath：
+     
+       > 在Java中，我们经常听到`classpath`这个东西。网上有很多关于“如何设置classpath”的文章，但大部分设置都不靠谱。
+       >
+       > 到底什么是`classpath`？
+       >
+       > **`classpath`是JVM用到的一个环境变量，它用来指示JVM如何搜索要装载到JVM的类（`.class`文件）**。
+       >
+       > 因为Java是编译型语言，源码文件是`.java`，而编译后的`.class`文件才是真正可以被JVM执行的字节码。因此，JVM需要知道，如果要加载一个`abc.xyz.Hello`的类，应该去哪搜索对应的`Hello.class`文件。
+       >
+       > 所以，`classpath`就是一组目录的集合，它设置的搜索路径与操作系统相关。例如，在Windows系统上，用`;`分隔，带空格的目录用`""`括起来，可能长这样：
+       >
+       > ```bash
+       > C:\work\project1\bin;C:\shared;"D:\My Documents\project1\bin"
+       > ```
+       >
+       > 在Linux系统上，用`:`分隔，可能长这样：
+       >
+       > ```bash
+       > /usr/shared:/usr/local/bin:/home/liaoxuefeng/bin
+       > ```
+       >
+       > 现在我们假设`classpath`是`.;C:\work\project1\bin;C:\shared`，当JVM在加载`abc.xyz.Hello`这个类时，会依次查找：
+       >
+       > - <当前目录>\abc\xyz\Hello.class
+       > - C:\work\project1\bin\abc\xyz\Hello.class
+       > - C:\shared\abc\xyz\Hello.class
+       >
+       > 注意到`.`代表当前目录。如果JVM在某个路径下找到了对应的`class`文件，就不再往后继续搜索。如果所有路径下都没有找到，就报错。
+     
+       > `classpath`的设定方法有两种：
+       >
+       > 1. 在系统环境变量中设置`classpath`环境变量，不推荐；
+       > 2. 在启动JVM时设置`classpath`变量，推荐。
+       >
+       > 我们强烈*不推荐*在系统环境变量中设置`classpath`，那样会污染整个系统环境。在启动JVM时设置`classpath`才是推荐的做法。实际上就是给`java`命令传入`-classpath`参数：
+       >
+       > ```bash
+       > java -classpath .;C:\work\project1\bin;C:\shared abc.xyz.Hello
+       > ```
+       >
+       > 或者使用`-cp`的简写：
+       >
+       > ```bash
+       > java -cp .;C:\work\project1\bin;C:\shared abc.xyz.Hello
+       > ```
+       >
+       > 没有设置系统环境变量，也没有传入`-cp`参数，那么JVM默认的`classpath`为`.`，即当前目录：
+       >
+       > ```bash
+       > java abc.xyz.Hello
+       > ```
+       >
+       > 上述命令告诉JVM只在当前目录搜索`Hello.class`。
+       >
+       > 在IDE中运行Java程序，IDE自动传入的`-cp`参数是当前工程输出类文件的目录和引入的jar包目录。
+     
+       > 通常，我们在自己编写的`class`中，会引用Java核心库的`class`，例如，`String`、`ArrayList`等。这些`class`应该上哪去找？
+       >
+       > 有很多“如何设置classpath”的文章会告诉你把JVM自带的`rt.jar`放入`classpath`，但事实上，根本不需要告诉JVM如何去Java核心库查找`class`，JVM怎么可能笨到连自己的核心库在哪都不知道！
+       >
+       > 注意：不要把任何Java核心库添加到classpath中！JVM根本不依赖classpath加载核心库！
+       >
+       > 更好的做法是，不要设置`classpath`！默认的当前目录`.`对于绝大多数情况都够用了。
+       >
+       > 假设我们有一个编译后的`Hello.class`，它的包名是`com.example`，当前目录是`C:\work`，那么，目录结构必须如下：
+       >
+       > ```tex
+       > C:\work
+       > └─ com
+       >    └─ example
+       >       └─ Hello.class
+       > ```
+       >
+       > 运行这个`Hello.class`必须在当前目录下使用如下命令：
+       >
+       > ```bash
+       > C:\work> java -cp . com.example.Hello
+       > ```
+       >
+       > JVM根据classpath设置的`.`在当前目录下查找`com.example.Hello`，即实际搜索文件必须位于`com/example/Hello.class`。如果指定的`.class`文件不存在，或者目录结构和包名对不上，均会报错。
+     
+     - ##### jar包：
+     
+       > 如果有很多`.class`文件，散落在各层目录中，肯定不便于管理。如果能把目录打一个包，变成一个文件，就方便多了。jar包就是用来干这个事的，它可以把`package`组织的目录层级，以及各个目录下的所有文件（包括`.class`文件和其他文件）都打成一个jar文件，这样一来，无论是备份，还是发给客户，就简单多了。
+       >
+       > **jar包实际上就是一个zip格式的压缩文件，而jar包相当于目录**。如果我们要执行一个jar包的`class`，就可以把jar包放到`classpath`中：
+       >
+       > ```bash
+       > java -cp ./hello.jar abc.xyz.Hello
+       > ```
+       >
+       > 这样JVM会自动在`hello.jar`文件里去搜索某个类。
+       >
+       > 那么问题来了：如何创建jar包？
+       >
+       > 因为jar包就是zip包，所以，直接在资源管理器中，找到正确的目录，点击右键，在弹出的快捷菜单中选择“发送到”，“压缩(zipped)文件夹”，就制作了一个zip文件。然后，把后缀从`.zip`改为`.jar`，一个jar包就创建成功。
+       >
+       > 假设编译输出的目录结构是这样：
+       >
+       > ```tex
+       > package_sample
+       > └─ bin
+       >    ├─ hong
+       >    │  └─ Person.class
+       >    │  ming
+       >    │  └─ Person.class
+       >    └─ mr
+       >       └─ jun
+       >          └─ Arrays.class
+       > ```
+       >
+       > 这里需要特别注意的是，jar包里的第一层目录，不能是`bin`，而应该是`hong`、`ming`、`mr`。如果在Windows的资源管理器中看，应该长这样：
+       >
+       > ![hello.zip.ok](https://liaoxuefeng.com/books/java/oop/basic/classpath-jar/good-jar.jpg)
+       >
+       > 如果长这样：
+       >
+       > ![hello.zip.invalid](https://liaoxuefeng.com/books/java/oop/basic/classpath-jar/bad-jar.jpg)
+       >
+       > 上面的`hello.zip`包含有`bin`目录，说明打包打得有问题，JVM仍然无法从jar包中查找正确的`class`，原因是`hong.Person`必须按`hong/Person.class`存放，而不是`bin/hong/Person.class`。
+     
+       > jar包还可以包含一个特殊的`/META-INF/MANIFEST.MF`文件，`MANIFEST.MF`是纯文本，可以指定`Main-Class`和其它信息。JVM会自动读取这个`MANIFEST.MF`文件，如果存在`Main-Class`（则是一个可执行的jar包），我们就不必在命令行指定启动的类名，而是用更方便的命令：
+       >
+       > ```bash
+       > java -jar hello.jar
+       > ```
+       >
+       > 在大型项目中，不可能手动编写`MANIFEST.MF`文件，再手动创建jar包。Java社区提供了大量的开源构建工具，例如[Maven](https://liaoxuefeng.com/books/java/maven/index.html)，可以非常方便地创建jar包。
+     
+   - #### class版本：
+   
+     > 在Java开发中，许多童鞋经常被各种版本的JDK搞得晕头转向，本节我们就来详细讲解Java程序编译后的class文件版本问题。
+     >
+     > 我们通常说的Java 8，Java 11，Java 17，是指JDK的版本，也就是JVM的版本，更确切地说，就是`java.exe`这个程序的版本：
+     >
+     > ```plain
+     > $ java -version
+     > java version "17" 2021-09-14 LTS
+     > ```
+     >
+     > 
+     >
+     > 而每个版本的JVM，它能执行的class文件版本也不同。例如，Java 11对应的class文件版本是55，而Java 17对应的class文件版本是61。
+     >
+     > 如果用Java 11编译一个Java程序，输出的class文件版本默认就是55，这个class既可以在Java 11上运行，也可以在Java 17上运行，因为Java 17支持的class文件版本是61，表示“最多支持到版本61”。
+     >
+     > 如果用Java 17编译一个Java程序，输出的class文件版本默认就是61，它可以在Java 17、Java 18上运行，但不可能在Java 11上运行，因为Java 11支持的class版本最多到55。如果使用低于Java 17的JVM运行，会得到一个`UnsupportedClassVersionError`，错误信息类似：
+     >
+     > ```plain
+     > java.lang.UnsupportedClassVersionError: Xxx has been compiled by a more recent version of the Java Runtime...
+     > ```
+     >
+     > 
+     >
+     > 只要看到`UnsupportedClassVersionError`就表示当前要加载的class文件版本超过了JVM的能力，必须使用更高版本的JVM才能运行。
+     >
+     > 打个比方，用Word 2013保存一个Word文件，这个文件也可以在Word 2016上打开。但反过来，用Word 2016保存一个Word文件，就无法使用Word 2013打开。
+     >
+     > 但是，且慢，用Word 2016也可以保存一个格式为Word 2013的文件，这样保存的Word文件就可以用低版本的Word 2013打开，但前提是保存时必须明确指定文件格式兼容Word 2013。
+     >
+     > 类似的，对应到JVM的class文件，我们也可以用Java 17编译一个Java程序，指定输出的class版本要兼容Java 11（即class版本55），这样编译生成的class文件就可以在Java >=11的环境中运行。
+     >
+     > 指定编译输出有两种方式，一种是在`javac`命令行中用参数`--release`设置：
+     >
+     > ```plain
+     > $ javac --release 11 Main.java
+     > ```
+     >
+     > 
+     >
+     > 参数`--release 11`表示源码兼容Java 11，编译的class输出版本为Java 11兼容，即class版本55。
+     >
+     > 第二种方式是用参数`--source`指定源码版本，用参数`--target`指定输出class版本：
+     >
+     > ```plain
+     > $ javac --source 9 --target 11 Main.java
+     > ```
+     >
+     > 
+     >
+     > 上述命令如果使用Java 17的JDK编译，它会把源码视为Java 9兼容版本，并输出class为Java 11兼容版本。注意`--release`参数和`--source --target`参数只能二选一，不能同时设置。
+     >
+     > 然而，指定版本如果低于当前的JDK版本，会有一些潜在的问题。例如，我们用Java 17编译`Hello.java`，参数设置`--source 9`和`--target 11`：
+     >
+     > ```java
+     > public class Hello {
+     >     public static void hello(String name) {
+     >         System.out.println("hello".indent(4));
+     >     }
+     > }
+     > ```
+     >
+     > 
+     >
+     > 用低于Java 11的JVM运行`Hello`会得到一个`LinkageError`，因为无法加载`Hello.class`文件，而用Java 11运行`Hello`会得到一个`NoSuchMethodError`，因为`String.indent()`方法是从Java 12才添加进来的，Java 11的`String`版本根本没有`indent()`方法。
+     >
+     >  注意
+     >
+     > 如果使用--release 11则会在编译时检查该方法是否在Java 11中存在。
+     >
+     > 因此，如果运行时的JVM版本是Java 11，则编译时也最好使用Java 11，而不是用高版本的JDK编译输出低版本的class。
+     >
+     > 如果使用`javac`编译时不指定任何版本参数，那么相当于使用`--release 当前版本`编译，即源码版本和输出版本均为当前版本。
+     >
+     > 在开发阶段，多个版本的JDK可以同时安装，当前使用的JDK版本可由`JAVA_HOME`环境变量切换。
+     >
+     > ### 源码版本
+     >
+     > 在编写源代码的时候，我们通常会预设一个源码的版本。在编译的时候，如果用`--source`或`--release`指定源码版本，则使用指定的源码版本检查语法。
+     >
+     > 例如，使用了lambda表达式的源码版本至少要为8才能编译，使用了`var`关键字的源码版本至少要为10才能编译，使用`switch`表达式的源码版本至少要为12才能编译，且12和13版本需要启用`--enable-preview`参数。
+     >
+     > ### 小结
+     >
+     > 高版本的JDK可编译输出低版本兼容的class文件，但需注意，低版本的JDK可能不存在高版本JDK添加的类和方法，导致运行时报错。
+     >
+     > 运行时使用哪个JDK版本，编译时就尽量使用同一版本的JDK编译源码。
+   
+   - #### 模块：
+   
+     > 从Java 9开始，JDK又引入了模块（Module）。
+     >
+     > 什么是模块？这要从Java 9之前的版本说起。
+     >
+     > 我们知道，`.class`文件是JVM看到的最小可执行文件，而一个大型程序需要编写很多Class，并生成一堆`.class`文件，很不便于管理，所以，`jar`文件就是`class`文件的容器。
+     >
+     > 在Java 9之前，一个大型Java程序会生成自己的jar文件，同时引用依赖的第三方jar文件，而JVM自带的Java标准库，实际上也是以jar文件形式存放的，这个文件叫`rt.jar`，一共有60多M。
+     >
+     > 如果是自己开发的程序，除了一个自己的`app.jar`以外，还需要一堆第三方的jar包，运行一个Java程序，一般来说，命令行写这样：
+     >
+     > ```plain
+     > java -cp app.jar:a.jar:b.jar:c.jar com.liaoxuefeng.sample.Main
+     > ```
+     >
+     > 
+     >
+     >  注意
+     >
+     > JVM自带的标准库rt.jar不要写到classpath中，写了反而会干扰JVM的正常运行。
+     >
+     > 如果漏写了某个运行时需要用到的jar，那么在运行期极有可能抛出`ClassNotFoundException`。
+     >
+     > 所以，jar只是用于存放class的容器，它并不关心class之间的依赖。
+     >
+     > 从Java 9开始引入的模块，主要是为了解决“依赖”这个问题。如果`a.jar`必须依赖另一个`b.jar`才能运行，那我们应该给`a.jar`加点说明啥的，让程序在编译和运行的时候能自动定位到`b.jar`，这种自带“依赖关系”的class容器就是模块。
+     >
+     > 为了表明Java模块化的决心，从Java 9开始，原有的Java标准库已经由一个单一巨大的`rt.jar`分拆成了几十个模块，这些模块以`.jmod`扩展名标识，可以在`$JAVA_HOME/jmods`目录下找到它们：
+     >
+     > - java.base.jmod
+     > - java.compiler.jmod
+     > - java.datatransfer.jmod
+     > - java.desktop.jmod
+     > - ...
+     >
+     > 这些`.jmod`文件每一个都是一个模块，模块名就是文件名。例如：模块`java.base`对应的文件就是`java.base.jmod`。模块之间的依赖关系已经被写入到模块内的`module-info.class`文件了。所有的模块都直接或间接地依赖`java.base`模块，只有`java.base`模块不依赖任何模块，它可以被看作是“根模块”，好比所有的类都是从`Object`直接或间接继承而来。
+     >
+     > 把一堆class封装为jar仅仅是一个打包的过程，而把一堆class封装为模块则不但需要打包，还需要写入依赖关系，并且还可以包含二进制代码（通常是JNI扩展）。此外，模块支持多版本，即在同一个模块中可以为不同的JVM提供不同的版本。
+     >
+     > ### 编写模块
+     >
+     > 那么，我们应该如何编写模块呢？还是以具体的例子来说。首先，创建模块和原有的创建Java项目是完全一样的，以`oop-module`工程为例，它的目录结构如下：
+     >
+     > ```
+     > oop-module
+     > ├── bin
+     > ├── build.sh
+     > └── src
+     >     ├── com
+     >     │   └── itranswarp
+     >     │       └── sample
+     >     │           ├── Greeting.java
+     >     │           └── Main.java
+     >     └── module-info.java
+     > ```
+     >
+     > 其中，`bin`目录存放编译后的class文件，`src`目录存放源码，按包名的目录结构存放，仅仅在`src`目录下多了一个`module-info.java`这个文件，这就是模块的描述文件。在这个模块中，它长这样：
+     >
+     > ```java
+     > module hello.world {
+     > 	requires java.base; // 可不写，任何模块都会自动引入java.base
+     > 	requires java.xml;
+     > }
+     > ```
+     >
+     > 
+     >
+     > 其中，`module`是关键字，后面的`hello.world`是模块的名称，它的命名规范与包一致。花括号的`requires xxx;`表示这个模块需要引用的其他模块名。除了`java.base`可以被自动引入外，这里我们引入了一个`java.xml`的模块。
+     >
+     > 当我们使用模块声明了依赖关系后，才能使用引入的模块。例如，`Main.java`代码如下：
+     >
+     > ```java
+     > package com.itranswarp.sample;
+     > 
+     > // 必须引入java.xml模块后才能使用其中的类:
+     > import javax.xml.XMLConstants;
+     > 
+     > public class Main {
+     > 	public static void main(String[] args) {
+     > 		Greeting g = new Greeting();
+     > 		System.out.println(g.hello(XMLConstants.XML_NS_PREFIX));
+     > 	}
+     > }
+     > ```
+     >
+     > 
+     >
+     > 如果把`requires java.xml;`从`module-info.java`中去掉，编译将报错。可见，模块的重要作用就是声明依赖关系。
+     >
+     > 下面，我们用JDK提供的命令行工具来编译并创建模块。
+     >
+     > 首先，我们把工作目录切换到`oop-module`，在当前目录下编译所有的`.java`文件，并存放到`bin`目录下，命令如下：
+     >
+     > ```plain
+     > $ javac -d bin src/module-info.java src/com/itranswarp/sample/*.java
+     > ```
+     >
+     > 
+     >
+     > 如果编译成功，现在项目结构如下：
+     >
+     > ```
+     > oop-module
+     > ├── bin
+     > │   ├── com
+     > │   │   └── itranswarp
+     > │   │       └── sample
+     > │   │           ├── Greeting.class
+     > │   │           └── Main.class
+     > │   └── module-info.class
+     > └── src
+     >     ├── com
+     >     │   └── itranswarp
+     >     │       └── sample
+     >     │           ├── Greeting.java
+     >     │           └── Main.java
+     >     └── module-info.java
+     > ```
+     >
+     > 注意到`src`目录下的`module-info.java`被编译到`bin`目录下的`module-info.class`。
+     >
+     > 下一步，我们需要把bin目录下的所有class文件先打包成jar，在打包的时候，注意传入`--main-class`参数，让这个jar包能自己定位`main`方法所在的类：
+     >
+     > ```plain
+     > $ jar --create --file hello.jar --main-class com.itranswarp.sample.Main -C bin .
+     > ```
+     >
+     > 
+     >
+     > 现在我们就在当前目录下得到了`hello.jar`这个jar包，它和普通jar包并无区别，可以直接使用命令`java -jar hello.jar`来运行它。但是我们的目标是创建模块，所以，继续使用JDK自带的`jmod`命令把一个jar包转换成模块：
+     >
+     > ```plain
+     > $ jmod create --class-path hello.jar hello.jmod
+     > ```
+     >
+     > 
+     >
+     > 于是，在当前目录下我们又得到了`hello.jmod`这个模块文件，这就是最后打包出来的传说中的模块！
+     >
+     > ### 运行模块
+     >
+     > 要运行一个jar，我们使用`java -jar xxx.jar`命令。要运行一个模块，我们只需要指定模块名。试试：
+     >
+     > ```plain
+     > $ java --module-path hello.jmod --module hello.world
+     > ```
+     >
+     > 
+     >
+     > 结果是一个错误：
+     >
+     > ```plain
+     > Error occurred during initialization of boot layer
+     > java.lang.module.FindException: JMOD format not supported at execution time: hello.jmod
+     > ```
+     >
+     > 
+     >
+     > 原因是`.jmod`不能被放入`--module-path`中。换成`.jar`就没问题了：
+     >
+     > ```plain
+     > $ java --module-path hello.jar --module hello.world
+     > Hello, xml!
+     > ```
+     >
+     > 
+     >
+     > 那我们辛辛苦苦创建的`hello.jmod`有什么用？答案是我们可以用它来打包JRE。
+     >
+     > ### 打包JRE
+     >
+     > 前面讲了，为了支持模块化，Java 9首先带头把自己的一个巨大无比的`rt.jar`拆成了几十个`.jmod`模块，原因就是，运行Java程序的时候，实际上我们用到的JDK模块，并没有那么多。不需要的模块，完全可以删除。
+     >
+     > 过去发布一个Java应用程序，要运行它，必须下载一个完整的JRE，再运行jar包。而完整的JRE块头很大，有100多M。怎么给JRE瘦身呢？
+     >
+     > 现在，JRE自身的标准库已经分拆成了模块，只需要带上程序用到的模块，其他的模块就可以被裁剪掉。怎么裁剪JRE呢？并不是说把系统安装的JRE给删掉部分模块，而是“复制”一份JRE，但只带上用到的模块。为此，JDK提供了`jlink`命令来干这件事。命令如下：
+     >
+     > ```plain
+     > $ jlink --module-path hello.jmod --add-modules java.base,java.xml,hello.world --output jre/
+     > ```
+     >
+     > 
+     >
+     > 我们在`--module-path`参数指定了我们自己的模块`hello.jmod`，然后，在`--add-modules`参数中指定了我们用到的3个模块`java.base`、`java.xml`和`hello.world`，用`,`分隔。最后，在`--output`参数指定输出目录。
+     >
+     > 现在，在当前目录下，我们可以找到`jre`目录，这是一个完整的并且带有我们自己`hello.jmod`模块的JRE。试试直接运行这个JRE：
+     >
+     > ```plain
+     > $ jre/bin/java --module hello.world
+     > Hello, xml!
+     > ```
+     >
+     > 
+     >
+     > 要分发我们自己的Java应用程序，只需要把这个`jre`目录打个包给对方发过去，对方直接运行上述命令即可，既不用下载安装JDK，也不用知道如何配置我们自己的模块，极大地方便了分发和部署。
+     >
+     > ### 访问权限
+     >
+     > 前面我们讲过，Java的class访问权限分为public、protected、private和默认的包访问权限。引入模块后，这些访问权限的规则就要稍微做些调整。
+     >
+     > 确切地说，class的这些访问权限只在一个模块内有效，模块和模块之间，例如，a模块要访问b模块的某个class，必要条件是b模块明确地导出了可以访问的包。
+     >
+     > 举个例子：我们编写的模块`hello.world`用到了模块`java.xml`的一个类`javax.xml.XMLConstants`，我们之所以能直接使用这个类，是因为模块`java.xml`的`module-info.java`中声明了若干导出：
+     >
+     > ```java
+     > module java.xml {
+     >     exports java.xml;
+     >     exports javax.xml.catalog;
+     >     exports javax.xml.datatype;
+     >     ...
+     > }
+     > ```
+     >
+     > 
+     >
+     > 只有它声明的导出的包，外部代码才被允许访问。换句话说，如果外部代码想要访问我们的`hello.world`模块中的`com.itranswarp.sample.Greeting`类，我们必须将其导出：
+     >
+     > ```java
+     > module hello.world {
+     >     exports com.itranswarp.sample;
+     > 
+     >     requires java.base;
+     > 	requires java.xml;
+     > }
+     > ```
+     >
+     > 
+     >
+     > 因此，模块进一步隔离了代码的访问权限。
+     >
+     > ### 练习
+     >
+     > 请下载并练习如何打包模块和JRE。
+     >
+     > [下载练习](https://liaoxuefeng.com/books/java/oop/basic/module/oop-module.zip)
+     >
+     > ### 小结
+     >
+     > Java 9引入的模块目的是为了管理依赖；
+     >
+     > 使用模块可以按需打包JRE；
+     >
+     > 使用模块对类的访问权限有了进一步限制。
 
-
-
-
-
-
-
-
-
-而可变参数可以保证无法传入`null`，因为传入0个参数时，接收到的实际值是一个空数组而不是`null`。
-
-但是，调用方需要自己先构造`String[]`，比较麻烦。例如：

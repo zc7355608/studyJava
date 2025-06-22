@@ -867,7 +867,7 @@
   
       上面代码将 jQuery 生成的`deferred`对象，转为一个新的 Promise 对象。
   
-      **`Promise.resolve()`等价于下面的写法**。（`Promise.resolve()` 和 `new Promise(resolve => resolve(x))` 对参数的处理逻辑完全一致，均遵循 Promise 的同化规则，只是语法和使用场景不同）
+      **`Promise.resolve()`等价于下面的写法**。（`Promise.resolve(x)` 和 `new Promise(resolve => resolve(x))` 对参数的处理逻辑完全一致，均遵循 Promise 的同化规则，只是语法和使用场景不同）
   
       ```js
       Promise.resolve('foo')
