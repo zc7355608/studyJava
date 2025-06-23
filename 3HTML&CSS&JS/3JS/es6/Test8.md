@@ -2386,7 +2386,7 @@
 
     （4）返回值是 Promise。
 
-    **`async`函数的返回值是 Promise 对象，即自动用 `Promise.resolved` 将return的值转成 Promise 对象并返回**。这比 Generator 函数的返回值是 Iterator 对象方便多了。你可以用`then`方法指定下一步的操作。
+    **`async`函数的返回值是 Promise 对象，如果不是则会自动调用 `Promise.resolved` 将return的值转成 Promise 对象并返回**。这比 Generator 函数的返回值是 Iterator 对象方便多了。你可以用`then`方法指定下一步的操作。
 
     进一步说，`async`函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而`await`命令就是内部`then`命令的语法糖。
 
@@ -2533,7 +2533,7 @@
 
     - ##### await 命令
 
-      正常情况下，`await`命令后面是一个 Promise 对象，返回该对象成功状态的结果值。如果不是 Promise 对象，此时会自动通过 `Promise.resolved` 转成 Promise 对象。此时`await`语句的结果就是成功状态 Promise 对象的结果值。
+      正常情况下，`await`命令后面是一个 Promise 对象，`await`表达式会等待并返回该 Promise 对象成功状态的结果值。如果`await`命令后面不是 Promise 对象，此时会自动通过 `Promise.resolved` 转成 Promise 对象。
 
       ```js
       async function f() {
