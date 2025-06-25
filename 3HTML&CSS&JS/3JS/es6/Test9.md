@@ -514,7 +514,7 @@
     
   - #### 静态属性
 
-    ES2022 之前，Class 内部只有静态方法，没有静态属性。静态属性指的是 Class 本身的属性，即`Class.propName`，而不是定义在实例对象（`this`）上的属性。也就是说之前只能这样写：
+    [ES2022](https://github.com/tc39/proposal-class-fields) 之前，Class 内部只有静态方法，没有静态属性。静态属性指的是 Class 本身的属性，即`Class.propName`，而不是定义在实例对象（`this`）上的属性。也就是说之前只能这样写：
 
     ```js
     class Foo {}
@@ -558,386 +558,369 @@
 
     - ##### 早期解决方案：
 
-      > 私有方法和私有属性，是只能在类的内部访问的方法和属性，外部不能访问。这是常见需求，有利于代码的封装，但早期的 ES6 不提供，只能通过变通方法模拟实现。
-      >
-      > 一种做法是在命名上加以区别。
-      >
-      > ```
-      > class Widget {
-      > 
-      >   // 公有方法
-      >  foo (baz) {
-      >     this._bar(baz);
-      >  }
-      > 
-      >   // 私有方法
-      >   _bar(baz) {
-      >     return this.snaf = baz;
-      >   }
-      > 
-      >   // ...
-      > }
-      > ```
-      >
-      > 上面代码中，`_bar()`方法前面的下划线，表示这是一个只限于内部使用的私有方法。但是，这种命名是不保险的，在类的外部，还是可以调用到这个方法。
-      >
-      > 另一种方法就是索性将私有方法移出类，因为类内部的所有方法都是对外可见的。
-      >
-      > ```
-      > class Widget {
-      >  foo (baz) {
-      >     bar.call(this, baz);
-      >  }
-      > 
-      >  // ...
-      > }
-      > 
-      > function bar(baz) {
-      >   return this.snaf = baz;
-      > }
-      > ```
-      >
-      > 上面代码中，`foo`是公开方法，内部调用了`bar.call(this, baz)`。这使得`bar()`实际上成为了当前类的私有方法。
-      >
-      > 还有一种方法是利用`Symbol`值的唯一性，将私有方法的名字命名为一个`Symbol`值。
-      >
-      > ```
-      > const bar = Symbol('bar');
-      > const snaf = Symbol('snaf');
-      > 
-      > export default class myClass{
-      > 
-      >   // 公有方法
-      >  foo(baz) {
-      >     this[bar](baz);
-      >  }
-      > 
-      >  // 私有方法
-      >   [bar](baz) {
-      >     return this[snaf] = baz;
-      >   }
-      > 
-      >   // ...
-      > };
-      > ```
-      >
-      > 上面代码中，`bar`和`snaf`都是`Symbol`值，一般情况下无法获取到它们，因此达到了私有方法和私有属性的效果。但是也不是绝对不行，`Reflect.ownKeys()`依然可以拿到它们。
-      >
-      > ```
-      > const inst = new myClass();
-      > 
-      > Reflect.ownKeys(myClass.prototype)
-      > // [ 'constructor', 'foo', Symbol(bar) ]
-      > ```
-      >
-      > 上面代码中，Symbol 值的属性名依然可以从类的外部拿到。
-
+      私有方法和私有属性，是只能在类的内部访问的方法和属性，外部不能访问。这是常见需求，有利于代码的封装，但早期的 ES6 不提供，只能通过变通方法模拟实现。
+      
+      一种做法是在命名上加以区别。
+      
+      ```js
+      class Widget {
+      
+          // 公有方法
+          foo (baz) {
+              this._bar(baz);
+          }
+      
+          // 私有方法
+          _bar(baz) {
+              return this.snaf = baz;
+          }
+      
+          // ...
+      }
+      ```
+      
+      上面代码中，`_bar()`方法前面的下划线，表示这是一个只限于内部使用的私有方法。但是，这种命名是不保险的，在类的外部，还是可以调用到这个方法。
+      
+      另一种方法就是索性将私有方法移出类，因为类内部的所有方法都是对外可见的。
+      
+      ```js
+      class Widget {
+          foo (baz) {
+          	bar.call(this, baz);
+          }
+      
+          // ...
+      }
+      
+      function bar(baz) {
+      	return this.snaf = baz;
+      }
+      ```
+      
+      上面代码中，`foo`是公开方法，内部调用了`bar.call(this, baz)`。这使得`bar()`实际上成为了当前类的私有方法。
+      
+      还有一种方法是利用`Symbol`值的唯一性，将私有方法的名字命名为一个`Symbol`值。
+      
+      ```js
+      const bar = Symbol('bar');
+      const snaf = Symbol('snaf');
+      
+      export default class myClass{
+      
+          // 公有方法
+          foo(baz) {
+          	this[bar](baz);
+          }
+      
+          // 私有方法
+          [bar](baz) {
+          	return this[snaf] = baz;
+          }
+      
+          // ...
+      };
+      ```
+      
+      上面代码中，`bar`和`snaf`都是`Symbol`值，一般情况下无法获取到它们，因此达到了私有方法和私有属性的效果。但是也不是绝对不行，`Reflect.ownKeys()`依然可以拿到它们。
+      
+      ```js
+      const inst = new myClass();
+      Reflect.ownKeys(myClass.prototype)  // [ 'constructor', 'foo', Symbol(bar) ]
+      ```
+      
+      上面代码中，Symbol 值的属性名依然可以从类的外部拿到。
+      
     - ##### 私有属性的正式写法：
 
-      > [ES2022](https://github.com/tc39/proposal-class-fields)正式为`class`添加了私有属性，方法是在属性名之前使用`#`表示。
-      >
-      > ```
-      > class IncreasingCounter {
-      >   #count = 0;
-      >   get value() {
-      >     console.log('Getting the current value!');
-      >     return this.#count;
-      >   }
-      >   increment() {
-      >     this.#count++;
-      >   }
-      > }
-      > ```
-      >
-      > 上面代码中，`#count`就是私有属性，只能在类的内部使用（`this.#count`）。如果在类的外部使用，就会报错。
-      >
-      > ```
-      > const counter = new IncreasingCounter();
-      > counter.#count // 报错
-      > counter.#count = 42 // 报错
-      > ```
-      >
-      > 上面示例中，在类的外部，读取或写入私有属性`#count`，都会报错。
-      >
-      > 注意，[从 Chrome 111 开始](https://developer.chrome.com/blog/new-in-devtools-111/#misc)，开发者工具里面可以读写私有属性，不会报错，原因是 Chrome 团队认为这样方便调试。
-      >
-      > 另外，不管在类的内部或外部，读取一个不存在的私有属性，也都会报错。这跟公开属性的行为完全不同，如果读取一个不存在的公开属性，不会报错，只会返回`undefined`。
-      >
-      > ```
-      > class IncreasingCounter {
-      >  #count = 0;
-      >   get value() {
-      >     console.log('Getting the current value!');
-      >     return this.#myCount; // 报错
-      >   }
-      >   increment() {
-      >     this.#count++;
-      >   }
-      > }
-      > 
-      > const counter = new IncreasingCounter();
-      > counter.#myCount // 报错
-      > ```
-      >
-      > 上面示例中，`#myCount`是一个不存在的私有属性，不管在函数内部或外部，读取该属性都会导致报错。
-      >
-      > 注意，私有属性的属性名必须包括`#`，如果不带`#`，会被当作另一个属性。
-      >
-      > ```
-      > class Point {
-      >   #x;
-      > 
-      >   constructor(x = 0) {
-      >    this.#x = +x;
-      >   }
-      > 
-      >   get x() {
-      >    return this.#x;
-      >   }
-      > 
-      >   set x(value) {
-      >     this.#x = +value;
-      >   }
-      > }
-      > ```
-      >
-      > 上面代码中，`#x`就是私有属性，在`Point`类之外是读取不到这个属性的。由于井号`#`是属性名的一部分，使用时必须带有`#`一起使用，所以`#x`和`x`是两个不同的属性。
-      >
-      > 这种写法不仅可以写私有属性，还可以用来写私有方法。
-      >
-      > ```
-      > class Foo {
-      >   #a;
-      >  #b;
-      >   constructor(a, b) {
-      >    this.#a = a;
-      >     this.#b = b;
-      >  }
-      >   #sum() {
-      >     return this.#a + this.#b;
-      >   }
-      >   printSum() {
-      >     console.log(this.#sum());
-      >   }
-      > }
-      > ```
-      >
-      > 上面示例中，`#sum()`就是一个私有方法。
-      >
-      > 另外，私有属性也可以设置 getter 和 setter 方法。
-      >
-      > ```
-      > class Counter {
-      >   #xValue = 0;
-      > 
-      >  constructor() {
-      >     console.log(this.#x);
-      >  }
-      > 
-      >  get #x() { return this.#xValue; }
-      >   set #x(value) {
-      >     this.#xValue = value;
-      >   }
-      > }
-      > ```
-      >
-      > 上面代码中，`#x`是一个私有属性，它的读写都通过`get #x()`和`set #x()`操作另一个私有属性`#xValue`来完成。
-      >
-      > 私有属性不限于从`this`引用，只要是在类的内部，实例也可以引用私有属性。
-      >
-      > ```
-      > class Foo {
-      >   #privateValue = 42;
-      >   static getPrivateValue(foo) {
-      >     return foo.#privateValue;
-      >   }
-      > }
-      > 
-      > Foo.getPrivateValue(new Foo()); // 42
-      > ```
-      >
-      > 上面代码允许从实例`foo`上面引用私有属性。
-      >
-      > 私有属性和私有方法前面，也可以加上`static`关键字，表示这是一个静态的私有属性或私有方法。
-      >
-      > ```
-      > class FakeMath {
-      >   static PI = 22 / 7;
-      >   static #totallyRandomNumber = 4;
-      > 
-      >   static #computeRandomNumber() {
-      >     return FakeMath.#totallyRandomNumber;
-      >   }
-      > 
-      >   static random() {
-      >    console.log('I heard you like random numbers…')
-      >     return FakeMath.#computeRandomNumber();
-      >  }
-      > }
-      > 
-      > FakeMath.PI // 3.142857142857143
-      > FakeMath.random()
-      > // I heard you like random numbers…
-      > // 4
-      > FakeMath.#totallyRandomNumber // 报错
-      > FakeMath.#computeRandomNumber() // 报错
-      > ```
-      >
-      > 上面代码中，`#totallyRandomNumber`是私有属性，`#computeRandomNumber()`是私有方法，只能在`FakeMath`这个类的内部调用，外部调用就会报错。
+      [ES2022](https://github.com/tc39/proposal-class-fields)正式为`class`添加了私有属性，方法是在属性名之前使用`#`表示。
 
+      ```js
+      class IncreasingCounter {
+          #count = 0;
+          get value() {
+              console.log('Getting the current value!');
+              return this.#count;
+          }
+          increment() {
+      	    this.#count++;
+          }
+      }
+      ```
+    
+      上面代码中，**`#count`就是私有属性，只能在类的内部使用（`this.#count`）**。如果在类的外部使用，就会报错。
+    
+      ```js
+      const counter = new IncreasingCounter();
+      counter.#count // 报错
+      counter.#count = 42 // 报错
+      ```
+    
+      上面示例中，在类的外部，读取或写入私有属性`#count`，都会报错。
+    
+      > 注意，[从 Chrome 111 开始](https://developer.chrome.com/blog/new-in-devtools-111/#misc)，F12 里面可以读写私有属性，不会报错，原因是 Chrome 团队认为这样方便调试。
+      >
+    
+      另外，**不管在类的内部或外部，读取一个不存在的私有属性，也都会报错。这跟公开属性的行为完全不同，如果读取一个不存在的公开属性，不会报错，只会返回`undefined`**。
+    
+      ```js
+      class IncreasingCounter {
+          #count = 0;
+          get value() {
+              console.log('Getting the current value!');
+              return this.#myCount; // 报错
+          }
+          increment() {
+          	this.#count++;
+          }
+      }
+      
+      const counter = new IncreasingCounter();
+      counter.#myCount // 报错
+      ```
+    
+      上面示例中，`#myCount`是一个不存在的私有属性，不管在函数内部或外部，读取该属性都会导致报错。
+    
+      注意，**私有属性的属性名必须包括`#`，如果不带`#`，会被当作另一个属性**。
+    
+      ```js
+      class Point {
+          #x;
+      
+          constructor(x = 0) {
+      	    this.#x = +x;
+          }
+      
+          get x() {
+      	    return this.#x;
+          }
+      
+          set x(value) {
+      	    this.#x = +value;
+          }
+      }
+      ```
+    
+      上面代码中，`#x`就是私有属性，在`Point`类之外是读取不到这个属性的。由于井号`#`是属性名的一部分，使用时必须带有`#`一起使用，所以`#x`和`x`是两个不同的属性。
+    
+      这种写法不仅可以写私有属性，还可以用来写**私有方法**。
+    
+      ```js
+      class Foo {
+          #a;
+          #b;
+          constructor(a, b) {
+              this.#a = a;
+              this.#b = b;
+          }
+          #sum() {
+      	    return this.#a + this.#b;
+          }
+          printSum() {
+          	console.log(this.#sum());
+          }
+      }
+      ```
+    
+      上面示例中，`#sum()`就是一个私有方法。
+    
+      另外，**私有属性也可以设置 getter 和 setter 方法**。
+    
+      ```js
+      class Counter {
+          #xValue = 0;
+      
+          constructor() {
+          	console.log(this.#x);
+          }
+      
+          get #x() { return this.#xValue; }
+          set #x(value) {
+          	this.#xValue = value;
+          }
+      }
+      ```
+    
+      上面代码中，`#x`是一个私有属性，它的读写都通过`get #x()`和`set #x()`操作另一个私有属性`#xValue`来完成。
+    
+      私有属性不限于从`this`引用，只要是在类的内部，实例也可以引用私有属性。
+    
+      ```js
+      class Foo {
+          #privateValue = 42;
+          static getPrivateValue(foo) {
+          	return foo.#privateValue;
+          }
+      }
+      
+      Foo.getPrivateValue(new Foo()); // 42
+      ```
+    
+      上面代码允许从实例`foo`上面引用私有属性。
+    
+      **私有属性和私有方法前面，也可以加上`static`关键字**，表示这是一个**静态的私有属性或私有方法**。
+    
+      ```js
+      class FakeMath {
+          static PI = 22 / 7;
+          static #totallyRandomNumber = 4;
+      
+          static #computeRandomNumber() {
+      	    return FakeMath.#totallyRandomNumber;
+          }
+      
+          static random() {
+              console.log('I heard you like random numbers…')
+              return FakeMath.#computeRandomNumber();
+          }
+      }
+      
+      FakeMath.PI // 3.142857142857143
+      FakeMath.random()
+      // I heard you like random numbers…
+      // 4
+      FakeMath.#totallyRandomNumber // 报错
+      FakeMath.#computeRandomNumber() // 报错
+      ```
+    
+      上面代码中，`#totallyRandomNumber`是私有属性，`#computeRandomNumber()`是私有方法，只能在`FakeMath`这个类的内部调用，外部调用就会报错。
+    
     - ##### in 运算符：
-
-      > 前面说过，直接访问某个类不存在的私有属性会报错，但是访问不存在的公开属性不会报错。这个特性可以用来判断，某个对象是否为类的实例。
-      >
-      > ```
-      > class C {
-      >   #brand;
-      > 
-      >   static isC(obj) {
-      >     try {
-      >       obj.#brand;
-      >       return true;
-      >     } catch {
-      >       return false;
-      >     }
-      >   }
-      > }
-      > ```
-      >
-      > 上面示例中，类`C`的静态方法`isC()`就用来判断，某个对象是否为`C`的实例。它采用的方法就是，访问该对象的私有属性`#brand`。如果不报错，就会返回`true`；如果报错，就说明该对象不是当前类的实例，从而`catch`部分返回`false`。
-      >
-      > 因此，`try...catch`结构可以用来判断某个私有属性是否存在。但是，这样的写法很麻烦，代码可读性很差，[ES2022](https://github.com/tc39/proposal-private-fields-in-in) 改进了`in`运算符，使它也可以用来判断私有属性。
-      >
-      > ```
-      > class C {
-      >   #brand;
-      > 
-      >  static isC(obj) {
-      >     if (#brand in obj) {
-      >      // 私有属性 #brand 存在
-      >       return true;
-      >    } else {
-      >       // 私有属性 #foo 不存在
-      >      return false;
-      >     }
-      >   }
-      > }
-      > ```
-      >
-      > 上面示例中，`in`运算符判断某个对象是否有私有属性`#brand`。它不会报错，而是返回一个布尔值。
-      >
-      > 这种用法的`in`，也可以跟`this`一起配合使用。
-      >
-      > ```
-      > class A {
-      >   #foo = 0;
-      >   m() {
-      >     console.log(#foo in this); // true
-      >  }
-      > }
-      > ```
-      >
-      > 注意，判断私有属性时，`in`只能用在类的内部。另外，判断所针对的私有属性，一定要先声明，否则会报错。
-      >
-      > ```
-      > class A {
-      >   m() {
-      >     console.log(#foo in this); // 报错
-      >   }
-      > }
-      > ```
-      >
-      > 上面示例中，私有属性`#foo`没有声明，就直接用于`in`运算符的判断，导致报错。
-
+    
+      前面说过，直接访问某个类不存在的私有属性会报错，但是访问不存在的公开属性不会报错。这个特性可以用来判断，某个对象是否为类的实例。
+      
+      ```js
+      class C {
+          #brand;
+      
+          static isC(obj) {
+              try {
+                  obj.#brand;
+                  return true;
+              } catch {
+      	        return false;
+              }
+          }
+      }
+      ```
+      
+      上面示例中，类`C`的静态方法`isC()`就用来判断，某个对象是否为`C`的实例。它采用的方法就是，访问该对象的私有属性`#brand`。如果不报错，就会返回`true`；如果报错，就说明该对象不是当前类的实例，从而`catch`部分返回`false`。
+      
+      因此，`try...catch`结构可以用来判断某个私有属性是否存在。但是，这样的写法很麻烦，代码可读性很差，[ES2022](https://github.com/tc39/proposal-private-fields-in-in) 改进了`in`运算符，使它也可以用来判断私有属性。
+      
+      ```js
+      class C {
+          #brand;
+      
+          static isC(obj) {
+              if (#brand in obj) {
+                  // 私有属性 #brand 存在
+                  return true;
+              } else {
+                  // 私有属性 #foo 不存在
+                  return false;
+              }
+          }
+      }
+      ```
+      
+      上面示例中，**`in`运算符判断某个对象是否有私有属性`#brand`**。它不会报错，而是**返回一个布尔值**。
+      
+      这种用法的`in`，也可以跟`this`一起配合使用。
+      
+      ```js
+      class A {
+          #foo = 0;
+          m() {
+          	console.log(#foo in this); // true
+          }
+      }
+      ```
+      
+      注意，**判断私有属性时，`in`只能用在类的内部**。另外，判断所针对的私有属性，一定要先声明，否则会报错。
+      
+      ```js
+      class A {
+          m() {
+          	console.log(#foo in this); // 报错
+          }
+      }
+      ```
+      
+      上面示例中，私有属性`#foo`没有声明，就直接用于`in`运算符的判断，导致报错。
+    
   - #### 静态块
-
-    > 静态属性的一个问题是，如果它有初始化逻辑，这个逻辑要么写在类的外部，要么写在`constructor()`方法里面。
-    >
-    > ```
-    > class C {
-    >  static x = 234;
-    >   static y;
-    >  static z;
-    > }
-    > 
-    > try {
-    >   const obj = doSomethingWith(C.x);
-    >   C.y = obj.y
-    >   C.z = obj.z;
-    > } catch {
-    >   C.y = ...;
-    >  C.z = ...;
-    > }
-    > ```
-    >
-    > 上面示例中，静态属性`y`和`z`的值依赖于静态属性`x`的运算结果，这段初始化逻辑写在类的外部（上例的`try...catch`代码块）。另一种方法是写到类的`constructor()`方法里面。这两种方法都不是很理想，前者是将类的内部逻辑写到了外部，后者则是每次新建实例都会运行一次。
-    >
-    > 为了解决这个问题，ES2022 引入了[静态块](https://github.com/tc39/proposal-class-static-block)（static block），允许在类的内部设置一个代码块，在类生成时运行且只运行一次，主要作用是对静态属性进行初始化。以后，新建类的实例时，这个块就不运行了。
-    >
-    > ```
-    > class C {
-    >  static x = ...;
-    >   static y;
-    >  static z;
-    > 
-    >  static {
-    >     try {
-    >      const obj = doSomethingWith(this.x);
-    >       this.y = obj.y;
-    >       this.z = obj.z;
-    >     }
-    >     catch {
-    >       this.y = ...;
-    >       this.z = ...;
-    >     }
-    >   }
-    > }
-    > ```
-    >
-    > 上面代码中，类的内部有一个 static 代码块，这就是静态块。它的好处是将静态属性`y`和`z`的初始化逻辑，写入了类的内部，而且只运行一次。
-    >
-    > 每个类允许有多个静态块，每个静态块中只能访问之前声明的静态属性。另外，静态块的内部不能有`return`语句。
-    >
-    > 静态块内部可以使用类名或`this`，指代当前类。
-    >
-    > ```
-    > class C {
-    >   static x = 1;
-    >  static {
-    >     this.x; // 1
-    >     // 或者
-    >     C.x; // 1
-    >   }
-    > }
-    > ```
-    >
-    > 上面示例中，`this.x`和`C.x`都能获取静态属性`x`。
-    >
-    > 除了静态属性的初始化，静态块还有一个作用，就是将私有属性与类的外部代码分享。
-    >
-    > ```
-    > let getX;
-    > 
-    > export class C {
-    >   #x = 1;
-    >   static {
-    >     getX = obj => obj.#x;
-    >   }
-    > }
-    > 
-    > console.log(getX(new C())); // 1
-    > ```
-    >
-    > 上面示例中，`#x`是类的私有属性，如果类外部的`getX()`方法希望获取这个属性，以前是要写在类的`constructor()`方法里面，这样的话，每次新建实例都会定义一次`getX()`方法。现在可以写在静态块里面，这样的话，只在类生成时定义一次。
-
+  
+    静态属性的一个问题是，如果它有初始化逻辑，这个逻辑要么写在类的外部，要么写在`constructor()`方法里面。
+    
+    ```js
+    class C {
+        static x = 234;
+        static y;
+        static z;
+    }
+    
+    try {
+        const obj = doSomethingWith(C.x);
+        C.y = obj.y
+        C.z = obj.z;
+    } catch {
+        C.y = ...;
+        C.z = ...;
+    }
+    ```
+    
+    上面示例中，静态属性`y`和`z`的值依赖于静态属性`x`的运算结果，这段初始化逻辑写在类的外部（上例的`try...catch`代码块）。另一种方法是写到类的`constructor()`方法里面。这两种方法都不是很理想，前者是将类的内部逻辑写到了外部，后者则是每次新建实例都会运行一次。
+    
+    为了解决这个问题，ES2022 引入了[静态块](https://github.com/tc39/proposal-class-static-block)（static block），允许在**类的内部**设置一个代码块（其他地方不能用），**在类生成时运行且只运行一次，主要作用是对静态属性进行初始化**。以后，新建类的实例时，这个块就不运行了。
+    
+    ```js
+    class C {
+        static x = ...;
+        static y;
+        static z;
+    
+        static {
+            try {
+                const obj = doSomethingWith(this.x);
+                this.y = obj.y;
+                this.z = obj.z;
+            } catch {  // Java中的try catch不允许这样写
+                this.y = ...;
+                this.z = ...;
+            }
+        }
+    }
+    ```
+    
+    上面代码中，类的内部有一个 static 代码块，这就是静态块。它的好处是将静态属性`y`和`z`的初始化逻辑，写入了类的内部，而且只运行一次。
+    
+    **每个类允许有多个静态块，并且是从上往下按照顺序执行的**。另外，**静态块的内部不能有`return`语句**。
+    
+    除了静态属性的初始化，静态块还有一个作用，就是将私有属性与类的外部代码分享。
+    
+    ```js
+    let getX;
+    
+    export class C {
+        #x = 1;
+        static {
+        	getX = obj => obj.#x;
+        }
+    }
+    
+    console.log(getX(new C())); // 1
+    ```
+    
+    上面示例中，`#x`是类的私有属性，如果类外部的`getX()`方法希望获取这个属性，以前是要写在类的`constructor()`方法里面，这样的话，每次新建实例都会定义一次`getX()`方法。现在可以写在静态块里面，这样的话，只在类生成时定义一次。
+    
   - #### 类的注意点
-
+  
     - ##### 严格模式：
-
+  
       > 类和模块的内部，默认就是严格模式，所以不需要使用`use strict`指定运行模式。只要你的代码写在类或模块之中，就只有严格模式可用。考虑到未来所有的代码，其实都是运行在模块之中，所以 ES6 实际上把整个语言升级到了严格模式。
-
+  
     - ##### 不存在提升：
-
+  
       > 类不存在变量提升（hoist），这一点与 ES5 完全不同。
       >
       > ```
@@ -956,9 +939,9 @@
       > ```
       >
       > 上面的代码不会报错，因为`Bar`继承`Foo`的时候，`Foo`已经有定义了。但是，如果存在`class`的提升，上面代码就会报错，因为`class`会被提升到代码头部，而定义`Foo`的那一行没有提升，导致`Bar`继承`Foo`的时候，`Foo`还没有定义。
-
+  
     - ##### name 属性：
-
+  
       > 由于本质上，ES6 的类只是 ES5 的构造函数的一层包装，所以函数的许多特性都被`Class`继承，包括`name`属性。
       >
       > ```
@@ -967,9 +950,9 @@
       > ```
       >
       > `name`属性总是返回紧跟在`class`关键字后面的类名。
-
+  
     - ##### Generator 方法：
-
+  
       > 如果某个方法之前加上星号（`*`），就表示该方法是一个 Generator 函数。
       >
       > ```
@@ -992,9 +975,9 @@
       > ```
       >
       > 上面代码中，`Foo`类的`Symbol.iterator`方法前有一个星号，表示该方法是一个 Generator 函数。`Symbol.iterator`方法返回一个`Foo`类的默认迭代器，`for...of`循环会自动调用这个迭代器。
-
+  
     - ##### this 的指向：
-
+  
       > 类的方法内部如果含有`this`，它默认指向类的实例。但是，必须非常小心，一旦单独使用该方法，很可能报错。
       >
       > ```
@@ -1066,9 +1049,9 @@
       > const logger = selfish(new Logger());
       > ```
       >
-
+  
   - #### `new.target` 属性
-
+  
     > `new`是从构造函数生成实例对象的命令。ES6 为`new`命令引入了一个`new.target`属性，该属性一般用在构造函数之中，返回`new`命令作用于的那个构造函数。如果构造函数不是通过`new`命令或`Reflect.construct()`调用的，`new.target`会返回`undefined`，因此这个属性可以用来确定构造函数是怎么调用的。
     >
     > ```
@@ -1155,7 +1138,7 @@
     > 上面代码中，`Shape`类不能被实例化，只能用于继承。
     >
     > 注意，在函数外部，使用`new.target`会报错。
-
+  
 - ## Class 的继承
 
   - #### 简介
@@ -2145,7 +2128,7 @@
 > >       constructor(name) {
 > >       	this.name = name;
 > >       }
-> >       
+> >         
 > >       sayHello() {
 > >       	console.log(`Hello, ${this.name}!`);
 > >       }
