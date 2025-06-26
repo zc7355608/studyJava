@@ -917,227 +917,227 @@
   
     - ##### 严格模式：
   
-      > 类和模块的内部，默认就是严格模式，所以不需要使用`use strict`指定运行模式。只要你的代码写在类或模块之中，就只有严格模式可用。考虑到未来所有的代码，其实都是运行在模块之中，所以 ES6 实际上把整个语言升级到了严格模式。
+      > **类和模块的内部，默认就是严格模式**，所以不需要使用`use strict`指定运行模式。只要你的代码写在类或模块之中，就只有严格模式可用。考虑到未来所有的代码，其实都是运行在模块之中，所以 ES6 实际上把整个语言升级到了严格模式。
   
     - ##### 不存在提升：
   
-      > 类不存在变量提升（hoist），这一点与 ES5 完全不同。
-      >
-      > ```
-      > new Foo(); // ReferenceError
-      > class Foo {}
-      > ```
-      >
-      > 上面代码中，`Foo`类使用在前，定义在后，这样会报错，因为 ES6 不会把类的声明提升到代码头部。这种规定的原因与下文要提到的继承有关，必须保证子类在父类之后定义。
-      >
-      > ```
-      > {
-      >   let Foo = class {};
-      >   class Bar extends Foo {
-      >   }
-      > }
-      > ```
-      >
-      > 上面的代码不会报错，因为`Bar`继承`Foo`的时候，`Foo`已经有定义了。但是，如果存在`class`的提升，上面代码就会报错，因为`class`会被提升到代码头部，而定义`Foo`的那一行没有提升，导致`Bar`继承`Foo`的时候，`Foo`还没有定义。
+      **类不存在变量提升（hoist）**，这一点与 ES5 完全不同。
+      
+      ```js
+      new Foo(); // ReferenceError
+      class Foo {}
+      ```
+      
+      上面代码中，`Foo`类使用在前，定义在后，这样会报错，因为 ES6 不会把类的声明提升到代码头部。这种规定的原因与下文要提到的继承有关，必须保证子类在父类之后定义。
+      
+      ```js
+      {
+          let Foo = class {};
+          class Bar extends Foo {
+          }
+      }
+      ```
+      
+      上面的代码不会报错，因为`Bar`继承`Foo`的时候，`Foo`已经有定义了。但是，如果存在`class`的提升，上面代码就会报错，因为`class`会被提升到代码头部，而定义`Foo`的那一行没有提升，导致`Bar`继承`Foo`的时候，`Foo`还没有定义。
   
     - ##### name 属性：
   
-      > 由于本质上，ES6 的类只是 ES5 的构造函数的一层包装，所以函数的许多特性都被`Class`继承，包括`name`属性。
-      >
-      > ```
-      > class Point {}
-      > Point.name // "Point"
-      > ```
-      >
-      > `name`属性总是返回紧跟在`class`关键字后面的类名。
+      由于本质上，ES6 的类只是 ES5 的构造函数的一层包装，所以函数的许多特性都被`Class`继承，包括`name`属性。
+      
+      ```js
+      class Point {}
+      Point.name // "Point"
+      ```
+      
+      `name`属性总是返回紧跟在`class`关键字后面的类名。
   
     - ##### Generator 方法：
   
-      > 如果某个方法之前加上星号（`*`），就表示该方法是一个 Generator 函数。
-      >
-      > ```
-      > class Foo {
-      >  constructor(...args) {
-      >     this.args = args;
-      >  }
-      >   * [Symbol.iterator]() {
-      >     for (let arg of this.args) {
-      >       yield arg;
-      >     }
-      >   }
-      > }
-      > 
-      > for (let x of new Foo('hello', 'world')) {
-      >   console.log(x);
-      > }
-      > // hello
-      > // world
-      > ```
-      >
-      > 上面代码中，`Foo`类的`Symbol.iterator`方法前有一个星号，表示该方法是一个 Generator 函数。`Symbol.iterator`方法返回一个`Foo`类的默认迭代器，`for...of`循环会自动调用这个迭代器。
+      如果某个方法之前加上星号（`*`），就表示该方法是一个 Generator 函数。
+      
+      ```js
+      class Foo {
+          constructor(...args) {
+          	this.args = args;
+          }
+          * [Symbol.iterator]() {
+              for (let arg of this.args) {
+      	        yield arg;
+              }
+          }
+      }
+      
+      for (let x of new Foo('hello', 'world')) {
+      	console.log(x);
+      }
+      // hello
+      // world
+      ```
+      
+      上面代码中，`Foo`类的`Symbol.iterator`方法前有一个星号，表示该方法是一个 Generator 函数。`Symbol.iterator`方法返回一个`Foo`类的默认迭代器，`for...of`循环会自动调用这个迭代器。
   
     - ##### this 的指向：
   
-      > 类的方法内部如果含有`this`，它默认指向类的实例。但是，必须非常小心，一旦单独使用该方法，很可能报错。
-      >
-      > ```
-      > class Logger {
-      >  printName(name = 'there') {
-      >     this.print(`Hello ${name}`);
-      >  }
-      > 
-      >   print(text) {
-      >     console.log(text);
-      >   }
-      > }
-      > 
-      > const logger = new Logger();
-      > const { printName } = logger;
-      > printName(); // TypeError: Cannot read property 'print' of undefined
-      > ```
-      >
-      > 上面代码中，`printName`方法中的`this`，默认指向`Logger`类的实例。但是，如果将这个方法提取出来单独使用，`this`会指向该方法运行时所在的环境（由于 class 内部是严格模式，所以 this 实际指向的是`undefined`），从而导致找不到`print`方法而报错。
-      >
-      > 一个比较简单的解决方法是，在构造方法中绑定`this`，这样就不会找不到`print`方法了。
-      >
-      > ```
-      > class Logger {
-      >   constructor() {
-      >    this.printName = this.printName.bind(this);
-      >   }
-      > 
-      >   // ...
-      > }
-      > ```
-      >
-      > 另一种解决方法是使用箭头函数。
-      >
-      > ```
-      > class Obj {
-      >   constructor() {
-      >     this.getThis = () => this;
-      >   }
-      > }
-      > 
-      > const myObj = new Obj();
-      > myObj.getThis() === myObj // true
-      > ```
-      >
-      > 箭头函数内部的`this`总是指向定义时所在的对象。上面代码中，箭头函数位于构造函数内部，它的定义生效的时候，是在构造函数执行的时候。这时，箭头函数所在的运行环境，肯定是实例对象，所以`this`会总是指向实例对象。
-      >
-      > 还有一种解决方法是使用`Proxy`，获取方法的时候，自动绑定`this`。
-      >
-      > ```js
-      > function selfish (target) {
-      >  const cache = new WeakMap();
-      >   const handler = {
-      >     get (target, key) {
-      >       const value = Reflect.get(target, key);
-      >       if (typeof value !== 'function') {
-      >         return value;
-      >       }
-      >       if (!cache.has(value)) {
-      >         cache.set(value, value.bind(target));
-      >       }
-      >      return cache.get(value);
-      >     }
-      >  };
-      >   const proxy = new Proxy(target, handler);
-      >   return proxy;
-      > }
-      > 
-      > const logger = selfish(new Logger());
-      > ```
-      >
+      类的方法内部如果含有`this`，它默认指向类的实例。但是，必须非常小心，一旦单独使用该方法，很可能报错。
+      
+      ```js
+      class Logger {
+          printName(name = 'there') {
+          	this.print(`Hello ${name}`);
+          }
+      
+          print(text) {
+          	console.log(text);
+          }
+      }
+      
+      const logger = new Logger();
+      const { printName } = logger;
+      printName(); // TypeError: Cannot read property 'print' of undefined
+      ```
+      
+      上面代码中，`printName`方法中的`this`，默认指向`Logger`类的实例。但是，如果将这个方法提取出来单独使用，`this`会指向该方法运行时所在的环境（由于 class 内部是严格模式，所以 this 实际指向的是`undefined`），从而导致找不到`print`方法而报错。
+      
+      一个比较简单的解决方法是，在构造方法中绑定`this`，这样就不会找不到`print`方法了。
+      
+      ```js
+      class Logger {
+          constructor() {
+          	this.printName = this.printName.bind(this);
+          }
+      
+          // ...
+      }
+      ```
+      
+      另一种解决方法是使用箭头函数。
+      
+      ```js
+      class Obj {
+          constructor() {
+          	this.getThis = () => this;
+          }
+      }
+      
+      const myObj = new Obj();
+      myObj.getThis() === myObj // true
+      ```
+      
+      箭头函数内部的`this`总是指向定义时所在的对象。上面代码中，箭头函数位于构造函数内部，它的定义生效的时候，是在构造函数执行的时候。这时，箭头函数所在的运行环境，肯定是实例对象，所以`this`会总是指向实例对象。
+      
+      还有一种解决方法是使用`Proxy`，获取方法的时候，自动绑定`this`。
+      
+      ```js
+      function selfish(target) {
+        const cache = new WeakMap();
+        const handler = {
+          get(target, key) {
+            const value = Reflect.get(target, key);
+            if (typeof value !== 'function') {
+              return value;
+            }
+            if (!cache.has(value)) {
+              cache.set(value, value.bind(target));
+            }
+            return cache.get(value);
+          }
+        };
+        const proxy = new Proxy(target, handler);
+        return proxy;
+      }
+      
+      const logger = selfish(new Logger());
+      ```
+      
   
   - #### `new.target` 属性
   
-    > `new`是从构造函数生成实例对象的命令。ES6 为`new`命令引入了一个`new.target`属性，该属性一般用在构造函数之中，返回`new`命令作用于的那个构造函数。如果构造函数不是通过`new`命令或`Reflect.construct()`调用的，`new.target`会返回`undefined`，因此这个属性可以用来确定构造函数是怎么调用的。
-    >
-    > ```
-    > function Person(name) {
-    >   if (new.target !== undefined) {
-    >    this.name = name;
-    >   } else {
-    >     throw new Error('必须使用 new 命令生成实例');
-    >   }
-    > }
-    > 
-    > // 另一种写法
-    > function Person(name) {
-    >   if (new.target === Person) {
-    >     this.name = name;
-    >   } else {
-    >     throw new Error('必须使用 new 命令生成实例');
-    >   }
-    > }
-    > 
-    > var person = new Person('张三'); // 正确
-    > var notAPerson = Person.call(person, '张三');  // 报错
-    > ```
-    >
-    > 上面代码确保构造函数只能通过`new`命令调用。
-    >
-    > Class 内部调用`new.target`，返回当前 Class。
-    >
-    > ```
-    > class Rectangle {
-    >   constructor(length, width) {
-    >    console.log(new.target === Rectangle);
-    >     this.length = length;
-    >     this.width = width;
-    >   }
-    > }
-    > 
-    > var obj = new Rectangle(3, 4); // 输出 true
-    > ```
-    >
-    > 需要注意的是，子类继承父类时，`new.target`会返回子类。
-    >
-    > ```
-    > class Rectangle {
-    >   constructor(length, width) {
-    >     console.log(new.target === Rectangle);
-    >     // ...
-    >   }
-    > }
-    > 
-    > class Square extends Rectangle {
-    >   constructor(length, width) {
-    >     super(length, width);
-    >  }
-    > }
-    > 
-    > var obj = new Square(3); // 输出 false
-    > ```
-    >
-    > 上面代码中，`new.target`会返回子类。
-    >
-    > 利用这个特点，可以写出不能独立使用、必须继承后才能使用的类。
-    >
-    > ```
-    > class Shape {
-    >   constructor() {
-    >     if (new.target === Shape) {
-    >       throw new Error('本类不能实例化');
-    >     }
-    >  }
-    > }
-    > 
-    > class Rectangle extends Shape {
-    >   constructor(length, width) {
-    >     super();
-    >     // ...
-    >   }
-    > }
-    > 
-    > var x = new Shape();  // 报错
-    > var y = new Rectangle(3, 4);  // 正确
-    > ```
-    >
-    > 上面代码中，`Shape`类不能被实例化，只能用于继承。
-    >
-    > 注意，在函数外部，使用`new.target`会报错。
+    `new`是从构造函数生成实例对象的命令。ES6 为`new`命令引入了一个`new.target`属性，该属性一般用在构造函数之中，返回`new`命令作用于的那个构造函数。如果构造函数不是通过`new`命令或`Reflect.construct()`调用的，`new.target`会返回`undefined`，因此这个属性可以用来确定构造函数是怎么调用的。
+    
+    ```js
+    function Person(name) {
+        if (new.target !== undefined) {
+        	this.name = name;
+        } else {
+        	throw new Error('必须使用 new 命令生成实例');
+        }
+    }
+    
+        // 另一种写法
+    function Person(name) {
+        if (new.target === Person) {
+        	this.name = name;
+        } else {
+        	throw new Error('必须使用 new 命令生成实例');
+        }
+    }
+    
+    var person = new Person('张三'); // 正确
+    var notAPerson = Person.call(person, '张三');  // 报错
+    ```
+    
+    上面代码确保构造函数只能通过`new`命令调用。
+    
+    Class 内部调用`new.target`，返回当前 Class。
+    
+    ```js
+    class Rectangle {
+        constructor(length, width) {
+            console.log(new.target === Rectangle);
+            this.length = length;
+            this.width = width;
+        }
+    }
+    
+    var obj = new Rectangle(3, 4); // 输出 true
+    ```
+    
+    需要注意的是，子类继承父类时，`new.target`会返回子类。
+    
+    ```js
+    class Rectangle {
+        constructor(length, width) {
+            console.log(new.target === Rectangle);
+            // ...
+        }
+    }
+    
+    class Square extends Rectangle {
+        constructor(length, width) {
+        	super(length, width);
+        }
+    }
+    
+    var obj = new Square(3); // 输出 false
+    ```
+    
+    上面代码中，`new.target`会返回子类。
+    
+    利用这个特点，可以写出不能独立使用、必须继承后才能使用的类。
+    
+    ```js
+    class Shape {
+        constructor() {
+            if (new.target === Shape) {
+            	throw new Error('本类不能实例化');
+            }
+        }
+    }
+    
+    class Rectangle extends Shape {
+        constructor(length, width) {
+            super();
+            // ...
+        }
+    }
+    
+    var x = new Shape();  // 报错
+    var y = new Rectangle(3, 4);  // 正确
+    ```
+    
+    上面代码中，`Shape`类不能被实例化，只能用于继承。
+    
+    注意，在函数外部，使用`new.target`会报错。
   
 - ## Class 的继承
 
@@ -1145,141 +1145,137 @@
 
     > Class 可以通过`extends`关键字实现继承，让子类继承父类的属性和方法。extends 的写法比 ES5 的原型链继承，要清晰和方便很多。
     >
-    > ```
-    > class Point {
-    > }
+    > ```js
+    > class Point {}
     > 
-    > class ColorPoint extends Point {
-    > }
+    > class ColorPoint extends Point {}
     > ```
-    >
+    > 
     > 上面示例中，`Point`是父类，`ColorPoint`是子类，它通过`extends`关键字，继承了`Point`类的所有属性和方法。但是由于没有部署任何代码，所以这两个类完全一样，等于复制了一个`Point`类。
     >
     > 下面，我们在`ColorPoint`内部加上代码。
     >
-    > ```
-    > class Point { /* ... */ }
+    > ```js
+    >class Point { /* ... */ }
     > 
     > class ColorPoint extends Point {
-    > constructor(x, y, color) {
-    > super(x, y); // 调用父类的constructor(x, y)
-    > this.color = color;
-    > }
+    >     constructor(x, y, color) {
+    >         super(x, y); // 调用父类的constructor(x, y)
+    >         this.color = color;
+    >     }
     > 
-    > toString() {
-    > return this.color + ' ' + super.toString(); // 调用父类的toString()
-    > }
+    >     toString() {
+    >     	return this.color + ' ' + super.toString(); // 调用父类的toString()
+    >     }
     > }
     > ```
-    >
+    > 
     > 上面示例中，`constructor()`方法和`toString()`方法内部，都出现了`super`关键字。`super`在这里表示父类的构造函数，用来新建一个父类的实例对象。
     >
     > ES6 规定，子类必须在`constructor()`方法中调用`super()`，否则就会报错。这是因为子类自己的`this`对象，必须先通过父类的构造函数完成塑造，得到与父类同样的实例属性和方法，然后再对其进行加工，添加子类自己的实例属性和方法。如果不调用`super()`方法，子类就得不到自己的`this`对象。
     >
-    > ```
-    > class Point { /* ... */ }
+    > ```js
+    >class Point { /* ... */ }
     > 
     > class ColorPoint extends Point {
-    > constructor() {
-    > }
+    > 	constructor() {}
     > }
     > 
     > let cp = new ColorPoint(); // ReferenceError
     > ```
-    >
+    > 
     > 上面代码中，`ColorPoint`继承了父类`Point`，但是它的构造函数没有调用`super()`，导致新建实例时报错。
-    >
-    > 为什么子类的构造函数，一定要调用`super()`？原因就在于 ES6 的继承机制，与 ES5 完全不同。ES5 的继承机制，是先创造一个独立的子类的实例对象，然后再将父类的方法添加到这个对象上面，即“实例在前，继承在后”。ES6 的继承机制，则是先将父类的属性和方法，加到一个空的对象上面，然后再将该对象作为子类的实例，即“继承在前，实例在后”。这就是为什么 ES6 的继承必须先调用`super()`方法，因为这一步会生成一个继承父类的`this`对象，没有这一步就无法继承父类。
-    >
-    > 注意，这意味着新建子类实例时，父类的构造函数必定会先运行一次。
-    >
-    > ```
+    > 
+    >为什么子类的构造函数，一定要调用`super()`？原因就在于 ES6 的继承机制，与 ES5 完全不同。ES5 的继承机制，是先创造一个独立的子类的实例对象，然后再将父类的方法添加到这个对象上面，即“实例在前，继承在后”。ES6 的继承机制，则是先将父类的属性和方法，加到一个空的对象上面，然后再将该对象作为子类的实例，即“继承在前，实例在后”。这就是为什么 ES6 的继承必须先调用`super()`方法，因为这一步会生成一个继承父类的`this`对象，没有这一步就无法继承父类。
+    > 
+    >注意，这意味着新建子类实例时，父类的构造函数必定会先运行一次。
+    > 
+    >```js
     > class Foo {
-    > constructor() {
-    > console.log(1);
-    > }
+    >    constructor() {
+    >     	console.log(1);
+    >     }
     > }
     > 
     > class Bar extends Foo {
-    > constructor() {
-    > super();
-    > console.log(2);
-    > }
+    >     constructor() {
+    >         super();
+    >         console.log(2);
+    >     }
     > }
     > 
     > const bar = new Bar();
     > // 1
     > // 2
     > ```
-    >
+    > 
     > 上面示例中，子类 Bar 新建实例时，会输出1和2。原因就是子类构造函数调用`super()`时，会执行一次父类构造函数。
-    >
-    > 另一个需要注意的地方是，在子类的构造函数中，只有调用`super()`之后，才可以使用`this`关键字，否则会报错。这是因为子类实例的构建，必须先完成父类的继承，只有`super()`方法才能让子类实例继承父类。
-    >
-    > ```
+    > 
+    >另一个需要注意的地方是，在子类的构造函数中，只有调用`super()`之后，才可以使用`this`关键字，否则会报错。这是因为子类实例的构建，必须先完成父类的继承，只有`super()`方法才能让子类实例继承父类。
+    > 
+    >```js
     > class Point {
-    > constructor(x, y) {
-    > this.x = x;
-    > this.y = y;
-    > }
+    >    constructor(x, y) {
+    >         this.x = x;
+    >         this.y = y;
+    >     }
     > }
     > 
     > class ColorPoint extends Point {
-    > constructor(x, y, color) {
-    > this.color = color; // ReferenceError
-    > super(x, y);
-    > this.color = color; // 正确
-    > }
+    >     constructor(x, y, color) {
+    >         this.color = color; // ReferenceError
+    >         super(x, y);
+    >         this.color = color; // 正确
+    >     }
     > }
     > ```
-    >
+    > 
     > 上面代码中，子类的`constructor()`方法没有调用`super()`之前，就使用`this`关键字，结果报错，而放在`super()`之后就是正确的。
-    >
-    > 如果子类没有定义`constructor()`方法，这个方法会默认添加，并且里面会调用`super()`。也就是说，不管有没有显式定义，任何一个子类都有`constructor()`方法。
-    >
-    > ```
-    > class ColorPoint extends Point {
-    > }
     > 
+    >如果子类没有定义`constructor()`方法，这个方法会默认添加，并且里面会调用`super()`。也就是说，不管有没有显式定义，任何一个子类都有`constructor()`方法。
+    > 
+    >```js
+    > class ColorPoint extends Point {}
+    >
     > // 等同于
     > class ColorPoint extends Point {
-    > constructor(...args) {
-    > super(...args);
-    > }
+    >     constructor(...args) {
+    >     	super(...args);
+    >     }
     > }
     > ```
-    >
-    > 有了子类的定义，就可以生成子类的实例了。
-    >
-    > ```
-    > let cp = new ColorPoint(25, 8, 'green');
     > 
-    > cp instanceof ColorPoint // true
+    > 有了子类的定义，就可以生成子类的实例了。
+    > 
+    > ```js
+    >let cp = new ColorPoint(25, 8, 'green');
+    > 
+    >cp instanceof ColorPoint // true
     > cp instanceof Point // true
     > ```
-    >
+    > 
     > 上面示例中，实例对象`cp`同时是`ColorPoint`和`Point`两个类的实例，这与 ES5 的行为完全一致。
-
+    
   - #### 私有属性和私有方法的继承
-
+  
     > 父类所有的属性和方法，都会被子类继承，除了私有的属性和方法。
     >
     > 子类无法继承父类的私有属性，或者说，私有属性只能在定义它的 class 里面使用。
     >
-    > ```
+    > ```js
     > class Foo {
-    > #p = 1;
-    > #m() {
-    > console.log('hello');
-    > }
+    >     #p = 1;
+    >     #m() {
+    >     	console.log('hello');
+    >     }
     > }
     > 
     > class Bar extends Foo {
-    > constructor() {
-    > super();
-    > console.log(this.#p); // 报错
-    > this.#m(); // 报错
-    > }
+    >     constructor() {
+    >         super();
+    >         console.log(this.#p); // 报错
+    >         this.#m(); // 报错
+    >     }
     > }
     > ```
     >
@@ -1287,33 +1283,33 @@
     >
     > 如果父类定义了私有属性的读写方法，子类就可以通过这些方法，读写私有属性。
     >
-    > ```
+    > ```js
     > class Foo {
-    > #p = 1;
-    > getP() {
-    > return this.#p;
-    > }
+    >     #p = 1;
+    >     getP() {
+    >     	return this.#p;
+    >     }
     > }
     > 
     > class Bar extends Foo {
-    > constructor() {
-    > super();
-    > console.log(this.getP()); // 1
-    > }
+    >     constructor() {
+    >         super();
+    >         console.log(this.getP()); // 1
+    >     }
     > }
     > ```
     >
     > 上面示例中，`getP()`是父类用来读取私有属性的方法，通过该方法，子类就可以读到父类的私有属性。
-
+  
   - #### 静态属性和静态方法的继承
-
+  
     > 父类的静态属性和静态方法，也会被子类继承。
     >
-    > ```
+    > ```js
     > class A {
-    > static hello() {
-    > console.log('hello world');
-    > }
+    >     static hello() {
+    >     	console.log('hello world');
+    >     }
     > }
     > 
     > class B extends A {
@@ -1326,13 +1322,13 @@
     >
     > 注意，静态属性是通过浅拷贝实现继承的。
     >
-    > ```
+    > ```js
     > class A { static foo = 100; }
     > class B extends A {
-    > constructor() {
-    > super();
-    > B.foo--;
-    > }
+    >     constructor() {
+    >         super();
+    >         B.foo--;
+    >     }
     > }
     > 
     > const b = new B();
@@ -1344,16 +1340,16 @@
     >
     > 但是，由于这种拷贝是浅拷贝，如果父类的静态属性的值是一个对象，那么子类的静态属性也会指向这个对象，因为浅拷贝只会拷贝对象的内存地址。
     >
-    > ```
+    > ```js
     > class A {
-    > static foo = { n: 100 };
+    > 	static foo = { n: 100 };
     > }
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > B.foo.n--;
-    > }
+    >     constructor() {
+    >         super();
+    >         B.foo.n--;
+    >     }
     > }
     > 
     > const b = new B();
@@ -1362,35 +1358,34 @@
     > ```
     >
     > 上面示例中，`A.foo`的值是一个对象，浅拷贝导致`B.foo`和`A.foo`指向同一个对象。所以，子类`B`修改这个对象的属性值，会影响到父类`A`。
-
+  
   - #### `Object.getPrototypeOf()`
-
+  
     > `Object.getPrototypeOf()`方法可以用来从子类上获取父类。
     >
-    > ```
+    > ```js
     > class Point { /*...*/ }
     > 
     > class ColorPoint extends Point { /*...*/ }
     > 
-    > Object.getPrototypeOf(ColorPoint) === Point
-    > // true
+    > Object.getPrototypeOf(ColorPoint) === Point  // true
     > ```
-    >
-    > 因此，可以使用这个方法判断，一个类是否继承了另一个类。
-
+    > 
+    >因此，可以使用这个方法判断，一个类是否继承了另一个类。
+    
   - #### super 关键字
-
+  
     > `super`这个关键字，既可以当作函数使用，也可以当作对象使用。在这两种情况下，它的用法完全不同。
     >
     > 第一种情况，`super`作为函数调用时，代表父类的构造函数。ES6 要求，子类的构造函数必须执行一次`super()`函数。
     >
-    > ```
+    > ```js
     > class A {}
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > }
+    >     constructor() {
+    >     	super();
+    >     }
     > }
     > ```
     >
@@ -1400,16 +1395,16 @@
     >
     > 注意，这里的`super`虽然代表了父类的构造函数，但是因为返回的是子类的`this`（即子类的实例对象），所以`super`内部的`this`代表子类的实例，而不是父类的实例，这里的`super()`相当于`A.prototype.constructor.call(this)`（在子类的`this`上运行父类的构造函数）。
     >
-    > ```
+    > ```js
     > class A {
-    > constructor() {
-    > console.log(new.target.name);
-    > }
+    >     constructor() {
+    >     	console.log(new.target.name);
+    >     }
     > }
     > class B extends A {
-    > constructor() {
-    > super();
-    > }
+    >     constructor() {
+    >     	super();
+    >     }
     > }
     > new A() // A
     > new B() // B
@@ -1419,16 +1414,16 @@
     >
     > 不过，由于`super()`在子类构造方法中执行时，子类的属性和方法还没有绑定到`this`，所以如果存在同名属性，此时拿到的是父类的属性。
     >
-    > ```
+    > ```js
     > class A {
-    > name = 'A';
-    > constructor() {
-    > console.log('My name is ' + this.name);
-    > }
+    >     name = 'A';
+    >     constructor() {
+    >     	console.log('My name is ' + this.name);
+    >     }
     > }
     > 
     > class B extends A {
-    > name = 'B';
+    > 	name = 'B';
     > }
     > 
     > const b = new B(); // My name is A
@@ -1438,13 +1433,13 @@
     >
     > 作为函数时，`super()`只能用在子类的构造函数之中，用在其他地方就会报错。
     >
-    > ```
+    > ```js
     > class A {}
     > 
     > class B extends A {
-    > m() {
-    > super(); // 报错
-    > }
+    >     m() {
+    >     	super(); // 报错
+    >     }
     > }
     > ```
     >
@@ -1452,18 +1447,18 @@
     >
     > 第二种情况，`super`作为对象时，在普通方法中，指向父类的原型对象；在静态方法中，指向父类。
     >
-    > ```
+    > ```js
     > class A {
-    > p() {
-    > return 2;
-    > }
+    >     p() {
+    >     	return 2;
+    >     }
     > }
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > console.log(super.p()); // 2
-    > }
+    >     constructor() {
+    >         super();
+    >         console.log(super.p()); // 2
+    >     }
     > }
     > 
     > let b = new B();
@@ -1473,17 +1468,17 @@
     >
     > 这里需要注意，由于`super`指向父类的原型对象，所以定义在父类实例上的方法或属性，是无法通过`super`调用的。
     >
-    > ```
+    > ```js
     > class A {
-    > constructor() {
-    > this.p = 2;
-    > }
+    >     constructor() {
+    >     	this.p = 2;
+    >     }
     > }
     > 
     > class B extends A {
-    > get m() {
-    > return super.p;
-    > }
+    >     get m() {
+    >     	return super.p;
+    >     }
     > }
     > 
     > let b = new B();
@@ -1494,15 +1489,15 @@
     >
     > 如果属性定义在父类的原型对象上，`super`就可以取到。
     >
-    > ```
+    > ```js
     > class A {}
     > A.prototype.x = 2;
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > console.log(super.x) // 2
-    > }
+    >     constructor() {
+    >         super();
+    >         console.log(super.x) // 2
+    >     }
     > }
     > 
     > let b = new B();
@@ -1512,24 +1507,24 @@
     >
     > ES6 规定，在子类普通方法中通过`super`调用父类的方法时，方法内部的`this`指向当前的子类实例。
     >
-    > ```
+    > ```js
     > class A {
-    > constructor() {
-    > this.x = 1;
-    > }
-    > print() {
-    > console.log(this.x);
-    > }
+    >     constructor() {
+    >     	this.x = 1;
+    >     }
+    >     print() {
+    >     	console.log(this.x);
+    >     }
     > }
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > this.x = 2;
-    > }
-    > m() {
-    > super.print();
-    > }
+    >     constructor() {
+    >         super();
+    >         this.x = 2;
+    >     }
+    >     m() {
+    >     	super.print();
+    >     }
     > }
     > 
     > let b = new B();
@@ -1540,21 +1535,21 @@
     >
     > 由于`this`指向子类实例，所以如果通过`super`对某个属性赋值，这时`super`就是`this`，赋值的属性会变成子类实例的属性。
     >
-    > ```
+    > ```js
     > class A {
-    > constructor() {
-    > this.x = 1;
-    > }
+    >     constructor() {
+    >     	this.x = 1;
+    >     }
     > }
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > this.x = 2;
-    > super.x = 3;
-    > console.log(super.x); // undefined
-    > console.log(this.x); // 3
-    > }
+    >     constructor() {
+    >         super();
+    >         this.x = 2;
+    >         super.x = 3;
+    >         console.log(super.x); // undefined
+    >         console.log(this.x); // 3
+    >     }
     > }
     > 
     > let b = new B();
@@ -1564,25 +1559,25 @@
     >
     > 如果`super`作为对象，用在静态方法之中，这时`super`将指向父类，而不是父类的原型对象。
     >
-    > ```
+    > ```js
     > class Parent {
-    > static myMethod(msg) {
-    > console.log('static', msg);
-    > }
+    >     static myMethod(msg) {
+    >     	console.log('static', msg);
+    >     }
     > 
-    > myMethod(msg) {
-    > console.log('instance', msg);
-    > }
+    >     myMethod(msg) {
+    >     	console.log('instance', msg);
+    >     }
     > }
     > 
     > class Child extends Parent {
-    > static myMethod(msg) {
-    > super.myMethod(msg);
-    > }
+    >     static myMethod(msg) {
+    >     	super.myMethod(msg);
+    >     }
     > 
-    > myMethod(msg) {
-    > super.myMethod(msg);
-    > }
+    >     myMethod(msg) {
+    >     	super.myMethod(msg);
+    >     }
     > }
     > 
     > Child.myMethod(1); // static 1
@@ -1595,24 +1590,24 @@
     >
     > 另外，在子类的静态方法中通过`super`调用父类的方法时，方法内部的`this`指向当前的子类，而不是子类的实例。
     >
-    > ```
+    > ```js
     > class A {
-    > constructor() {
-    > this.x = 1;
-    > }
-    > static print() {
-    > console.log(this.x);
-    > }
+    >     constructor() {
+    >     	this.x = 1;
+    >     }
+    >     static print() {
+    >     	console.log(this.x);
+    >     }
     > }
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > this.x = 2;
-    > }
-    > static m() {
-    > super.print();
-    > }
+    >     constructor() {
+    >         super();
+    >         this.x = 2;
+    >     }
+    >     static m() {
+    >     	super.print();
+    >     }
     > }
     > 
     > B.x = 3;
@@ -1623,27 +1618,27 @@
     >
     > 注意，使用`super`的时候，必须显式指定是作为函数、还是作为对象使用，否则会报错。
     >
-    > ```
+    > ```js
     > class A {}
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > console.log(super); // 报错
-    > }
+    >     constructor() {
+    >         super();
+    >         console.log(super); // 报错
+    >     }
     > }
     > ```
     >
     > 上面代码中，`console.log(super)`当中的`super`，无法看出是作为函数使用，还是作为对象使用，所以 JS 引擎解析代码的时候就会报错。这时，如果能清晰地表明`super`的数据类型，就不会报错。
     >
-    > ```
+    > ```js
     > class A {}
     > 
     > class B extends A {
-    > constructor() {
-    > super();
-    > console.log(super.valueOf() instanceof B); // true
-    > }
+    >     constructor() {
+    >         super();
+    >         console.log(super.valueOf() instanceof B); // true
+    >     }
     > }
     > 
     > let b = new B();
@@ -1655,17 +1650,17 @@
     >
     > ```js
     > var obj = {
-    > toString() {
-    > return "MyObject: " + super.toString();
-    > }
+    >     toString() {
+    >     	return "MyObject: " + super.toString();
+    >     }
     > };
     > 
     > obj.toString(); // MyObject: [object Object]
     > ```
     >
-
+  
   - #### 类的 `prototype` 属性和 `__proto__` 属性
-
+  
     > 大多数浏览器的 ES5 实现之中，每一个对象都有`__proto__`属性，指向对应的构造函数的`prototype`属性。Class 作为构造函数的语法糖，同时有`prototype`属性和`__proto__`属性，因此同时存在两条继承链。
     >
     > （1）子类的`__proto__`属性，表示构造函数的继承，总是指向父类。
@@ -1764,9 +1759,9 @@
     > ```
     >
     > 这种情况下，`A`作为一个基类（即不存在任何继承），就是一个普通函数，所以直接继承`Function.prototype`。但是，`A`调用后返回一个空对象（即`Object`实例），所以`A.prototype.__proto__`指向构造函数（`Object`）的`prototype`属性。
-
+  
     - ##### 实例的 `__proto__` 属性：
-
+  
       > 子类实例的`__proto__`属性的`__proto__`属性，指向父类实例的`__proto__`属性。也就是说，子类的原型的原型，是父类的原型。
       >
       > ```
@@ -1790,9 +1785,9 @@
       > ```
       >
       > 上面代码在`ColorPoint`的实例`p2`上向`Point`类添加方法，结果影响到了`Point`的实例`p1`。
-
+  
   - #### 原生构造函数的继承
-
+  
     > 原生构造函数是指语言内置的构造函数，通常用来生成数据结构。ECMAScript 的原生构造函数大致有下面这些。
     >
     > - Boolean()
@@ -1947,9 +1942,9 @@
     > ```
     >
     > 上面代码中，`NewObj`继承了`Object`，但是无法通过`super`方法向父类`Object`传参。这是因为 ES6 改变了`Object`构造函数的行为，一旦发现`Object`方法不是通过`new Object()`这种形式调用，ES6 规定`Object`构造函数会忽略参数。
-
+  
   - #### `Mixin` 模式的实现
-
+  
     > Mixin 指的是多个对象合成一个新的对象，新对象具有各个组成成员的接口。它的最简单实现如下。
     >
     > ```
@@ -2128,7 +2123,7 @@
 > >       constructor(name) {
 > >       	this.name = name;
 > >       }
-> >         
+> >           
 > >       sayHello() {
 > >       	console.log(`Hello, ${this.name}!`);
 > >       }
