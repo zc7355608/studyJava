@@ -2,7 +2,7 @@
 
   - #### 概述
   
-    > 历史上，JavaScript 一直没有模块（module）体系，无法将一个大程序拆分成互相依赖的小文件，再用简单的方法拼装起来。其他语言都有这项功能，比如 Ruby 的`require`、Python 的`import`，甚至就连 CSS 都有`@import`，但是 JavaScript 任何这方面的支持都没有，这对开发大型的、复杂的项目形成了巨大障碍。
+    > 历史上，JS 一直没有模块（module）体系，无法将一个大程序拆分成互相依赖的小文件，再用简单的方法拼装起来。其他语言都有这项功能，比如 Ruby 的`require`、Python 的`import`，甚至就连 CSS 都有`@import`，但是 JavaScript 任何这方面的支持都没有，这对开发大型的、复杂的项目形成了巨大障碍。
     >
     > 在 ES6 之前，社区制定了一些模块加载方案，最主要的有 CommonJS 和 AMD 两种。前者用于服务器，后者用于浏览器。ES6 在语言标准的层面上，实现了模块功能，而且实现得相当简单，完全可以取代 CommonJS 和 AMD 规范，成为浏览器和服务器通用的模块解决方案。
     >
@@ -207,7 +207,7 @@
     > import { lastName as surname } from './profile.js';
     > ```
     >
-    > `import`命令输入的变量都是只读的，因为它的本质是输入接口。也就是说，不允许在加载模块的脚本里面，改写接口。
+    > `import`命令输入的变量都是`const`的只读的，因为它的本质是输入接口。也就是说，不允许在加载模块的脚本里面，改写接口。
     >
     > ```
     > import {a} from './xxx.js'
@@ -558,6 +558,37 @@
     > export {ns};
     > ```
   
+  - #### import 属性
+  
+    > ES2025 引入了“[import 属性](https://github.com/tc39/proposal-import-attributes)”（import attributes），允许为 import 命令设置属性，主要用于导入非模块的代码，比如 JSON 数据、WebAssembly 代码、CSS 代码。（浏览器环境下，`import`默认不支持导入JSON文件，只能导入`.js、.mjs`文件）
+    >
+    > 目前，只支持导入 JSON 数据。
+    >
+    > ```
+    > // 静态导入
+    > import configData from './config-data.json' with { type: 'json' };
+    > 
+    > // 动态导入
+    > const configData = await import(
+    >   './config-data.json', { with: { type: 'json' } }
+    > );
+    > ```
+    >
+    > 上面代码中，import 命令使用 with 子句，指定一个属性对象。这个属性对象目前只有一个 type 属性，它的值就是导入代码的类型，现在只能设置为`json`一个值。
+    >
+    > 如果没有 import 属性，导入 JSON 数据只能使用 fetch 命令。
+    >
+    > ```
+    > const response = await fetch('./config.json');
+    > const json = await response.json();
+    > ```
+    >
+    > export 命令与 import 命令写在一起，形成一个再导出语句时，也可以使用 import 属性。
+    >
+    > ```js
+    > export { default as config } from './config-data.json' with { type: 'json' };
+    > ```
+    
   - #### 模块的继承
   
     > 模块之间也可以继承。
@@ -826,7 +857,7 @@
   
   - #### import.meta
   
-    > 开发者使用一个模块时，有时需要知道模板本身的一些信息（比如模块的路径）。[ES2020](https://github.com/tc39/proposal-import-meta) 为 import 命令添加了一个元属性`import.meta`，返回当前模块的元信息。
+    > 开发者使用一个模块时，有时需要知道模块本身的一些信息（比如模块的路径）。[ES2020](https://github.com/tc39/proposal-import-meta) 为 import 命令添加了一个元属性`import.meta`，返回当前模块的元信息。
     >
     > `import.meta`只能在模块内部使用，如果在模块外部使用会报错。
     >
