@@ -2,11 +2,11 @@
 
   > ## DOM
   >
-  > DOM 是 JavaScript 操作网页的接口，全称为“文档对象模型”（Document Object Model）。它的作用是将网页转为一个 JavaScript 对象，从而可以用脚本进行各种操作（比如增删内容）。
+  > DOM 是 JS 操作网页的接口，全称为“文档对象模型”（Document Object Model）。它的作用是将网页转为一个 JS 对象，从而可以用脚本进行各种操作（比如增删内容）。
   >
   > 浏览器会根据 DOM 模型，将结构化文档（比如 HTML 和 XML）解析成一系列的节点，再由这些节点组成一个树状结构（DOM Tree）。所有的节点和最终的树状结构，都有规范的对外接口。
   >
-  > DOM 只是一个接口规范，可以用各种语言实现。所以严格地说，DOM 不是 JavaScript 语法的一部分，但是 DOM 操作是 JavaScript 最常见的任务，离开了 DOM，JavaScript 就无法控制网页。另一方面，JavaScript 也是最常用于 DOM 操作的语言。后面介绍的就是 JavaScript 对 DOM 标准的实现和用法。
+  > DOM 只是一个接口规范，可以用各种语言实现。所以严格地说，DOM 不是 JS 语法的一部分，但是 DOM 操作是 JS 最常见的任务，离开了 DOM，JS 就无法控制网页。另一方面，JS 也是最常用于 DOM 操作的语言。后面介绍的就是 JS 对 DOM 标准的实现和用法。
   >
   > ## 节点
   >
@@ -1183,7 +1183,7 @@
     > }
     > ```
     >
-    > 如果页面上有 JavaScript 生成的内容，`document.lastModified`属性返回的总是当前时间。
+    > 如果页面上有 JS 生成的内容，`document.lastModified`属性返回的总是当前时间。
     >
     > **（5）document.title**
     >
@@ -1397,7 +1397,7 @@
     >
     > 在浏览器打开上面网页，将会显示`hello world`。
     >
-    > `document.write`是 JavaScript 语言标准化之前就存在的方法，现在完全有更符合标准的方法向文档写入内容（比如对`innerHTML`属性赋值）。所以，除了某些特殊情况，应该尽量避免使用`document.write`这个方法。
+    > `document.write`是 JS 语言标准化之前就存在的方法，现在完全有更符合标准的方法向文档写入内容（比如对`innerHTML`属性赋值）。所以，除了某些特殊情况，应该尽量避免使用`document.write`这个方法。
     >
     > `document.writeln`方法与`write`方法完全一致，除了会在输出内容的尾部添加换行符。
     >
@@ -1496,7 +1496,7 @@
     > var elements = document.getElementsByClassName(names);
     > ```
     >
-    > 由于`class`是保留字，所以 JavaScript 一律使用`className`表示 CSS 的`class`。
+    > 由于`class`是保留字，所以 JS 一律使用`className`表示 CSS 的`class`。
     >
     > 参数可以是多个`class`，它们之间使用空格分隔。
     >
@@ -2158,7 +2158,7 @@
     >
     > 注意，`dataset`上面的各个属性返回都是字符串。
     >
-    > HTML 代码中，`data-`属性的属性名，只能包含英文字母、数字、连词线（`-`）、点（`.`）、冒号（`:`）和下划线（`_`）。它们转成 JavaScript 对应的`dataset`属性名，规则如下。
+    > HTML 代码中，`data-`属性的属性名，只能包含英文字母、数字、连词线（`-`）、点（`.`）、冒号（`:`）和下划线（`_`）。它们转成 JS 对应的`dataset`属性名，规则如下。
     >
     > - 开头的`data-`会省略。
     > - 如果连词线后面跟了一个英文字母，那么连词线会取消，该字母变成大写。
@@ -2859,14 +2859,14 @@
     >
     > 注意，这种用法虽然可以读写属性，但是无法删除属性，`delete`运算符在这里不会生效。
     >
-    > HTML 元素的属性名是大小写不敏感的，但是 JavaScript 对象的属性名是大小写敏感的。转换规则是，转为 JavaScript 属性名时，一律采用小写。如果属性名包括多个单词，则采用骆驼拼写法，即从第二个单词开始，每个单词的首字母采用大写，比如`onClick`。
+    > HTML 元素的属性名是大小写不敏感的，但是 JS 对象的属性名是大小写敏感的。转换规则是，转为 JS 属性名时，一律采用小写。如果属性名包括多个单词，则采用骆驼拼写法，即从第二个单词开始，每个单词的首字母采用大写，比如`onClick`。
     >
-    > 有些 HTML 属性名是 JavaScript 的保留字，转为 JavaScript 属性时，必须改名。主要是以下两个。
+    > 有些 HTML 属性名是 JS 的保留字，转为 JS 属性时，必须改名。主要是以下两个。
     >
     > - `for`属性改为`htmlFor`
     > - `class`属性改为`className`
     >
-    > 另外，HTML 属性值一般都是字符串，但是 JavaScript 属性会自动转换类型。比如，将字符串`true`转为布尔值，将`onClick`的值转为一个函数，将`style`属性的值转为一个`CSSStyleDeclaration`对象。因此，可以对这些属性赋予各种类型的值。
+    > 另外，HTML 属性值一般都是字符串，但是 JS 属性会自动转换类型。比如，将字符串`true`转为布尔值，将`onClick`的值转为一个函数，将`style`属性的值转为一个`CSSStyleDeclaration`对象。因此，可以对这些属性赋予各种类型的值。
     >
     > ## 属性操作的标准方法
     >
@@ -2981,7 +2981,7 @@
     >
     > ## dataset 属性
     >
-    > 有时，需要在HTML元素上附加数据，供 JavaScript 脚本使用。一种解决方法是自定义属性。
+    > 有时，需要在HTML元素上附加数据，供 JS 脚本使用。一种解决方法是自定义属性。
     >
     > ```
     > <div id="mydiv" foo="bar">
@@ -3238,7 +3238,7 @@
 
   - CSS 操作
 
-    > CSS 与 JavaScript 是两个有着明确分工的领域，前者负责页面的视觉效果，后者负责与用户的行为互动。但是，它们毕竟同属网页开发的前端，因此不可避免有着交叉和互相配合。本章介绍如何通过 JavaScript 操作 CSS。
+    > CSS 与 JS 是两个有着明确分工的领域，前者负责页面的视觉效果，后者负责与用户的行为互动。但是，它们毕竟同属网页开发的前端，因此不可避免有着交叉和互相配合。本章介绍如何通过 JS 操作 CSS。
     >
     > ## HTML 元素的 style 属性
     >
@@ -3291,7 +3291,7 @@
     > divStyle.width // 100px
     > ```
     >
-    > 上面代码中，`style`属性的值是一个 CSSStyleDeclaration 实例。这个对象所包含的属性与 CSS 规则一一对应，但是名字需要改写，比如`background-color`写成`backgroundColor`。改写的规则是将横杠从 CSS 属性名中去除，然后将横杠后的第一个字母大写。如果 CSS 属性名是 JavaScript 保留字，则规则名之前需要加上字符串`css`，比如`float`写成`cssFloat`。
+    > 上面代码中，`style`属性的值是一个 CSSStyleDeclaration 实例。这个对象所包含的属性与 CSS 规则一一对应，但是名字需要改写，比如`background-color`写成`backgroundColor`。改写的规则是将横杠从 CSS 属性名中去除，然后将横杠后的第一个字母大写。如果 CSS 属性名是 JS 保留字，则规则名之前需要加上字符串`css`，比如`float`写成`cssFloat`。
     >
     > 注意，该对象的属性值都是字符串，设置时必须包括单位，但是不含规则结尾的分号。比如，`divStyle.width`不能写为`100`，而要写为`100px`。
     >
@@ -3486,7 +3486,7 @@
     >
     > ## CSS 对象
     >
-    > 浏览器原生提供 CSS 对象，为 JavaScript 操作 CSS 提供一些工具方法。
+    > 浏览器原生提供 CSS 对象，为 JS 操作 CSS 提供一些工具方法。
     >
     > 这个对象目前有两个静态方法。
     >
@@ -3587,7 +3587,7 @@
     > }
     > ```
     >
-    > 节点元素的`style`对象无法读写伪元素的样式，这时就要用到`window.getComputedStyle()`。JavaScript 获取伪元素，可以使用下面的方法。
+    > 节点元素的`style`对象无法读写伪元素的样式，这时就要用到`window.getComputedStyle()`。JS 获取伪元素，可以使用下面的方法。
     >
     > ```
     > var test = document.querySelector('#test');
@@ -3637,7 +3637,7 @@
     >
     > `StyleSheet.disabled`返回一个布尔值，表示该样式表是否处于禁用状态。手动设置`disabled`属性为`true`，等同于在`<link>`元素里面，将这张样式表设为`alternate stylesheet`，即该样式表将不会生效。
     >
-    > 注意，`disabled`属性只能在 JavaScript 脚本中设置，不能在 HTML 语句中设置。
+    > 注意，`disabled`属性只能在 JS 脚本中设置，不能在 HTML 语句中设置。
     >
     > **（2）StyleSheet.href**
     >
@@ -3818,7 +3818,7 @@
     > }
     > ```
     >
-    > JavaScript 通过 CSSRule 接口操作 CSS 规则。一般通过 CSSRuleList 接口（`StyleSheet.cssRules`）获取 CSSRule 实例。
+    > JS 通过 CSSRule 接口操作 CSS 规则。一般通过 CSSRuleList 接口（`StyleSheet.cssRules`）获取 CSSRule 实例。
     >
     > ```
     > // HTML 代码如下

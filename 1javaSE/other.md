@@ -703,9 +703,8 @@ Object类中的wait()和notify()：
 
 	# 什么是元注解？以及有哪些元注解呢？
 		元注解就是修饰注解的注解，常见的元注解有：
-			Target：被标注的注解可以出现在哪些位置，参数是ElementType[]枚举数组
-			Retention：被标注的注解最终保存到哪里，参数是RetentionPolicy枚举，枚举值包括SOURCE、CLASS、RUNTIME；RetentionPolicy被称为保持性策略，
-			3个枚举类型值表示：SOURCE是只保存在源文件中，CLASS保存生成在class文件中，RUNTIME是保存在class文件中并且可以被反射机制读取到
+			Target：
+			Retention：
 
 	# 如果一个注解中有属性，那么必须给属性赋值@MyAnno(属性名=值)，除非有默认值；注解中的属性默认值这样定义：
 		类型 属性名() default "张三"; 表示如果没给属性赋值有默认值

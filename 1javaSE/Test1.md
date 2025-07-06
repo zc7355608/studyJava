@@ -1,6 +1,6 @@
 # Java
 
-- ## 初始Java
+- ## 初识Java
 
   - #### 什么是Java？
 
@@ -255,7 +255,7 @@
 
      - Java中严格区分大小写。每个**Java语句必须以`;`结束**。
 
-     - 程序中，程序员可以自由命名的被称为**标识符**。**Java中的标识符由字母、数字、下划线、美元符号组成，且不能以数字开头**。哪些地方可以用标识符：类名、变量名、包名、方法名、接口名、常量名。
+     - 程序中，程序员可以自由命名的被称为**标识符**。**Java中的标识符由字母（Unicode字符）、数字、下划线、美元符号组成，且不能以数字开头**。哪些地方可以用标识符：类名、变量名、包名、方法名、接口名、常量名。
 
      - `class、public、static、..`等程序中预定义的、有特殊含义的标识符被称为**关键字**。Java中的关键字都是小写。（标识符命名不能和已定义的关键字冲突）
 
@@ -301,7 +301,7 @@
        > }
        > ```
        >
-       > 如果分支里面有复杂的语句，需要使用`yield`关键字为switch语句指定分支的返回值。旧的switch语句要返回值也需要用`yield`关键字。
+       > 如果分支里面有复杂的语句，需要使用`yield`关键字为switch语句指定分支的返回值。旧的switch语句要返回一个值也需要用`yield`关键字。
        >
        > ```java
        > // yield
@@ -582,7 +582,7 @@
        >   >
        >   > 重载与形参名、返回值类型、权限修饰符都没关系，只和形参和方法名有关。
        >
-       > - 方法的可变长参数：可变参数用`类型...`定义，它相当于数组类型。
+       > - 方法的可变长参数：可变参数用`类型... 变量名`定义，它实际上是一个数组。
        >
        >   > 完全可以把可变长参数改写为数组类型，不过有2个问题：
        >   >
@@ -642,24 +642,22 @@
      >
      >   ```java
      >   class Person {
-     >       public Person() {
-     >       }
+     >       public Person() {}
      >   }
      >   ```
-     >
-     >   > 相当于：
-     >
-     >   ```java
-     >   class Person {
-     >   }
-     >   ```
-     >
+     >   
+     >> 相当于：
+     >   
+     >```java
+     >   class Person {}
+     > ```
+     >   
      >   > 注意：如果我们自定义了一个构造方法，那么编译器就不再创建默认的无参构造方法。
      >
      > - 构造方法中可以通过`this`关键字来调用其他的构造方法，这样做的目的是便于代码复用。语法：`this(实参)`
      >
      > - 构造方法不会被子类所继承。
-   
+     
    - #### 类的继承：
    
      > - 继承是面向对象编程中非常强大的一种机制，它首先可以复用代码。当我们让`Student`从`Person`继承时，`Student`就获得了`Person`的所有功能，我们只需要为`Student`编写新增的功能。其次还可以节省内存，避免相似的类的属性和方法在内存中被重复定义多次。
@@ -700,28 +698,26 @@
      > 例如，定义一个`Shape`类：
      >
      > ```java
-     > public sealed class Shape permits Rect, Circle, Triangle {
-     >     ...
-     > }
-     > ```
-     >
+     > public sealed class Shape permits Rect, Circle, Triangle {...}
+     >    ```
+     > 
      > 上述`Shape`类就是一个`sealed`类，它只允许指定的3个类继承它。如果写：
      >
      > ```java
-     > public final class Rect extends Shape {...}
+     >public final class Rect extends Shape {...}
      > ```
-     >
+     > 
      > 是没问题的，因为`Rect`出现在`Shape`的`permits`列表中。但是，如果定义一个`Ellipse`就会报错：
      >
      > ```java
-     > public final class Ellipse extends Shape {...}
+     >public final class Ellipse extends Shape {...}
      > // Compile error: class is not allowed to extend sealed class: Shape
      > ```
-     >
+     > 
      > 原因是`Ellipse`并未出现在`Shape`的`permits`列表中。这种`sealed`类主要用于一些框架，防止继承被滥用。
      >
      > `sealed`类在Java 15中目前是预览状态，要启用它，必须使用参数`--enable-preview`和`--source 15`。
-   
+     
    - #### 区分继承和组合：
    
      > 在使用继承时，我们要注意逻辑一致性。
@@ -819,14 +815,14 @@
      - **this**：它指向当前实例。通过`this.`可以访问当前实例的属性和方法，一般可以省略。如果有局部变量和属性重名，那么局部变量优先级更高，此时就必须显式通过`this.属性名`来调用实例属性。
    
      - **super**：它指向当前实例的父类。`super` 是访问父类成员的最清晰、最可靠方式，但在特定场景下可以省略。如果子类中重写了父类的属性和方法，那么想调用父类的属性和方法时，就必须显式通过`super.属性/方法()`来调用。
-   
-   
-     > Java中，构造方法中如果没有显式调用 `this()` 或 `super()`，那么编译器会自动在第一行插入 `super()`。这是因为代码要通过这行代码来初始化继承过来的父类属性。（`Object` 类是 Java 所有类的根类，它的构造方法没有 `super()`，因为它是继承链的顶端）
-     >
-     > 因此一定要小心：如果父类没有提供无参数构造方法的话，子类的构造器中必须显式调用`super()`并给出参数以便让编译器定位到父类的一个合适的构造方法。
-     >
-     > 注意：`this()` 或 `super()` 都只能出现在构造函数中，且必须是第一条语句，出现在其他地方会报错。
-   
+     
+     
+       > Java中，构造方法中如果没有显式调用 `this()` 或 `super()`，那么编译器会自动在第一行插入 `super()`。这是因为代码要通过这行代码来初始化继承过来的父类属性。（`Object` 类是 Java 所有类的根类，它的构造方法没有 `super()`，因为它是继承链的顶端）
+       >
+       > 因此一定要小心：如果父类没有提供无参数构造方法的话，子类的构造器中必须显式调用`super()`并给出参数以便让编译器定位到父类的一个合适的构造方法。
+       >
+       > 注意：`this()` 或 `super()` 都只能出现在构造函数中，且必须是第一条语句，出现在其他地方会报错。
+     
    - #### 多态（Polymorphic）：
    
      > Java的方法调用总是作用于运行期对象的实际类型，这种行为称为多态。多态是指，针对某个类型的方法调用，其真正执行的方法取决于运行时期实际类型的方法。
@@ -909,35 +905,30 @@
        > ```java
        > Object obj = "hello";
        > if (obj instanceof String) {
-       >     String s = (String) obj;
-       >     System.out.println(s.toUpperCase());
+       >        String s = (String) obj;
+       >        System.out.println(s.toUpperCase());
        > }
        > ```
        >
        > 可以改写如下：
        >
        > ```java
-       > // instanceof variable:
-       > public class Main {
-       >     public static void main(String[] args) {
-       >         Object obj = "hello";
-       >         if (obj instanceof String s) {
-       >             // 可以直接使用变量s:
-       >             System.out.println(s.toUpperCase());
-       >         }
-       >     }
-       > }
-       > ```
-       >
-       > 这种使用`instanceof`的写法更加简洁。
-   
+       > Object obj = "hello";
+       > if (obj instanceof String s) {
+       >        // 可以直接使用变量s:
+       >        System.out.println(s.toUpperCase());
+       >    }
+       >    ```
+       >    
+       >    这种使用`instanceof`的写法更加简洁。
+     
    - #### 抽象类（Abstract Class）：
    
      > 如果父类的方法本身不需要实现任何功能，仅仅是为了定义方法签名，目的是让子类去覆盖它，此时就可以将父类的方法声明为**抽象方法**：
      >
      > ```java
      > abstract class Person {
-     >     public abstract void run();
+     >    	public abstract void run();
      > }
      > ```
      >
@@ -997,8 +988,8 @@
      >
      > ```java
      > abstract class Person {
-     >     public abstract void run();
-     >     public abstract String getName();
+     >    	public abstract void run();
+     >    	public abstract String getName();
      > }
      > ```
      >
@@ -1008,8 +999,8 @@
      >
      > ```java
      > interface Person {
-     >     void run();
-     >     String getName();
+     >        void run();
+     >        String getName();
      > }
      > ```
      >
@@ -1021,32 +1012,30 @@
      >
      > ```java
      > class Student implements Person {
-     >     private String name;
+     >        private String name;
      > 
-     >     public Student(String name) {
-     >         this.name = name;
-     >     }
+     >        public Student(String name) {
+     >        	this.name = name;
+     >        }
      > 
-     >     @Override
-     >     public void run() {
-     >         System.out.println(this.name + " run");
-     >     }
+     >        @Override
+     >        public void run() {
+     >        	System.out.println(this.name + " run");
+     >        }
      > 
-     >     @Override
-     >     public String getName() {
-     >         return this.name;
-     >     }
+     >        @Override
+     >        public String getName() {
+     >        	return this.name;
+     >        }
      > }
      > ```
      >
      > 我们知道，在Java中，一个类只能继承自另一个类，不能从多个类继承。但是，**一个类可以实现多个接口**，例如：
      >
      > ```java
-     > class Student implements Person, Hello { // 实现了两个interface
-     >     ...
-     > }
-     > ```
-   
+     > class Student implements Person, Hello {...}
+     >    ```
+     
      - ##### 抽象类和接口的对比如下：
    
        > |            | abstract class       | interface                   |
@@ -1055,7 +1044,7 @@
        > | 字段       | 可以定义实例字段     | 不能定义实例字段            |
        > | 抽象方法   | 可以定义抽象方法     | 可以定义抽象方法            |
        > | 非抽象方法 | 可以定义非抽象方法   | 可以定义default方法         |
-   
+     
      - ##### 接口继承：
    
        > 接口也可以使用`extends`来继承另一个接口，它相当于扩展了接口的方法。与类继承不同的是，**接口之间允许多继承**：
@@ -1074,43 +1063,43 @@
        > ```
        >
        > 此时，`Person`接口继承了`Hello、Runable`接口，因此，`Person`接口现在实际上有3个抽象方法签名，其中2个来自继承的接口。
-   
+     
      - ##### `default`方法：
    
        > 在接口中，可以定义`default`默认方法（>=Java 8）。例如，把`Person`接口的`run()`方法改为`default`方法：
        >
        > ```java
        > public class Main {
-       >     public static void main(String[] args) {
-       >         Person p = new Student("Xiao Ming");
-       >         p.run();
-       >     }
+       >        public static void main(String[] args) {
+       >            Person p = new Student("Xiao Ming");
+       >            p.run();
+       >        }
        > }
        > 
        > interface Person {
-       >     String getName();
-       >     default void run() {
-       >         System.out.println(getName() + " run");
-       >     }
+       >        String getName();
+       >        default void run() {
+       >        	System.out.println(getName() + " run");
+       >        }
        > }
        > 
        > class Student implements Person {
-       >     private String name;
+       >        private String name;
        > 
-       >     public Student(String name) {
-       >         this.name = name;
-       >     }
+       >        public Student(String name) {
+       >        	this.name = name;
+       >        }
        > 
-       >     public String getName() {
-       >         return this.name;
-       >     }
+       >        public String getName() {
+       >        	return this.name;
+       >        }
        > }
        > ```
        >
        > **子类可以不实现接口中的`default`默认方法，因为它有默认实现了**。`default`方法的目的是，当我们需要给接口新增一个方法时，会涉及到修改全部子类。如果新增的是`default`方法，那么子类就不必全部修改，只需要在需要覆写的地方去覆写新增方法。
        >
-       > `default`方法和抽象类中的普通方法是有所不同的。因为`interface`没有实例属性，`default`方法无法访问实例属性，而抽象类的普通方法可以访问实例属性。
-   
+       > `default`方法和抽象类中的普通方法是有所不同的。因为`interface`没有实例属性，**`default`方法无法访问实例属性，而抽象类的普通方法可以访问实例属性**。
+     
    - #### 静态方法和静态字段：
    
      - ##### 静态属性：
@@ -1140,8 +1129,8 @@
        >
        > ```java
        > public interface Person {
-       >     public static final int MALE = 1;
-       >     public static final int FEMALE = 2;
+       >        public static final int MALE = 1;
+       >        public static final int FEMALE = 2;
        > }
        > ```
        >
@@ -1149,9 +1138,9 @@
        >
        > ```java
        > public interface Person {
-       >     // 编译器会自动加上public static final:
-       >     int MALE = 1;
-       >     int FEMALE = 2;
+       >        // 编译器会自动加上public static final:
+       >        int MALE = 1;
+       >        int FEMALE = 2;
        > }
        > ```
        >
@@ -1166,16 +1155,15 @@
      > ```java
      > package com.wangdao; // 申明包名com.wangdao
      > 
-     > public class Student {  // 完整类名为：com.wangdao.Student
-     > }
+     > public class Student {}  // 完整类名为：com.wangdao.Student
      > ```
-     >
-     > 在Java虚拟机执行的时候，JVM只看完整类名，因此，只要包名不同，类就不同。
-     >
-     > 包可以是多层结构，用`.`隔开。一个点就是一层目录，JVM会按照目录层级去对应的目录下加载`.class`字节码文件。例如：`java.util`。
-   
+     > 
+     >在Java虚拟机执行的时候，JVM只看完整类名，因此，只要包名不同，类就不同。
+     > 
+     >包可以是多层结构，用`.`隔开。一个点就是一层目录，JVM会按照目录层级去对应的目录下加载`.class`字节码文件。例如：`java.util`。
+     
      - ##### import：
-   
+     
        > 在一个类中，我们总会引用其他的类。如果用到的每个地方都写完整类名，那么代码会很难看。因此Java提供了`import`语句，这样我们只需要写简类名即可，具体的完整类名通过`import`语句去指定。
        >
        > ```java
@@ -1226,7 +1214,7 @@
        > ```
        >
        > `import static`很少使用。
-   
+     
        > Java编译器最终编译出的`.class`文件只使用*完整类名*，因此，在代码中，当编译器遇到一个类名时：
        >
        > - 如果是完整类名，就直接根据完整类名查找这个`class`；
@@ -1243,9 +1231,9 @@
        > - 默认自动`import java.lang.*`。
        >
        > 如果有两个`class`名称相同，例如，`mr.jun.Arrays`和`java.util.Arrays`，那么只能`import`其中一个，另一个必须写完整类名。
-   
+     
      - ##### 最佳实践：
-   
+     
        > 为了避免全球所有的开发者之间写的类冲突，我们需要确定唯一的包名。推荐的做法是使用倒置的域名来确保唯一性。例如：
        >
        > - org.apache
@@ -1255,13 +1243,13 @@
        > 子包就可以根据功能自行命名。
        >
        > 注意：不要和JDK中的类重名，即自己的类不要使用这些名字：`java.lang.String/java.util.List`
-   
+     
      - ##### 带包编译：
-   
+     
        ```bash
        javac -d . src/**/*.java
        ```
-   
+     
        > `-d`代表带包编译，`.`代表生成的字节码文件夹（包含`.class`文件）放在当前目录下，最后的参数`src/**/*.java`表示`src`目录下的所有`.java`文件，包括任意深度的子目录。
        >
        > 注意：Windows环境不支持`**`这种搜索全部子目录的做法，所以在Windows下编译必须依次列出所有`.java`文件：
@@ -1283,7 +1271,7 @@
        > ```bash
        > PS C:\work> javac -d .\bin (Get-ChildItem -Path .\src -Recurse -Filter *.java).FullName
        > ```
-   
+     
    - #### 内部类
    
      > Java中还有一种类，它被定义在另一个类的内部，所以称为**内部类（Nested Class）**。
@@ -1297,25 +1285,25 @@
        > ```java
        > // inner class
        > public class Main {
-       >     public static void main(String[] args) {
-       >         Outer outer = new Outer("Nested"); // 实例化一个Outer
-       >         Outer.Inner inner = outer.new Inner(); // 实例化一个Inner
-       >         inner.hello();
-       >     }
+       >        public static void main(String[] args) {
+       >            Outer outer = new Outer("Nested"); // 实例化一个Outer
+       >            Outer.Inner inner = outer.new Inner(); // 实例化一个Inner
+       >            inner.hello();
+       >        }
        > }
        > 
        > class Outer {
-       >     private String name;
+       >        private String name;
        > 
-       >     Outer(String name) {
-       >         this.name = name;
-       >     }
+       >        Outer(String name) {
+       >        	this.name = name;
+       >        }
        > 
-       >     class Inner {
-       >         void hello() {
-       >             System.out.println("Hello, " + Outer.this.name);
-       >         }
-       >     }
+       >    	class Inner {
+       >            void hello() {
+       >            	System.out.println("Hello, " + Outer.this.name);
+       >            }
+       >        }
        > }
        > ```
        >
@@ -1339,26 +1327,26 @@
        > ```java
        > // Static Nested Class
        > public class Main {
-       >     public static void main(String[] args) {
-       >         Outer.StaticNested sn = new Outer.StaticNested();
-       >         sn.hello();
-       >     }
+       >        public static void main(String[] args) {
+       >            Outer.StaticNested sn = new Outer.StaticNested();
+       >            sn.hello();
+       >        }
        > }
        > 
        > class Outer {
-       >     private static String NAME = "OUTER";
+       >        private static String NAME = "OUTER";
        > 
-       >     private String name;
+       >        private String name;
        > 
-       >     Outer(String name) {
-       >         this.name = name;
-       >     }
+       >        Outer(String name) {
+       >        	this.name = name;
+       >        }
        > 
-       >     static class StaticNested {
-       >         void hello() {
-       >             System.out.println("Hello, " + Outer.NAME);
-       >         }
-       >     }
+       >        static class StaticNested {
+       >            void hello() {
+       >            	System.out.println("Hello, " + Outer.NAME);
+       >            }
+       >        }
        > }
        > ```
        >
@@ -1372,28 +1360,28 @@
        > ```java
        > // Anonymous Class
        > public class Main {
-       >     public static void main(String[] args) {
-       >         Outer outer = new Outer("Nested");
-       >         outer.asyncHello();
-       >     }
+       >        public static void main(String[] args) {
+       >            Outer outer = new Outer("Nested");
+       >            outer.asyncHello();
+       >        }
        > }
        > 
        > class Outer {
-       >     private String name;
+       >        private String name;
        > 
-       >     Outer(String name) {
-       >         this.name = name;
-       >     }
+       >        Outer(String name) {
+       >        	this.name = name;
+       >        }
        > 
-       >     void asyncHello() {
-       >         Runnable r = new Runnable() {
-       >             @Override
-       >             public void run() {
-       >                 System.out.println("Hello, " + Outer.this.name);
-       >             }
-       >         };
-       >         new Thread(r).start();
-       >     }
+       >        void asyncHello() {
+       >            Runnable r = new Runnable() {
+       >                @Override
+       >                public void run() {
+       >                	System.out.println("Hello, " + Outer.this.name);
+       >                }
+       >            };
+       >            new Thread(r).start();
+       >        }
        > }
        > ```
        >
@@ -1416,17 +1404,17 @@
        > import java.util.HashMap;
        > 
        > public class Main {
-       >     public static void main(String[] args) {
-       >         HashMap<String, String> map1 = new HashMap<>();
-       >         HashMap<String, String> map2 = new HashMap<>() {}; // 匿名类!
-       >         HashMap<String, String> map3 = new HashMap<>() {
-       >             {
-       >                 put("A", "1");
-       >                 put("B", "2");
-       >             }
-       >         };
-       >         System.out.println(map3.get("A"));
-       >     }
+       >        public static void main(String[] args) {
+       >            HashMap<String, String> map1 = new HashMap<>();
+       >            HashMap<String, String> map2 = new HashMap<>() {}; // 匿名类!
+       >            HashMap<String, String> map3 = new HashMap<>() {
+       >                {
+       >                    put("A", "1");
+       >                    put("B", "2");
+       >                }
+       >            };
+       >            System.out.println(map3.get("A"));
+       >        }
        > }
        > ```
        >
@@ -1471,7 +1459,7 @@
        > 1. 在系统环境变量中设置`classpath`环境变量，不推荐；
        > 2. 在启动JVM时设置`classpath`变量，推荐。
        >
-       > 我们强烈*不推荐*在系统环境变量中设置`classpath`，那样会污染整个系统环境。在启动JVM时设置`classpath`才是推荐的做法。实际上就是给`java`命令传入`-classpath`参数：
+       > 我们强烈**不推荐**在系统环境变量中设置`classpath`，那样会污染整个系统环境。在启动JVM时设置`classpath`才是推荐的做法。实际上就是给`java`命令传入`-classpath`参数：
        >
        > ```bash
        > java -classpath .;C:\work\project1\bin;C:\shared abc.xyz.Hello
@@ -1506,8 +1494,8 @@
        > ```tex
        > C:\work
        > └─ com
-       >    └─ example
-       >       └─ Hello.class
+       >        └─ example
+       >           └─ Hello.class
        > ```
        >
        > 运行这个`Hello.class`必须在当前目录下使用如下命令：
@@ -1572,7 +1560,7 @@
      >
      > 我们通常说的Java 8，Java 11，Java 17，是指JDK的版本，也就是JVM的版本，更确切地说，就是`java.exe`这个程序的版本：
      >
-     > ```plain
+     > ```bash
      > $ java -version
      > java version "17" 2021-09-14 LTS
      > ```
@@ -1583,7 +1571,7 @@
      >
      > 如果用Java 17编译一个Java程序，输出的class文件版本默认就是61，它可以在Java 17、Java 18上运行，但不可能在Java 11上运行，因为Java 11支持的class版本最多到55。如果使用低于Java 17的JVM运行，会得到一个`UnsupportedClassVersionError`，错误信息类似：
      >
-     > ```plain
+     > ```java
      >java.lang.UnsupportedClassVersionError: Xxx has been compiled by a more recent version of the Java Runtime...
      > ```
      > 
@@ -1597,7 +1585,7 @@
      >
      > 指定编译输出有两种方式，一种是在`javac`命令行中用参数`--release`设置：
      >
-     > ```plain
+     > ```bash
      >$ javac --release 11 Main.java
      > ```
      >
@@ -1605,7 +1593,7 @@
      > 
      > 第二种方式是用参数`--source`指定源码版本，用参数`--target`指定输出class版本：
      >
-     > ```plain
+     > ```bash
      >$ javac --source 9 --target 11 Main.java
      > ```
      >
@@ -1615,9 +1603,9 @@
      > 
      > ```java
      >public class Hello {
-     >  public static void hello(String name) {
-     >     System.out.println("hello".indent(4));
-     >  }
+     >      public static void hello(String name) {
+     >        	System.out.println("hello".indent(4));
+     >      }
      >}
      > ```
      >
@@ -1771,7 +1759,7 @@
        >
        > 结果是一个错误：
        >
-       > ```tex
+       > ```java
        > Error occurred during initialization of boot layer
        > java.lang.module.FindException: JMOD format not supported at execution time: hello.jmod
        > ```
@@ -1820,10 +1808,10 @@
        >
        > ```java
        > module java.xml {
-       >     exports java.xml;
-       >     exports javax.xml.catalog;
-       >     exports javax.xml.datatype;
-       >     ...
+       >        exports java.xml;
+       >        exports javax.xml.catalog;
+       >        exports javax.xml.datatype;
+       >        ...
        > }
        > ```
        >
@@ -1831,12 +1819,13 @@
        >
        > ```java
        > module hello.world {
-       >     exports com.itranswarp.sample;
+       >        exports com.itranswarp.sample;
        > 
-       >     requires java.base;
-       > 	requires java.xml;
+       >        requires java.base;
+       >     requires java.xml;
        > }
        > ```
        >
        > 因此，模块进一步隔离了代码的访问权限。
+   
 

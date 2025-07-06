@@ -1145,28 +1145,28 @@
       `.union()`是并集运算，返回包含两个集合中存在的所有成员的集合。
 
       ```js
-      const frontEnd = new Set(["JavaScript", "HTML", "CSS"]);
-      const backEnd = new Set(["Python", "Java", "JavaScript"]);
+      const frontEnd = new Set(["JS", "HTML", "CSS"]);
+      const backEnd = new Set(["Python", "Java", "JS"]);
       
       const all = frontEnd.union(backEnd);
-      // Set {"JavaScript", "HTML", "CSS", "Python", "Java"}
+      // Set {"JS", "HTML", "CSS", "Python", "Java"}
       ```
 
       `.intersection()`是交集运算，返回同时包含在两个集合中的成员的集合。
 
       ```js
-      const frontEnd = new Set(["JavaScript", "HTML", "CSS"]);
-      const backEnd = new Set(["Python", "Java", "JavaScript"]);
+      const frontEnd = new Set(["JS", "HTML", "CSS"]);
+      const backEnd = new Set(["Python", "Java", "JS"]);
       
       const frontAndBackEnd = frontEnd.intersection(backEnd);
-      // Set {"JavaScript"}
+      // Set {"JS"}
       ```
   
       `.difference()`是差集运算，返回第一个集合中存在但第二个集合中不存在的所有成员的集合。
   
       ```js
-      const frontEnd = new Set(["JavaScript", "HTML", "CSS"]);
-      const backEnd = new Set(["Python", "Java", "JavaScript"]);
+      const frontEnd = new Set(["JS", "HTML", "CSS"]);
+      const backEnd = new Set(["Python", "Java", "JS"]);
       
       const onlyFrontEnd = frontEnd.difference(backEnd);
       // Set {"HTML", "CSS"}
@@ -1178,8 +1178,8 @@
       `.symmetryDifference()`是对称差集，返回两个集合的所有独一无二成员的集合，即去除了重复的成员。
   
       ```js
-      const frontEnd = new Set(["JavaScript", "HTML", "CSS"]);
-      const backEnd = new Set(["Python", "Java", "JavaScript"]);
+      const frontEnd = new Set(["JS", "HTML", "CSS"]);
+      const backEnd = new Set(["Python", "Java", "JS"]);
       
       const onlyFrontEnd = frontEnd.symmetricDifference(backEnd);
       // Set {"HTML", "CSS", "Python", "Java"} 
@@ -1193,7 +1193,7 @@
       `.isSubsetOf()`返回一个布尔值，判断第一个集合是否为第二个集合的子集，即第一个集合的所有成员都是第二个集合的成员。
   
       ```js
-      const frontEnd = new Set(["JavaScript", "HTML", "CSS"]);
+      const frontEnd = new Set(["JS", "HTML", "CSS"]);
       const declarative = new Set(["HTML", "CSS"]);
       
       declarative.isSubsetOf(frontEnd);  // true
@@ -1210,7 +1210,7 @@
       `isSupersetOf()`返回一个布尔值，表示第一个集合是否为第二个集合的超集，即第二个集合的所有成员都是第一个集合的成员。
   
       ```js
-      const frontEnd = new Set(["JavaScript", "HTML", "CSS"]);
+      const frontEnd = new Set(["JS", "HTML", "CSS"]);
       const declarative = new Set(["HTML", "CSS"]);
       
       declarative.isSupersetOf(frontEnd);  // false
@@ -1227,8 +1227,8 @@
       `.isDisjointFrom()`判断两个集合是否不相交，即没有共同成员。
   
       ```js
-      const frontEnd = new Set(["JavaScript", "HTML", "CSS"]);
-      const interpreted = new Set(["JavaScript", "Ruby", "Python"]);
+      const frontEnd = new Set(["JS", "HTML", "CSS"]);
+      const interpreted = new Set(["JS", "Ruby", "Python"]);
       const compiled = new Set(["Java", "C++", "TypeScript"]);
       
       interpreted.isDisjointFrom(compiled);  // true

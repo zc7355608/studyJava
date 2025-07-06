@@ -235,7 +235,7 @@
     >
     > **（2）HTMLImageElement.currentSrc**
     >
-    > `HTMLImageElement.currentSrc`属性返回当前正在展示的图像的网址。JavaScript 和 CSS 的 mediaQuery 都可能改变正在展示的图像。
+    > `HTMLImageElement.currentSrc`属性返回当前正在展示的图像的网址。JS 和 CSS 的 mediaQuery 都可能改变正在展示的图像。
     >
     > **（3）HTMLImageElement.alt**
     >
