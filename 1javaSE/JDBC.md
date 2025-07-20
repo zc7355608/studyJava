@@ -1774,54 +1774,55 @@
       > import java.util.ResourceBundle;
       > 
       > public class BatchTest {
-      >     public static void main(String[] args) {
-      >         ResourceBundle bundle = ResourceBundle.getBundle("com.powernode.jdbc.jdbc");
-      >         String driver = bundle.getString("driver");
-      >         String url = bundle.getString("url");
-      >         String user = bundle.getString("user");
-      >         String password = bundle.getString("password");
+      >  public static void main(String[] args) {
+      >      ResourceBundle bundle = ResourceBundle.getBundle("com.powernode.jdbc.jdbc");
+      >      String driver = bundle.getString("driver");
+      >      String url = bundle.getString("url");
+      >      String user = bundle.getString("user");
+      >      String password = bundle.getString("password");
       > 
-      >         long begin = System.currentTimeMillis();
-      >         Connection conn = null;
-      >         PreparedStatement pstmt = null;
-      >         try {
-      >             // 1. 注册驱动
-      >             Class.forName(driver);
-      >             // 2. 获取连接
-      >             conn = DriverManager.getConnection(url, user, password);
-      >             // 3. 获取预编译的数据操作对象
-      >             String sql = "insert into t_product(id, name) values (?, ?)";
-      >             pstmt = conn.prepareStatement(sql);
-      >             int count = 0;
-      >             for (int i = 1; i <= 10000; i++) {
-      >                 pstmt.setInt(1, i);
-      >                 pstmt.setString(2, "product" + i);
-      >                 pstmt.addBatch();
-      >             }
-      >             count += pstmt.executeBatch().length;
-      >             System.out.println("插入了" + count + "条记录");
-      >         } catch (Exception e) {
-      >             e.printStackTrace();
-      >         } finally {
-      >             // 6. 释放资源
-      >             if (pstmt != null) {
-      >                 try {
-      >                     pstmt.close();
-      >                 } catch (SQLException e) {
-      >                     throw new RuntimeException(e);
-      >                 }
-      >             }
-      >             if (conn != null) {
-      >                 try {
-      >                     conn.close();
-      >                 } catch (SQLException e) {
-      >                     throw new RuntimeException(e);
-      >                 }
-      >             }
-      >         }
-      >         long end = System.currentTimeMillis();
-      >         System.out.println("总耗时" + (end - begin) + "毫秒");
-      >     }
+      >      long begin = System.currentTimeMillis();
+      >      Connection conn = null;
+      >      PreparedStatement pstmt = null;
+      >      try {
+      >          // 1. 注册驱动
+      >          Class.forName(driver);
+      >          // 2. 获取连接
+      >          conn = DriverManager.getConnection(url, user, password);
+      >          // 3. 获取预编译的数据操作对象
+      >          String sql = "insert into t_product(id, name) values (?, ?)";
+      >          pstmt = conn.prepareStatement(sql);
+      >          int count = 0;
+      >          for (int i = 1; i <= 10000; i++) {
+      >              pstmt.setInt(1, i);
+      >              pstmt.setString(2, "product" + i);
+      >              // 有时Statement中一次别打包多个sql，具体多少个add一次batch，可以测试下哪种效率最高
+      >              pstmt.addBatch();
+      >          }
+      >          count += pstmt.executeBatch().length;
+      >          System.out.println("插入了" + count + "条记录");
+      >      } catch (Exception e) {
+      >          e.printStackTrace();
+      >      } finally {
+      >          // 6. 释放资源
+      >          if (pstmt != null) {
+      >              try {
+      >                  pstmt.close();
+      >              } catch (SQLException e) {
+      >                  throw new RuntimeException(e);
+      >              }
+      >          }
+      >          if (conn != null) {
+      >              try {
+      >                  conn.close();
+      >              } catch (SQLException e) {
+      >                  throw new RuntimeException(e);
+      >              }
+      >          }
+      >      }
+      >      long end = System.currentTimeMillis();
+      >      System.out.println("总耗时" + (end - begin) + "毫秒");
+      >  }
       > }
       > ```
       >
@@ -1866,6 +1867,8 @@
      * Version: 1.0
      */
     public class DbUtils {
+        private DbUtils(){}
+        
         private static String url;
         private static String user;
         private static String password;
@@ -2855,10 +2858,79 @@
          InputStream in = HikariConfig.class.getClassLoader().getResourceAsStream("jdbc2.properties");
          Properties props = new Properties();
          props.load(in);
-         HikariConfig config = new HikariConfig(props);
-         DataSource dataSource = new HikariDataSource(config);
+         DataSource dataSource = new HikariDataSource(new HikariConfig(props));
          Connection conn = dataSource.getConnection();
          ```
-
-      4. 关闭连接（调用conn.close()，将连接归还到连接池，连接对象为空闲状态。）
+    
+      4. 关闭连接（调用conn.close()，将连接归还到连接池，连接对象为空闲状态）
+    
+    - ##### DbUtils的升级改造：
+    
+      > 我们基于Druid连接池对DbUtils做一个升级改造：
+    
+      ```java
+      package com.powernode.jdbc;
+      
+      import com.alibaba.druid.pool.DruidDataSourceFactory;
+      import javax.sql.DataSource;
+      import java.io.InputStream;
+      import java.sql.*;
+      import java.util.Properties;
+      
+      public class DbUtils2 {
+          private DbUtils2(){}
+      
+          private static DataSource dataSource;
+      
+          static {
+              try {
+                  InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("jdbc.properties");
+                  Properties prop = new Properties();
+                  prop.load(in);
+                  dataSource = DruidDataSourceFactory.createDataSource(prop);
+              } catch (Exception e) {
+                  throw new RuntimeException(e);
+              }
+          }
+      
+          /**
+           * 获取数据库连接
+           * @return
+           * @throws SQLException
+           */
+          public static Connection getConnection() throws SQLException {
+              return dataSource.getConnection();
+          }
+      
+          /**
+           * 释放资源
+           * @param conn 连接对象
+           * @param stmt 数据库操作对象
+           * @param rs 结果集对象
+           */
+          public static void close(Connection conn, Statement stmt, ResultSet rs){
+              if (rs != null) {
+                  try {
+                      rs.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+              if (stmt != null) {
+                  try {
+                      stmt.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+              if (conn != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+          }
+      }
+      ```
 

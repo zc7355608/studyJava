@@ -1459,16 +1459,16 @@
        > 1. 在系统环境变量中设置`classpath`环境变量，不推荐；
        > 2. 在启动JVM时设置`classpath`变量，推荐。
        >
-       > 我们强烈**不推荐**在系统环境变量中设置`classpath`，那样会污染整个系统环境。在启动JVM时设置`classpath`才是推荐的做法。实际上就是给`java`命令传入`-classpath`参数：
+       > 我们强烈**不推荐**在系统环境变量中设置`classpath`，那样会污染整个系统环境。在启动JVM时设置`classpath`才是推荐的做法。实际上就是给`javac`命令传入`-classpath`参数：
        >
        > ```bash
-       > java -classpath .;C:\work\project1\bin;C:\shared abc.xyz.Hello
+       > javac -classpath ".;C:\work\project1\bin;C:\shared.jar" abc.xyz.Hello.java
        > ```
        >
        > 或者使用`-cp`的简写：
        >
        > ```bash
-       > java -cp .;C:\work\project1\bin;C:\shared abc.xyz.Hello
+       > javac -cp ".;C:\work\project1\bin;C:\shared.jar" abc.xyz.Hello.java
        > ```
        >
        > 没有设置系统环境变量，也没有传入`-cp`参数，那么JVM默认的`classpath`为`.`，即当前目录：
@@ -1513,7 +1513,7 @@
        > **jar包实际上就是一个zip格式的压缩文件，而jar包相当于目录**。如果我们要执行一个jar包的`class`，就可以把jar包放到`classpath`中：
        >
        > ```bash
-       > java -cp ./hello.jar abc.xyz.Hello
+       > java -cp "./hello.jar abc.xyz.Hello"
        > ```
        >
        > 这样JVM会自动在`hello.jar`文件里去搜索某个类。
