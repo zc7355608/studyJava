@@ -145,66 +145,63 @@
           > 
           > // 充当Tomcat服务器的开发者
           > public class Tomcat{
-          >  public static void main(String[] args) throws Exception{
-          >      System.out.println("Tomcat服务器启动成功，开始接收用户的访问。");
+          >      public static void main(String[] args) throws Exception {
+          >          System.out.println("Tomcat服务器启动成功，开始接收用户的访问。");
           > 
-          >      // 简单的使用Scanner来模拟一下用户的请求
-          >      // 用户访问服务器是通过浏览器上的“请求路径”
-          >      // 也就是说用户请求路径不同，后台执行的Servlet不同。
-          > 		/*
-          > 			/userList    UserListServlet
-          > 			/login		 UserLoginServlet
-          > 			/bank		 BankServlet
-          > 			......
-          > 		*/
-          >      System.out.print("请输入您的访问路径：");
-          >      Scanner s = new Scanner(System.in);
+          >          // 简单的使用Scanner来模拟一下用户的请求
+          >          // 用户访问服务器是通过浏览器上的“请求路径”
+          >          // 也就是说用户请求路径不同，后台执行的Servlet不同。
+          >             /*
+          >                 /userList    UserListServlet
+          >                 /login		 UserLoginServlet
+          >                 /bank		 BankServlet
+          >                 ......
+          >             */
+          >          System.out.print("请输入您的访问路径：");
+          >          Scanner s = new Scanner(System.in);
           > 
-          >      // 用户的请求路径  /bbbb
-          >      String key = s.nextLine(); // Tomcat服务器已经获取到了用户的请求路径了。
+          >          // 用户的请求路径  /bbbb
+          >          String key = s.nextLine(); // Tomcat服务器已经获取到了用户的请求路径了。
           > 
-          >      // Tomcat服务器应该通过用户的请求路径找对应的XXXServlet
-          >      // 请求路径和XXXServlet之间的关系应该由谁指定呢？
-          >      // 对于Tomcat服务器来说需要解析配置文件
+          >          // Tomcat服务器应该通过用户的请求路径找对应的XXXServlet
+          >          // 请求路径和XXXServlet之间的关系应该由谁指定呢？
+          >          // 对于Tomcat服务器来说需要解析配置文件
           > 
-          >      /*    ResourceBundle bundle = ResourceBundle.getBundle("web.properties");
-          >              String className=bundle.getString(提示key:"key");    */
+          >          /*    ResourceBundle bundle = ResourceBundle.getBundle("web.properties");
+          >                  String className=bundle.getString(提示key:"key");    */
           > 
-          > 
-          > 
-          >      FileReader reader = new FileReader("web.properties");
-          >      Properties pro = new Properties();
-          >      pro.load(reader);
-          >      reader.close();
-          > 
-          >      // 通过key获取value
-          >      String className = pro.getProperty(key);
-          >      // 通过反射机制创建对象
-          >      Class clazz = Class.forName(className);
-          >      Object obj = clazz.newInstance(); // obj的类型对于Tomcat服务器开发人员来说不知道。
-          > 
-          >      // 但是Tomcat服务器的开发者知道，你写的XXXXServlet一定实现了Servlet接口
-          >      Servlet servlet = (Servlet)obj;
-          >      servlet.service();
-          > 
-          >  }
-          > }
+          >       FileReader reader = new FileReader("web.properties");
+          >       Properties pro = new Properties();
+          >          pro.load(reader);
+          >          reader.close();
+          >    
+          >          // 通过key获取value
+          >       String className = pro.getProperty(key);
+          >          // 通过反射机制创建对象
+          >          Class clazz = Class.forName(className);
+          >          Object obj = clazz.newInstance(); // obj的类型对于Tomcat服务器开发人员来说不知道。
+          >    
+          >          // 但是Tomcat服务器的开发者知道，你写的XXXXServlet一定实现了Servlet接口
+          >       Servlet servlet = (Servlet)obj;
+          >          servlet.service();
+          >        }
+          >    }
           > ```
-          >
+          >  
           > **注意**：
-          >
-          > - 这个配置文件的文件名不能乱来。固定的。
+          > 
+          >- 这个配置文件的文件名不能乱来。固定的。
           > - 这个配置文件的存放路径不能乱来。固定的。
           >
        
     - ##### 开发第一个JavaWeb应用-firstapp：
-  
+    
        1. 下载Tomcat压缩包，将其解压到某个目录下即可完成暗转：
-  
+    
           ![1710848893008-9e200e1b-fcf8-4a4a-8010-e1d8627e4f29](./assets/1710848893008-9e200e1b-fcf8-4a4a-8010-e1d8627e4f29.png)
-  
+    
        2. 配置Tomcat服务器环境变量：
-
+    
           > - CATALINA_HOME=D:\SoftWare\Tomcat\apache-tomcat-10.0.12
           > - PATH=%CATALINA_HOME%\bin
           >
@@ -217,7 +214,7 @@
           > ![image-20250719185605645](./assets/image-20250719185605645.png)
           >
           > 停止服务器输入命令：`shutdown.bat`，注意要带上脚本后缀，否则就和操作系统的关机`shutdown`命令冲突了。
-  
+    
           > **解决Tomcat服务器在DOS命令窗口中的乱码问题（控制台乱码）**：
           >
           > 将`CATALINA_HOME/conf/logging.properties`文件中的内容修改如下：
@@ -225,9 +222,9 @@
           > ```properties
           > java.util.logging.ConsoleHandler.encoding = GBK
           > ```
-  
+    
        3. 在Tomcat的webapps下新建目录：firstapp
-  
+    
           > firstapp
           >
           > ​     |------WEB-INF
@@ -250,14 +247,14 @@
           >
           >       ```xml
           >       <?xml version="1.0" encoding="UTF-8"?>
-          >       
+          >                         
           >       <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
           >                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           >                xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
           >                               https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
           >                version="5.0"
           >                metadata-complete="true">
-          >       
+          >                         
           >           <!--servlet描述信息-->
           >           <!--任何一个servlet都对应一个servlet-mapping -->
           >           <servlet>
@@ -265,7 +262,7 @@
           >               <!--这个位置必须是带有包名的全限定类名-->
           >               <servlet-class>com.bjpowernode.servlet.HelloServlet</servlet-class>
           >           </servlet>
-          >       
+          >                         
           >           <!--servlet映射信息-->
           >           <servlet-mapping>
           >               <!--这个也是随便的，不过这里写的内容要和上面的一样。-->
@@ -273,16 +270,16 @@
           >               <!--这里需要一个路径-->
           >               <!--这个路径唯一的要求是必须以 / 开始-->
           >               <!--当前这个路径可以随便写-->
-          >               <url-pattern>/HelloServlet.index</url-pattern>
+          >               <url-pattern>/HelloServlet.index</url-pattern><!-- 可以有多个url-pattern标签 -->
           >           </servlet-mapping>
-          >       
+          >                         
           >       </web-app>
           >       ```
-  
+    
        4. 编写并编译一个java程序(必须实现Servlet接口)：
-  
+    
           > java源代码你愿意在哪里就在哪里，位置无所谓，你只需要将java源代码编译之后的class文件放到classes目录下即可。
-  
+    
           ```java
           package com.bjpowernode.servlet;
           
@@ -342,19 +339,19 @@
               }
           }
           ```
-  
+    
           > 重点：你怎么能让你的HelloServlet编译通过呢？需要将Tomcat的lib目录下的servlet-api.jar包放到CLASSPATH中，或者用以下命令编译Java文件：（否则编译报错，提示找不到Servlet接口）
           >
           > ```cmd
           > javac -cp ".;C:\dev\apache-tomcat-11.0.9\lib\servlet-api.jar" com.bjpowernode.servlet.HelloServlet.java
           > ```
-  
+    
        5. 在浏览器输入网址：http://localhost:8080/firstapp/HelloServlet.index。看到这样就说明第一个JavaWeb程序ok了：
-  
+    
           ![image-20250719192500711](./assets/image-20250719192500711.png)
-  
+    
        6. 可以在WEB-INF同级目录中放一个index.html：
-  
+    
           ```html
           <!DOCTYPE html>
           <html>
@@ -367,29 +364,29 @@
           </body>
           </html>
           ```
-  
+    
              > 然后在浏览器中输入：http://localhost:8080/firstapp/，效果应该是这样的：
              >
              > ![image-20250719192409640](./assets/image-20250719192409640.png)
              >
              > **乱码的问题后面我们再解决。**
-  
+    
     - ##### 使用集成工具IDEA开发一个JavaWeb应用
-
+    
        1. IDEA创建一个Java EE工程：
-  
+    
           ![1710848573909-ab55d9b1-849e-41db-82b8-2838cfe01cad](./assets/1710848573909-ab55d9b1-849e-41db-82b8-2838cfe01cad.png)
-  
+    
           ![1710848573909-ab55d9b1-849e-41db-82b8-2838cfe01pad](./assets/1710848573909-ab55d9b1-849e-41db-82b8-2838cfe01pad.png)
-
+    
           ![1710848573909-ab55d9b1-849e-41db-8128-2838cfe01cad](./assets/1710848573909-ab55d9b1-849e-41db-8128-2838cfe01cad.png)
-
+    
        2. 查看自动生成的Servlet：
-
+    
           ![1710848573909-abwed9b1-849e-41db-8128-2838cfe01cad.png](./assets/1710848573909-abwed9b1-849e-41db-8128-2838cfe01cad.png.png)
-
+    
        3. 查看自动生成web.xml文件，发现里面并没有给这个HelloServlet进行注册：
-
+    
           ```xml
            <?xml version="1.0" encoding="UTF-8"?>
           <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
@@ -417,7 +414,7 @@
           </body>
           </html>
           ```
-  
+    
           > 这里先不用纠结什么是JSP，后面会讲。目前就把他当作HTML文件来看待就行了。
     5. 编辑下Tomcat服务器，将项目名改为firstapp：
        
@@ -428,7 +425,7 @@
     6. 启动Tomcat服务器，浏览器输入地址：http://localhost:8080/firstapp/
        
        ![1710848573988-ab55d9b1-849e-41db-8128-2838cfe01cad](./assets/1710848573988-ab55d9b1-849e-41db-8128-2838cfe01cad.png)
-  
+    
   - #### 关于互联网中（应用层）的HTTP协议
   
     > - 互联网中的HTTP协议是W3C制定的一种**超文本传输协议**。简单来说就是，浏览器向服务器之间传输的数据要遵循一套标准，这套标准中规定了数据传输的具体格式。
@@ -438,20 +435,16 @@
     > - HTTP协议包括： 
     >
     >   - 请求协议：浏览器  向  服务器请求数据的时候，这个数据需要遵循一套标准，这套标准中规定了发送数据的具体格式。
-    >   
-    >   
-    >     - 响应协议：服务器  向  浏览器响应数据的时候，这个数据需要遵循一套标准，这套标准中规定了发送数据的具体格式。
-    >   
-    >
+    >   - 响应协议：服务器  向  浏览器响应数据的时候，这个数据需要遵循一套标准，这套标准中规定了发送数据的具体格式。
     >
     > - HTTP协议是基于TCP的面向链接的**无状态**协议。即每次请求-响应之间都是独立的，彼此不能共享数据。
-  
+    
     - ##### HTTP的请求协议（B --> S）
-  
+    
       > HTTP的请求协议包括4部分：请求行、请求头、空白行、请求体
   
       > GET请求的报文示例：
-    
+  
       ```http
       GET /servlet05/getServlet?username=lucy&userpwd=1111 HTTP/1.1                       请求行
       Host: localhost:8080                                                                请求头
@@ -472,7 +465,7 @@
                                                                                           空白行
                                                                                           请求体
       ```
-  
+    
       > POST请求的报文示例：
     
       ```http
@@ -499,21 +492,21 @@
                                                                                         空白行
       username=lisi&userpwd=123                                                         请求体
       ```
-  
+    
       ###### 关于HTTP请求协议：
-  
+    
       - 请求行：包括3部分
   
         - 请求方式：共8种。get（常用）、post（常用）、delete、put、head、options、trace、patch
   
         - URI（统一资源标识符）：代表网络中某个资源的名字。但是通过URI是无法定位资源的。
-    
+  
           > - **URL**：统一资源定位符。指向网络中某个资源的地址，可以通过网络定位到该资源，是网络中的绝对路径。通常由`协议名://` + `ip或域名:` + `端口号` + `/URI`组成。
           > - **URI：**统一资源标识符，指向网络中某个资源。但是通过URI无法直接定位该资源，它只是资源在某台服务器上的唯一标识。
           > - **URI和URL的关系**：URL包括URI，`http://localhost:8080/servlet05/index.html`这是URL，`/servlet05/index.html`是该URL服务器的URI。
-  
+    
         - HTTP协议版本号。HTTP协议版本号目前都是`HTTP/1.1`。相对于最初的`HTTP/1.0`，它增加了`Connection: keep-alive`字段，默认是持久连接的，可以提高网络利用率。只要客户端和服务端任意一端没有明确的断开TCP连接，就可以发送多次HTTP请求，不需要重新建立连接。（每次都建立链接耗费资源）
-  
+    
       - 请求头：是`key: value`的键值对，用于标识请求的各种信息，浏览器根据该信息来解析请求。请求头中常见的信息有：请求的主机、主机的端口、浏览器信息、平台信息、cookie等信息....
   
       - 空白行：空白行是用来区分“请求头”和“请求体”的。
@@ -527,7 +520,7 @@
       > HTTP的响应协议包括4部分：状态行、响应头、空白行、响应体
   
       > HTTP响应协议的报文示例：
-    
+  
       ```http
       HTTP/1.1 200 ok                                     状态行
       Content-Type: text/html;charset=UTF-8               响应头
@@ -546,15 +539,15 @@
           </body>
       </html>
       ```
-  
+    
       ###### 关于HTTP响应协议：
-  
+    
       1. 状态行：包括3部分
   
          - HTTP协议版本号（HTTP/1.1）
   
          - 响应状态码。HTTP协议中规定的响应状态号，不同的响应结果对应不同的号码，分别代表了不同的涵义。
-    
+  
            > 状态码由100---599之间的数字组成，分为5个大类：
            >
            > - 1XX：最有特征100，通知浏览器本次返回的资源文件并不是一个独立的资源文件，需要浏览器在接收响应包之后，继续向Http服务器所要依赖的其他资源文件。
@@ -568,18 +561,19 @@
            > - 4XX：最有特征404，通知浏览器，由于在服务端没有定位到被访问的资源文件，因此无法提供帮助。通常表示意味着请求的URL不对。
            >
            >   > - 400：表示前端提交的数据格式有问题，和后端要求的数据格式对不上。
+           >   > - 403：HTTP 403 Forbidden（禁止）状态码表示服务器理解客户端的请求，但拒绝执行该请求（没权限）。
            >   > - 405：通知浏览器，在服务端已经定位到被访问的资源文件（Servlet），但是浏览器采用的请求方式不对导致访问失败，应当采用其他的方式请求这个资源（如post方式）。
            >
            > - 5XX：最具有特征500，通知浏览器，在服务端已经定位到被访问的资源文件，但是服务器在处理这个资源的过程中发生了异常，导致响应失败。属于服务器内部错误。
-  
+    
          - 响应状态码对应的字符串描述
-  
+    
       2. 响应头：是`key: value`的键值对，用于标识响应的各种信息，浏览器根据该信息来解析响应内容。响应头中常见的信息有：响应的内容类型、响应的内容长度、响应的时间....
-  
+    
       3. 空白行：空白行是用来区分“响应头”和“响应体”的。
-  
+    
       4. 响应体：存放服务器响应给浏览器的具体内容，这些内容是一个长的字符串，这个字符串被浏览器渲染，解释并执行，最终展示出效果。
-  
+    
     - ##### GET请求和POST请求有什么区别？
     
       > - GET请求在“**请求行**”上发送数据。GET请求发送数据的时候，数据会挂在URI的后面，并且在URI后面添加一个“?”，"?"后面是数据。这样会导致发送的数据显示浏览器的地址栏上，因此安全性差一点：http://localhost:8080/servlet05/getServlet?username=zhangsan&userpwd=1111。（虽然会进行简单的URI转码，但本质上是格式转换，目的是将非ASCII字符进行替换，避免在传输过程中产生歧义或错误，安全性还是无法保证）
