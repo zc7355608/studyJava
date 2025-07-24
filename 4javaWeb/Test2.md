@@ -152,6 +152,41 @@
       >
       > 什么时候用destroy方法呢？通常我们在destroy方法中对资源进行关闭、信息的保存等等。
 
+  - #### 关于`DefaultServlet`
+
+    > - 其实Tomcat服务器启动时会默认创建一个`DefaultServlet`实例，它的`url-pattern`是`/`，通常用于兜底。一般所有的静态资源我们都不会在url-pattern中进行配置，它可以帮忙处理所有的静态资源（除了jsp），被称为默认的Servlet。
+    > - 当用户发起一个请求后，Tomcat会拿着URL前去一一匹配，当配置的所有url-pattern都匹配不上时，就会转给 `DefaultServlet` 默认的Servlet去处理该url。
+    > - 并且由于Tomcat全局配置文件中，默认配置了一个专门处理JSP的Servlet（JspServlet），它的url-pattern是`*.jsp`和`*.jspx`。并且 Servlet 的 URL Pattern 匹配优先级规则遵循**精确路径匹配**、**最长路径前缀匹配**。因此有处理JSP资源的Servlet，所以JSP不会交给`DefaultServlet`去处理。（在全局配置`web.xml`中查看）
+    >
+    > **注意**：关于`url-pattern`的设置。
+    >
+    > 1. 当设置为`/*`时：可以处理所有的请求。
+    > 2. 当设置为`/`时：可以处理所有的静态资源（除了jsp文件）。
+    > 3. 当设置为`*.html`时：可以处理所有的html资源。
+    > 4. 当设置为`/a/c/*`时：可以处理所有以`/a/c/`开头的URL，如：`/a/c/test`、`/a/c/user/list`...
+    >
+    > 当设置了模糊匹配后，要注意URL Pattern 的匹配优先级。
+
+    > **思考**：DefaultServlet做了什么？
+    >
+    > 1. 它首先会对路径做解析以及合法性检查。
+    >
+    >    ```java
+    >    // 检查请求路径是否合法
+    >    String path = getRelativePath(request);
+    >    if (path.endsWith("/")) {
+    >        // 处理目录请求
+    >        serveDirectory(...);
+    >    } else {
+    >        // 处理文件请求
+    >        serveResource(...);
+    >    }
+    >    ```
+    >
+    > 2. 然后将 URL 路径转换为服务器文件系统路径，检查该文件是否存在。（不会检查 WEB-INF 或 META-INF 目录）
+    >
+    > 3. 如果该文件存在，则通过io流读取该文件放在HttpServletResponse上，并为其设置合适的响应头；不存在则返回404。
+
   - #### GenericServlet
 
     > 我们编写一个Servlet类直接实现Servlet接口有一个缺点，我们只需要用到service方法，其他方法大部分情况下是不需要实现的，直接实现Servlet接口每次都要重写很多不需要的方法，能不能优化一下？
@@ -291,7 +326,11 @@
       > **总结**：
       >
       > - GenericServlet就是一个Servlet的包装。Servlet只是一个接口，里面啥也没有；而GenericServlet可以给你获取到该Servlet的配置信息，因此更通用。
-      > - 但是我们在JavaWeb开发中，一般并不会直接继承GenericServlet，而是去继承GenericServlet的子类`HttpServlet`，它更适合Web应用的开发（后面会讲`HttpServlet`）。
+      > - 我们编写Servlet类的时候，实际上是不会去直接继承GenericServlet类的，因为我们是B/S结构的系统，这种系统是基于HTTP超文本传输协议的。在Servlet规范当中，提供了一个类叫做`jakarta.servlet.http.HttpServlet`，它是`GenericServlet`的子类，是专门为HTTP协议准备的一个Servlet类。我们编写的Servlet类要继承HttpServlet。HttpServlet是为HTTP协议专门准备的，使用HttpServlet处理HTTP协议更便捷。它们之间的继承关系是：
+      >
+      >   - jakarta.servlet.Servlet（接口）【爷爷】
+      >   - jakarta.servlet.GenericServlet implements Servlet（抽象类）【儿子】
+      >   - jakarta.servlet.http.HttpServlet extends GenericServlet（抽象类）【孙子】
 
     - ##### `ServletConfig`接口中的方法：
 
@@ -370,17 +409,238 @@
 
   - #### HttpServlet
 
-    > 我们编写Servlet类的时候，实际上是不会去直接继承GenericServlet类的，因为我们是B/S结构的系统，这种系统是基于HTTP超文本传输协议的。
+    > - `jakarta.servlet.http.HttpServlet`类是专门为HTTP协议准备的。比GenericServlet更加适合HTTP协议下的开发。
     >
-    > 在Servlet规范当中，提供了一个类叫做`jakarta.servlet.http.HttpServlet`，它是`GenericServlet`的子类，是专门为HTTP协议准备的一个Servlet类。我们编写的Servlet类要继承HttpServlet。HttpServlet是为HTTP协议专门准备的，使用HttpServlet处理HTTP协议更便捷。
+    > - http包下都有哪些类和接口呢？（`jakarta.servlet.http.*`）
     >
-    > 它们之间的继承关系是：
+    >   - jakarta.servlet.http.HttpServlet （HTTP协议专用的Servlet类，抽象类）
     >
-    > - jakarta.servlet.Servlet（接口）【爷爷】
-    > - jakarta.servlet.GenericServlet implements Servlet（抽象类）【儿子】
-    > - jakarta.servlet.http.HttpServlet extends GenericServlet（抽象类）【孙子】
+    >   - jakarta.servlet.http.HttpServletRequest （HTTP协议专用的请求对象）
+    >
+    >   - jakarta.servlet.http.HttpServletResponse （HTTP协议专用的响应对象）
+    >
+    > - HttpServletRequest对象（简称request对象）中封装了什么信息？ 
+    >
+    >   - HttpServletRequest中封装了HTTP请求的全部内容。
+    >
+    >   - Tomcat服务器（WEB服务器）将“请求协议”中的数据全部解析出来，然后将这些数据全部封装到request对象当中了。也就是说，我们只要拿到HttpServletRequest，就可以获取请求协议中的数据。
+    >
+    > - HttpServletResponse对象是专门用来封装HTTP响应协议的。Tomcat最终会将我们返回的HttpServletResponse对象中的内容转换成HTTP响应报文然后返回给客户端。
 
-  - #### HttpServletRequest接口详解
+    - ##### HttpServlet源码分析：
+
+      ```java
+      public class HelloServlet extends HttpServlet {
+      	// 用户第一次请求，创建HelloServlet对象的时候，会执行这个无参数构造方法。
+      	public HelloServlet() {
+          }
+          
+      }
+      
+      public abstract class GenericServlet implements Servlet, ServletConfig,
+              java.io.Serializable {
+                 
+      	/* 用户第一次请求的时候，HelloServlet对象第一次被创建之后，因为HelloServlet
+             没有init方法，HttpServlet也没有，所以执行GenericServlet的init有参构造.。  */
+          public void init(ServletConfig config) throws ServletException {
+              this.config = config;
+              this.init();
+          }
+      	// 用户第一次请求的时候，带有参数的init(ServletConfig config)执行之后，会执行这个没有参数的init()
+      	public void init() throws ServletException {
+              // NOOP by default
+          }
+      }
+      
+      // HttpServlet模板类。
+      public abstract class HttpServlet extends GenericServlet {
+          // 用户发送第一次请求的时候这个service会执行(HelloServlet没有service,执行Httpservlet的)
+          // 用户发送第N次请求的时候，这个service方法还是会执行。
+          // 用户只要发送一次请求，这个service方法就会执行一次。
+          @Override
+          public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
+              HttpServletRequest request;
+              HttpServletResponse response;
+              try {
+                  request = (HttpServletRequest) req;
+                  response = (HttpServletResponse) res;
+              } catch (ClassCastException e) {
+                  throw new ServletException(lStrings.getString("http.non_http"));
+              }
+              service(request, response);
+          }
+      
+          // 这个service方法的两个参数都是带有Http的。
+          // 这个service是一个模板方法。
+          // 在该方法中定义核心算法骨架，具体的实现步骤延迟到子类中去完成。
+      
+      	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+      		// 获取请求方式
+              	// 这个请求方式最终可能是：""
+              	// 注意：request.getMethod()方法获取的是请求方式，可能是八种之一：
+              	// GET POST PUT DELETE HEAD OPTIONS TRACE PATCH
+              String method = req.getMethod();
+              switch (method) {
+      			// 如果请求方式是GET请求，则执行doGet方法。
+                  case METHOD_GET -> {
+                      long lastModified = getLastModified(req);
+                      if (lastModified == -1) {
+                          // servlet doesn't support if-modified-since, no reason
+                          // to go through further expensive logic
+                          doGet(req, resp);
+                      } else {
+                          long ifModifiedSince;
+                          try {
+                              ifModifiedSince = req.getDateHeader(HEADER_IFMODSINCE);
+                          } catch (IllegalArgumentException iae) {
+                              // Invalid date header - proceed as if none was set
+                              ifModifiedSince = -1;
+                          }
+                          if (ifModifiedSince < (lastModified / 1000 * 1000)) {
+                              // If the servlet mod time is later, call doGet()
+                              // Round down to the nearest second for a proper compare
+                              // A ifModifiedSince of -1 will always be less
+                              maybeSetLastModified(resp, lastModified);
+                              doGet(req, resp);
+                          } else {
+                              resp.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+                          }
+                      }
+      
+                  }
+                  case METHOD_HEAD -> {
+                      long lastModified = getLastModified(req);
+                      maybeSetLastModified(resp, lastModified);
+                      doHead(req, resp);
+      
+                  }
+      			// 如果请求方式是POST请求，则执行doPost方法。
+                  case METHOD_POST -> doPost(req, resp);
+                  case METHOD_PUT -> doPut(req, resp);
+                  case METHOD_DELETE -> doDelete(req, resp);
+                  case METHOD_OPTIONS -> doOptions(req, resp);
+                  case METHOD_TRACE -> doTrace(req, resp);
+                  case METHOD_PATCH -> doPatch(req, resp);
+                  default -> {
+                      //
+                      // Note that this means NO servlet supports whatever
+                      // method was requested, anywhere on this server.
+                      //
+      
+                      String errMsg = lStrings.getString("http.method_not_implemented");
+                      Object[] errArgs = new Object[1];
+                      errArgs[0] = method;
+                      errMsg = MessageFormat.format(errMsg, errArgs);
+      
+                      resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, errMsg);
+                  }
+              }
+          }
+          
+          /*子类没有重写doGet就会走父类的，报405错误*/
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+              throws ServletException, IOException{
+              // 报405错误
+              String msg = lStrings.getString("http.method_get_not_supported");
+              sendMethodNotAllowed(req, resp, msg);
+          }
+              /*子类没有重写doPost就会走父类的，报405错误*/
+          protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+              throws ServletException, IOException {
+              // 报405错误
+              String msg = lStrings.getString("http.method_post_not_supported");
+              sendMethodNotAllowed(req, resp, msg);
+          }
+          
+      }
+      /*
+      通过以上源代码分析：
+      	假设前端发送的请求是get请求，后端程序员重写的方法是doPost
+      	假设前端发送的请求是post请求，后端程序员重写的方法是doGet
+      	会发生什么呢？
+      		发生405这样的一个错误。
+      		405表示前端的错误，发送的请求方式不对。和服务器不一致。不是服务器需要的请求方式。
+      	
+      	通过以上源代码可以知道：只要HttpServlet类中的doGet方法或doPost方法执行了，必然405.
+      
+      怎么避免405的错误呢？
+      	后端重写了doGet方法，前端一定要发get请求。
+      	后端重写了doPost方法，前端一定要发post请求。
+      	这样可以避免405错误。
+      	
+      	这种前端到底需要发什么样的请求，其实应该后端说了算。后端让发什么方式，前端就得发什么方式。
+      */
+      ```
+
+      > - 我们编写的HelloServlet直接继承HttpServlet，直接重写HttpServlet类中的service()方法行吗？
+      >
+      > - 可以，只不过你享受不到405错误。享受不到HTTP协议专属的东西。
+      >
+      > 到今天我们终于得到了最终的一个Servlet类的开发步骤：
+      >
+      > 1. 编写一个Servlet类，直接继承HttpServlet。
+      > 2. 重写doGet方法或者重写doPost方法，到底重写谁，javaweb程序员说了算。
+      > 3. 将Servlet类配置到web.xml文件当中。
+      > 4. 准备前端的页面（form表单），form表单中指定请求路径即可。
+
+      > **思考**：
+      >
+      > 你有没有发现：HttpServlet抽象类中没有抽象方法，那么HttpServlet为什么要设置成抽象类呢？
+      >
+      > 因为HttpServlet生来就是要被继承的。如果HttpServlet不设置为抽象类，那么就可以new出其实例，但这个实例内部的方法（如doGet()、doPost()）并没有任何实现（具体的业务逻辑代码只有开发者知道怎么写），所以new出来的这个实例是没有意义的。
+      >
+      > 如果有这样的一个实例，它不能做任何事情，那么将其设置为抽象类是优雅的做法。
+
+    - ##### 欢迎资源文件：
+
+      > 什么是一个web站点的欢迎界面？
+      >
+      > 对于一个webapp来说，我们是可以设置它的欢迎页面的，设置了欢迎页面之后，当你访问这个webapp的时候，或者访问这个web站点的时候，没有指定下面的任何“资源路径”，这个时候会默认访问你的欢迎页面。
+      >
+      > 我们一般的访问方式是：http://localhost:8080/web01/login.html，这种方式就是指定了具体要访问的资源，访问的是web01项目中的login.html。如果我们访问的方式是：http://localhost:8080/web01，只说了要访问你的web01项目，没有指定具体是哪个资源，那么服务器默认会返回给用户哪个资源呢？默认会返回给你网站的首页（欢迎页）。
+      >
+      > 怎么设置网站的首页（欢迎页）呢？
+      >
+      > 需要在`web.xml`中进行配置：
+      >
+      > ```xml
+      > <web-app ...>
+      >     ...
+      >     <welcome-file-list>
+      >         <welcome-file>a/b/c/login1.html</welcome-file>
+      >         <welcome-file>x/y/z/login2.html</welcome-file>
+      >         ...
+      >         <!-- 一个webapp是可以设置多个欢迎页面的，越靠上优先级越高，找不到就向下找 -->
+      >     </welcome-file-list>
+      >     ...
+      > </web-app>
+      > ```
+      >
+      > **注意**：资源路径的开头不能带`/`，只能用相对路径，服务器是从项目根目录下开始找该资源的（WEB-INF同级目录）。
+      >
+      > ###### 欢迎页也可以是一个Servlet的url-pattern。说白了欢迎页就是一个资源的路径，可以是静态资源也可以是动态资源。
+
+      > 你有没有注意到一件事：
+      >
+      > 如果webapp下有一个`index.html`，那么该文件不需要在web.xml中进行配置就已经是欢迎页了，为什么？
+      >
+      > 因为Tomcat服务器的全局配置文件中（`CATALINA_HOME/conf/web.xml`）已经做了默认配置了：
+      >
+      > ```xml
+      > <welcome-file-list>
+      >     <welcome-file>index.html</welcome-file>
+      >     <welcome-file>index.htm</welcome-file>
+      >     <welcome-file>index.jsp</welcome-file>
+      > </welcome-file-list>
+      > ```
+
+    - ##### 关于WEB-INF目录：
+
+      > 你有没有发现，如果将一个静态资源`welcome.html`放在了WEB-INF目录中，此时打开浏览器输入：http://localhost:8080/firstapp/WEB-INF/welcome.html，会出现404，找不到这个资源。这是为什么呢？
+      >
+      > 其实这是因为：**放在WEB-INF目录下的资源是受保护的**。用户不能通过路径直接访问`WEB-INF`目录下的资源。所以像HTML、CSS、JS、image等静态资源一定要放到WEB-INF目录之外。
+
+  - #### HttpServletRequest接口
 
     - 常用的方法
       - 获取用户提交的数据

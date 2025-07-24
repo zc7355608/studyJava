@@ -35,13 +35,13 @@
   - **MANAGED（默认）**：交给第三方容器（如Spring）来管理事务，MyBatis不管了。此时如果没有第三方来管理，那么事务就处于没人管的状态，默认**执行一条DML语句就提交一次**。（注意：如果你正在使用 Spring + MyBatis，则没有必要配置事务管理器，因为Spring会使用自带的事务管理器来覆盖Mybatis中的配置）
   
 - `<dataSource>`指定该数据库环境使用的**数据源**，也就是连接数据库的信息，type属性的可选值3个（根据不同的值，内部的property标签可以写不同的name属性，通常都有`driver`、`url`、`username`、`password`）：
-    
+  
   - **UNPOOLED**：不使用数据库连接池技术，每一次openSession()都创建一个新的Connection连接对象
   - **POOLED**：使用mybatis自己的数据库连接池（数据源），openSession()是从数据源中获取链接，关闭时将连接还给数据源而不是关闭
     - **JNDI**：使用第三方web容器中的数据库连接池，当然只有web项目中才可以设置为JNDI；这种方式给了我们可以使用第三方连接池的接口。如果想使用dbcp、c3p0、druid（德鲁伊）等，需要使用这种方式
   
     - `<dataSource>`内部的`<property>`标签通过name和value属性来进行**数据库连接池**的配置
-    
+  
 - `<mappers>`在mappers标签中可以配置多个sql映射文件（Mapper文件）的路径。
 
   - `<mapper>`标签通过配置不同的属性，来引入某个Mapper文件。

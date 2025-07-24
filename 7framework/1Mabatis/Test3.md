@@ -31,9 +31,9 @@
 
 ### MyBatis查询专题
 
-- 我们之前用`sqlSession.select()`方法查询时，返回的结果可以用**pojo类**、**List<T>集合**来接收；但如果没有合适的pojo类，可以用**Map集合**来接收单个数据，字段名作map的key(String)，值做map的value，一个map对应一条查询结果；如果有多条结果可以用List<Map>来接收。
+- 我们之前用`sqlSession.select()`方法查询时，返回的结果可以用**pojo类**、**`List<T>`集合**来接收；但如果没有合适的pojo类，可以用**Map集合**来接收单个数据，字段名作map的key(String)，值做map的value，一个map对应一条查询结果；如果有多条结果可以用`List<Map>`来接收。
 
-- 当我们用List<Map>来接收多条数据时，取数据不方便，此时也可以用大Map<K,Map>，key是数据的描述信息，Map是数据；通常会将查询结果的主键当作大Map的key，如：
+- 当我们用`List<Map>`来接收多条数据时，取数据不方便，此时也可以用大`Map<K,Map>`，key是数据的描述信息，Map是数据；通常会将查询结果的主键当作大Map的key，如：
 
   ```java
   //通过注解，将结果集字段id的值，作为整个大map的key
@@ -87,7 +87,7 @@
 
 ##### 有的业务场景，也需要SQL语句能够进行动态拼接，为了让sql语句更加灵活，Mybatis提供了很多标签：
 
-- <if>标签：
+- `<if>`标签：
 
   ```xml
   <select id="selectByMultiCondition" resultType="car">
@@ -110,7 +110,7 @@
   > 2. test属性中的关键字，要和下方#{}中的关键字保持一致
   > 3. 在xml中，“且”只能用and来表示，&是特殊字符
 
-- <where>标签：它的作用是让where子句更加动态智能；当where标签中有内容时，会自动生成where关键字，并且会自动去除内容**前面**多余的and或or
+- `<where>`标签：它的作用是让where子句更加动态智能；当where标签中有内容时，会自动生成where关键字，并且会自动去除内容**前面**多余的and或or
 
   ```xml
   <select id="selectByMultiCondition" resultType="car">
@@ -129,7 +129,7 @@
   </select>
   ```
 
-- <trim>标签：给标签里的内容加上或去除前缀；trim标签有四个属性，prefix加前缀，suffix加后缀，prefixOverrides删除前缀，suffixOverrides删除后缀：（这些都是在整个trim块的前后操作的，并且和where一样，标签内没内容就没效果）
+- `<trim>`标签：给标签里的内容加上或去除前缀；trim标签有四个属性，prefix加前缀，suffix加后缀，prefixOverrides删除前缀，suffixOverrides删除后缀：（这些都是在整个trim块的前后操作的，并且和where一样，标签内没内容就没效果）
 
   ```xml
   <select id="selectByMultiCondition" resultType="car">
@@ -149,7 +149,7 @@
   </select>
   ```
 
-- <set>标签：主要使用在update语句当中，用来生成set关键字，同时去掉**最后**多余的逗号
+- `<set>`标签：主要使用在update语句当中，用来生成set关键字，同时去掉**最后**多余的逗号
 
   ```xml
   <update id="updateWithSet">
@@ -165,7 +165,7 @@
   </update>
   ```
 
-- <choose>、<when>、<ohterwise>标签：这三个标签是在一起使用的，类似于if else，比多个<if>标签更方便，只有一个分支会被选择。<when>最少出现1次，<ohterwise>最多出现1次
+- `<choose>、<when>、<ohterwise>`标签：这三个标签是在一起使用的，类似于if else，比多个`<if>`标签更方便，只有一个分支会被选择。`<when>`最少出现1次，`<ohterwise>`最多出现1次
 
   ```xml
   <select id="selectWithChoose" resultType="car">
@@ -186,7 +186,7 @@
   </select>
   ```
 
-- <foreach>标签：循环遍历数组或集合，动态生成sql，比如这样的SQL：
+- `<foreach>`标签：循环遍历数组或集合，动态生成sql，比如这样的SQL：
 
   ```sql
   # 批量删除
@@ -216,7 +216,7 @@
   </delete>
   ```
 
-- <sql>和<include>标签：sql标签用来声明sql片段，include标签用来将声明的sql片段包含到某个sql语句当中；作用是代码复用，易维护。
+- `<sql>`和`<include>`标签：sql标签用来声明sql片段，include标签用来将声明的sql片段包含到某个sql语句当中；作用是代码复用，易维护。
 
   ```xml
   <sql id="carCols">id,car_num carNum,brand,guide_price guidePrice,produce_time produceTime,car_type carType</sql>
@@ -365,7 +365,7 @@
 
      > 怎么开启懒加载：
      >
-     > 在第一步的<association>标签中加属性**fetchType="lazy"**。这是局部的懒加载，全局的在mybatis核心配置文件中开启：
+     > 在第一步的`<association>`标签中加属性**fetchType="lazy"**。这是局部的懒加载，全局的在mybatis核心配置文件中开启：
      >
      > ```xml
      > <!-- 全局设置标签 -->
@@ -374,7 +374,7 @@
      > </settings>
      > ```
      >
-     > 通常都会开启全局懒加载，如果某个地方不希望懒加载，可以在<association>标签中加属性**fetchType="eager"**
+     > 通常都会开启全局懒加载，如果某个地方不希望懒加载，可以在`<association>`标签中加属性**fetchType="eager"**
 
 - ##### 当班级表为主表时（一对多）：
 
