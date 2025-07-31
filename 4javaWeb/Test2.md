@@ -88,43 +88,21 @@
 
     - 在手动配置情况下，要求服务器在启动时自动创建某个Servlet实例：
 
-      - 基于XML：
+      ```xml
+      <servlet>
+      	<servlet-name>hello</servlet-name>
+      	<servlet-class>com.bjpowernode.controller.OneServlet</servlet-class>
+      	<!-- 填写一个大于0的整数即可 -->
+      	<load-on-startup>30<load-on-startup>
+      </servlet>
+      
+      <servlet-mapping>
+      	<servlet-name>hello</servlet-name>
+      	<url-pattern>/newhello</url-pattern> <!-- urlPattern必须以"/"为开头 -->
+      </servlet-mapping>
+      ```
 
-        ```xml
-        <servlet>
-        	<servlet-name>hello</servlet-name>
-        	<servlet-class>com.bjpowernode.controller.OneServlet</servlet-class>
-        	<!-- 填写一个大于0的整数即可 -->
-        	<load-on-startup>30<load-on-startup>
-        </servlet>
-
-        <servlet-mapping>
-        	<servlet-name>hello</servlet-name>
-        	<url-pattern>/newhello</url-pattern> <!-- urlPattern必须以"/"为开头 -->
-        </servlet-mapping>
-        ```
-
-        > `load-on-startup`的值是一个非负整数，整数越小创建的优先级越高。创建Servlet的顺序是按照这个优先级来的，默认-1不创建。（优先级一样的话按照在web.xml文件中注册的顺序）
-
-      - 基于注解：
-
-        ```java
-        @WebServlet("/newhello")
-        public class HelloServlet implements Servlet {}
-        ```
-
-        > **关于注解`jakarta.servlet.annotation.WebServlet`注解**：
-        >
-        > `@WebServlet`注解只能在Servlet类上使用，该注解中有以下属性：
-        >
-        > - name属性：用来指定Servlet的名字。等同于：`<servlet-name>`
-        > - urlPatterns/value属性：用来指定Servlet的映射路径。可以指定多个字符串。等同于：`<url-pattern>`
-        > - loadOnStartUp属性：用来指定在服务器启动阶段是否加载该Servlet。等同于：`<load-on-startup>`
-        >
-        > ```java
-        > @WebServlet("/wel")
-        > public class WelcomeServlet extends HttpServlet {}
-        > ```
+      > `load-on-startup`的值是一个非负整数，整数越小创建的优先级越高。创建Servlet的顺序是按照这个优先级来的，默认-1不创建。（优先级一样的话按照在web.xml文件中注册的顺序）
 
     - 关于Servlet类中方法的调用次数？
 
@@ -640,27 +618,229 @@
       >
       > 其实这是因为：**放在WEB-INF目录下的资源是受保护的**。用户不能通过路径直接访问`WEB-INF`目录下的资源。所以像HTML、CSS、JS、image等静态资源一定要放到WEB-INF目录之外。
 
-  - #### HttpServletRequest接口
+  - #### HttpServletRequest/HttpServletResponse接口
 
-    - 常用的方法
-      - 获取用户提交的数据
-      - HttpServletRequest接口的其他常用方法：
-    - 请求域对象request
-    - 请求转发
-    - 重定向
-      - 转发和重定向区别
+    > - `jakarta.servlet.http.HttpServletRequest`是一个接口，这个对象中封装了HTTP请求协议。它的父接口是ServletRequest（顶级父接口）。
+    > - 当用户发送过来HTTP请求，Tomcat服务器将HTTP请求协议中的信息及数据全部解析出来，然后将其封装到HttpServletRequest对象当中，作为`service()`方法的参数传给了我们javaweb程序员。javaweb程序员面向HttpServletRequest接口编程，调用方法就可以获取到请求的信息了。
+    > - 相对应的，`jakarta.servlet.http.HttpServletResponse`接口中封装了HTTP响应协议。
+    > - request和response这两个对象只在当前请求中有效。一次请求对应一个request，两次请求则对应两个request....
 
-  - #### session和cookie
+    - ##### `ServletRequest`接口中的方法：
 
-    - session
-    - cookie
+      > HttpServletRequest接口提供的方法可以让我们获取到HTT请求携带的数据（无论是请求体还是URL中携带的）。
+      >
+      > 我们先思考：如果是你，前端的form表单提交了数据之后，你准备采用什么样的数据结构去接收这些数据呢？
+      >
+      > - 前端提交的数据格式：协议ip端口号?username=abc&userpwd=123&aihao=t&aihao=d&aihao=tt
+      > - 因此用`Map<String, String>`来存储是再合适不过的了。但这样的话，key重复value会覆盖，如果有3个一样的key，你的value怎么存？这样存：`Map<String, String[]>`。
 
-  - #### 过滤器和监听器
+      - `Map<String,String[]> getParameterMap()`：获取Map
+      - `Enumeration<String> getParameterNames()`：这个是获取Map集合中所有的key
+      - `String[] getParameterValues(String name)`：这个是通过key获取value数组
+      - `String getParameter(String name)`：这个是通过key获取value数组中第一个元素（最常用）
 
-    - 过滤器
-    - Listener监听器
+      > 注意：前端表单提交数据的时候，假设提交了120这样的“数字”，其实是以字符串"120"的方式提交的，所以服务器端获取到的一定是一个字符串的"120"，而不是一个数字。（前端永远提交的是字符串，后端获取的也永远是字符串）
 
-- ## JSP
+      > 如果提交的数据是json字符串或者file文件怎么获取：
 
-- ## MVC架构模式
+      - `BufferedReader getReader()`：获取字符输入流，用于从请求体中读取字符数据。
+      - `ServletInputStream getInputStream()`：获取字节输入流，用于从请求体中读取字节数据。
+
+      > 我们知道，ServletContext上下文对象又被称为“应用域application”对象，放在它里面的数据其实就是放在服务器缓存中了，减少了IO流的操作，使用缓存机制是提高执行效率的重要手段，大大提高读取速度。但是要慎用，因为会一直占用JVM的堆内存。
+      >
+      > 而ServletContext里面有三个操作“应用域”的方法：`getAttriubute()、setAttribute()、removeAttribute()`，我们可以将一些几乎不修改、所有用户共享的、数据量很小的、这部分数据放在应用域里。
+      >
+      > 与之类似，ServletRequest对象又被称为“请求域”对象。请求域要比应用域范围小很多，生命周期短很多。请求域只在一次请求内有效。
+      >
+      > ServletRequest请求域对象中也有这三个方法：
+
+      - `Object getAttriubute(String)`：获取请求域中的数据。
+      - `void setAttribute(String, Object)`：往请求域中存数据。
+      - `void removeAttribute(String)`：从请求域中删数据。
+
+      > 请求域和应用域：
+      >
+      > ServletContext对象在服务器启动时创建，此时应用域就开启了，直到服务器被关闭，ServletContext对象才被销毁，应用域关闭。而实际开发中，服务器一般是不会关闭的。所以，应用域里面的东西很有可能一直存在，因此要谨慎使用。
+      >
+      > 一个ServletRequest请求对象对应一个请求域，一次请求结束之后，这个请求对象就被销毁了，对应的请求域也就没了。当用户发送请求的时候，ServletRequest对象创建，请求域开启；当下一条请求发送的时候，ServletRequest对象创建了一个新的，获取的也是新的ServletRequest对象和请求域，旧的对象和域就被销毁了。
+      >
+      > 相对于应用域，我们应该尽量使用范围更小的请求域，因为请求域占用资源少。
+
+      ###### `ServletRequest`接口中其他的常用方法：
+
+      - `String getRemoteAdder()`：用户浏览器的ip地址
+      - `int getRemotePort()`：用户浏览器的端口号
+      - `int getLocalPort()`：本地服务器的端口号
+      - `int getServerPort()`：用户请求的端口号
+      - `String getRemoteHost()`：获取浏览器的主机号，通常这个目前不怎么用了，获取ip用上面那个
+      - `String getScheme()`：请求的协议
+      - `String getProtocol()`：请求的协议及版本号
+      - `String getCharacterEncoding()`：获取请求头的字符集编码参数
+      - `int getContentLength()`：获取请求内容长度
+      - `String getContentType()`：获取请求体的内容类型（MIME类型）
+      - `void setCharacterEncoding(String env)`：设置解析请求体内容，所使用的解码方式
+
+    - ##### `HttpServletRequest`接口中的方法：
+
+      - `String getMethod()`：请求的方式
+      - `StringBuffer getRequestURL()`：请求的完整URL
+      - `String getRequestURI()`：完整URL去掉了协议ip端口
+      - `String getContextPath()`：获取应用的根路径（/项目名）。其实servletContext对象的`getContextPath`方法就是调用的这个方法。
+      - `String getServletPath()`：获取请求的urlPattern，不带项目名
+      - `String getHeader(String name)`：获取根据key请求头的value
+      - `Enumeration<String> getHeaders(String name)`：根据key获取**所有请求头的值**（因为HTTP允许同一个头名称有多个值，如 `Accept`、`Cookie` 等）。
+      - `Enumeration<String> getHeaderNames()`：获取所有请求头
+
+    - ##### `ServletResponse`接口中的方法：
+
+      - `ServletOutputStream getOutputStream()`：获取响应对象的二进制输出流
+      - `PrintWriter getWriter()`：获取响应对象的字符输出流
+      - `void setCharacterEncoding(String charset)`：设置响应的字符集
+      - `void setContentLength(int len)`：设置响应内容长度
+      - `void setContentType(String type)`：设置响应内容MIME类型
+
+    - ##### `HttpServletResponse`接口中的方法：
+
+      - `void setStatus(int code)`：设置响应状态码
+      - `void setHeader(String name, String value)`：设置响应头。通常用来设置Content-Type和Content-Length。由于这两个比较重要，所以单独在ServletResponse类中做成了俩方法。（`addHeader()`和这个差不多，只是不会覆盖已有的响应头）
+
+    - ##### 解决乱码：
+
+      - ###### POST请求乱码：
+
+        > `setCharacterEncoding`可以解决POST请求乱码问题，因为POST请求是在请求体中提交数据的。
+        >
+        > 在Tomcat9及以前，如果前端POST请求提交的数据是中文，后端获取就会出现乱码（因为Tomcat会用操作系统的默认编码去解码请求体），怎么解决呢？就用这个方法设置正确的解码方式就行了。
+        >
+        > Tomcat10之后，如果请求未指定 `Content-Type` 头，Tomcat 10 会尝试自动检测编码（倾向于 UTF-8）；如果 `Content-Type` 头包含 `charset`（例如 `application/x-www-form-urlencoded; charset=UTF-8`），Tomcat 会直接使用指定的字符集，无需手动设置。因此Tomcat10之后，POST请求不会出现乱码问题。
+
+      - ###### GET请求乱码：
+
+        > GET请求数据是在请求行上提交的，不是请求体。那么GET请求乱码怎么解决呢？
+        >
+        > 首先我用GET请求发送了一些中文数据，然后使用Tomcat9发现没有乱码问题，而Tomcat8会乱码。通过查看`CATALINA_HOME/conf/server.xml`文件发现，它们的配置不同：`<Connector URIEncoding="UTF-8" />`。
+        >
+        > **注意**：从Tomcat8之后，URIEncoding的默认值就是UTF-8，所以GET请求也没有乱码问题。URIEncoding就是设置浏览器地址栏中URL的字符集的，我们并不严格区分URL和URI。
+
+      - ###### 响应乱码：
+
+        > `response.print()`响应中文字符时也会出现乱码，怎么解决？
+        >
+        > ```java
+        > response.setContentType("text/html;charset=UTF-8");
+        > ```
+        >
+        > 响应前，先用上面代码设置下响应头，给出响应内容采用的字符编码，就可以了。
+        >
+        > **注意**：不推荐用`response.setCharacterEncoding()`设置我们响应内容采用的字符集，因为如果前端换环境了，还是会乱码。正确的方式就是通过`Content-Type`响应体告诉浏览器，响应内容的字符集是什么就行了。
+        >
+        > **建议**：响应时，先显式的通过`setCharacterEncoding`设置自己响应内容所采用的编码方式，然后再`setContentType`告诉用户浏览器内容所采用的编码方式是什么。
+
+    - ##### 请求转发
+
+      > 当用户发送HTTP请求了某个资源，此时会有对应的Servlet去处理该资源。如果这个Servlet处理不了用户的请求（超出了自己的能力范围），能不能将这个请求转发给其他的Servlet去处理呢？当然可以！这就是请求转发。
+      >
+      > 请求转发是由Tomcat服务器内部来控制的。A Servlet将HTTP请求转发给B Servlet，这个转发动作是Tomcat服务器内部完成的。
+      >
+      > 转发的下一个资源必须是一个Servlet吗？不一定，只要是Tomcat服务器当中的合法资源，都是可以转发的。例如：html....
+      >
+      > （注意：转发的时候，路径的写法要注意，转发的路径以`/`开始，不加项目名）
+
+      - 使用`Dispatcher`完成请求转发（转发器/调度器）：
+
+        1. 通过`ServletRequest`对象获取请求转发器对象：`RequestDispatcher dispatcher = servletRequest.getRequestDispatcher("/b");`
+
+           > 注意：
+           >
+           > - 如果参数是相对路径，它会以当前请求的路径进行转发。如果请求的是 http://localhost:8080/oa/servlet1 ，则`servletRequest.getRequestDispatcher("./b")`转发后路径为：http://localhost:8080/oa/b
+           > - 如果参数是以`/`开头的绝对路径，那么路径可以只给“url-pattern”，不用加项目名。
+
+        2. 调用转发器的forward方法完成转发：`dispatcher.forward(request,response);`
+
+           > 注意：转发还是一次HTTP请求，它会将当前的request和response对象传递给下一个Servlet。这样就可以做到两个Servlet对象共享同一个请求域中的数据。
+
+      - 转发的刷新问题：
+
+        > 当用户发送POST请求，服务器接收数据并返回结果页，此时用户浏览器上的URL还是旧的地址。因此如果用户点击刷新重新发起POST请求，就又重新提交了一次数据。如果服务器没有进行限制，那么数据库中就存在了2条一样的记录。
+
+    - ##### 重定向
+
+      > 重定向是，浏览器发送HTTP请求，服务器收到后响应给浏览器一个特殊的HTTP响应报文（通常状态码是301或302，并且响应头带有Location标识新的请求URL，响应体为空），来通知浏览器重新发起新的请求。
+
+      ```java
+      httpServletResponse.sendRedirect("请求地址")
+      ```
+
+      > 注意：
+      >
+      > - 和getRequestDispatcher方法不同，sendRedirect是`HttpServletResponse`接口中的方法。这是因为只有HTTP协议中才有重定向。
+      > - 重定向的资源地址既可以是当前服务器中的资源地址，也可以是其他网站的资源文件地址。
+      > - 重定向的URL地址需要加上项目根路径，因为浏览器重新发起新的请求是需要带项目名的。
+
+    - ##### 转发和重定向的区别
+
+      > - 重定向解决方案中，通过地址栏通知浏览器发起下一次请求，因此通过重定向解决方案调用的资源文件接收的请求方式一定是GET。而转发可以是任意方式。
+      > - 重定向一共要发送两次请求（至少），但是只有第一次请求是用户手动发送，后续请求都是浏览器自动发送的。而转发只发了一次请求。
+      > - 转发浏览器地址栏上的URL不会变，重定向URL会变。
+      
+      ###### 转发和重定向如何选择：
+      
+      > 如果在上一个Servlet当中向request域当中绑定了数据，希望从下一个Servlet当中把request域里面的数据取出来，则要使用转发。剩下所有的跳转均使用重定向。（重定向使用较多）
+
+  - #### 注解式开发（Servlet3.0 规范）
+
+    > Servlet3.0 后JavaWeb应用支持纯注解式开发。也就是说，原先配置到web.xml文件中的内容，现在全部都可以通过注解来配置，连web.xml文件也可以不要了。
+
+    ###### 注意：在`web.xml`文件中，`<web-app>`标签的`version`属性标识了编译时Servlet规范的版本。运行时使用的Servlet规范版本是依赖的Tomcat服务器中servlet-api.jar的版本。
+
+    - ##### `web.xml`文件的替换：
+
+      > Servlet3.0规范中新加了一个`ServletContainerInitializer`（Servlet容器初始化器）接口，当Tomcat服务器启动的时候，会自动在该项目的源码中找 `ServletContainerInitializer`接口的实现类，找到后实例化对象，并后调用它的`onStartup()`方法来完成Servlet容器（上下文）的初始化，创建所有的Servlet实例。
+      >
+      > 编写WebInitializer类实现`ServletContainerInitializer`接口重写`onStartup()`方法：
+      >
+      > ```java
+      > public class WebInitializer implements WebApplicationInitializer {
+      >     @Override
+      >     public void onStartup(ServletContext servletContext) {
+      >         // 创建 Spring 应用程序上下文
+      >         AnnotationConfigWebApplicationContext springContext = new AnnotationConfigWebApplicationContext();
+      >         springContext.register(SpringConfig.class);
+      > 
+      >         // 配置 Spring MVC 的中央调度器 DispatcherServlet
+      >         AnnotationConfigWebApplicationContext mvcContext = new AnnotationConfigWebApplicationContext();
+      >         //让SpringMVC容器拿到ServletContext对象
+      >         mvcContext.setServletContext(servletContext);
+      >         mvcContext.register(MvcConfig.class);
+      >         ServletRegistration.Dynamic servlet = servletContext.addServlet("dispatcherServlet", new DispatcherServlet(mvcContext));
+      >         servlet.setLoadOnStartup(1);
+      >         servlet.addMapping("/");
+      > 
+      >         // 配置字符编码过滤器
+      >         FilterRegistration.Dynamic filter = servletContext.addFilter("characterEncodingFilter", CharacterEncodingFilter.class);
+      >         filter.setInitParameter("encoding", "UTF-8");
+      >         filter.setInitParameter("forceRequestEncoding", "true");
+      >         filter.setInitParameter("forceResponseEncoding", "true");
+      >         filter.addMappingForUrlPatterns(null, true, "/*");
+      >     }
+      > }
+      > ```
+
+      > 注意：在高版本的web.xml配置文件中，web-app标签的metadate-coplete属性如果设置为false，表示支持注解和web.xml配置文件两种方式联合使用。
+
+    - ##### 关于注解`jakarta.servlet.annotation.WebServlet`注解：
+
+      ```java
+      @WebServlet("/newhello")
+      public class HelloServlet implements Servlet {}
+      ```
+
+      > `@WebServlet`注解只能在Servlet类上使用，该注解中有以下属性：
+      >
+      > - name属性：用来指定Servlet的名字。等同于：`<servlet-name>`
+      > - urlPatterns/value属性：用来指定Servlet的映射路径。可以指定多个字符串。等同于：`<url-pattern>`
+      > - loadOnStartUp属性：用来指定在服务器启动阶段是否加载该Servlet。等同于：`<load-on-startup>`
+      > - initParams属性：用来给Servlet配置参数的。等同于：`<init-param>`。属性值`@WebInitParam`是一个注解数组，该数组的类型是注解`@WebInitParam`，它里面有两个属性name和value，都是String类型。
+      >
+
 
