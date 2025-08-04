@@ -141,7 +141,7 @@
     > 1. 当设置为`/*`时：可以处理所有的请求。
     > 2. 当设置为`/`时：可以处理所有的静态资源（除了jsp文件）。
     > 3. 当设置为`*.html`时：可以处理所有的html资源。
-    > 4. 当设置为`/a/c/*`时：可以处理所有以`/a/c/`开头的URL，如：`/a/c/test`、`/a/c/user/list`...
+    > 4. 当设置为`/a/c/*`时：可以处理所有以`/a/c/`开头的URL（前缀匹配），如：`/a/c/test`、`/a/c/user/list`...
     >
     > 当设置了模糊匹配后，要注意URL Pattern 的匹配优先级。
 
@@ -842,5 +842,4 @@
       > - loadOnStartUp属性：用来指定在服务器启动阶段是否加载该Servlet。等同于：`<load-on-startup>`
       > - initParams属性：用来给Servlet配置参数的。等同于：`<init-param>`。属性值`@WebInitParam`是一个注解数组，该数组的类型是注解`@WebInitParam`，它里面有两个属性name和value，都是String类型。
       >
-
 

@@ -1,7 +1,7 @@
 - ## session和cookie
 
-  - #### session
-  
+  - #### Session
+
     > ###### 关于B/S系统的会话机制：
     >
     > 什么是会话（Session）？
@@ -71,21 +71,21 @@
     > - 判断获取的Session对象是新创建的还是已有的旧的：`session.isNew();`
     >
     > ###### 注意：jsp中的九大内置对象之一就有session对象，只要访问jsp页面，九大内置对象之一的session对象就被创建好了。
-  
+
   - #### Cookie
-  
+
     > - Cookie是一种会话技术，它由服务器产生，是放在浏览器上的一小段数据。有在内存中的Cookie，有保存到硬盘上的Cookie。Session Cookie就是内存中的Cookie。
     > - Session的实现原理中，每一个Session对象都会关联一个sessionid，例如：`JSESSIONID=41C481F0224664BDB28E95081D23D5B8`。浏览器下次再请求该URL时，就会携带该URL关联的Session Cookie（以请求头的形式`Cookie: key=value;..`），服务器根据Session Cookie中的id找到用户在服务器中对应的Session对象。
     > - Cookie实际上就是一个字符串键值对，`key=value`的形式。在JavaEE中的对应的是`jakarta.servlet.http.Cookie`
     > - 服务器创建Session对象后，会将Session对象的id封装成Cookie对象，放入Response对象中，最终该Cookie会作为`Set-Cookie`响应头返回给浏览器。浏览器会将该URL对应的Cookie进行记录，下次请求该URL就会带上该Cookie。
     > - 由于Cookie存储在浏览器端，因此不建议存储那些敏感或影响安全的数据，敏感的数据一般都在服务器中保存保存。
-  
+
     - ##### Cookie怎么生成？怎么将Session对象的id封装成Cookie对象并响应给浏览器？
-  
+
       > 通过`httpServletResponse.addCookie(Cookie cookie)`方法，将指定的Cookie添加到响应头中，这样响应头中就会有`Set-Cookie: key=value;..`。该方法可以被多次调用来添加多个Cookie。参数中的Cookie对象通过new来创建：`new Cookie("key","value");`。
-  
+
     - ##### 关于cookie的有效时间：`cookie.setMaxAge(int second)`
-  
+
       > - 如果没有设置Cookie的有效时间，默认Cookie保存在浏览器的运行内存中，浏览器关闭则Cookie消失。
       > - 如果参数是一个负数，则表示该Cookie仅在本浏览器窗口以及本窗口打开的子窗口内有效，关闭窗口后该Cookie即失效。maxAge为负数的Cookie为临时性Cookie，不会被写到Cookie文件中进行持久化保存。
       > - 如果参数是一个正数，那么它一定会被浏览器自动保存在用户的电脑硬盘上second秒，过时后自动删除。
@@ -115,193 +115,157 @@
       >
       > URL重写机制会提高开发者的成本。开发人员在编写任何请求路径的时候，后面都要手动添加一个`jsessionid`，这给开发带来了很大的难度和成本。所以大部分的网站都是这样设计的：你要是禁用Cookie，你就别用了。
     
-  
+
 - ## 过滤器和监听器
 
   - #### Filter过滤器
 
-    > - 当前的OA项目存在什么缺陷？ 
+    > 过滤器（Filter）是JavaWeb中的一种重要组件，它可以在请求到达Servlet之前或响应返回客户端之前对请求和响应进行预处理和后处理。过滤器是位于客户端与服务器资源（Servlet、html等）之间的一道过滤网，可以：
     >
-    > - DeptServlet、EmpServlet、OrderServlet。每一个Servlet都是处理自己相关的业务。在这些Servlet执行之前都是需要判断用户是否登录了。如果用户登录了，可以继续操作，如果没有登录，需要用户登录。这段判断用户是否登录的代码是固定的，并且在每一个Servlet类当中都需要编写，显然代码没有得到重复利用。包括每一个Servlet都要解决中文乱码问题，也有公共的代码。这些代码目前都是重复编写，并没有达到复用。怎么解决这个问题? 
+    > 1. 在请求到达目标资源前进行拦截处理
+    > 2. 在响应返回客户端前进行拦截处理
+    > 3. 决定是否将请求继续传递给下一个过滤器或目标资源
     >
-    > - 可以使用Servlet规范中的Filter过滤器来解决这个问题。
+    > 过滤器的主要作用：
     >
-    > - Filter是什么，有什么用，执行原理是什么？ 
+    > 1. **权限控制**：如登录验证、权限检查
+    > 2. **编码设置**：统一设置请求和响应的字符编码
+    > 3. **敏感词过滤**：对请求参数或响应内容进行过滤
+    > 4. **日志记录**：记录请求日志
+    > 5. **性能监控**：统计请求处理时间
+    > 6. **数据压缩**：对响应进行压缩处理
     >
-    > - Filter是过滤器。
-    > - Filter可以在Servlet这个目标程序执行之前添加代码。也可以在目标Servlet执行之后添加代码。之前之后都可以添加过滤规则。
-    > - 一般情况下，都是在过滤器当中编写公共代码。
+    > 即Filter过滤器可以在Servlet这个目标程序执行之前添加代码，也可以在目标Servlet执行之后添加代码。一般情况下，我们都是在过滤器中编写公共代码。
     >
-    > - 一个过滤器怎么写呢？ 
-    >
-    > - 第一步：编写一个Java类实现一个接口：jarkata.servlet.Filter。并且实现这个接口当中所有的方法。 
-    >
-    > - init方法：在Filter对象第一次被创建之后调用，并且只调用一次。
-    > - doFilter方法：只要用户发送一次请求，则执行一次。发送N次请求，则执行N次。在这个方法中编写过滤规则。
-    > - destroy方法：在Filter对象被释放/销毁之前调用，并且只调用一次。
-    >
-    > - 第二步：在web.xml文件中对Filter进行配置。这个配置和Servlet很像。
-    >
-    > ```xml
-    > <filter>
-    >     <filter-name>filter2</filter-name>
-    >     <filter-class>com.bjpowernode.javaweb.servlet.Filter2</filter-class>
-    > </filter>
-    > <filter-mapping>
-    >     <filter-name>filter2</filter-name>
-    >     <url-pattern>*.do</url-pattern>
-    > </filter-mapping>
-    > ```
-    >
-    > - 或者使用注解：@WebFilter({"*.do"})
-    >
-    > - 注意： 
-    >
-    > - Servlet对象默认情况下，在服务器启动的时候是不会新建对象的。
-    > - Filter对象默认情况下，在服务器启动的时候会新建对象。
-    > - Servlet是单例的。Filter也是单例的。（单实例。）
-    >
-    > - 目标Servlet是否执行，取决于两个条件： 
-    >
-    > - 第一：在过滤器当中是否编写了：chain.doFilter(request, response); 代码。
-    > - 第二：用户发送的请求路径是否和Servlet的请求路径一致。
-    >
-    > - chain.doFilter(request, response); 这行代码的作用： 
-    >
-    > - 执行下一个过滤器，如果下面没有过滤器了，执行最终的Servlet。
-    >
-    > - 注意：Filter的优先级，天生的就比Servlet优先级高。 
-    >
-    > - /a.do 对应一个Filter，也对应一个Servlet。那么一定是先执行Filter，然后再执行Servlet。
-    >
-    > - 关于Filter的配置路径： 
-    >
-    > - /a.do、/b.do、/dept/save。这些配置方式都是精确匹配。
-    > - /* 匹配所有路径。
-    > - *.do 后缀匹配。不要以 / 开始
-    > - /dept/*  前缀匹配。
-    >
-    > - 在web.xml文件中进行配置的时候，Filter的执行顺序是什么？ 
-    >
-    > - 依靠filter-mapping标签的配置位置，越靠上优先级越高。
-    >
-    > - 过滤器的调用顺序，遵循栈数据结构。 
-    > - 使用@WebFilter的时候，Filter的执行顺序是怎样的呢？ 
-    >
-    > - 执行顺序是：比较Filter这个类名。
-    > - 比如：FilterA和FilterB，则先执行FilterA。
-    > - 比如：Filter1和Filter2，则先执行Filter1.
-    >
-    > - Filter的生命周期？ 
-    >
-    > - 和Servlet对象生命周期一致。
-    > - 唯一的区别：Filter默认情况下，在服务器启动阶段就实例化。Servlet不会。
-    >
-    > - Filter过滤器这里有一个设计模式： 
-    >
-    > - 责任链设计模式。
-    > - 过滤器最大的优点： 
-    >
-    > - 在程序编译阶段不会确定调用顺序。因为Filter的调用顺序是配置到web.xml文件中的，只要修改web.xml配置文件中filter-mapping的顺序就可以调整Filter的执行顺序。显然Filter的执行顺序是在程序运行阶段动态组合的。那么这种设计模式被称为责任链设计模式。
-    >
-    > - 责任链设计模式最大的核心思想： 
-    >
-    > - 在程序运行阶段，动态的组合程序的调用顺序。
-    >
-    > 过滤器的实现原理
+    > 过滤器的实现原理：
     >
     > ![img](./assets/1647507375441-5d3181ff-2d40-4bed-b833-30c194c1674d.png)
 
+    - ##### 一个过滤器怎么写呢？ 
+
+      1. ###### 编写一个类实现接口`jarkata.servlet.Filter`，并实现这个接口中的所有方法。 （所有的过滤器都要实现该接口）
+
+         > - `init()`：在Filter对象第一次被创建之后调用，并且只调用一次。
+         > - `doFilter()`：只要用户发送一次请求，就执行一次；发送N次请求则执行N次。在这个方法中编写过滤规则。
+         > - `destroy()`：在Filter对象被释放/销毁之前调用，并且只调用一次。
+
+      2. ###### 在web.xml文件中注册过滤器Filter。（类似于注册一个Servlet，这些请求会先走过滤器）
+
+         ```xml
+         <filter>
+             <filter-name>filter2</filter-name>
+             <filter-class>com.bjpowernode.javaweb.servlet.Filter2</filter-class>
+         </filter>
+         <filter-mapping>
+             <filter-name>filter2</filter-name>
+         	<url-pattern>/*</url-pattern><!-- 过滤所有请求 -->
+             <servlet-name>servlet1<servlet-name><!-- 过滤器路径还可以写servlet的别名 -->
+         </filter-mapping>
+         ```
+
+         > 或者使用注解：`@WebFilter({"*.do"})`
+
+      3. ###### 过滤器中编写过滤规则。
+
+         ```java
+         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,ServletException{
+         	System.out.println("在目标程序执行前过滤");
+         	chain.doFilter(request, response);  // 放行代码，去执行对应的Servlet。响应后还会重新回到此处继续往下执行
+         	System.out.println("在目标程序执行后过滤");
+         }
+         ```
+
+         > doFilter方法用于在Filter中对HTTP请求进行放行，放行就由其后的过滤器或servlet进行请求处理；拒绝就在过滤器本身做出响应。
+         >
+         > 它的调用会去执行这条请求链上的下一个过滤器，如果下面没有过滤器了，则执行Servlet去处理请求。
+
+    - ##### 关于过滤器Filter：
+
+      > - Filter的生命周期和Servlet对象生命周期一致。唯一的区别是：Filter默认情况下，在服务器启动阶段就实例化，而Servlet不会。
+      > - Servlet和Filter都是单例的。
+      >
+      > - Filter的优先级天生就比Servlet或html优先级高。`/a.do`路径对应一个Filter和Servlet，那么一定会先执行Filter。
+      > - 如果有多个过滤器，且`web.xml`中配置的url相同，那么到底先走哪个过滤器呢？Filter执行的顺序根据web.xml中配置的`<filter-mapping>`标签的先后顺序。如果采用了注解的方式来配置过滤器，那么则按照“过滤器的类名”在字典上的先后顺序来执行的。
+      > - Filter过滤器这里有一个设计模式： 责任链设计模式。它的核心思想是：在程序运行阶段，动态的组合程序的调用顺序。而过滤器最大的优点是：它在编译阶段不会确定调用顺序，因为Filter的执行顺序是根据配置文件来确定的，只要修改配置文件就可以实现过滤器之间执行顺序的动态组合，因此符合责任链设计模式。
+      > - 过滤器同样有GenericFilter和HttpFilter这两个抽象类，前者比Filter多了一个过滤器配置属性filterConfig，更通用，否则你想用过滤器的初始化参数信息就得自己重写init方法；后者就是将doFilter()的前2个参数变为了HttpServletRequest的，更适合web开发，这点类似于前面的Servlet接口。
+
   - #### Listener监听器
 
-    > - 什么是监听器？
+    > 监听器（Listener）是 JavaEE 中的一种特殊组件，用于监听 Web 应用中特定事件的发生，并在这些事件发生时执行预定义的代码。监听器是JavaEE对（GoF的）**观察者模式**的实现，主要用于监听 ServletContext、HttpSession 和 ServletRequest 等域对象的生命周期的变化，以及属性的变化。
     >
-    > - 监听器是Servlet规范中的一员。就像Filter一样。Filter也是Servlet规范中的一员。
-    > - 在Servlet中，所有的监听器接口都是以“Listener”结尾。
+    > 监听器是Servlet规范留给我们JavaWeb程序员的一个特殊时机，如果在特殊的时刻想做一些事情，就可以通过它来做。
     >
-    > - 监听器有什么用？
+    > 就像Filter一样，监听器也是Servlet规范的一员。所有的监听器接口都是以“Listener”结尾。
     >
-    > - 监听器实际上是Servlet规范留给我们javaweb程序员的特殊时机。
-    > - 特殊的时刻如果想执行这段代码，你需要想到使用对应的监听器。
-    >
-    > - Servlet规范中提供了哪些监听器？
-    >
-    > - jakarta.servlet包下：
-    >
-    > - ServletContextListener
-    > - ServletContextAttributeListener
-    > - ServletRequestListener
-    > - ServletRequestAttributeListener
-    >
-    > - jakarta.servlet.http包下：
-    >
-    > - HttpSessionListener
-    > - HttpSessionAttributeListener
-    >
-    > - 该监听器需要使用@WebListener注解进行标注。
-    > - 该监听器监听的是什么？是session域中数据的变化。只要数据变化，则执行相应的方法。主要监测点在session域对象上。
-    >
-    > - HttpSessionBindingListener
-    >
-    > - 该监听器不需要使用@WebListener进行标注。
-    > - 假设User类实现了该监听器，那么User对象在被放入session的时候触发bind事件，User对象从session中删除的时候，触发unbind事件。
-    > - 假设Customer类没有实现该监听器，那么Customer对象放入session或者从session删除的时候，不会触发bind和unbind事件。
-    >
-    > - HttpSessionIdListener
-    >
-    > - session的id发生改变的时候，监听器中的唯一一个方法就会被调用。
-    >
-    > - HttpSessionActivationListener
-    >
-    > - 监听session对象的钝化和活化的。
-    > - 钝化：session对象从内存存储到硬盘文件。
-    > - 活化：从硬盘文件把session恢复到内存。
-    >
-    > - 实现一个监听器的步骤：以ServletContextListener为例。
-    >
-    > - 第一步：编写一个类实现ServletContextListener接口。并且实现里面的方法。
-    >
-    > ```java
-    > void contextInitialized(ServletContextEvent event)
-    > void contextDestroyed(ServletContextEvent event)
-    > ```
-    >
-    > - 第二步：在web.xml文件中对ServletContextListener进行配置，如下：
-    >
-    > ```xml
-    > <listener>
-    >   <listener-class>com.bjpowernode.javaweb.listener.MyServletContextListener</listener-class>
-    > </listener>
-    > ```
-    >
-    > - 当然，第二步也可以不使用配置文件，也可以用注解，例如：@WebListener
-    > - 注意：所有监听器中的方法都是不需要javaweb程序员调用的，由服务器来负责调用？什么时候被调用呢？
+    > 
     >
     > - 当某个特殊的事件发生（特殊的事件发生其实就是某个时机到了。）之后，被web服务器自动调用。
-    >
-    > - 思考一个业务场景：
-    >
-    > - 请编写一个功能，记录该网站实时的在线用户的个数。
-    > - 我们可以通过服务器端有没有分配session对象，因为一个session代表了一个用户。有一个session就代表有一个用户。如果你采用这种逻辑去实现的话，session有多少个，在线用户就有多少个。这种方式的话：HttpSessionListener够用了。session对象只要新建，则count++，然后将count存储到ServletContext域当中，在页面展示在线人数即可。
-    > - 业务发生改变了，只统计登录的用户的在线数量，这个该怎么办？
-    >
-    > - session.setAttribute("user", userObj); 
-    > - 用户登录的标志是什么？session中曾经存储过User类型的对象。那么这个时候可以让User类型的对象实现HttpSessionBindingListener监听器，只要User类型对象存储到session域中，则count++，然后将count++存储到ServletContext对象中。页面展示在线人数即可。
-    >
-    > - 实现oa项目中当前登录在线的人数。
-    >
-    > - 什么代表着用户登录了？
-    >
-    > - session.setAttribute("user", userObj); User类型的对象只要往session中存储过，表示有新用户登录。
-    >
-    > - 什么代表着用户退出了？
-    >
-    > - session.removeAttribute("user"); User类型的对象从session域中移除了。
-    > - 或者有可能是session销毁了。（session超时）
+
+    - ##### Servlet规范中提供了哪些监听器？
+
+      - ###### `jakarta.servlet`包下：
+
+        > - `ServletContextListener`：域对象`ServletContext`的创建/销毁。
+        > - `ServletContextAttributeListener`：域对象`ServletContext`中，数据的增删改。
+        > - `ServletRequestListener`：域对象`ServletRequest`的创建/销毁。
+        > - `ServletRequestAttributeListener`：域对象`ServletRequest`中，数据的增删改。
+
+      - ###### `jakarta.servlet.http`包下：
+
+        > - `HttpSessionListener`：域对象`HttpSession`的创建/销毁。
+        >
+        > - `HttpSessionAttributeListener`（该监听器需要注册）：它监听的是Session域中数据的变化。只要数据变化（增删改），则执行相应的方法。主要监测点在Session域对象上。
+        >
+        > - `HttpSessionBindingListener`：实现了该接口的对象，放到了Session域中，或从Session域中移除，就会触发绑定（bind）和解绑（unbind）方法。
+        >
+        > - `HttpSessionIdListener`：Session对象的id发生变化的时候，该监听器接口中的唯一一个方法就会被调用。
+        >
+        > - `HttpSessionActivationListener`：监听服务器堆中（内存），Session对象的钝化和活化的。如果某个Session对象需要被它监听，那么就需要将这个监听器对象new出来放在Session域中，此时该Session对象钝化或活化会触发监听器执行。
+        >
+        >   > 钝化：Session对象从内存存储到硬盘文件上。
+        >   >
+        >   > 活化：从硬盘文件中把Session对象恢复到内存。
+        >   >
+        >   > 服务器中有很多Session对象，会大量占用服务器资源，如果某些对象不常使用，可以暂时放在硬盘上，当需要的时候再加载到内存。保存到磁盘就是钝化，加载到内存就是活化。
+        >
+        >   > 怎么让你的项目可以发生session对象的钝化和活化呢，需要在项目上下文路径中，新建META-INF目录，里面新建context.xml，在该文件中配置钝化活化：
+        >   >
+        >   > ```xml
+        >   > <?xml version="1.0" encoding="UTF-8"?>
+        >   > <Context>
+        >   >     <Manager className="" maxIdleSwap="">
+        >   >     	<Store className="" directory=""></Store>
+        >   >     </Manager>
+        >   > </Context>
+        >   > ```
+
+    - ##### 实现一个监听器的步骤：（以ServletContextListener为例）
+
+      1. 编写一个类实现ServletContextListener接口，并且实现里面的方法：
+
+         ```java
+         void contextInitialized(ServletContextEvent event)
+         void contextDestroyed(ServletContextEvent event)
+         // 参数是ServletContextEvent对象是事件对象，可以通过它来拿到发生此次事件的对象源
+         ```
+
+         > 注意：所有监听器中的方法都不需要javaweb程序员手动调用，是服务器（在某个时机）自动调用的。
+
+      2. 在`web.xml`文件中对ServletContextListener进行注册，如下：
+
+         ```xml
+         <listener>
+         	<listener-class>com.bjpowernode.javaweb.listener.MyServletContextListener</listener-class>
+         </listener>
+         ```
+
+         > 也可以不使用配置文件，用注解：`@WebListener`
+         >
+         > 注意：`HttpSessionBindingListener`和`HttpSessionActivationListener`这两个监听器接口的实现类，不需要第二步的注册。
 
 - ## JSP
 
-  > sdf
+  > 参考语雀笔记（TODO）
   >
   > ```tex
   > 分析使用纯粹Servlet开发web应用的缺陷：
@@ -696,105 +660,115 @@
 
 - ## MVC架构模式
 
-  > sd
-  >
-  > ```tex
-  > #关于MVC架构模式：
-  > 		它是软件工程的一种“软件架构模式”，它把软件系统分为“模型”、“视图”和“控制器”三个基本部分，用一种业务逻辑、数据、界面分开的方法来
-  > 	组织代码，将业务逻辑聚集到一个部件里面，在改进和个性化定制界面以及用户交互的同时，不需要重新编写业务逻辑。
-  > 
-  > 	1、系统为什么要分层？
-  > 		希望专人干专事、各司其职，职能分工要明确，这样可以让代码耦合度降低，扩展力变强，组件复用性高
-  > 	2、MVC解释：
-  > 		M：Model/数据/业务，m是负责业务处理，数据处理的一个秘书；像实体类（pojo/domain/bean）、数据库访问（dao/mapper）、
-  > 			处理业务的service包，这些内容都属于M层；
-  > 		V：View/视图/展示，v是负责展示的一个秘书（JSP/html/css/js/img）
-  > 		C：Controller/控制器，c是核心，是控制器，是司令官（SpringMVC），如Servlet类，都是C层；
-  > 		MVC：一个司令官两个秘书，去管理控制一个项目
-  > 	用户通过html发送请求给S端服务器，服务器统一交给C控制器来处理用户的请求，C可以通过调用M和V来进行业务逻辑处理和前端页面展示。
-  > 
-  > #关于三层架构（web层/表示层、服务层/业务层、持久层/DAO层）：
-  > 	每一层之间互相都通过接口来调用，具体每一层的实现类在每一层包下会有一个impl包，实现类的类名以impl结尾；
-  > 
-  > 	*表示层/表现层/web层：Servlet、JSP，用于处理前端发送过来的请求以及界面的展示；
-  > 	*业务逻辑层Service：java代码，用于具体业务的具体处理与实现，调用DAO进行数据的持久化，调用各种javabean进行数据的封装；
-  > 		一般情况下，每张表都对应处理这张表相关业务的service类；
-  > 	*持久化层DAO：和业务无关的jdbc代码，将数据持久化保存到数据库；我们之后会学一些DAO层的框架，如：MyBatis、SpringData..
-  > 
-  > #什么是DAO：Data Access Object（数据访问对象）
-  > 	DAO实际上是一种设计模式，属于JavaEE设计模式之一（不是23种设计模式），它只负责数据库的CRUD，没有任何的业务逻辑在里面，
-  > 	这样的对象被称为DAO对象；如果是处理t_user表的，这个DAO就可以叫做：UserDao，一般情况下每张表对应一个DAO对象类；
-  > 
-  > 
-  > 
-  > ===================servlet做文件上传===================================================================================
-  > 1、前端：
-  > ------------------------
-  > <!DOCTYPE html>
-  > <html lang="en">
-  > <head>
-  >     <meta charset="UTF-8">
-  >     <title>上传文件</title>
-  > </head>
-  > <body>
-  > <form action="/upload" method="post" enctype="multipart/form-data">
-  >     <input type="file" name="img"><p>
-  >     <input type="submit" value=" 提 交 ">
-  > </form>
-  > </body>
-  > </html>
-  > ------------------------
-  > 2、后端的web.xml配置：
-  > ------------------------
-  > <?xml version="1.0" encoding="UTF-8"?>
-  > <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
-  >          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  >          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
-  >          version="4.0">
-  > 
-  >     <servlet>
-  >         <servlet-name>FileUploadServlet</servlet-name>
-  >         <servlet-class>FileUploadServlet</servlet-class>
-  > 	<!-- 重点是在servlet中配置这个，表示该servlet支持文件上传，在这里面设置文件上传属性 -->
-  >         <multipart-config>
-  > 	    <!--设置单个支持最大文件的大小-->
-  > 	    <max-file-size>102400</max-file-size>
-  >             <!--设置整个表单所有文件上传的最大值-->
-  >             <max-request-size>102400</max-request-size>
-  >             <!--设置最小上传文件大小-->
-  >             <file-size-threshold>0</file-size-threshold>
-  >         </multipart-config>
-  >     </servlet>
-  >     <servlet-mapping>
-  >         <servlet-name>FileUploadServlet</servlet-name>
-  >         <url-pattern>/upload</url-pattern>
-  >     </servlet-mapping>
-  > </web-app>
-  > ------------------------
-  > 3、后端servlet：
-  > ------------------------
-  > //也可以使用注解来代替xml中的配置：@MultipartConfig( fileSizeThreshold = 1024 * 1024,  maxFileSize = 1024 * 1024 * 10,  maxRequestSize = 1024 * 1024 * 50 )
-  > public class FileUploadServlet extends HttpServlet {
-  >     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-  > 
-  > //重点方法，request.getPart("img");获取请求体中上传文件的流信息，返回的是一个part对象
-  >         Part part = req.getPart("img");
-  > 
-  >         //手下声明一个保存路径，这里保存在D盘的File文件下
-  >         String filePath = "D:\File\";
-  > 
-  > 	//part.getSubmittedFileName()可以获取文件名，UUID.randomUUID().toString()是避免文件名冲突的
-  > 	String fileName = UUID.randomUUID().toString()+
-  >                 part.getSubmittedFileName().substring(part.getSubmittedFileName().indexOf("."));
-  > 
-  >         //通过write方法，可以将这个png文件保存在任意路径下，write里面的参数，就是要保存的路径；这种方式比较适合简单的写入，也可以part.getInputStream();手动写入控制更多读写细节
-  >         part.write(filePath+fileName);
-  > 
-  >         //然后给前端返回响应的结果
-  >         resp.setContentType("text/html");
-  >         resp.setCharacterEncoding("utf-8");
-  >         PrintWriter writer = resp.getWriter();
-  >         writer.println("<h1>上传成功</h1>");
-  >     }}
-  > ```
+  - #### 关于MVC架构模式
+
+    > **MVC架构模式**是软件工程的一种“软件架构模式”，它把软件系统分为“模型”、“视图”和“控制器”三个基本部分，用一种业务逻辑、数据、界面分开的方法来组织代码，将业务逻辑聚集到一个部件里面，在改进和个性化定制界面以及用户交互的同时，不需要重新编写业务逻辑。
+    >
+    > **系统为什么要分层**？就是希望专人干专事、各司其职，职能分工要明确，这样可以让代码耦合度降低，扩展力变强，组件复用性高。
+    >
+    > **MVC解释**：
+    >
+    > - M：Model/数据/业务，m是负责业务处理，数据处理的一个秘书；像实体类（pojo/domain/bean）、数据库访问（dao/mapper）、处理业务的service包，这些内容都属于M层。
+    > - V：View/视图/展示，v是负责展示的一个秘书（JSP/html/css/js/img）
+    > - C：Controller/控制器，c是核心，是控制器，是司令官（SpringMVC），如Servlet类，都是C层。
+    >
+    > MVC：一个司令官两个秘书，去管理控制一个项目。
+    >
+    > 用户通过html发送请求给S端服务器，服务器统一交给C控制器来处理用户的请求，C可以通过调用M和V来响应数据和展示页面。
+    >
+    > ![img](./assets/1661700309695-c1af8578-178b-4607-802e-f60dce43bc07.png)
+
+    - ##### 关于三层架构（web层/表示层、service层/业务层、DAO层/持久化层）：
+
+      > 每一层都是一个目录，目录中的代码之间互相都通过接口来调用，具体每一层的实现类在每一层包下会有一个`impl`目录，实现类的类名就是在接口名后面加了`Impl`结尾。web层的实现类中，包含了service层的接口（以属性的形式）；service层的实现类中，又包含了dao层的接口。
+      >
+      > - 表示层/表现层/web层：Servlet、JSP，用于处理前端发送过来的请求以及界面的展示；
+      > - 业务逻辑层Service：java代码，用于具体业务的具体处理与实现，调用DAO进行数据的持久化，调用各种javabean进行数据的封装；一般情况下，每张表都对应处理这张表相关业务的service类；
+      > - 持久化层DAO：和业务无关的jdbc代码，将数据持久化保存到数据库；我们之后会学一些DAO层的框架，如：MyBatis、SpringData..
+      >
+      > ![三层架构.png](./assets/1661705335838-491775c3-3c9c-4634-9c96-1afb301841a6.webp)
+      >
+      > ![三层架构2.png](./assets/1661705344624-6307d23b-2ab1-4916-a234-b1a8503530bc.webp)
+
+  - #### 文件上传
+
+    1. ##### 前端：
+
+       ```html
+       <!DOCTYPE html>
+       <html lang="en">
+       <head>
+           <meta charset="UTF-8">
+           <title>上传文件</title>
+       </head>
+       <body>
+           <form action="/upload" method="post" enctype="multipart/form-data">
+               <input type="file" name="img"><p>
+               <input type="submit" value=" 提 交 ">
+           </form>
+       </body>
+       </html>
+       ```
+
+    2. ##### 后端`web.xml`中进行配置后端路由：
+
+       ```xml
+       <?xml version="1.0" encoding="UTF-8"?>
+       <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+           version="4.0">
+       
+           <servlet>
+               <servlet-name>FileUploadServlet</servlet-name>
+               <servlet-class>FileUploadServlet</servlet-class>
+       
+               <!-- 重点是在servlet中配置这个，表示该servlet支持文件上传，在这里面设置文件上传属性 -->
+               <multipart-config>
+                   <!--设置单个支持最大文件的大小-->
+                   <max-file-size>102400</max-file-size>
+                   <!--设置整个表单所有文件上传的最大值-->
+                   <max-request-size>102400</max-request-size>
+                   <!--设置最小上传文件大小-->
+                   <file-size-threshold>0</file-size-threshold>
+               </multipart-config>
+           </servlet>
+       
+           <servlet-mapping>
+               <servlet-name>FileUploadServlet</servlet-name>
+               <url-pattern>/upload</url-pattern>
+           </servlet-mapping>
+       </web-app>
+       ```
+
+       > 也可以使用注解来代替xml中的配置：`@MultipartConfig( fileSizeThreshold = 1024 * 1024,  maxFileSize = 1024 * 1024 * 10,  maxRequestSize = 1024 * 1024 * 50 )`
+
+    3. ##### 后端Servlet处理用户请求：
+
+       ```java
+       public class FileUploadServlet extends HttpServlet {
+       	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+       
+               //重点方法，request.getPart("img");获取请求体中上传文件的流信息，返回的是一个part对象
+               Part part = req.getPart("img");
+       
+               //手下声明一个保存路径，这里保存在D盘的File文件下
+               String filePath = "D:\File\";
+       
+               //part.getSubmittedFileName()可以获取文件名，UUID.randomUUID().toString()是避免文件名冲突的
+               String fileName = UUID.randomUUID().toString()+
+               part.getSubmittedFileName().substring(part.getSubmittedFileName().indexOf("."));
+       
+               //通过write方法，可以将这个png文件保存在任意路径下，write里面的参数，就是要保存的路径；这种方式比较适合简单的写入，也可以part.getInputStream();手动写入控制更多读写细节
+               part.write(filePath+fileName);
+       
+               //然后给前端返回响应的结果
+               resp.setContentType("text/html");
+               resp.setCharacterEncoding("utf-8");
+               PrintWriter writer = resp.getWriter();
+               writer.println("<h1>上传成功</h1>");
+       	}
+       }
+       ```
+
 
