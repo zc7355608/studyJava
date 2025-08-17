@@ -1,4 +1,4 @@
-(语雀笔记地址：https://www.yuque.com/dujubin/ltckqu/pozck9?# 密码：rs4n)(项目代码：prj-mybatis)
+(语雀笔记地址：https://www.yuque.com/dujubin/ltckqu/pozck9?# 密码：rs4n)
 
 # Mybatis概述
 
@@ -10,7 +10,7 @@
 > - 框架其实就是对通用代码的封装，是别人提前写好了一堆接口和类，我们可以在做项目的时候直接引入这些接口和类（引入框架），基于这些现有的接口和类进行开发，可以大大提高效率
 > - 框架一般都是以jar包的形式存在的，因为这些东西其实就是别人写好的一堆Java代码
 
-###### 三层架构：表现层、服务层、持久层；MyBatis其实就是将持久层（jdbc的代码）进行了通用代码的高级封装而已
+###### 三层架构：表现层、服务层、持久层；MyBatis其实就是将持久层（JDBC代码）进行了通用的封装而已
 
 ![image-20240327202908848](./assets/image-20240327202908848.png)
 
@@ -71,7 +71,7 @@
 
 ###### 依赖包：
 
-> MyBatis：3.5.10
+> MyBatis：3.5.16
 > mysql驱动：8.0.30
 > junit：5.10.2
 
@@ -95,9 +95,9 @@
 
 ### 开始第一个MyBatis程序
 
-###### 首先打开idea新建一个空的工程，然后新建一个maven的模块，设置打包方式为jar（因为封装的是JDBC），引入3个依赖；开始我的第一个mybatis程序
+###### 首先打开idea新建一个Java的maven工程，在pom.xml中设置打包方式为jar（因为封装的是JDBC），引入需要的3个依赖，开始第一个Mybatis程序
 
-##### 1、在resources目录下创建一个mybatis的核心配置文件：mybatis-config.xml，内容如下：（也可以去mybatis官网拷贝）
+##### 1、在resources目录下创建一个Mybatis的核心配置文件：mybatis-config.xml，内容如下：（也可以去Mybatis官网拷贝）
 
 ###### （框架一般都有核心配置文件；Mybatis的核心配置文件用于配置连接数据库的数据库、帐号、密码等公共信息。文件名和存放位置都不是必须的，不过一般都是mybatis-config在类路径下，1个就够了，这是规范）
 
@@ -121,9 +121,9 @@
 </configuration>
 ```
 
-###### mybatis中有两种配置文件，都放在resources下：
+###### Mybatis中有两种配置文件，都放在resources下：
 
-> 1. Mybatis的核心配置文件`mybatis-config.xml`，该配置文件是mybatis链接数据库的全局配置，只有一个。名字和路径可以随意。一般不改就这个。（后面spring整合开发可以没有该文件，常用配置全放在Spring配置文件中）
+> 1. Mybatis的核心配置文件`mybatis-config.xml`，该配置文件是Mybatis链接数据库的全局配置，只有一个。名字和路径可以随意。一般不改就这个。（后面spring整合开发可以没有该文件，常用配置全放在Spring配置文件中）
 > 2. SQL语句配置文件`XxxxMapper.xml`，该配置文件专门用来编写SQL语句的，一个表一个。如：UserMapper.xml对应t_user表
 
 ##### 2、在resources下编写CarMapper.xml配置文件：（重点，里面是sql）
@@ -136,11 +136,13 @@
 <mapper namespace="abc"><!--1个namespace代表了1个Mappper文件，目前先随便写不重复即可-->
     <!--我们在里面编写SQL语句，先来个固定的sql。id是sql的唯一标识，代表了这条sql语句（sql语句结尾可以不加分号“;”）-->
     <insert id="insertCar">
-        insert into t_car(id,car_num,brand,guide_price,produce_time,car_type)
-        values(null,'1003','梅赛德斯奔驰',55.00,'2022-06-01','燃油车')
+        insert into t_car(id, car_num, brand, guide_price, produce_time, car_type)
+        values (null, '10011', '比亚迪秦', 29.8, '2025-06-11', '电车')
     </insert>
 </mapper>
 ```
+
+> 在SQL Mapper配置文件中`<mapper>`标签的`namespace`属性翻译为命名空间，这个命名空间主要是为了防止sqlId冲突的。
 
 ##### 3、将CarMapper.xml配置文件关联到mybatis-config.xml核心配置文件中，告诉MyBatis你的sql在哪：
 
@@ -152,13 +154,13 @@
 </mappers>
 ```
 
-##### 4、用junit5编写mybatis测试程序：（insert语句就用SqlSession对象的insert方法，参数是sqlId，其他的也类似）
+##### 4、用junit5编写Mybatis测试程序：（insert语句就用SqlSession对象的insert方法，参数是sqlId，其他的也类似）
 
 ```java
 @Test
 public void testFirst() throws FileNotFoundException {
-	//创建一个StringSessionFactoryBuilder对象，创建该对象目的是，通过它的build方法去解析mybatis核心配置文件，
-    //然后用其中的链接数据库的信息，创建SqlSessionFactory对象，该对象是用来操作数据库的
+	//创建一个StringSessionFactoryBuilder对象，创建该对象目的是，通过它的build方法去解析Mybatis核心配置文件，
+    //然后用其中的链接数据库的信息，创建SqlSessionFactory对象，通过该对象来操作数据库
     SqlSessionFactoryBuilder factoryBuilder = new SqlSessionFactoryBuilder();
     //Resources.getResourceAsStream是从类路径下找资源，是一个Mybatis提供的加载资源的工具类，当然也可以用其他方式加载文件流
     SqlSessionFactory factory = factoryBuilder.build(Resources.getResourceAsStream("mybatis-config.xml"));
@@ -181,24 +183,28 @@ public void testFirst() throws FileNotFoundException {
 ###### 关于以上代码的说明：
 
 > - `SqlSession`是专门执行sql语句的，是一个Java程序和数据库之间的一次会话（链接），需要关闭。多次操作数据库，就得openSession()开启多次数据库会话（链接）。
+>
 > - 要获取SqlSession对象，必须先获取`SqlSessionFactory`对象。该对象是数据库对象，数据库会话（链接）的工厂，通过SqlSessionFactory工厂的openSession()来生产一个SqlSession对象，每操作数据库都要通过数据库对象来获取会话（链接）对象。
-> - SqlSessionFactory对象的获取需要用到Mybatis配置文件的信息去链接数据库，所以需要SqlSessionFactoryBuilder对象的build方法去解析配置文件获取该对象。每个该对象对应一个数据库，一旦获取就不要轻易让JVM回收了，因为要经常用，通常该对象一直在堆中存在。而SqlSessionFactoryBuilder对象用它解析完配置文件信息后，该对象就没用了，一般放在局部作用域直接回收。
-> - mybatis配置文件中，目前采用的事务管理器是JDBC（后面我们事务会交给Spring容器管理），默认不自动提交，需要手动提交：sqlSession.commit();
-> - 如果sqlSessionFactory.openSession(true)时传入了一个true，那么底层会执行conn.setAutoCommit(true)开启自动提交，此时执行一个sql就直接提交了，相当于覆盖了全局的事务管理JDBC方式。不建议这样做，不安全，所以openSession()方法默认是false不自动提交的。
+>
+> - SqlSessionFactory对象的获取需要用到Mybatis配置文件的信息去链接数据库，所以需要SqlSessionFactoryBuilder对象的build方法去解析配置文件获取该对象。每个`SqlSessionFactory`对象对应一个数据库，该对象一旦获取就不要轻易让JVM回收了，因为要经常用。通常该对象一直在JVM堆中存在。而SqlSessionFactoryBuilder对象用它解析完配置文件信息后，该对象就没用了，因此它一般放在局部作用域中。
+>
+> - Mybatis配置文件中，目前采用的事务管理器是JDBC，即根据`openSession(true/false)`方法的参数来决定是否开启自动提交。默认false没有开启自动提交，需要手动提交：`sqlSession.commit();`。后面我们事务会交给Spring容器管理。
+>
+>   > 如果sqlSessionFactory.openSession(true)时传入了一个true，那么底层会执行conn.setAutoCommit(true)开启自动提交，此时执行一个sql就直接提交了，相当于覆盖了全局的事务管理JDBC方式。不建议这样做，不安全，所以openSession()方法默认是false不自动提交的。
 
 ###### 还有一些小细节：
 
 > - CarMapper.xml配置文件里的`<mapper resource="CarMapper.xml"/>`标签中的resource属性，它是从类路径src下找资源的
 > - 值还可以是url，以本地计算机中的绝对路径的方式加载资源的，并且绝对路径前要加上【file:///绝对路径】，如：`file:///d:/CarMapper.xml`。因为无论哪种操作系统，采用的文件协议都是file协议。
-> - 建议使用resource，url这种方式不太好，因为绝对路径的方式移植性太差。还有其他加载mapper文件的属性，后面说
+> - 建议使用resource，url这种方式不太好，因为绝对路径的方式移植性太差。还有其他加载mapper文件的属性，后面再说。
 
 ------
 
-###### 我们想看到mybatis具体执行的sql语句，或执行细节怎么办？用日志框架来打印程序运行时的一些信息。
+###### 我们想看到Mybatis具体执行的sql语句，或执行细节怎么办？用日志框架来打印程序运行时的一些信息。
 
 #### 引入logback日志框架：（之后我们在Spring中引入，而不是Mybatis）
 
-- ##### 可以启用mybatis中集成的日志组件，只需要在mybatis-config.xml文件中添加以下配置即可：
+- ##### 可以启用Mybatis中集成的日志组件，只需要在mybatis-config.xml文件中添加以下配置即可：
 
   ```xml
   <settings>
@@ -209,7 +215,7 @@ public void testFirst() throws FileNotFoundException {
 
 - ##### 它自带的配置不够灵活，我们也可以集成其他的日志组件，例如：log4j，logback等。logback是目前日志框架中性能较好的，较流行的，所以我们选它。引入logback的步骤：
 
-  ###### （如果不使用mybatis自带的日志框架，setting设置日志组件的步骤，可有可无，mybatis会通过配置文件来自动识别。想加的话就将value属性值写为你用的日志框架所遵循的日志规范，logback的是【SLF4J】规范）
+  ###### （如果不使用Mybatis自带的日志框架，setting设置日志组件的步骤，可有可无，Mybatis会通过配置文件来自动识别。想加的话就将value属性值写为你用的日志框架所遵循的日志规范，logback的是【SLF4J】规范）
 
   1. logback日志框架实现了SLF4J规范（沙拉风：日志门面，日志标准），引入logback依赖：
 
@@ -253,7 +259,7 @@ public void testFirst() throws FileNotFoundException {
              </triggeringPolicy>
          </appender>
      
-         <!--mybatis log configure-->
+         <!--Mybatis log configure-->
          <logger name="com.apache.ibatis" level="TRACE"/>
          <logger name="java.sql.Connection" level="DEBUG"/>
          <logger name="java.sql.Statement" level="DEBUG"/>
@@ -288,26 +294,31 @@ public class SqlSessionUtil {
             e.printStackTrace();
         }
     }
-    public static SqlSession getSession(){
-        return sqlSessionFactory.openSession();
+    public static SqlSession getSession(boolean flag){
+        return sqlSessionFactory.openSession(flag);
     }
 }
 ```
 
 #### 测试工具类和logback框架：
 
-###### 我们之前在Mapper文件中将sql写死了，接下来用占位符的方式写sql：
-
-> MyBatis中的占位符有两种，`#{}`和`${}`，前者底层是PreparedStatement，后者底层是Statement会存在SQL注入的风险；一般都用`#{}`
-
-###### 这里用#{}，parameterType属性用于指定传过来的参数类型，虽然可以省略，mybatis可以自动识别参数，但是还是建议显示的加上增加可读性；给占位符传值这里先使用Map<String,Object>类型（map的key必须是String），取值写map的key：
+###### 我们之前在Mapper文件中将sql写死了，接下来用占位符的方式写sql。在CarMapper.xml中添加sql语句：
 
 ```xml
 <update id="updateCar" parameterType="java.util.Map">
-    update t_car set car_num=#{carNum}, brand=#{brand}, guide_price=#{guidePrice}, produce_time=#{produceTime}, car_type=#{carType}
-    where id=#{id}
+    update t_car
+    set car_num=#{carNum},
+        brand=#{brand},
+        guide_price=#{guidePrice},
+        produce_time=#{produceTime},
+        car_type=#{carType}
+    where id = #{id}
 </update>
 ```
+
+> - MyBatis中的占位符有两种，`#{}`和`${}`，前者底层是`PreparedStatement`，后者底层是`Statement`（会存在SQL注入的风险）。一般都用`#{}`。
+> - `parameterType`属性用于指定传过来的参数类型，虽然可以省略（Mybatis可以自动识别某些类型的参数），但是还是建议显式的加上，以增加可读性。
+> - 给占位符传值目前先介绍2种方式：Map和Pojo类。**如果采用map集合传参，#{} 里写的是map集合的key，如果key不存在不会报错，数据库表中会插入NULL**；**如果采用POJO传参，#{} 里写的是get方法的方法名去掉get之后将剩下的单词首字母变小写（例如：getAge对应的是#{age}，getUserName对应的是#{userName}），如果这样的get方法不存在会报错**。
 
 ###### 测试程序：（update修改）
 
@@ -333,6 +344,8 @@ public void testUtil() {
     sqlSession.close();
 }
 ```
+
+> 注意：SqlSession中用于执行sql的方法，只有2个参数。第一个是String类型的SqlID，第二个是Object类型的值。
 
 ###### 运行成功：
 
@@ -371,8 +384,10 @@ public void testUtil() {
 - ###### 在Mapper中写个删除：
 
   ```xml
-  <delete id="deleteByCarNum">
-      delete from t_car where car_num = #{suibianxie}
+  <delete id="deleteCarById">
+      delete
+      from t_car
+      where id = #{id}
   </delete>
   ```
 
@@ -425,13 +440,15 @@ public void testUtil() {
   ###### 通过观察发现：只有id和brand是一致的，其他字段名和属性名对应不上，这就是导致null的原因；我们尝试在sql语句中使用as关键字来给查询结果列名起别名，sql这样写：
 
   ```xml
-  <select id="selectCarById" resultType="com.itheima.pojo.Car">
-      select
-          id, car_num as carNum, brand, guide_price as guidePrice, produce_time as produceTime, car_type as carType
-      from
-          t_car
-      where
-          id = #{id}
+  <select id="selectCarById" resultType="org.learnmybatis.bean.Car">
+      select id,
+             car_num      as carNum,
+             brand,
+             guide_price  as guidePrice,
+             produce_time as produceTime,
+             car_type     as carType
+      from t_car
+      where id = #{id}
   </select>
   ```
 
@@ -445,29 +462,26 @@ public void testUtil() {
 
   ```xml
   <!--虽然结果是List集合，但是resultType属性需要指定的是List集合中元素的类型。-->
-  <select id="selectCarAll" resultType="com.powernode.mybatis.pojo.Car">
-    <!--记得使用as起别名，让查询结果的字段名和java类的属性名对应上。-->
-    select
-      id, car_num as carNum, brand, guide_price as guidePrice, produce_time as produceTime, car_type as carType
-    from
+  <select id="selectCarAll" resultType="org.learnmybatis.bean.Car">
+      <!--记得使用as起别名，让查询结果的字段名和java类的属性名对应上。-->
+      select id, car_num as carNum, brand, guide_price as guidePrice, produce_time as produceTime, car_type as carType
+      from
       t_car
   </select>
   ```
-
+  
   ```java
   @Test
   public void testSelectCarAll(){
-      // 获取SqlSession对象
-      SqlSession sqlSession = SqlSessionUtil.openSession();
-      // 执行SQL语句
-      List<Car> cars = sqlSession.selectList("selectCarAll");
-      // 输出结果
-      cars.forEach(car -> System.out.println(car));
+      SqlSession sqlSession = SqlSessionUtil.getSession(true);
+      List<Car> list = sqlSession.selectList("abc.selectCarAll");
+      list.forEach(System.out::println);
+      sqlSession.close();
   }
   ```
-
+  
   结果：
-
+  
   ```java
   Car{id=1, carNum='100', brand='AE86', guidePrice=23.0, produceTime='2023-03-02', carType='燃油车'}
   Car{id=2, carNum='101', brand='宝马520Li', guidePrice=45.0, produceTime='2022-11-11', carType='燃油车'}

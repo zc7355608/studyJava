@@ -1,14 +1,14 @@
 ## MyBatis参数处理
 
-###### 我们来探究下mybatis的mapper文件中的占位符#{}中可以传哪些类型的参数：
+> 我们来探究下Mybatis的Mapper文件中的占位符`#{}`中可以传哪些类型的参数：
 
-- #### 单个参数：（这种情况下mybatis可以做类型的自动推断，所以sql中可以不用指定parameterType属性的值）
+- #### 单个参数：（这种情况下Mybatis可以做类型的自动推断，所以sql中可以不用指定parameterType属性的值）
 
   1. **单个简单类型参数**：`byte/short/int/long/float/double/boolean/char`，以及它们各自的包装类型，还有`String、java.util.Date、java.sql.Date`
   2. **单个Map类型**：#{}里写map的key，注意**map的key只能是String类型**。
   3. **单个pojo类**：#{}里写属性名，底层调用了pojo类的get方法进行的传值。
 
-  > **其实#{}中的完整写法是：**`#{name,javaType=String,jdbcType=VARCHAR}`，指定该name属性传过来的值类型为String，对应数据库中的类型是varchar。其实这两个包括sql标签中的parameterType属性，都是用来帮助mybatis进行类型确定的。不过大多数情况下这些配置可以省略，因为mybatis它有强大的自动类型推断，所以了解即可。
+  > **其实#{}中的完整写法是：**`#{name,javaType=String,jdbcType=VARCHAR}`，指定该name属性传过来的值类型为String，对应数据库中的类型是varchar。其实这两个包括sql标签中的parameterType属性，都是用来帮助Mybatis进行类型确定的。不过大多数情况下这些配置可以省略，因为Mybatis它有强大的自动类型推断，所以了解即可。
 
 - #### 多个参数：
 
@@ -16,15 +16,15 @@
 
   - 我们可以将多个参数封装到一个`Map<String,Object>`集合里，指定map集合的key为String型的arg1、arg2..，将map集合作为参数传给sqlSession对象的方法中；此时mapper文件中用arg0、arg1...来取map中的数据就行了。
 
-  - 但是现在我们自己不写Mapper实现类了，直接用Mybatis生成的，它底层的原理和上面一样。mybatis会帮我们将接口中传过来的多个参数，先进行处理。它底层会创建一个**map<String,Object>**，将接口的多个参数封装到这个map中，并且该map的key是**#{arg0}**、#{arg1}...或**#{param1}**、#{param2}..这样的形式*（注意：如果是mybatis3.4.2之前的版本，要用#{0}和#{1}这种方式取出来）*
+  - 但是现在我们自己不写Mapper实现类了，直接用Mybatis生成的，它底层的原理和上面一样。Mybatis会帮我们将接口中传过来的多个参数，先进行处理。它底层会创建一个**map<String,Object>**，将接口的多个参数封装到这个map中，并且该map的key是**#{arg0}**、#{arg1}...或**#{param1}**、#{param2}..这样的形式*（注意：如果是Mybatis3.4.2之前的版本，要用#{0}和#{1}这种方式取出来）*
 
-  - 但是它的这种方式的可读性太差，能不能自定义map的key？可以，在参数前用`@param()`注解。相当于告诉mybatis，我的这些个参数，存到map中时，用我给这个key来存：
+  - 但是它的这种方式的可读性太差，能不能自定义map的key？可以，在参数前用`@param()`注解。相当于告诉Mybatis，我的这些个参数，存到map中时，用我给这个key来存：
   
     ```java
     List<Student> selectByNameAndAge(@Param(value="name") String name, @Param("age") int age);
     ```
   
-  - 如果形参是**单个**，数组、Collection、List类型的，Mybatis同样会封装到map中，取用`#{array}、#{collection}、#{list}`取，取到的就是这个对象本身，不过建议手动加`@Param()`注解指定map中的键名
+    > 注意：如果形参是**单个**数组或List的，Mybatis的`getMapper`会自动将其封装为Map（里面只有一个元素），可以用`#{array}、#{collection}、#{list}`来取这个元素，取到的就是这个数组/list本身，不过建议手动加`@Param()`注解指定map中的键名。
   
 
 ------
@@ -64,7 +64,7 @@
         id：这个结果映射的标识，作为select标签的resultMap属性的值。
         type：结果集要映射成Java的什么类型。可以使用别名 -->
     <resultMap id="selectAllResultMap" type="Car">
-    	<!-- 对象的唯一标识，官方解释是：为了提高mybatis的性能。建议写上 -->
+    	<!-- 对象的唯一标识，官方解释是：为了提高Mybatis的性能。建议写上 -->
     	<id column="id" property="id"/>
     	<result column="car_num" property="carNum"/>
     	<!-- 当属性名和数据库列名一致时，可以省略，但建议都写上 -->
@@ -106,8 +106,8 @@
 
   > 关于if标签有以下几点说明：
   >
-  > 1. if标签的test属性是必须的，值是false或true；如果test为true，则if标签中内容会拼接，反之则不会
-  > 2. test属性中的关键字，要和下方#{}中的关键字保持一致
+  > 1. if标签的`test`属性是必须的，值是`false`或`true`；如果test为true，则if标签中内容会拼接，反之则不会。
+  > 2. `test`中可以写的关键字，和下方的`#{}`中可以出现的关键字是一样的。
   > 3. 在xml中，“且”只能用and来表示，&是特殊字符
 
 - `<where>`标签：它的作用是让where子句更加动态智能；当where标签中有内容时，会自动生成where关键字，并且会自动去除内容**前面**多余的and或or
@@ -165,7 +165,7 @@
   </update>
   ```
 
-- `<choose>、<when>、<ohterwise>`标签：这三个标签是在一起使用的，类似于if else，比多个`<if>`标签更方便，只有一个分支会被选择。`<when>`最少出现1次，`<ohterwise>`最多出现1次
+- `<choose>、<when>、<ohterwise>`标签：这三个标签是在一起使用的，类似于switch，只有一个分支会被选择。
 
   ```xml
   <select id="selectWithChoose" resultType="car">
@@ -248,60 +248,61 @@
 
    ![image-20240330173719652](./assets/image-20240330173719652.png)
 
-2. 创建两个pojo类Clazz（除了cid和cname，还有List<Student>属性）和Student（sid、sname和Clazz属性），分别模拟一对多，多对一的场景。创建mapper接口StudentMapper、ClazzMapper，创建mapper映射文件StudentMapper.xml、ClazzMapper.xml，还有两个Mapper接口的测试用例，ClazzMapperTest和StudentMapperTest
+2. 创建两个pojo类Clazz（除了cid和cname，还有`List<Student>`属性）和Student（sid、sname和Clazz属性），分别模拟一对多，多对一的场景。创建mapper接口StudentMapper、ClazzMapper，创建mapper映射文件StudentMapper.xml、ClazzMapper.xml，还有两个Mapper接口的测试用例，ClazzMapperTest和StudentMapperTest
 
 ------
 
 - ##### 当学生表为主表时（多对一）：
 
-  1. ###### 级联属性映射：(需要写链接查询的sql)
+  1. ###### 级联属性映射：(需要写连接查询的sql)
 
-       > StudentMapper：
-       >
-       > ```java
-       > public Student select(Integer id);
-       > ```
+     > StudentMapper：
+     >
+     > ```java
+     > public Student select(Integer id);
+     > ```
 
-       > StudentMapper.xml：
-       >
-       > ```xml
-       > <!-- 第1种方式查 -->
-       > <select id="select" resultMap="selectResultMap">
-       >     select s.sid, s.sname, c.cid, c.cname from t_student as s
-       >         left join t_clazz as c on s.cid=c.cid
-       >     where s.sid=#{id}
-       > </select>
-       > <resultMap id="selectResultMap" type="Student">
-       >     <id column="sid" property="sid"/>
-       >     <result column="sname" property="sname"/>
-       >     <!-- 将这两个标签去掉 -->
-       >     <!-- <result column="cid" property="clazz.cid"/> -->
-       >     <!-- <result column="cname" property="clazz.cname"/> -->
-       > 
-       >     <!-- 也可以这样 -->
-       >     <!-- association翻译为“关联”，表示student对象的clazz属性要关联一个Clazz类型的Java对象 -->
-       >     <association property="clazz" javaType="Clazz">
-       >         <id column="cid" property="cid"/><!-- 结果集字段的cid映射到Clazz对象的cid属性，是主键 -->
-       >         <result column="cname" property="cname"/><!-- 结果集字段的cname映射到Clazz对象的cname属性 -->
-       >     </association>
-       > </resultMap>
-       > ```
+     > StudentMapper.xml：
+     >
+     > ```xml
+     > <!-- 第1种方式查 -->
+     > <select id="select" resultMap="selectResultMap">
+     > 	select s.sid, s.sname, c.cid, c.cname from t_student as s
+     > 		left join t_clazz as c on s.cid=c.cid
+     > 	where s.sid=#{id}
+     > </select>
+     > <resultMap id="selectResultMap" type="Student">
+     > 	<id column="sid" property="sid"/>
+     > 	<result column="sname" property="sname"/>
+     > 	<!-- association翻译为“关联”，表示student对象的clazz属性要关联一个Clazz类型的Java对象 -->
+     > 	<association property="clazz" javaType="Clazz">
+     > 		<id column="cid" property="cid"/><!-- 结果集字段的cid映射到Clazz对象的cid属性，是主键 -->
+     > 		<result column="cname" property="cname"/><!-- 结果集字段的cname映射到Clazz对象的cname属性 -->
+     > 	</association>
+     > 
+     > <!-- 也可以这样 -->
+     > <!-- <result column="cid" property="clazz.cid"/> -->
+     > <!-- <result column="cname" property="clazz.cname"/> -->
+     > </resultMap>
+     > ```
+     >
+     > 注意：association中加了id标签的话，最终多个学生关联到的Clazz对象就是同一个，不会重复创建多个实例。否则每一个学生关联到的都是不同的Clazz对象。
 
      > 测试代码：（clazz属性的students属性为null是正常的，否则就递归了）
      >
      > ```java
      > @Test
      > public void testSelect(){
-     >     SqlSession sqlSession = SqlSessionUtil.openSession();
-     >     StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
-     >     Student student = studentMapper.select(1);
-     >     System.out.println(student);
-     >     //Student{sid=1, sname='赵匡胤', clazz=Clazz{cid=3, cname='3年3班', students=null}}
-     >     sqlSession.close();
+     >        SqlSession sqlSession = SqlSessionUtil.openSession();
+     >        StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
+     >        Student student = studentMapper.select(1);
+     >        System.out.println(student);
+     >        // Student{sid=1, sname='赵匡胤', clazz=Clazz{cid=3, cname='3年3班', students=null}}
+     >        sqlSession.close();
      > }
      > ```
 
-  2. ###### 分步查询：（优点：不用写链接查询了，代码复用性增强，且支持懒加载提高执行效率）
+  2. ###### 分步查询：（优点：不用写连接查询了，代码复用性增强，且支持懒加载提高执行效率）
 
      *懒加载：暂时不访问的数据先不查，提高程序的执行效率。*
 
@@ -315,16 +316,17 @@
      >
      > ```xml
      > <select id="selectStep1" resultMap="selectStep1ResultMap">
-     >     select sid, sname, cid from t_student where sid=#{id}//不用写链接查询的sql
+     > 	select sid, sname, cid from t_student where sid=#{id}//不用写链接查询的sql
      > </select>
      > <resultMap id="selectStep1ResultMap" type="Student">
+     >     <!-- 有id标签，则不会重复创建多个Clazz实例 -->
      >     <id column="sid" property="sid"/>
      >     <result column="sname" property="sname"/>
      >     <!-- 将cid传给第2步的sql，select指向第2步的sqlId，查到的Clazz结果对象给clazz属性 -->
      >     <association column="cid" select="com.itheima.mapper.ClazzMapper.selectStep2" property="clazz"/>
      > </resultMap>
      > ```
-
+     
      > 第2步的ClazzMapper：
      >
      > ```java
@@ -336,25 +338,25 @@
      > ```xml
      > <!-- 分布查询第2步；这里的id接收第1步传过来的column属性的值，查询结果对象Clazz传给第1步的property属性 -->
      > <select id="selectStep2" resultType="Clazz">
-     >     select cid, cname from t_clazz where cid=#{id}
+     >    	select cid, cname from t_clazz where cid=#{id}
      > </select>
      > ```
-
+     
      > 测试代码：
      >
      >   ```java
      > @Test
      > public void testSelectStep1(){
-     >     SqlSession sqlSession = SqlSessionUtil.openSession();
-     >     StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
-     >     Student student = studentMapper.selectStep1(1);
-     >     System.out.println(student.getSid());
-     >     System.out.println(student.getSname());
-     >     sqlSession.close();
+     >        SqlSession sqlSession = SqlSessionUtil.openSession();
+     >        StudentMapper studentMapper = sqlSession.getMapper(StudentMapper.class);
+     >        Student student = studentMapper.selectStep1(1);
+     >        System.out.println(student.getSid());
+     >        System.out.println(student.getSname());
+     >        sqlSession.close();
      > }
      >   ```
      >
-
+     
      > 没开启懒加载时的结果：虽然暂时不需要看clazz属性，但2条sql都编译且执行了，说明clazz属性也查了赋值了
      >
      > ![image-20240330193646857](./assets/image-20240330193646857.png)
@@ -362,15 +364,15 @@
      > 开启懒加载时的结果：没用到clazz属性，第二个sql先不执行，clazz还没赋值
      >
      > ![image-20240330180739593](./assets/image-20240330180739593.png)
-
+     
      > 怎么开启懒加载：
      >
-     > 在第一步的`<association>`标签中加属性**fetchType="lazy"**。这是局部的懒加载，全局的在mybatis核心配置文件中开启：
+     > 在第一步的`<association>`标签中加属性`fetchType="lazy"`。这是局部的懒加载，全局的在Mybatis配置文件中开启：
      >
      > ```xml
      > <!-- 全局设置标签 -->
      > <settings>
-     >  <setting name="lazyLoadingEnabled" value="true"/>
+     >      <setting name="lazyLoadingEnabled" value="true"/>
      > </settings>
      > ```
      >
