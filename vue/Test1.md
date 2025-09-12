@@ -90,7 +90,7 @@
 
     > 指令语法可以让标签的**属性值**实现动态化。例如`v-bind`指令：`v-bind:属性名='JS表达式'`，它可以实现标签属性值的动态化。由于该指令很常用，所以**可以简写**`:属性名='JS表达式'`。
     >
-    > **注意：**当表达式的结果为 `false` 或者 `null`、`undefined`，那么对应的属性将不会被添加到元素上。如果表达式的值为 `true`，则属性会以最小化形式存在（例如 `selected` 会变成 `selected="selected"`）。
+    > **注意：**当表达式的结果为 `false` 或者 `null`、`undefined`，那么对应的属性将不会被添加到元素上。如果表达式的值为 `true`，则属性会以最小化形式存在（例如 `selected="true"` 会变成 `selected`）。
   
 - ## Vue的数据绑定
 
@@ -103,12 +103,12 @@
   >   > v-model双向数据绑定，底层是用表单元素的`input`或`change`事件来完成的：
   >
   >   ```js
-  >   <input type='text' :value="username" @input="username = $event.target.value"/>
+  >   <input type='text' :value="username" @input="v => username = v"/>
   >   ```
   >
   >   > 它和`<input type='text' v-model="username"/>`是等价的。
   >
-  >   > vue2.2.0 版本新增了`model`配置项，组件中可以通过这个配置项的`prop`和`event`来自定义v-model转换后的名字。
+  >   > Vue 2.2.0 版本新增了`model`配置项，组件中可以通过`model`配置项的`prop`和`event`属性来自定义`v-model`转换后的prop属性名和事件名。
 
 - ## el和data属性的另一种写法
 
@@ -119,8 +119,8 @@
   >   ```js
   >   const v = new Vue({
   >       el: '#root',
-  >       data(){ // 完整形式为，data:function(){}
-  >           console.log(this) // this是当前vue实例
+  >       data(){
+  >           console.log(this) // 里面的this是当前Vue实例
   >           return { user: '张三' }
   >       }
   >   })
@@ -145,8 +145,8 @@
   - #### 给元素绑定事件：
 
     > - 通过指令`v-on:事件名称='JS表达式'`（简写：`@事件名称='JS表达式'`），可以给元素绑定事件，然后在Vue对象的配置里加`methods: {方法}`，里面是需要Vue对象在事件发生时去调用的方法。最终这些方法也会出现在Vue实例上，所以才可以在Vue模版中直接用。
-    > - 事件名后的字符串可以是一个JS表达式，也可以是`methods`中的方法名，此时默认会传一个**事件对象**过去。如果要传多个形参，可以用（vue实例上的）`$event`做事件对象的占位符，避免传其他参数时事件对象消失。
-    > - `methods`中的方法是被Vue管理的方法。所有被Vue所管理的方法，Vue会帮你将里面的this指向该Vue对象。所以methods中的被Vue管理的方法不要用箭头函数，因为箭头函数没有this所以无法改变this的指向。
+    > - 事件名后的字符串可以是一个JS表达式，也可以是`methods`中的方法名，此时事件发生后Vue会自动调用该方法，并且会传一个**事件对象**过去。如果想给方法传多个参数，可以自己调用改方法，并将（Vue实例上的）`$event`作为实参传过去。
+    > - `methods`中的方法是被Vue管理的方法。所有被Vue所管理的方法，Vue会帮你将里面的this指向该Vue对象。所以methods中的被Vue管理的方法不要用箭头函数，因为箭头函数没有this所以无法改变this的指向，导致方法里面拿不到Vue实例。
     > - 和`data`不同的是，`methods`中的方法Vue不会做数据代理。因为函数不会修改，所以不用做响应式。如果将方法放data中会让Vue很累。所以通常`data`中写经常变的属性数据，`methods`中写不会变的方法数据。
     
   - #### （指令的）事件修饰符：
@@ -186,7 +186,7 @@
     >1. 配合`keyup`使用：按下修饰键的同时，再按下任意其他键，随后释放该其他键，事件才会触发。也可以指定按下y键才触发`@keyup.ctrl.y='表达式'`
     > 2. 配合`keydown`：正常触发
   
-  - #### v-model指令的修饰符：
+  - #### v-model指令的事件修饰符：
   
     > - `number`：可以将获取的value属性的字符串值转为Number型，如：`v-model.number='age'`，此时会将收集到的value属性的值给age变量，值是Number类型的。
     > - `lazy`：让input输入框失去焦点时再进行数据收集。不设置的话是实时收集，value属性变一次就收集一次。

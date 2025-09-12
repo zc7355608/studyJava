@@ -52,15 +52,15 @@
   }
   ```
 
-  > 可以很明显的看出，上层是依赖下层的。UserController依赖UserServiceImpl，而UserServiceImpl依赖UserDaoImplForMySQL，这样就会导致下面只要改动，上面必然会受牵连（跟着也会改），所谓牵一发而动全身。如果此时需要链接Oracle数据库，那么UserServiceImpl中就需要new一个UserDaoImplForOracle();的DAO实现类。
+  > 可以很明显的看出，上层是依赖下层的。UserController依赖UserServiceImpl，而UserServiceImpl依赖UserDaoImplForMySQL，这样就会导致下面只要改动，上面必然会受牵连（跟着也会改），所谓牵一发而动全身。如果此时需要链接Oracle数据库，那么UserServiceImpl中就需要`new`一个`UserDaoImplForOracle();`的DAO实现类。
 
   > 这样一来就违背了**OCP开闭原则**。开闭原则是这样说的：在软件开发过程中应当对扩展开放，对修改关闭。也就是说，如果在进行功能扩展的时候，添加额外的类是没问题的，但因为功能扩展而修改之前运行正常的程序，这是忌讳的，不被允许的。因为一旦修改之前运行正常的程序，就会导致项目整体要进行全方位的重新测试。这是相当麻烦的过程。导致以上问题的主要原因是：代码和代码之间的耦合度太高。
 
   > 同时还违背了开发中常用的一个原则，**依赖倒置原则**(Dependence Inversion Principle)，简称DIP：高层模块不应该依赖低层模块，两者都应该依赖其抽象。该原则主要倡导**面向抽象编程，面向接口编程**，不要面向具体编程，让上层不再依赖下层，下面改动了，上面的代码不会受到牵连。这样可以大大降低程序的耦合度，耦合度低了，扩展力就强了，同时代码复用性也会增强。
 
-  > 你可能会说，上面的代码已经面向接口编程了呀，我们就是用接口来调的方法：userService.login(username, password);
+  > 你可能会说，上面的代码已经面向接口编程了呀，我们就是用接口来调的方法：`userService.login(username, password);`
   >
-  > 但是还没有完全面向接口编程，我们还是在代码中自己new对象了：private UserService userService = new UserServiceImpl();
+  > 但是还没有完全面向接口编程，我们还是在代码中自己`new`对象了：`private UserService userService = new UserServiceImpl();`
   >
   > 但是如果我们不自己new对象，不就发生空指针异常了吗？所以我们现在的核心问题就是：**谁来负责对象的创建**，以及**谁负责把创建好的对象赋值给变量（属性）**。也就是谁来维护对象之间的关系。
   >
@@ -101,11 +101,11 @@
     >    - 从大小与开销两方面而言Spring都是轻量的。完整的Spring框架可以在一个大小只有1MB多的JAR文件里发布。并且Spring所需的处理开销也是微不足道的。
     >    - Spring是非侵入式的：Spring应用中的对象不依赖于Spring的特定类。
     >
-    > 2. 控制反转
+    > 2. 控制反转（IoC）
     >
     >    Spring通过一种称作控制反转（IoC）的技术促进了松耦合。当应用了IoC，一个对象依赖的其它对象会通过被动的方式传递进来，而不是这个对象自己创建或者查找依赖对象。你可以认为IoC与JNDI相反——不是对象从容器中查找依赖，而是容器在对象初始化时不等对象请求就主动将依赖传递给它。
     >
-    > 3. 面向切面
+    > 3. 面向切面（AOP）
     >
     >    Spring提供了面向切面编程的丰富支持，允许通过分离应用的业务逻辑与系统级服务（例如审计（auditing）和事务（transaction）管理）进行内聚性的开发。应用对象只实现它们应该做的——完成业务逻辑——仅此而已。它们并不负责（甚至是意识）其它的系统级关注点，例如日志或事务支持。
     >
@@ -256,9 +256,9 @@
        public void testFirst(){
            // 我们通过创建Spring上下文对象，让spring解析beans.xml文件，默认会new出来其中所有的bean对象，每个类new一个
            	//spring的配置文件可以有多个，因为该类的参数是可变长参数，可以("beans.xml","pojo.xml")
-           ApplicationContext applicationContext = new ClassPathXmlApplicationContext("beans.xml");
+           ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
            // 通过Spring上下文对象的getBean方法，传beanId进去，就可以获取该对象
-           Object userBean = applicationContext.getBean("userBean");
+           Object userBean = context.getBean("userBean");
            System.out.println(userBean);
        }
    }
@@ -275,7 +275,7 @@
 
 - ###### 我们通过创建Spring上下文对象，让spring解析beans.xml文件，创建其中所有的bean对象后，通过getBean方法传beanId可以获取该对象。那么它底层是怎么创建对象的？
 
-  > 默认是通过反射机制，调用的**无参构造器**来new的对象的，并且将创建的对象放在了Map<String,Object>容器中。如果类没有无参构造的话会报错，所以必须**要保证Spring管理的类有无参构造器**，可以被new实例化。
+  > 默认是通过反射机制，调用的**无参构造器**来new的对象的，并且将创建的对象放在了`Map<String,Object>`中。如果类没有无参构造的话会报错，所以必须**要保证Spring管理的类有无参构造器**，可以被实例化出来。
 
 - ###### 被Spring管理的类必须是自定义的吗，别人写好的jar包中的类可以吗？
 
@@ -297,11 +297,11 @@
 
 - ###### ClassPathXmlApplicationContext是从类路径中加载配置文件，如果没有在类路径当中，又应该如何加载配置文件呢？
 
-  > 用这个对象：ApplicationContext applicationContext2 = new FileSystemXmlApplicationContext("d:/spring6.xml");
+  > 用这个对象：`ApplicationContext context = new FileSystemXmlApplicationContext("d:/spring6.xml");`
   >
   > 这种方式很少用，了解即可。
 
-- ###### ApplicationContext（应用上下文）接口的超级父接口是BeanFactory（Bean工厂），所有的bean对象都在bean工厂中存放
+- ###### ApplicationContext（应用上下文）接口的超级父接口是BeanFactory（Bean工厂），所有的bean对象都在bean工厂中存放。
 
 ------
 
@@ -355,15 +355,15 @@
 
    > 1. 获取类的日志记录器对象：（只要是这个类中的代码执行了记录日志后，就输出相关信息）
    >
-   >    Logger logger = LoggerFactory.getLogger(记录哪个类的日志);
+   >    `Logger logger = LoggerFactory.getLogger(记录哪个类的日志);`
    >
    > 2. 根据不同级别输出日志：（根据配置文件中的日志级别的不同，logger输出的信息也不同）
    >
-   >    logger.info("我是一条日志消息");
+   >    `logger.info("我是一条日志消息");`
    >
-   >    logger.debug("我是一条调试消息");
+   >    `logger.debug("我是一条调试消息");`
    >
-   >    logger.error("我是一条错误消息");
+   >    `logger.error("我是一条错误消息");`
 
 ------
 
@@ -371,7 +371,7 @@
 
 > 我们之前介绍了IoC这种思想，它就是为了降低程序耦合度，提高程序扩展力，达到OCP原则，达到DIP原则。这种思想是如何实现的呢？就是靠：依赖注入DI（Dependency Injection）
 
-- #### 依赖注入：（实现了IoC）
+- #### 依赖注入（实现了IoC）：
 
   > 依赖简单来说就是，对象和对象之间的依赖关系、引用关系；注入是一种数据的传递、关联行为，通过注入来让对象之间产生依赖关系、关联关系。java常见的依赖注入有set注入和构造注入。
 
@@ -415,7 +415,7 @@
         <!-- 如果构造器有多个参数，就写多个constructor-arg标签 -->
         <!-- 也可以指定参数的名字 -->
         <!-- <constructor-arg name="userDao" ref="orderDaoBean"/> -->
-        <!-- 甚至也可以不写下标和名字，让spring来自动推断 -->
+        <!-- 甚至也可以不写下标和名字，让spring自动根据类型推断 -->
         <!-- <constructor-arg ref="orderDaoBean"/> -->
     </bean>
     ```
