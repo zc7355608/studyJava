@@ -310,7 +310,7 @@
 
   - ##### `<video>`：
 
-    > `<video>`标签是一个块级元素，用于放置视频。如果浏览器支持加载的视频格式，就会显示一个播放器，否则显示`<video>`内部的子元素。
+    > `<video>`标签是一个块级元素，用于放置视频。如果浏览器支持加载的视频格式，就会显示一个播放器，否则就显示`<video>`内部的子元素。
     >
     > ```html
     > <video src="example.mp4" controls>
@@ -320,7 +320,7 @@
     >
     > 上面代码中，如果浏览器不支持该种格式的视频，就会显示`<video>`内部的文字提示。
     >
-    > `<video>`有以下属性。
+    > `<video>`有以下属性：
     >
     > - `src`：视频文件的网址。
     > - `controls`：播放器是否显示控制栏。该属性是布尔属性，不用赋值，只要写上属性名，就表示打开。如果不想使用浏览器默认的播放器，而想使用自定义播放器，就不要使用该属性。
@@ -365,9 +365,9 @@
     >
     > ```html
     > <audio controls>
-    >   <source src="foo.mp3" type="audio/mp3">
-    >   <source src="foo.ogg" type="audio/ogg">
-    >   <p>你的浏览器不支持 HTML5 音频，请直接下载<a href="foo.mp3">音频文件</a>。</p>
+    >      <source src="foo.mp3" type="audio/mp3">
+    >      <source src="foo.ogg" type="audio/ogg">
+    >      <p>你的浏览器不支持 HTML5 音频，请直接下载<a href="foo.mp3">音频文件</a>。</p>
     > </audio>
     > ```
     >
@@ -389,8 +389,8 @@
     >
     > ```html
     > <video controls src="sample.mp4">
-    >    <track label="英文" kind="subtitles" src="subtitles_en.vtt" srclang="en">
-    >    <track label="中文" kind="subtitles" src="subtitles_cn.vtt" srclang="cn" default>
+    >      <track label="英文" kind="subtitles" src="subtitles_en.vtt" srclang="en">
+    >      <track label="中文" kind="subtitles" src="subtitles_cn.vtt" srclang="cn" default>
     > </video>
     > ```
     >
@@ -406,7 +406,7 @@
 
   - ##### `<source>`：
 
-    > `<source>`标签用于`<picture>`、`<video>`、`<audio>`的内部，用于指定一项外部资源。单标签是单独使用的，没有结束标签。
+    > `<source>`标签用于`<picture>`、`<video>`、`<audio>`的内部，用于指定一项外部资源。该标签是单独使用的，没有结束标签。
     >
     > 它有如下属性，具体示例请参见相应的容器标签。
     >
@@ -466,10 +466,10 @@
     >
     > ```html
     > <object
-    > 	type="application/pdf"
-    >   data="/media/examples/In-CC0.pdf"
-    >   width="250"
-    >   height="200"
+    >     type="application/pdf"
+    >      data="/media/examples/In-CC0.pdf"
+    >      width="250"
+    >      height="200"
     > >
     > </object>
     > ```
@@ -495,7 +495,7 @@
     >
     > ```html
     > <object data="movie.swf" type="application/x-shockwave-flash">
-    >   <param name="foo" value="bar">
+    > 	<param name="foo" value="bar">
     > </object>
     > ```
 
@@ -511,7 +511,7 @@
     > <iframe src="https://www.example.com"
     >         width="100%" height="500" frameborder="0"
     >         allowfullscreen sandbox>
-    >   <p><a href="https://www.example.com">点击打开嵌入页面</a></p>
+    >   	<p><a href="https://www.example.com">点击打开嵌入页面</a></p>
     > </iframe>
     > ```
     >
@@ -519,7 +519,7 @@
     >
     > 浏览器普遍支持`<iframe>`，所以内部的子元素可以不写。
     >
-    > `<ifeame>`的属性如下。
+    > `<ifeame>`的属性如下：
     >
     > - `allowfullscreen`：允许嵌入的网页全屏显示，需要全屏 API 的支持，请参考相关的 JavaScript 教程。
     > - `frameborder`：是否绘制边框，`0`为不绘制，`1`为绘制（默认值）。建议尽量少用这个属性，而是在 CSS 里面设置样式。
@@ -538,13 +538,12 @@
     > `sandbox`可以当作布尔属性使用，表示打开所有限制。
     >
     > ```html
-    > <iframe src="https://www.example.com" sandbox>
-    > </iframe>
+    > <iframe src="https://www.example.com" sandbox></iframe>
     > ```
-    >
-    > `sandbox`属性可以设置具体的值，表示逐项打开限制。未设置某一项，就表示不具有该权限。
-    >
-    > - `allow-forms`：允许提交表单。
+    > 
+    >`sandbox`属性可以设置具体的值，表示逐项打开限制。未设置某一项，就表示不具有该权限。（值之间用空格隔开）
+    > 
+    >- `allow-forms`：允许提交表单。
     > - `allow-modals`：允许提示框，即允许执行`window.alert()`等会产生弹出提示框的 JavaScript 方法。
     > - `allow-popups`：允许嵌入的网页使用`window.open()`方法弹出窗口。
     > - `allow-popups-to-escape-sandbox`：允许弹出窗口不受沙箱的限制。
@@ -557,14 +556,14 @@
     > - `allow-top-navigation`：允许嵌入的网页对顶级窗口进行导航。
     > - `allow-top-navigation-by-user-activation`：允许嵌入的网页对顶级窗口进行导航，但必须由用户激活。
     > - `allow-downloads-without-user-activation`：允许在没有用户激活的情况下，嵌入的网页启动下载。
-    >
-    > 注意，不要同时设置`allow-scripts`和`allow-same-origin`属性，这将使得嵌入的网页可以改变或删除`sandbox`属性。
-
+    > 
+    >注意：不要同时设置`allow-scripts`和`allow-same-origin`属性，这将使得嵌入的网页可以改变或删除`sandbox`属性。
+    
   - #### `loading` 属性
-
+  
     > `<iframe>`指定的网页会立即加载，有时这不是希望的行为。`<iframe>`滚动进入视口以后再加载，这样会比较节省带宽。
     >
-    > `loading`属性可以触发`<iframe>`网页的懒加载。该属性可以取以下三个值。
+    > `loading`属性可以触发`<iframe>`网页的懒加载。该属性可以取以下三个值：
     >
     > - `auto`：浏览器的默认行为，与不使用`loading`属性效果相同。
     > - `lazy`：`<iframe>`的懒加载，即将滚动进入视口时开始加载。
@@ -581,7 +580,7 @@
     > - `<iframe>`的宽度和高度为4像素或更小。
     > - 样式设为`display: none`或`visibility: hidden`。
     > - 使用定位坐标为负`X`或负`Y`，将`<iframe`>放置在屏幕外。
-
+  
 - ## 表格
 
   > 表格（table）以行（row）和列（column）的形式展示数据。
@@ -600,7 +599,7 @@
     >
     > ```html
     > <table>
-    >   <caption>示例表格</caption>
+    >   	<caption>示例表格</caption>
     > </table>
     > ```
 
@@ -610,9 +609,9 @@
     >
     > ```html
     > <table>
-    >   <thead>... ...</thead>
-    >   <tbody>... ...</tbody>
-    >   <tfoot>... ...</tfoot>
+    >     <thead>... ...</thead>
+    >     <tbody>... ...</tbody>
+    >     <tfoot>... ...</tfoot>
     > </table>
     > ```
     >
@@ -626,11 +625,11 @@
     >
     > ```html
     > <table>
-    >   <colgroup>
-    >     <col>
-    >     <col>
-    >     <col>
-    >   </colgroup>
+    >     <colgroup>
+    >        <col>
+    >        <col>
+    >        <col>
+    >     </colgroup>
     > </table>
     > ```
     >
@@ -640,16 +639,16 @@
     >
     > ```html
     > <table>
-    >   <colgroup>
-    >     <col class="c1">
-    >     <col class="c2">
-    >     <col class="c3">
-    >   </colgroup>
-    >   <tr>
-    >     <td>1</td>
-    >     <td>2</td>
-    >     <td>3</td>
-    >   </tr>
+    >     <colgroup>
+    >        <col class="c1">
+    >        <col class="c2">
+    >        <col class="c3">
+    >     </colgroup>
+    >     <tr>
+    >        <td>1</td>
+    >        <td>2</td>
+    >        <td>3</td>
+    >     </tr>
     > </table>
     > ```
     >
@@ -659,11 +658,11 @@
     >
     > ```html
     > <table>
-    >   <colgroup>
-    >     <col>
-    >     <col span="2">
-    >     <col>
-    >   </colgroup>
+    >     <colgroup>
+    >        <col>
+    >        <col span="2">
+    >        <col>
+    >     </colgroup>
     > </table>
     > ```
     >
@@ -675,9 +674,9 @@
     >
     > ```html
     > <table>
-    >   <tr>...</tr>
-    >   <tr>...</tr>
-    >   <tr>...</tr>
+    >     <tr>...</tr>
+    >     <tr>...</tr>
+    >     <tr>...</tr>
     > </table>
     > ```
     >
@@ -689,15 +688,15 @@
     >
     > ```html
     > <table>
-    >   <tr>
-    >     <th>学号</th><th>姓名</th>
-    >   </tr>
-    >   <tr>
-    >     <td>001</td><td>张三</td>
-    >   </tr>
-    >   <tr>
-    >     <td>002</td><td>李四</td>
-    >   </tr>
+    >     <tr>
+    >      	<th>学号</th><th>姓名</th>
+    >     </tr>
+    >     <tr>
+    >      	<td>001</td><td>张三</td>
+    >     </tr>
+    >     <tr>
+    >      	<td>002</td><td>李四</td>
+    >     </tr>
     > </table>
     > ```
     >
@@ -709,12 +708,12 @@
     >
     > ```html
     > <table>
-    >   <tr>
-    >     <td colspan="2">A</td><td>B</td>
-    >   </tr>
-    >   <tr>
-    >     <td>A</td><td>B</td><td>C</td>
-    >   </tr>
+    >     <tr>
+    >      	<td colspan="2">A</td><td>B</td>
+    >     </tr>
+    >     <tr>
+    >      	<td>A</td><td>B</td><td>C</td>
+    >     </tr>
     > </table>
     > ```
     >
@@ -726,15 +725,15 @@
     >
     > ```html
     > <table>
-    >   <tr>
-    >     <th id="no">学号</th><th id="names">姓名</th>
-    >   </tr>
-    >   <tr>
-    >     <td headers="no">001</td><td headers="names">张三</td>
-    >   </tr>
-    >   <tr>
-    >     <td headers="no">002</td><td headers="names">李四</td>
-    >   </tr>
+    >     <tr>
+    >      	<th id="no">学号</th><th id="names">姓名</th>
+    >     </tr>
+    >     <tr>
+    >      	<td headers="no">001</td><td headers="names">张三</td>
+    >     </tr>
+    >     <tr>
+    >      	<td headers="no">002</td><td headers="names">李四</td>
+    >     </tr>
     > </table>
     > ```
     >
@@ -748,27 +747,27 @@
     >
     > ```html
     > <table>
-    >   <tr>
-    >     <th scope="col">姓名</th>
-    >     <th scope="col">学号</th>
-    >     <th scope="col">性别</th>
-    >   </tr>
-    >   <tr>
-    >     <th scope="row">张三</th>
-    >     <td>001</td>
-    >     <td>男</td>
-    >   </tr>
-    >   <tr>
-    >     <th scope="row">李四</th>
-    >     <td>002</td>
-    >     <td>男</td>
-    >   </tr>
+    >     <tr>
+    >        <th scope="col">姓名</th>
+    >        <th scope="col">学号</th>
+    >        <th scope="col">性别</th>
+    >     </tr>
+    >     <tr>
+    >        <th scope="row">张三</th>
+    >        <td>001</td>
+    >        <td>男</td>
+    >     </tr>
+    >     <tr>
+    >        <th scope="row">李四</th>
+    >        <td>002</td>
+    >        <td>男</td>
+    >     </tr>
     > </table>
     > ```
     >
     > 上面代码中，第一行的标题栏都是列标题，所以`<th>`的`scope`属性为`col`，第二行和第三行的第一列是行标题，所以`<th>`标签的`scope`属性为`row`。
     >
-    > `scope`属性可以取下面这些值。
+    > `scope`属性可以取下面这些值：
     >
     > - `row`：该行的所有单元格，都与该标题单元格相关。
     > - `col`：该列的所有单元格，都与该标题单元格相关。
@@ -813,7 +812,7 @@
     >
     > 上面的例子中，列标题“尺寸”的`scope`属性为`colgroup`，表示这个标题单元格对应多列（本例为3列）；行标题的`scope`属性为`rowgroup`，表示这个标题单元格对应多行（本例为3行）。
     >
-    > 渲染结果就是下面的样子。
+    > 渲染结果就是下面的样子：
     >
     > | 海报名称 | 颜色            | 尺寸 |      |      |
     > | -------- | --------------- | ---- | ---- | ---- |
@@ -853,10 +852,10 @@
       >
       > ```html
       > <dialog open>
-      >     <form method="dialog">
+      >      <form method="dialog">
       >        <input type="text">
       >        <button type="submit" value="foo">提交</button>
-      >     </form>
+      >      </form>
       > </dialog>
       > ```
       >
@@ -891,15 +890,15 @@
       >
       > ```css
       > dialog {
-      >     padding: 0;
-      >     border: 0;
-      >     border-radius: 0.6rem;
-      >     box-shadow: 0 0 1em black;
+      >      padding: 0;
+      >      border: 0;
+      >      border-radius: 0.6rem;
+      >      box-shadow: 0 0 1em black;
       > }
       > 
       > dialog::backdrop {
-      >     /* make the backdrop a semi-transparent black */
-      >     background-color: rgba(0, 0, 0, 0.4);
+      >      /* make the backdrop a semi-transparent black */
+      >      background-color: rgba(0, 0, 0, 0.4);
       > }
       > ```
       >
@@ -919,7 +918,7 @@
       > ```js
       > modal.addEventListener('click', (event) => {
       >   if (event.target === modal) {
-      >     modal.close('cancelled');
+      >   	modal.close('cancelled');
       >   }
       > });
       > ```
@@ -965,8 +964,8 @@
       >
       > ```html
       > <details>
-      >     <summary>这是标题</summary>
-      >     这是一段解释文本。
+      >      <summary>这是标题</summary>
+      >      这是一段解释文本。
       > </details>
       > ```
       >
@@ -987,8 +986,8 @@
       >
       > ```css
       > summary::-webkit-details-marker {
-      >     background: url(https://example.com/foo.svg);
-      >     color: transparent;
+      >      background: url(https://example.com/foo.svg);
+      >      color: transparent;
       > }
       > ```
       >
@@ -996,12 +995,12 @@
       >
       > ```css
       > summary::-webkit-details-marker {
-      >   	display: none;
+      >    	display: none;
       > }
       > summary:before {
-      >     content: "\2714";
-      >     color: #696f7c;
-      >     margin-right: 5px;
+      >      content: "\2714";
+      >      color: #696f7c;
+      >      margin-right: 5px;
       > }
       > ```
 
@@ -1023,11 +1022,11 @@
       >
       > ```js
       > details.addEventListener('toggle', event => {
-      >     if (details.open) {
-      >        /* 展开状况 */
-      >     } else {
-      >        /* 折叠状态 */
-      >     }
+      >      if (details.open) {
+      >      	/* 展开状况 */
+      >      } else {
+      >      	/* 折叠状态 */
+      >      }
       > });
       > ```
 

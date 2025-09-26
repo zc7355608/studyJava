@@ -10,9 +10,9 @@
 
       > `<form>`标签用来定义一个表单，所有表单内容放到这个容器元素之中。
       >
-      > ```
+      > ```html
       > <form>
-      >   <!-- 各种表单控件-->
+      >   	<!-- 各种表单控件-->
       > </form>
       > ```
       >
@@ -20,11 +20,11 @@
       >
       > 下面是一个比较常见的例子。
       >
-      > ```
+      > ```html
       > <form action="https://example.com/api" method="post">
-      >   <label for="POST-name">用户名：</label>
-      >   <input id="POST-name" type="text" name="user">
-      >   <input type="submit" value="提交">
+      >      <label for="POST-name">用户名：</label>
+      >      <input id="POST-name" type="text" name="user">
+      >      <input type="submit" value="提交">
       > </form>
       > ```
       >
@@ -32,7 +32,7 @@
       >
       > 用户在文本输入框里面，输入用户名，比如`foobar`，然后点击提交按钮，浏览器就会向服务器`https://example.com/api`发送一个 POST 请求，发送`user=foobar`这样一段数据。
       >
-      > `<form>`有以下属性。
+      > `<form>`有以下属性：
       >
       > - `accept-charset`：服务器接受的字符编码列表，使用空格分隔，默认与网页编码相同。
       > - `action`：服务器接收数据的 URL。
@@ -45,67 +45,67 @@
 
     - ##### `enctype` 属性：
 
-      > `<form>`表单的`enctype`属性，指定了采用 POST 方法提交数据时，浏览器给出的数据的 MIME 类型。该属性可以取以下值。
+      > `<form>`表单的`enctype`属性，指定了采用 POST 方法提交数据时，浏览器给出的数据的 MIME 类型。该属性值只有以下2个选项：
       >
-      > （1）`application/x-www-form-urlencoded`
+      > 1. `application/x-www-form-urlencoded`
       >
-      > `application/x-www-form-urlencoded`是默认类型，控件名和控件值都要转义（空格转为`+`号，非数字和非字母转为`%HH`的形式，换行转为CR LF），控件名和控件值之间用`=`分隔。控件按照出现顺序排列，控件之间用`&`分隔。
+      >    `application/x-www-form-urlencoded`是默认类型，控件名和控件值都要转义（空格转为`+`号，非数字和非字母转为`%HH`的形式，换行转为CR LF），控件名和控件值之间用`=`分隔。控件按照出现顺序排列，控件之间用`&`分隔。
       >
-      > （2）`multipart/form-data`
+      > 2. `multipart/form-data`
       >
-      > `multipart/form-data`主要用于文件上传。这个类型上传大文件时，会将文件分成多块传送，每一块的 HTTP 头信息都有`Content-Disposition`属性，值为`form-data`，以及一个`name`属性，值为控件名。
+      >    `multipart/form-data`主要用于文件上传。这个类型上传大文件时，会将文件分成多块传送，每一块的 HTTP 头信息都有`Content-Disposition`属性，值为`form-data`，以及一个`name`属性，值为控件名。
       >
-      > ```
-      > Content-Disposition: form-data; name="mycontrol"
-      > ```
+      >    ```http
+      >    Content-Disposition: form-data; name="mycontrol"
+      >    ```
       >
-      > 下面是上传文件的表单。
+      >    下面是上传文件的表单。
       >
-      > ```
-      > <form action="https://example.com/api"
+      >    ```html
+      >    <form action="https://example.com/api"
       >       enctype="multipart/form-data"
       >       method="post">
-      >   用户名：<input type="text" name="submit-name"><br>
-      >   文件：<input type="file" name="files"><br>
-      >   <input type="submit" value="上传"> <input type="reset" value="清除">
-      > </form>
-      > ```
+      >      用户名：<input type="text" name="submit-name"><br>
+      >      文件：<input type="file" name="files"><br>
+      >      <input type="submit" value="上传"> <input type="reset" value="清除">
+      >    </form>
+      >    ```
       >
-      > 上面代码中，输入用户名`Larry`，选中一个`file1.txt`文件，然后点击“上传”。浏览器发送的实际数据如下。
+      >    上面代码中，输入用户名`Larry`，选中一个`file1.txt`文件，然后点击“上传”。浏览器发送的实际数据如下。
       >
-      > ```
-      > Content-Type: multipart/form-data; boundary=--AaB03x
-      > 
-      > --AaB03x
-      > Content-Disposition: form-data; name="submit-name"
-      > 
-      > Larry
-      > --AaB03x
-      > Content-Disposition: form-data; name="files"; filename="file1.txt"
-      > Content-Type: text/plain
-      > 
-      > ... contents of file1.txt ...
-      > --AaB03x--
-      > ```
+      >    ```http
+      >    Content-Type: multipart/form-data; boundary=--AaB03x
+      >       
+      >    --AaB03x
+      >    Content-Disposition: form-data; name="submit-name"
+      >       
+      >    Larry
+      >    --AaB03x
+      >    Content-Disposition: form-data; name="files"; filename="file1.txt"
+      >    Content-Type: text/plain
+      >       
+      >    ... contents of file1.txt ...
+      >    --AaB03x--
+      >    ```
       >
-      > 上面代码中，浏览器将这个表单发成多个数据块。最上面使用`Content-Type`字段告诉服务器，数据格式是`multipart/form-data`（即多个数据块），每个数据块的分隔标志是`--AaB03x`。每个数据块的第一行是`Content-Disposition`，其中的`name`字段表示这个数据块的控件名，数据体则是该控件的数据值，比如第一个数据块的`name`属性是`submit-name`控件，数据体是该控件的值`Larry`。第二个数据块是控件`files`，由于该控件是上传文件，所以还要用`filename`属性给出文件名`file1.txt`，数据体是`file1.txt`的内容。
+      >    上面代码中，浏览器将这个表单发成多个数据块。最上面使用`Content-Type`字段告诉服务器，数据格式是`multipart/form-data`（即多个数据块），每个数据块的分隔标志是`--AaB03x`。每个数据块的第一行是`Content-Disposition`，其中的`name`字段表示这个数据块的控件名，数据体则是该控件的数据值，比如第一个数据块的`name`属性是`submit-name`控件，数据体是该控件的值`Larry`。第二个数据块是控件`files`，由于该控件是上传文件，所以还要用`filename`属性给出文件名`file1.txt`，数据体是`file1.txt`的内容。
 
   - #### `<fieldset>`，`<legend>`
 
-    > `<fieldset>`标签是一个块级容器标签，表示控件的集合，用于将一组相关控件组合成一组。
+    > `<fieldset>`标签是一个块级容器标签，表示控件的集合，用于将一组相关控件组合成一组。`<fieldset>`标签通常放在`<form>`表单标签中，但这不是必须的。
     >
-    > ```
+    > ```html
     > <form>
-    >   <fieldset>
-    >     <p>年龄：<input type="text" name="age"></p>
-    >     <p>性别：<input type="text" name="gender"></p>
-    >   </fieldset>
+    >      <fieldset>
+    >        <p>年龄：<input type="text" name="age"></p>
+    >        <p>性别：<input type="text" name="gender"></p>
+    >      </fieldset>
     > </form>
     > ```
     >
     > 上面代码中，两个输入框是一组，它们的外面会显示一个方框。
     >
-    > `<fieldset>`有以下属性。
+    > `<fieldset>`有以下属性：
     >
     > - `disabled`：布尔属性，一旦设置会使得`<fieldset>`内部包含的控件都不可用，都变成灰色状态。
     > - `form`：指定控件组所属的`<form>`，它的值等于`<form>`的`id`属性。
@@ -113,7 +113,7 @@
     >
     > `<legend>`标签用来设置`<fieldset>`控件组的标题，通常是`<fieldset>`内部的第一个元素，会嵌入显示在控件组的上边框里面。
     >
-    > ```
+    > ```html
     > <fieldset>
     >   <legend>学生情况登记</legend>
     >   <p>年龄：<input type="text" name="age"></p>
@@ -127,7 +127,7 @@
 
     > `<label>`标签是一个行内元素，提供控件的文字说明，帮助用户理解控件的目的。
     >
-    > ```
+    > ```html
     > <label for="user">用户名：</label>
     > <input type="text" name="user" id="user">
     > ```
@@ -140,20 +140,20 @@
     >
     > 控件也可以放在`<label>`之中，这时不需要`for`属性和`id`属性。
     >
-    > ```
+    > ```html
     > <label>用户名：
-    >   <input type="text" name="user">
+    >   	<input type="text" name="user">
     > </label>
     > ```
     >
-    > `<label>`的属性如下。
+    > `<label>`的属性如下：
     >
     > - `for`：关联控件的`id`属性。
     > - `form`：关联表单的`id`属性。设置了该属性后，`<label>`可以放置在页面的任何位置，否则只能放在`<form>`内部。
     >
     > 一个控件可以有多个关联的`<label>`标签。
     >
-    > ```
+    > ```html
     > <label for="username">用户名：</label>
     > <input type="text" id="username" name="username">
     > <label for="username"><abbr title="required">*</abbr></label>
@@ -169,7 +169,7 @@
       >
       > 它有多种类型，取决于`type`属性的值，默认值是`text`，表示一个输入框。
       >
-      > ```
+      > ```html
       > <input>
       > <!-- 等同于 -->
       > <input type="text">
@@ -177,7 +177,7 @@
       >
       > 上面代码会生成一个单行的输入框，用户可以在里面输入文本。
       >
-      > `<input>`的属性非常多，有些属性是某个类型专用的，放在下文的“类型”部分介绍。这里介绍一些所有类型的共同属性。
+      > `<input>`的属性非常多，有些属性是某个类型专用的，放在下文的“类型”部分介绍。这里介绍一些所有类型的共同属性：
       >
       > - `autofocus`：布尔属性，是否在页面加载时自动获得焦点。
       > - `disabled`：布尔属性，是否禁用该控件。一旦设置，该控件将变灰，用户可以看到，但是无法操作。
@@ -197,9 +197,8 @@
       >
       > `type="text"`是普通的文本输入框，用来输入单行文本。如果用户输入换行符，换行符会自动从输入中删除。
       >
-      > ```
-      > <input type="text" id="name" name="name" required
-      >        minlength="4" maxlength="8" size="10">
+      > ```html
+      > <input type="text" id="name" name="name" required minlength="4" maxlength="8" size="10">
       > ```
       >
       > `text`输入框有以下配套属性。
@@ -218,10 +217,9 @@
       >
       > 下面是一个例子。
       >
-      > ```
+      > ```html
       > <form>
-      >   <input type="search" id="mySearch" name="q"
-      >     placeholder="输入搜索词……" required>
+      >   <input type="search" id="mySearch" name="q" placeholder="输入搜索词……" required>
       >   <input type="submit" value="搜索">
       > </form>
       > ```
@@ -230,7 +228,7 @@
       >
       > `type="button"`是没有默认行为的按钮，通常脚本指定`click`事件的监听函数来使用。
       >
-      > ```
+      > ```html
       > <input type="button" value="点击">
       > ```
       >
@@ -240,7 +238,7 @@
       >
       > `type="submit"`是表单的提交按钮。用户点击这个按钮，就会把表单提交给服务器。
       >
-      > ```
+      > ```html
       > <input type="submit" value="提交">
       > ```
       >
@@ -258,13 +256,13 @@
       >
       > `type="image"`表示将一个图像文件作为提交按钮，行为和用法与`type="submit"`完全一致。
       >
-      > ```
+      > ```html
       > <input type="image" alt="登陆" src="login-button.png">
       > ```
       >
       > 上面代码中，图像文件是一个可以点击的按钮，点击后会提交数据到服务器。
       >
-      > 该类型有以下配套属性。
+      > 该类型有以下配套属性：
       >
       > - `alt`：图像无法加载时显示的替代字符串。
       > - `src`：加载的图像 URL。
@@ -282,7 +280,7 @@
       >
       > `type="reset"`是一个重置按钮，用户点击以后，所有表格控件重置为初始值。
       >
-      > ```
+      > ```html
       > <input type="reset" value="重置">
       > ```
       >
@@ -294,7 +292,7 @@
       >
       > `type="checkbox"`是复选框，允许选择或取消选择该选项。
       >
-      > ```
+      > ```html
       > <input type="checkbox" id="agreement" name="agreement" checked>
       > <label for="agreement">是否同意</label>
       > ```
@@ -305,7 +303,7 @@
       >
       > 多个相关的复选框，可以放在`<fieldset>`里面。
       >
-      > ```
+      > ```html
       > <fieldset>
       >   <legend>你的兴趣</legend>
       >   <div>
@@ -325,7 +323,7 @@
       >
       > `type="radio"`是单选框，表示一组选择之中，只能选中一项。单选框通常为一个小圆圈，选中时会被填充或突出显示。
       >
-      > ```
+      > ```html
       > <fieldset>
       >   <legend>性别</legend>
       >   <div>
@@ -352,7 +350,7 @@
       >
       > `type="email"`是一个只能输入电子邮箱的文本输入框。表单提交之前，浏览器会自动验证是否符合电子邮箱的格式，如果不符合就会显示提示，无法提交到服务器。
       >
-      > ```
+      > ```html
       > <input type="email" pattern=".+@foobar.com" size="30" required>
       > ```
       >
@@ -360,7 +358,7 @@
       >
       > 该类型有一个`multiple`的布尔属性，一旦设置，就表示该输入框可以输入多个逗号分隔的电子邮箱。
       >
-      > ```
+      > ```html
       > <input id="emailAddress" type="email" multiple required>
       > ```
       >
@@ -379,7 +377,7 @@
       >
       > 该类型还可以搭配`<datalist>`标签，提供输入的备选项。
       >
-      > ```
+      > ```html
       > <input type="email" size="40" list="defaultEmails">
       > 
       > <datalist id="defaultEmails">
@@ -397,9 +395,8 @@
       >
       > `type="password"`是一个密码输入框。用户的输入会被遮挡，字符通常显示星号（`*`）或点（`·`）。
       >
-      > ```
-      > <input type="password" id="pass" name="password"
-      >            minlength="8" required>
+      > ```html
+      > <input type="password" id="pass" name="password" minlength="8" required>
       > ```
       >
       > 浏览器对该类型输入框的显示，会有所差异。一种常见的处理方法是，用户每输入一个字符，先在输入框里面显示一秒钟，然后再遮挡该字符。
@@ -421,23 +418,25 @@
       >
       > `type="file"`是一个文件选择框，允许用户选择一个或多个文件，常用于文件上传功能。
       >
-      > ```
-      > <input type="file"
-      >        id="avatar" name="avatar"
-      >        accept="image/png, image/jpeg">
+      > ```html
+      > <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg">
       > ```
       >
       > 该类型有以下属性。
       >
       > - `accept`：允许选择的文件类型，使用逗号分隔，可以使用 MIME 类型（比如`image/jpeg`），也可以使用后缀名（比如`.doc`），还可以使用`audio/*`（任何音频文件）、`video/*`（任何视频文件）、`image/*`（任何图像文件）等表示法。
-      > - `capture`：用于捕获图像或视频数据的源，可能的值有`user`（面向用户的摄像头或麦克风），`environment`（外接的摄像头或麦克风）。
+      >
+      > - `capture`：该属性值是一个字符串，如果 `accept` 属性指出了 input 是图片或者视频类型，则它指定了使用哪个摄像头去获取这些数据。值 `user` 表示应该使用前置摄像头和（或）麦克风。值 `environment` 表示应该使用后置摄像头和（或）麦克风。如果缺少此属性，则用户代理可以自由决定做什么。如果请求的前置模式不可用，则用户代理可能退回到其首选的默认模式。
+      >
+      >   > **备注：** `capture` 以前是一个布尔类型的属性，如果存在，则请求使用设备的媒体捕获设备（如：摄像机），而不是请求一个文件输入。
+      >
       > - `multiple`：布尔属性，是否允许用户选择多个文件。
       >
       > **（12）hidden**
       >
       > `type="hidden"`是一个不显示在页面的控件，用户无法输入它的值，主要用来向服务器传递一些隐藏信息。比如，CSRF 攻击会伪造表单数据，那么使用这个控件，可以为每个表单生成一个独一无二的隐藏编号，防止伪造表单提交。
       >
-      > ```
+      > ```html
       > <input id="prodId" name="prodId" type="hidden" value="xm234jq">
       > ```
       >
@@ -447,16 +446,15 @@
       >
       > `type="number"`是一个数字输入框，只能输入数字。浏览器通常会在输入框的最右侧，显示一个可以点击的上下箭头，点击向上箭头，数字会递增，点击向下箭头，数字会递减。
       >
-      > ```
-      > <input type="number" id="tentacles" name="tentacles"
-      >        min="10" max="100">
+      > ```html
+      > <input type="number" id="tentacles" name="tentacles" min="10" max="100">
       > ```
       >
       > 上面代码指定数字输入框，最小可以输入10，最大可以输入100。
       >
       > 该类型可以接受任何数值，包括小数和整数。可以通过`step`属性，限定只接受整数。
       >
-      > 该类型有以下配套属性。
+      > 该类型有以下配套属性：
       >
       > - `max`：允许输入的最大数值。
       > - `min`：允许输入的最小数值。
@@ -468,9 +466,8 @@
       >
       > `type="range"`是一个滑块，用户拖动滑块，选择给定范围之中的一个数值。因为拖动产生的值是不精确的，如果需要精确数值，不建议使用这个控件。常见的例子是调节音量。
       >
-      > ```
-      > <input type="range" id="start" name="volume"
-      >          min="0" max="11">
+      > ```html
+      > <input type="range" id="start" name="volume" min="0" max="11">
       > ```
       >
       > 上面代码会产生一个最小值为`0`、最大值为`11`的滑块区域。用户拖动滑块，选择想要的音量。
@@ -485,7 +482,7 @@
       >
       > 该类型与`<datalist>`标签配合使用，可以在滑动区域产生刻度。
       >
-      > ```
+      > ```html
       > <input type="range" list="tickmarks">
       > 
       > <datalist id="tickmarks">
@@ -511,7 +508,7 @@
       >
       > `type="url"`是一个只能输入网址的文本框。提交表单之前，浏览器会自动检查网址格式是否正确，如果不正确，就会无法提交。
       >
-      > ```
+      > ```html
       > <input type="url" name="url" id="url"
       >        placeholder="https://example.com"
       >        pattern="https://.*" size="30"
@@ -534,9 +531,8 @@
       >
       > 该类型与`<datalist>`标签搭配使用，可以形成下拉列表供用户选择。随着用户不断键入，会缩小显示范围，只显示匹配的备选项。
       >
-      > ```
-      > <input id="myURL" name="myURL" type="url"
-      >        list="defaultURLs">
+      > ```html
+      > <input id="myURL" name="myURL" type="url" list="defaultURLs">
       > 
       > <datalist id="defaultURLs">
       >   <option value="https://developer.mozilla.org/" label="MDN Web Docs">
@@ -553,7 +549,7 @@
       >
       > `type="tel"`是一个只能输入电话号码的输入框。由于全世界的电话号码格式都不相同，因此浏览器没有默认的验证模式，大多数时候需要自定义验证。
       >
-      > ```
+      > ```html
       > <input type="tel" id="phone" name="phone"
       >        pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
       >        required>
@@ -576,9 +572,8 @@
       >
       > `type="color"`是一个选择颜色的控件，它的值一律都是`#rrggbb`格式。
       >
-      > ```
-      > <input type="color" id="background" name="background"
-      >            value="#e66465">
+      > ```html
+      > <input type="color" id="background" name="background" value="#e66465">
       > ```
       >
       > 上面代码在 Chrome 浏览器中，会显示一个`#e66465`的色块。点击色块，就会出现一个拾色器，供用户选择颜色。
@@ -589,7 +584,7 @@
       >
       > `type="date"`是一个只能输入日期的输入框，用户可以输入年月日，但是不能输入时分秒。输入格式是`YYYY-MM-DD`。
       >
-      > ```
+      > ```html
       > <input type="date" id="start" name="start"
       >        value="2018-07-22"
       >        min="2018-01-01" max="2018-12-31">
@@ -607,10 +602,8 @@
       >
       > `type="time"`是一个只能输入时间的输入框，可以输入时分秒，不能输入年月日。日期格式是24小时制的`hh:mm`，如果包括秒数，格式则是`hh:mm:ss`。日期选择器的形式则随浏览器不同而不同。
       >
-      > ```
-      > <input type="time" id="appt" name="appt"
-      >        min="9:00" max="18:00" required>
-      > 
+      > ```html
+      > <input type="time" id="appt" name="appt" min="9:00" max="18:00" required>
       > <small>营业时间上午9点到下午6点</small>
       > ```
       >
@@ -621,7 +614,7 @@
       > - `readonly`：布尔属性，表示用户是否不可以编辑时间。
       > - `step`：步长值，单位为秒。
       >
-      > ```
+      > ```html
       > <input id="appt" type="time" name="appt" step="2">
       > ```
       >
@@ -631,9 +624,8 @@
       >
       > `type="month"`是一个只能输入年份和月份的输入框，格式为`YYYY-MM`。
       >
-      > ```
-      > <input type="month" id="start" name="start"
-      >        min="2018-03" value="2018-05">
+      > ```html
+      > <input type="month" id="start" name="start" min="2018-03" value="2018-05">
       > ```
       >
       > 该类型有以下配套属性。
@@ -647,9 +639,8 @@
       >
       > `type="week"`是一个输入一年中第几周的输入框。格式为`yyyy-Www`，比如`2018-W18`表示2018年第18周。
       >
-      > ```
-      > <input type="week" name="week" id="camp-week"
-      >        min="2018-W18" max="2018-W26" required>
+      > ```html
+      > <input type="week" name="week" id="camp-week" min="2018-W18" max="2018-W26" required>
       > ```
       >
       > 该类型有以下配套属性。
@@ -663,7 +654,7 @@
       >
       > `type="datetime-local"`是一个时间输入框，让用户输入年月日和时分，格式为`yyyy-MM-ddThh:mm`。注意，该控件不支持秒。
       >
-      > ```
+      > ```html
       > <input type="datetime-local" id="meeting-time"
       >        name="meeting-time" value="2018-06-12T19:30"
       >        min="2018-06-07T00:00" max="2018-06-14T00:00">
@@ -674,12 +665,12 @@
       > - `max`：允许的最晚时间，格式为`yyyy-MM-ddThh:mm`。
       > - `min`：允许的最早时间，格式为`yyyy-MM-ddThh:mm`。
       > - `step`：步长值，单位为秒，默认值是60。
-
+  
   - #### `<button>`
-
+  
     > `<button>`标签会生成一个可以点击的按钮，没有默认行为，通常需要用`type`属性或脚本指定按钮的功能。
     >
-    > ```
+    > ```html
     > <button>点击</button>
     > ```
     >
@@ -687,9 +678,9 @@
     >
     > `<button>`内部不仅放置文字，还可以放置图像，这可以形成图像按钮。
     >
-    > ```
+    > ```html
     > <button name="search" type="submit">
-    >   <img src="search.gif">搜索
+    >   	<img src="search.gif">搜索
     > </button>
     > ```
     >
@@ -706,19 +697,19 @@
     > - `formmethod`：数据提交到服务器使用的 HTTP 方法，会覆盖`<form>`元素的`method`属性，可能的值为`post`或`get`。
     > - `formnovalidate`：布尔属性，数据提交到服务器时关闭本地验证，会覆盖`<form>`元素的`novalidate`属性。
     > - `formtarget`：数据提交到服务器后，展示服务器返回数据的窗口，会覆盖`<form>`元素的`target`属性。可能的值有`_self`（当前窗口），`_blank`（新的空窗口）、`_parent`（父窗口）、`_top`（顶层窗口）。
-
+  
   - #### `<select>`
-
+  
     > `<select>`标签用于生成一个下拉菜单。
     >
-    > ```
+    > ```html
     > <label for="pet-select">宠物：</label>
     > 
     > <select id="pet-select" name="pet-select">
-    >   <option value="">--请选择一项--</option>
-    >   <option value="dog">狗</option>
-    >   <option value="cat">猫</option>
-    >   <option value="others">其他</option>
+    >     <option value="">--请选择一项--</option>
+    >     <option value="dog">狗</option>
+    >     <option value="cat">猫</option>
+    >     <option value="others">其他</option>
     > </select>
     > ```
     >
@@ -728,11 +719,11 @@
     >
     > `<option>`有一个布尔属性`selected`，一旦设置，就表示该项是默认选中的菜单项。
     >
-    > ```
+    > ```html
     > <select name="choice">
-    >   <option value="first">First Value</option>
-    >   <option value="second" selected>Second Value</option>
-    >   <option value="third">Third Value</option>
+    >     <option value="first">First Value</option>
+    >     <option value="second" selected>Second Value</option>
+    >     <option value="third">Third Value</option>
     > </select>
     > ```
     >
@@ -747,9 +738,9 @@
     > - `name`：控件名。
     > - `required`：布尔属性，是否为必填控件。
     > - `size`：设置了`multiple`属性时，页面显示时一次可见的行数，其他行需要滚动查看。
-
+  
   - #### `<option>`，`<optgroup>`
-
+  
     > `<option>`标签用在`<select>`、`<optgroup>`、`<datalist>`里面，表示一个菜单项，参见`<select>`的示例。
     >
     > 它有如下属性。
@@ -761,7 +752,7 @@
     >
     > `<optgroup>`表示菜单项的分组，通常用在`<select>`内部。
     >
-    > ```
+    > ```html
     > <label>宠物：
     >   <select name="pets" multiple size="4">
     >     <optgroup label="四条腿的宠物">
@@ -778,25 +769,25 @@
     >
     > 上面代码中，`<select>`是一个下拉菜单，它的内部使用`<optgroup>`将菜单项分成两组。每组有自己的标题，会加粗显示，但是用户无法选中。
     >
-    > 它的属性如下。
+    > 它的属性如下：
     >
     > - `disabled`：布尔设置，是否禁用该组。一旦设置，该组所有的菜单项都不可选。
     > - `label`：菜单项分组的标题。
-
+  
   - #### `<datalist>`
-
+  
     > `<datalist>`标签是一个容器标签，用于为指定控件提供一组相关数据，通常用于生成输入提示。它的内部使用`<option>`，生成每个菜单项。
     >
-    > ```
+    > ```html
     > <label for="ice-cream-choice">冰淇淋：</label>
     > <input type="text" list="ice-cream-flavors" id="ice-cream-choice" name="ice-cream-choice">
     > 
     > <datalist id="ice-cream-flavors">
-    >   <option value="巧克力">
-    >   <option value="椰子">
-    >   <option value="薄荷">
-    >   <option value="草莓">
-    >   <option value="香草">
+    >     <option value="巧克力">
+    >     <option value="椰子">
+    >     <option value="薄荷">
+    >     <option value="草莓">
+    >     <option value="香草">
     > </datalist>
     > ```
     >
@@ -806,31 +797,30 @@
     >
     > `<option>`标签还可以加入`label`属性，作为说明文字。Chrome 浏览器会将其显示在`value`的下一行。
     >
-    > ```
+    > ```html
     > <datalist id="ide">
-    >   <option value="Brackets" label="by Adobe">
-    >   <option value="Coda" label="by Panic">
+    >     <option value="Brackets" label="by Adobe">
+    >     <option value="Coda" label="by Panic">
     > </datalist>
     > ```
     >
     > 上面代码的渲染结果是，Chrome 浏览器会在下拉列表显示`value`值（比如`Brackets`），然后在其下方以小字显示`label`值（比如`by Adobe`）。
-
+  
   - #### `<textarea>`
-
+  
     > `<textarea>`是一个块级元素，用来生成多行的文本框。
     >
-    > ```
-    > <textarea id="story" name="story"
-    >           rows="5" cols="33">
-    > 这是一个很长的故事。
+    > ```html
+    > <textarea id="story" name="story" rows="5" cols="33">
+    >    	这是一个很长的故事。
     > </textarea>
     > ```
-    >
-    > 上面代码会生成一个长度为5行，宽度为33个字符的文本框。
-    >
-    > 该标签有如下属性。
-    >
-    > - `autofocus`：布尔属性，是否自动获得焦点。
+    > 
+    >上面代码会生成一个长度为5行，宽度为33个字符的文本框。
+    > 
+    >该标签有如下属性：
+    > 
+    >- `autofocus`：布尔属性，是否自动获得焦点。
     > - `cols`：文本框的宽度，单位为字符，默认值为20。
     > - `dir`：设定文本方向，默认为从左到右（`dir="ltr"`），也可以设为从右到左（`dir="rtl"`），或者让浏览器根据用户输入自动调整（`dir="auto"`）。
     > - `disabled`：布尔属性，是否禁用该控件。
@@ -844,12 +834,12 @@
     > - `rows`：文本框的高度，单位为行。
     > - `spellcheck`：是否打开浏览器的拼写检查。可能的值有`true`（打开），`default`（由父元素或网页设置决定），`false`（关闭）。
     > - `wrap`：输入的文本是否自动换行。可能的值有`hard`（浏览器自动插入换行符`CR + LF`，使得每行不超过控件的宽度），`soft`（输入内容超过宽度时自动换行，但不会加入新的换行符，并且浏览器保证所有换行符都是`CR + LR`，这是默认值），`off`（关闭自动换行，单行长度超过宽度时，会出现水平滚动条）。
-
+    
   - #### `<output>`
-
+  
     > `<output>`标签是一个行内元素，用于显示用户操作的结果。
     >
-    > ```
+    > ```html
     > <input type="number" name="a" value="10"> +
     > <input type="number" name="b" value="10"> =
     > <output name="result">20</output>
@@ -860,12 +850,12 @@
     > - `for`：关联控件的`id`属性，表示为该控件的操作结果。
     > - `form`：关联表单的`id`属性。
     > - `name`：控件的名称。
-
+  
   - #### `<progress>`
-
+  
     > `<progress>`标签是一个行内元素，表示任务的完成进度。浏览器通常会将显示为进度条。
     >
-    > ```
+    > ```html
     > <progress id="file" max="100" value="70"> 70% </progress>
     > ```
     >
@@ -873,33 +863,32 @@
     >
     > - `max`：进度条的最大值，应该是一个大于`0`的浮点数。默认值为1。
     > - `value`：进度条的当前值。它必须是`0`和`max`属性之间的一个有效浮点数。如果省略了`max`属性，该值则必须在`0`和`1`之间。如果省略了`value`属性，则进度条会出现滚动，表明正在进行中，无法知道完成的进度。
-
+  
   - #### `<meter>`
-
+  
     > `<meter>`标签是一个行内元素，表示指示器，用来显示已知范围内的一个值，很适合用于任务的当前进度、磁盘已用空间、充电量等带有比例性质的场合。浏览器通常会将其显示为一个不会滚动的指示条。
     >
-    > ```
-    > <p>烤箱的当前温度是<meter min="200" max="500"
-    >   value="350"> 350 度</meter>。</p>
-    > ```
-    >
-    > 上面代码会显示一个指示条，左侧表示`200`，右侧表示`500`，当前位置停留在`350`。
-    >
-    > 注意，`<meter>`元素的子元素，正常情况下不会显示。只有在浏览器不支持`<meter>`时才会显示。
-    >
-    > 该标签有如下属性。
-    >
-    > - `min`：范围的下限，必须小于`max`属性。如果省略，则默认为`0`。
+    > ```html
+    > <p>烤箱的当前温度是<meter min="200" max="500" value="350"> 350 度</meter>。</p>
+    >   ```
+    > 
+    >上面代码会显示一个指示条，左侧表示`200`，右侧表示`500`，当前位置停留在`350`。
+    > 
+    >注意，`<meter>`元素的子元素，正常情况下不会显示。只有在浏览器不支持`<meter>`时才会显示。
+    > 
+    >该标签有如下属性。
+    > 
+    >- `min`：范围的下限，必须小于`max`属性。如果省略，则默认为`0`。
     > - `max`：范围的上限，必须大于`min`属性。如果省略，则默认为`1`。
     > - `value`：当前值，必须在`min`属性和`max`属性之间。如果省略，则默认为`0`。
     > - `low`：表示“低端”的上限门槛值，必须大于`min`属性，小于`high`属性和`max`属性。如果省略，则等于`min`属性。
     > - `high`：表示“高端”的下限门槛值，必须小于`max`属性，大于`low`属性和`min`属性。如果省略，则等于`max`属性。
     > - `optimum`：指定最佳值，必须在`min`属性和`max`属性之间。它应该与`low`属性和`high`属性一起使用，表示最佳范围。如果`optimum`小于`low`属性，则表示“低端”是最佳范围；如果大于`high`属性，则表示“高端”是最佳范围；如果在`low`和`high`之间，则表示“中间地带”是最佳范围。如果省略，则等于`min`和`max`的中间值。
     > - `form`：关联表单的`id`属性。
-    >
-    > Chrome 浏览器使用三种颜色，表示指示条所处的位置。较好情况时，当前位置为绿色；一般情况时，当前位置为黄色；较差情况时，当前位置为红色。
-    >
-    > ```
+    > 
+    >Chrome 浏览器使用三种颜色，表示指示条所处的位置。较好情况时，当前位置为绿色；一般情况时，当前位置为黄色；较差情况时，当前位置为红色。
+    > 
+    >```html
     > <meter id="fuel" name="fuel"
     >        min="0" max="100"
     >        low="33" high="66" optimum="80"
@@ -907,8 +896,8 @@
     >     at 50/100
     > </meter>
     > ```
-    >
-    > 上面代码中，指示条可以分成三段：0 ～ 32，33 ～ 65，66 ～ 100。由于`optimum`属性是`80`，因此`66 ～ 100`是较好情况，`33 ～ 65`是一般情况，`0 ～ 32`是较差情况。浏览器因此会根据`value`属性，将当前位置显示为不同颜色，小于`33`时显示红色，大于`65`时显示绿色，两者之间显示黄色。
+    > 
+    >上面代码中，指示条可以分成三段：0 ～ 32，33 ～ 65，66 ～ 100。由于`optimum`属性是`80`，因此`66 ～ 100`是较好情况，`33 ～ 65`是一般情况，`0 ～ 32`是较差情况。浏览器因此会根据`value`属性，将当前位置显示为不同颜色，小于`33`时显示红色，大于`65`时显示绿色，两者之间显示黄色。
 
 ------
 
