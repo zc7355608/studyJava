@@ -10,7 +10,7 @@
     >
     > - JavaEE目前的最高版本是JavaEE11，JavaEE被Oracle捐给了Apache了，Apache把JavaEE改名了，叫做JakartaEE。以后就没有JavaEE了，以后都叫做JakartaEE。所以JavaEE8之后的版本“JavaEE11”不再是javaEE11了，叫做JakartaEE11。JavaEE8之前对应的包名是`javax.*`，现在最新规范的包都是`jakarta.*`
     > - Tomcat11用的是JakartaEE11规范，如果你的项目包用的javax的包，那么就无法部署在Tomcat10+版本上了，只能部署在9及以下的版本上，或者将源代码所有包重新导包。
-    > - 21版本之前的IDEA会识别不了Tomcat10，因为目录结构变了，因此tomcat10必须使用高版本的idea
+    > - 21版本之前的IDEA会识别不了Tomcat10，因为目录结构变了，因此tomcat10必须使用高版本的IDEA
     > - Tomcat通常会跟随Java EE规范的更新而更新，以支持最新的Servlet和JSP规范。因此Tomcat的每个版本通常都与JavaEE的某个版本相关联，但并不是一一对应。
 
     - ##### Servlet规范中规定了：
@@ -37,7 +37,7 @@
       >
       > ###### 详解：
       >
-      > - 该xx项目目录的结构如上，该目录要放在webapps目录下。
+      > - 该xx项目目录的结构如上，该目录要放在`webapps`目录下。
       > - 其中动态资源（Servlet类）需要放在`WEB-INF`目录中，该目录是受到保护的，只能通过编写的程序来跳转，直接发送请求是访问不到的。
       > - 静态资源放在外面任意其他目录中。
       > - `classes`目录中的是Java字节码文件，以及程序运行所需要的配置文件。
@@ -48,8 +48,8 @@
 
       > 网络路径URL也分为绝对路径和相对路径：（和本地路径一样，`./`表示当前路径，`../`表示当前资源的上一层）
       >
-      > - **相对路径**：不以协议开头、且不以`/`开头的都是相对路径。它默认以当前地址栏上的url的同级目录为基路径，拼接该相对路径后形成绝对路径去寻找目标资源。相对路径的优点是灵活，缺点是不稳定，容易受到浏览器当前地址栏的url的影响。
-      > - **绝对路径**：以协议或`/`开头的都是绝对路径。绝对路径可以是带协议ip端口的，也可以不带。不带协议ip端口的话默认用的是当前地址栏上的协议ip和端口。绝对路径通过固定的url去找目标资源，因此非常稳定。但缺点是不灵活，尤其是项目上下文（项目名）变化之后，可能会导致项目中使用绝对路径的地方都会受到影响，导致资源找不到。（因为绝对路径要在URI中加上项目名）
+      > - **相对路径**：不以协议开头的都是相对路径。它默认以当前地址栏上的url的同级目录为基路径，拼接该相对路径后形成绝对路径去寻找目标资源。以`/`开头的也是相对路径，不过它相对的是当前网页的协议、IP、端口。相对路径的优点是灵活，缺点是不稳定，容易受到浏览器当前地址栏的url的影响。
+      > - **绝对路径**：以协议开头的是绝对路径。绝对路径通过固定的URL去找目标资源，因此非常稳定。但缺点是不灵活，尤其是项目上下文（项目名）变化之后，可能会导致项目中使用绝对路径的地方都会受到影响，导致资源找不到。（因为绝对路径要在URI中加上项目名）
       >
       > 那我们开发中，资源的路径写相对还是绝对呢？如果是绝对。那么项目名变了不就出问题了吗，这样做：
       >
@@ -61,9 +61,9 @@
 
   - #### Servlet的生命周期
 
-    - 当浏览器发送来“请求报文”时（其中包含请求行、头、体等信息），tomcat将报文信息封装成一个HttpServletRequest对象，该对象承载了HTTP请求报文；通过该对象可以处理用户的请求，最终我们返回给一个HTTP响应报文即可。
+    - 当浏览器发送来“请求报文”时（其中包含请求行、头、体等信息），tomcat将报文信息封装成一个`HttpServletRequest`对象，该对象承载了HTTP请求报文；通过该对象可以处理用户的请求，最终我们返回给一个HTTP响应报文即可。
 
-    - 通常我们只需要指定响应的内容即可，tomcat会自动将我们指定的内容封装成一个HttpServletResponse对象。最终tomcat会将该对象转换成“HTTP响应报文”发送给浏览器；我们不需要去拼接很复杂的请求报文和响应报文，而是直接用HttpServletRequest和HttpServletResponsehttp类提供的API即可。
+    - 通常我们只需要指定响应的内容即可，tomcat会自动将我们指定的内容封装成一个`HttpServletResponse`对象。最终tomcat会将该对象转换成“HTTP响应报文”发送给浏览器；我们不需要去拼接很复杂的请求报文和响应报文，而是直接用`HttpServletRequest`和`HttpServletResponsehttp`类提供的API即可。
 
     - 用户请求的某个动态资源，会有某个对应的Java对象去处理。这个特殊的Java对象要想完成动态资源的接收、跳转、转发等操作，就需要实现Servlet接口。实现了Servlet接口的类，相当于具备了处理用户请求的功能，这样服务器才能放心的将资源转发调度的工作交给该类对应的实例。
 
@@ -71,7 +71,7 @@
 
     - 即：网站中所有的Servlet接口实现类的实例对象，只能由WEB容器（Tomcat服务器）来创建。**开发人员不能手动创建Servlet接口实现类的实例对象**。
 
-      > **我们自己new的Servlet对象受WEB容器的管理吗？**
+      > **我们自己创建的Servlet对象受WEB容器的管理吗？**
       >
       > 我们自己new的Servlet对象是不会受到WEB容器的管理的。Tomcat创建的Servlet对象，这些Servlet对象都会被放到一个HashMap中（集合的key是servletName），只有放到这个集合中的Servlet对象才会被WEB容器所管理，自己new的Servlet对象不会被WEB容器管理的。
       >
@@ -79,12 +79,12 @@
 
     - 而Tomcat创建和销毁一个Servlet实例的过程，就是Servlet的生命周期。即Servlet对象什么时候被服务器创建？Servlet对象什么时候被服务器销毁？一个Servlet对象从出生到最后的死亡，整个过程是怎样的？
 
-    - 默认情况下，服务器启动时并不会实例化Servlet对象。那么它启动时做了什么呢？
-
-    - > 服务器启动后会去解析web.xml文件，找到对应的url-pattern和servlet-class，然后将这个信息保存在map中。
-      > 这个设计是合理的。用户没有发送请求之前，提前在JVM中创建了大量的Servlet对象，必然是耗费内存的。因为创建出来的某个Servlet如果一直没有用户访问，显然这个Servlet对象此时压根没用，没有必要启动就创建。
-
     - 默认当用户第一次请求某个Servlet对应的URL的时候，该Servlet实例才会被Tomcat实例化出来，调用无参构造器。
+
+    - 默认情况下，服务器启动时并不会实例化Servlet对象。那么它启动时做了什么呢？
+  
+      > 服务器启动后会去解析web.xml文件，找到对应的`url-pattern`和`servlet-class`，然后将这个信息保存在Map中。
+      > 这个设计是合理的。用户没有发送请求之前，提前在JVM中创建了大量的Servlet对象，必然是耗费内存的。因为创建出来的某个Servlet如果一直没有用户访问，显然这个Servlet对象此时压根没用，没有必要启动就创建。
 
     - 在手动配置情况下，要求服务器在启动时自动创建某个Servlet实例：
 
@@ -120,7 +120,7 @@
 
     - Servlet对象是单例的（假单例，真单例构造方法也是私有的）。用户无论发送了几个请求，处理该请求的都是这一个Servlet对象。
 
-    - **思考**：init和无参构造都是在Servlet第一次创建时执行，并且都是只执行一次。那么无参构造可以替代init吗？
+    - **思考**：`init()`和无参构造都是在Servlet第一次创建时执行，并且都是只执行一次。那么无参构造可以替代init吗？
 
       > 不能。
       >
@@ -132,8 +132,8 @@
 
   - #### 关于`DefaultServlet`
 
-    > - 其实Tomcat服务器启动时会默认创建一个`DefaultServlet`实例，它的`url-pattern`是`/`，通常用于兜底。一般所有的静态资源我们都不会在url-pattern中进行配置，它可以帮忙处理所有的静态资源（除了jsp），被称为默认的Servlet。
-    > - 当用户发起一个请求后，Tomcat会拿着URL前去一一匹配，当配置的所有url-pattern都匹配不上时，就会转给 `DefaultServlet` 默认的Servlet去处理该url。
+    > - 其实Tomcat服务器启动时会默认创建一个`DefaultServlet`实例，它的`url-pattern`是`/`，可以帮忙处理所有的静态资源（除了jsp），被称为默认的Servlet，通常用于兜底。因此一般静态资源我们都不会在url-pattern中进行配置，
+    > - 当用户发起一个请求后，Tomcat会拿着URL前去一一匹配，当配置的所有url-pattern都匹配不上时，此时就会匹配上`DefaultServlet`配置的`/`，最后转给 `DefaultServlet` 默认的Servlet去处理该url请求的资源。
     > - 并且由于Tomcat全局配置文件中，默认配置了一个专门处理JSP的Servlet（JspServlet），它的url-pattern是`*.jsp`和`*.jspx`。并且 Servlet 的 URL Pattern 匹配优先级规则遵循**精确路径匹配**、**最长路径前缀匹配**。因此有处理JSP资源的Servlet，所以JSP不会交给`DefaultServlet`去处理。（在全局配置`web.xml`中查看）
     >
     > **注意**：关于`url-pattern`的设置。
@@ -145,7 +145,7 @@
     >
     > 当设置了模糊匹配后，要注意URL Pattern 的匹配优先级。
 
-    > **思考**：DefaultServlet做了什么？
+    > ##### 思考：DefaultServlet做了什么？
     >
     > 1. 它首先会对路径做解析以及合法性检查。
     >
@@ -161,9 +161,9 @@
     >    }
     >    ```
     >
-    > 2. 然后将 URL 路径转换为服务器文件系统路径，检查该文件是否存在。（不会检查 WEB-INF 或 META-INF 目录）
+    > 2. 然后将 URL 路径转换为服务器文件系统路径，检查该文件是否存在。（不会检查 `WEB-INF` 或 `META-INF` 目录）
     >
-    > 3. 如果该文件存在，则通过io流读取该文件放在HttpServletResponse上，并为其设置合适的响应头；不存在则返回404。
+    > 3. 若该文件存在，则通过IO流读取该文件放在`HttpServletResponse`上，并为其设置合适的响应头；不存在则返回404。
 
   - #### GenericServlet
 
@@ -355,7 +355,7 @@
       
       - （非常重要）`public String getContextPath()`：获取应用的根路径（项目上下文，即项目名）。因为在java源码中有一些地方可能会需要应用的根路径，这个方法可以动态获取应用的根路径（`/firstapp`）。记住：不要将应用的根路径写死，因为你永远都不知道这个应用在最终部署的时候，是一个什么名字。
       
-      - `public String getRealPath(String path)`：获取某个文件的绝对路径。
+      - `public String getRealPath(String path)`：获取某个文件在操作系统中的绝对路径。
       
       - `public void log(String message)`、`public void log(String message, Throwable t)`：通过ServletContext对象也是可以记录日志的。这些日志信息记录到`CATALINA_HOME/logs/localhost.2021-11-05.log`文件中了，这些日志每次重新启动也不会清空重置。并且该方法记录的时候也可以传进去一个异常对象，异常并没有发生只是记录一下。
       
@@ -658,7 +658,7 @@
       - `void setAttribute(String, Object)`：往请求域中存数据。
       - `void removeAttribute(String)`：从请求域中删数据。
 
-      > 请求域和应用域：
+      > ##### 请求域和应用域：
       >
       > ServletContext对象在服务器启动时创建，此时应用域就开启了，直到服务器被关闭，ServletContext对象才被销毁，应用域关闭。而实际开发中，服务器一般是不会关闭的。所以，应用域里面的东西很有可能一直存在，因此要谨慎使用。
       >
@@ -708,7 +708,7 @@
 
       - ###### POST请求乱码：
 
-        > `setCharacterEncoding`可以解决POST请求乱码问题，因为POST请求是在请求体中提交数据的。
+        > `req.setCharacterEncoding()`可以解决POST请求乱码问题，因为POST请求是在请求体中提交数据的。
         >
         > 在Tomcat9及以前，如果前端POST请求提交的数据是中文，后端获取就会出现乱码（因为Tomcat会用操作系统的默认编码去解码请求体），怎么解决呢？就用这个方法设置正确的解码方式就行了。
         >
@@ -720,7 +720,7 @@
         >
         > 首先我用GET请求发送了一些中文数据，然后使用Tomcat9发现没有乱码问题，而Tomcat8会乱码。通过查看`CATALINA_HOME/conf/server.xml`文件发现，它们的配置不同：`<Connector URIEncoding="UTF-8" />`。
         >
-        > **注意**：从Tomcat8之后，URIEncoding的默认值就是UTF-8，所以GET请求也没有乱码问题。URIEncoding就是设置浏览器地址栏中URL的字符集的，我们并不严格区分URL和URI。
+        > **注意**：从Tomcat8之后，URIEncoding的默认值就是UTF-8，所以GET请求也没有乱码问题。URIEncoding就是设置如何解析浏览器地址栏中URL的字符集的，我们并不严格区分URL和URI。
 
       - ###### 响应乱码：
 
@@ -734,7 +734,7 @@
         >
         > **注意**：不推荐用`response.setCharacterEncoding()`设置我们响应内容采用的字符集，因为如果前端换环境了，还是会乱码。正确的方式就是通过`Content-Type`响应体告诉浏览器，响应内容的字符集是什么就行了。
         >
-        > **建议**：响应时，先显式的通过`setCharacterEncoding`设置自己响应内容所采用的编码方式，然后再`setContentType`告诉用户浏览器内容所采用的编码方式是什么。
+        > **建议**：响应时，先显式的通过`response.setCharacterEncoding()`设置自己响应内容所采用的编码方式，然后再`setContentType`告诉用户浏览器内容所采用的编码方式是什么。
 
     - ##### 请求转发
 
@@ -755,11 +755,11 @@
            > - 如果参数是相对路径，它会以当前请求的路径进行转发。如果请求的是 http://localhost:8080/oa/servlet1 ，则`servletRequest.getRequestDispatcher("./b")`转发后路径为：http://localhost:8080/oa/b
            > - 如果参数是以`/`开头的绝对路径，那么路径可以只给“url-pattern”，不用加项目名。
 
-        2. 调用转发器的forward方法完成转发：`dispatcher.forward(request,response);`
+        2. 调用转发器的forward方法完成转发：`dispatcher.forward(request, response);`
 
            > 注意：转发还是一次HTTP请求，它会将当前的request和response对象传递给下一个Servlet。这样就可以做到两个Servlet对象共享同一个请求域中的数据。
 
-      - 转发的刷新问题：
+      - ###### 转发的刷新问题：
 
         > 当用户发送POST请求，服务器接收数据并返回结果页，此时用户浏览器上的URL还是旧的地址。因此如果用户点击刷新重新发起POST请求，就又重新提交了一次数据。如果服务器没有进行限制，那么数据库中就存在了2条一样的记录。
 
@@ -842,4 +842,6 @@
       > - loadOnStartUp属性：用来指定在服务器启动阶段是否加载该Servlet。等同于：`<load-on-startup>`
       > - initParams属性：用来给Servlet配置参数的。等同于：`<init-param>`。属性值`@WebInitParam`是一个注解数组，该数组的类型是注解`@WebInitParam`，它里面有两个属性name和value，都是String类型。
       >
+
+------
 

@@ -541,6 +541,8 @@
   - `deactived(){}`：路由组件失活时触发。
 
   > 只要路由组件在页面上呈现（离开），这两个钩子就会执行，不论你是通过路由规则还是手动写组件标签。
+  >
+  > vue3中这两个钩子是组合式API：`onActived(callback)`和`onDeactived(callback)`
 
 - #### 路由守卫：
 
@@ -591,7 +593,7 @@
   >   export default createRouter({
   >       // 使用 history 模式
   >       // history: createWebHistory(),
-  >                         
+  >                             
   >       // 或者用 hash 模式（默认）
   >       history: createWebHashHistory(),
   >       routes: [{},..]

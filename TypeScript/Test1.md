@@ -721,7 +721,7 @@
     >     A = 'a',
     >     B = 'b'
     >   }
-    >     
+    >       
     >   // { a: any, b: any }
     >   type Foo = { [key in MyEnum]: any };
     >   ```

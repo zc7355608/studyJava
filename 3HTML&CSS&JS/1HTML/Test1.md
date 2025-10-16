@@ -520,7 +520,7 @@
     >
     > ```html
     > <head>
-    >   <base href="https://www.example.com/files/" target="_blank">
+    >     <base href="https://www.example.com/files/" target="_blank">
     > </head>
     > ```
     >

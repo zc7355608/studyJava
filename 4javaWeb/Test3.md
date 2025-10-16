@@ -28,11 +28,11 @@
     >
     > 因为ServletContext应用域太大，而HttpRequest请求域又太小了。（request请求域 < session会话域 < application应用域）
     >
-    > ###### Session对象的实现原理：`HttpSession session = request.getSession();`
+    > ###### Session对象的实现原理：
     >
-    > - 这行代码很神奇。张三的请求获取的Session对象就是张三的；李四的请求获取的Session对象就是李四的。
-    > - Session机制需要依赖一个特殊的键值对`JSESSIONID=xxxxxx`（Session Cookie），这个键值对保存在浏览器的内存中。浏览器只要关闭，这个Session Cookie就没有了。（一会说Cookie）
-    > - 服务器中有一个Session列表，它是一个Map，Map的key是SessionId（即JSESSIONID对应的值），Map的value是一个Session对象。
+    > - 获取`Session`对象：`HttpSession session = request.getSession()`，这行代码很神奇，张三的请求获取的Session对象就是张三的；李四的请求获取的Session对象就是李四的。（后面会说原因）
+    > - Session机制需要依赖一个特殊的键值对`JSESSIONID=xxxxxx`（Session Cookie），这个键值对保存在浏览器的内存中。浏览器只要关闭，这个键值对（Session Cookie）就没有了。（后面会说`Cookie`）
+    > - 服务器中有一个Session列表，它是一个Map，Map的key是`SessionId`（即`JSESSIONID`对应的值），Map的value是一个`Session`对象。
     > - 当用户第一次请求服务器，此时服务器为它生成对应的Session对象，同时将该Session对象的id发送给浏览器。
     > - 当用户第二次、第N次请求该URL时，服务器会自动携带该Session的id（以Cookie的形式），服务器根据这个id来查找用户对应的Session对象。
     > - 直到用户关闭浏览器，内存中保存的Session对象的id消失（Session Cookie消失），会话结束。此时服务器中保存的Session对象虽然可能还在，但是没人能访问到它的，因为id没了。因此服务器中的Session对象默认会有一个生命周期时间，超过了这个时间没人访问它，这个Session对象就被销毁掉了。这也是为什么长时间不请求服务器，网页就需要重新去登陆了。
@@ -45,7 +45,7 @@
     >
     > - 如果用户的请求中携带了JSESSIONID，那么这行代码会根据这个Session对象的ID去找对应的Session对象，找到就返回；
     > - 没找到、或请求中没有携带JSESSIONID，这行代码则会创建一个新的Session对象，此时程序员需要将该Session对象的id以Cookie的形式响应给浏览器。这样下次浏览器再请求该URL时，就会自动携带上该URL对应的Cookie。
-    > - 如果没找到或请求中没有携带JSESSIONID，此时不想创建这个新的Session对象，可以在`getSession()`中传`false`参数。
+    > - 如果没找到或请求中没有携带JSESSIONID，此时不想创建这个新的Session对象，可以：`getSession(false)`
     >
     > ###### 服务器中的Session对象什么时候被销毁？
     >
@@ -66,11 +66,11 @@
     >
     > - 手动销毁一个Session对象：`session.invalidate();`
     >
-    > - 获取服务器中已有的Session对象的id：`session.getId();`
+    > - 获取Session对象的SessionId：`session.getId();`
     >
     > - 判断获取的Session对象是新创建的还是已有的旧的：`session.isNew();`
     >
-    > ###### 注意：jsp中的九大内置对象之一就有session对象，只要访问jsp页面，九大内置对象之一的session对象就被创建好了。
+    > ###### 注意：JSP中的九大内置对象之一就有Session对象，只要访问JSP页面，九大内置对象之一的Session对象就被创建好了。
 
   - #### Cookie
 
@@ -82,7 +82,7 @@
 
     - ##### Cookie怎么生成？怎么将Session对象的id封装成Cookie对象并响应给浏览器？
 
-      > 通过`httpServletResponse.addCookie(Cookie cookie)`方法，将指定的Cookie添加到响应头中，这样响应头中就会有`Set-Cookie: key=value;..`。该方法可以被多次调用来添加多个Cookie。参数中的Cookie对象通过new来创建：`new Cookie("key","value");`。
+      > 通过`httpServletResponse.addCookie(Cookie cookie)`方法，将指定的Cookie添加到响应头中，这样响应头中就会有`Set-Cookie: key=value;..`。该方法可以被多次调用来添加多个Cookie。创建Cookie对象：`new Cookie("key","value");`。
 
     - ##### 关于cookie的有效时间：`cookie.setMaxAge(int second)`
 
@@ -153,13 +153,13 @@
 
          ```xml
          <filter>
-             <filter-name>filter2</filter-name>
-             <filter-class>com.bjpowernode.javaweb.servlet.Filter2</filter-class>
+           <filter-name>filter2</filter-name>
+           <filter-class>com.bjpowernode.javaweb.servlet.Filter2</filter-class>
          </filter>
          <filter-mapping>
-             <filter-name>filter2</filter-name>
-         	<url-pattern>/*</url-pattern><!-- 过滤所有请求 -->
-             <servlet-name>servlet1<servlet-name><!-- 过滤器路径还可以写servlet的别名 -->
+           <filter-name>filter2</filter-name>
+           <url-pattern>/*</url-pattern><!-- 过滤所有请求 -->
+           <servlet-name>servlet1<servlet-name><!-- 过滤器路径还可以写servlet的别名 -->
          </filter-mapping>
          ```
 
@@ -197,10 +197,8 @@
     >
     > 就像Filter一样，监听器也是Servlet规范的一员。所有的监听器接口都是以“Listener”结尾。
     >
-    > 
-    >
-    > - 当某个特殊的事件发生（特殊的事件发生其实就是某个时机到了。）之后，被web服务器自动调用。
-
+    > 监听器什么时候执行？当某个特殊的事件发生（特殊的事件发生其实就是某个时机到了。）之后，被web服务器自动调用。
+    
     - ##### Servlet规范中提供了哪些监听器？
 
       - ###### `jakarta.servlet`包下：
@@ -209,454 +207,131 @@
         > - `ServletContextAttributeListener`：域对象`ServletContext`中，数据的增删改。
         > - `ServletRequestListener`：域对象`ServletRequest`的创建/销毁。
         > - `ServletRequestAttributeListener`：域对象`ServletRequest`中，数据的增删改。
-
+    
       - ###### `jakarta.servlet.http`包下：
 
         > - `HttpSessionListener`：域对象`HttpSession`的创建/销毁。
-        >
-        > - `HttpSessionAttributeListener`（该监听器需要注册）：它监听的是Session域中数据的变化。只要数据变化（增删改），则执行相应的方法。主要监测点在Session域对象上。
-        >
-        > - `HttpSessionBindingListener`：实现了该接口的对象，放到了Session域中，或从Session域中移除，就会触发绑定（bind）和解绑（unbind）方法。
-        >
+        > - `HttpSessionAttributeListener`：它监听的是Session域中数据的变化。只要数据变化（增删改），则执行相应的方法。主要监测点在Session域对象上。
         > - `HttpSessionIdListener`：Session对象的id发生变化的时候，该监听器接口中的唯一一个方法就会被调用。
+        > - `HttpSessionBindingListener`：实现了该接口的对象，放到了Session域中，或从Session域中移除，就会触发绑定（bind）和解绑（unbind）方法。（该监听器不需要注册）
+        > - `HttpSessionActivationListener`：用来监听（放在）Session域中JavaBean对象的钝化与活化状态。如果某个JavaBean对象需要在Session钝化和活化时做一些事情，那么该对象的类就需要实现这个接口中的方法，并将该类实例放在Session域中。此时HttpSession对象钝化和活化时，就会执行接口中的方法。（该监听器不需要注册）
         >
-        > - `HttpSessionActivationListener`：监听服务器堆中（内存），Session对象的钝化和活化的。如果某个Session对象需要被它监听，那么就需要将这个监听器对象new出来放在Session域中，此时该Session对象钝化或活化会触发监听器执行。
+        > **什么是钝化与活化？**
         >
-        >   > 钝化：Session对象从内存存储到硬盘文件上。
-        >   >
-        >   > 活化：从硬盘文件中把Session对象恢复到内存。
-        >   >
-        >   > 服务器中有很多Session对象，会大量占用服务器资源，如果某些对象不常使用，可以暂时放在硬盘上，当需要的时候再加载到内存。保存到磁盘就是钝化，加载到内存就是活化。
+        > 钝化和活化原本是化学中的术语，钝化指把金属表面转换成不容易氧化、不易被锈蚀的状态，也就是不活跃状态；活化又称激发，把物体变成活跃状态。
         >
-        >   > 怎么让你的项目可以发生session对象的钝化和活化呢，需要在项目上下文路径中，新建META-INF目录，里面新建context.xml，在该文件中配置钝化活化：
-        >   >
-        >   > ```xml
-        >   > <?xml version="1.0" encoding="UTF-8"?>
-        >   > <Context>
-        >   >     <Manager className="" maxIdleSwap="">
-        >   >     	<Store className="" directory=""></Store>
-        >   >     </Manager>
-        >   > </Context>
-        >   > ```
-
+        > JavaEE借鉴了这两个概念，用来表示Java对象的状态变化：
+        >
+        > - 钝化：把一个Java对象序列化保存到磁盘文件上
+        > - 活化：把磁盘文件里的数据，反序列化恢复到内存中形成一个Java对象
+        >
+        > 其次，并不是任意一个Java对象都可以被钝化的：
+        >
+        > - 这个类必须要实现java.io.Serializable接口
+        > - 类里的属性也要实现java.io.Serializable接口
+        >
+        > **Session的钝化与活化：**
+        >
+        > 服务器中有很多Session对象，会大量占用服务器资源，如果某些对象不常使用，可以暂时放在硬盘上，当需要的时候再加载到内存。保存到磁盘就是钝化，加载到内存就是活化。
+        >
+        > 在JavaEE中，最常见的就是HttpSession对象的钝化与活化了：当服务器正常关闭时，内存中的HttpSession对象并不是销毁了，而是被序列化保存到了磁盘文件上（`work\Catalina\ip地址\项目名\SESSIONS.ser`）；当服务器重新启动时，磁盘文件上保存的数据又被恢复到内存中，重新转换成了HttpSession对象。
+        >
+        > ![20180525222843727](./assets/20180525222843727.png)
+        >
+        > **Tomcat的钝化与活化机制介绍：**
+        >
+        > Tomcat提供了两种session钝化与活化的管理机制：`StandardManager`和`PersistentManager`。其中：`StandardManager`是Tomcat的默认session管理机制，而`PersistentManager`需要进行配置才会生效。
+        >
+        > 1. **StandardManager管理Session：**
+        >
+        >    - session钝化：当Tomcat被关闭，或者重启时，会把session对象钝化保存到磁盘文件上
+        >    - session活化：当Tomcat启动时，会把保存在磁盘上的文件进行反序列化，恢复到内存中形成一个session对象
+        >
+        >    （注意：强制kill掉Tomcat，是不会把session钝化到磁盘上的）
+        >
+        > 2. **PersistentManager管理Session：**
+        >
+        >    配置这种方式，可以将长时间不用的session对象钝化到磁盘上，减少内存的占用。
+        >
+        >    比如：当web应用有大量用户访问量，服务器会创建大量的session对象，占用大量的内存资源。我们可以设置：当用户一分钟不操作时，就把session钝化，生成文件保存到磁盘上。当用户再访问时，Tomcat会把磁盘文件反序列化恢复成为session对象。
+        >
+        > **Tomcat的Session钝化机制配置：**
+        >
+        > 那么应该怎样进行配置呢？Tomcat提供了很多种配置方式，这里介绍三种：
+        >
+        > 1. 在web应用的META-INF目录下，创建一个context.xml文件，内容如下：（只针对当前web应用有效）
+        >
+        >    ```xml
+        >    <?xml version="1.0" encoding="UTF-8"?>
+        >    <Context>
+        >      <!-- className：指定session管理对象是PersistentManager   maxIdleSwap：配置多长
+        >      时间不访问就钝化session -->
+        >      <Manager className="org.apache.catalina.session.PersistentManager"
+        >       maxIdleSwap="1">
+        >        <!-- 
+        >        className：指定钝化session时生成文件的管理类    
+        >        directory：指定生成的文件保存的文件夹（tomcat\work\Catalina\localhost\web应用
+        >        名称\指定的文件夹） 
+        >        -->
+        >        <Store className="org.apache.catalina.session.FileStore" directory="itheima">
+        >        </Store>
+        >      </Manager>
+        >    </Context>
+        >    ```
+        >
+        > 2. 修改Tomcat的`conf\server.xml`，在`<Host>`标签中增加子标签内容如下：
+        >
+        >    ```xml
+        >    <!-- 
+        >    docBase：部署的web应用的路径，可以写web应用的绝对路径，也可以写webapps
+        >    中的web应用文件夹名称
+        >    path：web应用的访问路径，也就是contextPath 
+        >    -->
+        >    <Context docBase="activation" path="/activation" reloadable="true">
+        >      <Manager className="org.apache.catalina.session.PersistentManager" 
+        >      maxIdleSwap="1">
+        >      	<Store className="org.apache.catalina.session.FileStore" directory="itheima"/>
+        >      </Manager>
+        >    </Context>
+        >    ```
+        >
+        >    > Context标签中的docBase，配置的哪个web应用，就针对哪个web应用生效。可以有多个Context标签，分别给不同的web应用进行配置。
+        >
+        > 3. 修改Tomcat的`conf\context.xml`，在Context标签里增加子标签内容如下：（全局方式）
+        >
+        >    ```xml
+        >    <Manager className="org.apache.catalina.session.PersistentManager"
+        >     maxIdleSwap="1">
+        >      <Store className="org.apache.catalina.session.FileStore" directory="itheima">
+        >      </Store>
+        >    </Manager>
+        >    ```
+        >
+        >    > 注意：这种方式，对Tomcat里部署的每一个web应用都会生效。在Tomcat\work\catalina\localhost目录下，每个web应用的文件夹里都会有一个itheima文件夹，用来保存自己的web应用里钝化的session对象。
+    
     - ##### 实现一个监听器的步骤：（以ServletContextListener为例）
-
+    
       1. 编写一个类实现ServletContextListener接口，并且实现里面的方法：
-
+    
          ```java
          void contextInitialized(ServletContextEvent event)
          void contextDestroyed(ServletContextEvent event)
          // 参数是ServletContextEvent对象是事件对象，可以通过它来拿到发生此次事件的对象源
          ```
-
+    
          > 注意：所有监听器中的方法都不需要javaweb程序员手动调用，是服务器（在某个时机）自动调用的。
-
+    
       2. 在`web.xml`文件中对ServletContextListener进行注册，如下：
-
+    
          ```xml
          <listener>
          	<listener-class>com.bjpowernode.javaweb.listener.MyServletContextListener</listener-class>
          </listener>
          ```
-
+    
          > 也可以不使用配置文件，用注解：`@WebListener`
          >
          > 注意：`HttpSessionBindingListener`和`HttpSessionActivationListener`这两个监听器接口的实现类，不需要第二步的注册。
-
-- ## JSP
-
-  > 参考语雀笔记（TODO）
-  >
-  > ```tex
-  > 分析使用纯粹Servlet开发web应用的缺陷：
-  > 	# 在Servlet当中编写HTML/CSS/JavaScript等前端代码。存在什么样的问题？
-  > 		-在Java程序中编写前端代码，编写难度大，麻烦，不利于查错
-  > 		-显然程序的耦合度非常高
-  > 		-代码非常不美观
-  > 		-维护成本高：修改一个小小的前端代码，还需要动Java程序，那就得重新编译，生成新的class文件，
-  > 			打一个新的war包，重新发布
-  > 	# 思考一下，如果是你的话，你准备怎么解决这个问题？
-  > 		-上面那个Servlet能不能不写了（又是继承HttpServlet，又是重写doGet方法，还得拼接前端代码），
-  > 		让机器自动生成。我们程序员只需要写这个Servlet程序中的“前端的那段代码”，然后让机器将我们
-  > 		写的那段“前端代码”自动翻译成“Servlet的这种java程序”，然后机器再自动将java程序编译生成
-  > 		class文件。然后再使用JVM调用这个class中的方法。
-  > 		-有没有这种机制呢？有，JSP就是，看JSP。
-  > ---------------------
-  > JSP（Java Server Pages）:是由Sun公司主导创建的一种动态网页技术标准。JSP将Java代码和特定变动内容嵌入到静态的页面中，实现以静态页面为模板，动态生成其中的部分内容。JSP本质还是servlet，一般每个jsp页面都会生成一个java文件和clsss文件。tomcat内部就有一个jsp的编译器。
-  > ---------------------------------------------
-  > 	*编写第一个JSP程序：
-  > 		- 在webapp下创建一个index.jsp，里面没有任何内容，空的，这就是第一个JSP程序
-  > 		- 打开浏览器：http://localhost:8080/jsp/index.jsp 页面是空白
-  > 		- 实际上，访问以上的这个index.jsp文件，底层执行的是：index_jsp.class这个java程序
-  > 		- 这个jsp翻译后生成的java程序的位置：如果用IDEA生成的话，位置在：Tomcat启动的时候有一个CATALINA_BASE：
-  > 			后面的路径打开，然后work/Catalina/localhost/jsp/org/apache/jsp，这就是它程序的位置
-  > 		- 这个index.jsp会被tomcat翻译成index_jsp.java文件，然后tomcat服务器会将index_jsp.java文件编译生成
-  > 			index_jsp.class文件
-  > 		- 访问jsp文件，实际上就是执行java的Servlet程序，只不过这个java程序是tomcat自动给生成的
-  > 		- 访问index.jsp，实际上执行的是index_jsp.class中的方法
-  > 		- index_jsp类继承的是HttpJspBase，而HttpJspBase类继承的就是HttpServlet，所以index_jsp类就是一个
-  > 			Servlet类；index_jsp类和HttpServlet生命周期完全相同，就是一个东西，没有任何区别，同样是假单例；
-  > 	*JSP文件在浏览器中第一次访问的时候是比较慢的（服务器开启后，B端第一次访问jsp），为什么？
-  > 		第一次比较麻烦：
-  > 			- 要把jsp文件翻译生成java文件
-  > 			- java文件要编译生成class文件
-  > 			- 然后通过class去创建servlet对象，该对象保存在堆内存中
-  > 			- 然后调用servlet对象的init方法
-  > 			- 最后调用servlet对象的service方法
-  > 		第二次就比较快了，为什么？
-  > 			- 因为第二次直接调用单例Servlet对象的service方法即可，文件已经翻译生成了class在服务器的work目录下，
-  > 			并且该对象已经在服务器中被创建好了，用户请求过来就直接调用它的service方法，进行请求的处理了
-  > 	*这也是jsp的一个缺点，每个jsp界面第一次打开太慢，所以一般项目部署的时候会先给所有的jsp都打开一遍
-  > （注意：虽然各种品牌的服务器都实现了Servlet和JSP规范，但是同样的jsp用不同的服务器翻译成的java文件可能是不同的）
-  > 
-  > · JSP是什么？
-  > 	·JSP是java程序，本质上还是一个Servlet
-  > 	·Servlet和JSP都是JavaEE的13个子规范之一
-  > 	·所有的web容器/web服务器都是遵循这套规范的，都是按照这套规范进行翻译的
-  > 	·每个web容器里都内置有一个JSP翻译引擎
-  > （注意：JSP访问出错，专业人员都是直接打开jsp的java程序进行的调错，不要在jsp文件里找半天，没用，开发JSP的最高境界：
-  > 	眼前是JSP，但是脑袋中都是Java代码）
-  > ---------------------------------
-  > · JSP语法：
-  > 
-  > 	# 在jsp文件中直接编写文字，都会被自动翻译到哪里？
-  > （JSP语法1：）jsp中直接编写的文字都会翻译到servlet类的service方法的out.write("翻译到这里")，
-  > 		被java程序当作字符串打印输出到浏览器，除非你对它进行特殊的处理
-  > 	# 先用JSP的page指令，解决响应中文乱码问题（JSP默认并不是UTF8），在jsp文件的头部，加一个：
-  > 		<%@ page contentType="text/html;charset=UTF-8" %>，表示响应的内容类型是text/html，
-  > 		字符集为UTF-8，这个指令后面再详细说，先解决下中文乱码问题
-  > 
-  > （JSP语法2：）在JSP中编写java程序：<%java语句%>
-  > 	# 在这个符号当中编写的被视为java程序，被翻译到servlet类的service方法内部
-  > 	# 这里你要细心点，在<%  %>这个符号里面写java代码，你要时刻记住你正在service方法的方法体当中写代码，
-  > 	方法体中可以出现什么内容，我们java程序员要非常清楚才行
-  > 	# <%-- --%>是JSP的专业注释，它并不会被翻译到java源代码当中，建议使用这种方式；
-  > 		而<!-- -->这个注释是html注释，这个注释不专业，它会被翻译到out.print里面，不建议使用
-  > 	（注意，这个注释标签不要在其他的<%标签内嵌套使用）
-  > 	# 编译不通过的jsp不会生成class，但仍会翻译为java源文件
-  > 
-  > （JSP语法3：）如果想在service方法外部编写java代码，需要用：<%! %>
-  > 	# 这种方式会被编译到service方法之外，几乎不用，而且不建议用
-  > 		为什么？因为会有线程安全问题，Servlet类就一个，在类体中写的是成员变量，这个成员变量多个线程共享，
-  > 		如果在tomcat多线程环境下，共享数据存在修改，就会有线程安全问题
-  > 	# 这种方式编写的代码，出现的位置是从jsp类体的开头
-  > 
-  > 	# 怎么在JSP中向浏览器上输出一个name变量
-  > 			<%
-  > 				String name="Jack";
-  > 				out.print("name="+ name);
-  > 			%>
-  > 		以上的out是JSP的九大内置对象之一，可以直接拿来用。这九大内置对象在service方法开始中有声明，
-  > 		所以只能在service方法中使用这些内置对象；
-  > 
-  > （JSP语法4：）
-  > 		·如果输出的东西有java代码也有字符串，两种格式拼接在一块的，不用out.write有没有更好的方式
-  > 	# 有，用这个：<%= %>，注意：在=号后面编写要输出的内容
-  > 	# 那么这种格式：<%= %>会被翻译到哪里呢，翻译成什么东西呢？
-  > 		·翻译成了service中这个java代码：out.print(); ，就在这个括号里面，和上面不同的是，不带双引号
-  > 	# 所以如果需要输出java变量加字符串，那么只需要这样：<%= "name="+ name %>
-  > 
-  > ----------------
-  > JSP语法总结：
-  > 	·JSP中直接编写普通字符串
-  > 		# 翻译到service方法的out.write("这里");
-  > 	·<% %>
-  > 		# 翻译到service方法内部，里面是一条一条java语句
-  > 	·<%! %>
-  > 		# 翻译到service方法之外
-  > 	·<%= %>
-  > 		# 翻译到service方法体内部，out.print(这里);
-  > 	·<%@ page contentType="text/html;charset=UTF-8" %>
-  > 		# page指令，通过contentType属性用来设置响应的内容类型
-  > 
-  > ---------------------------------
-  > 既然JSP说到底还是一个Servlet，那么它和Servlet有什么区别呢？
-  > 	# 职责不同：
-  > 		- Servlet的职责：收集数据。Servlet的强项是逻辑处理，业务处理，连接数据库，获取/收集数据
-  > 		- JSP的职责：展示数据。JSP的强项是做数据的展示，只要是B上展示数据，都用JSP写
-  > (纯用JSP可不可以写一个webapp？可以，但是没有必要，你懂的)
-  > 
-  > ----------------------------------------------------
-  > *JSP文件的扩展名是必须的吗？
-  > 	不是，是可以在Tomcat的conf中配置的：CATALINA_HOME/conf/web.xml
-  > 	<servlet-mapping>
-  > 		<servlet-name>jsp</servlet-name>
-  > 		<url-pattern>*.jsp</url-pattern>
-  > 		<url-pattern>*.jspx</url-pattern>
-  > 	</servlet-mapping>
-  > 其实这个jsp就是一个普通txt文本，tomcat认为哪个文件是jsp文件，就翻译哪个
-  > 
-  > -------------------------------------------------------------------------------------
-  > *包名bean是什么意思？
-  > 	javabean(java的logo是一杯冒着热气的咖啡，故javabean被翻译为咖啡豆)
-  > 	java是一杯咖啡，咖啡是由一个个的咖啡豆研磨而成。整个java程序是由一个个的bean组成
-  > 	什么是JavaBean，你可以理解为：符合某种规范的java类
-  > 		·含有无参构造
-  > 		·属性私有化
-  > 		·对外提供公开的set和get方法
-  > 		·实现java.io.Serializable接口(可序列化)private static final long serialVersionUID=xxxL
-  > 		·重写toString、equals和hashCode方法
-  > 	JavaBean其实就是java的实体类。负责数据的封装
-  > 	JavaBean符合JavaBean规范，具有更强的通用性
-  > 
-  > -------------------------------------------------------------------------------
-  > 
-  > 关于JSP的指令：
-  > 	# 指令的作用：指导JSP的翻译引擎如何翻译jsp文件
-  > 	# 指令包括哪些呢：
-  > 		page：通过该指令可以操作jsp生成的servlet类中的一些信息。
-  > 		taglib：引入标签库的指令。
-  > 		include：包含指令，在jsp中完成静态包含或动态包含。
-  > 	# 指令的使用语法：
-  > 		<%@ 指令名 属性名1=属性值1 属性名2=属性值2 属性名3=属性值3 %>
-  > 	# page指令的属性：
-  > 
-  > 		session属性：<%@ page session="true|false" %>
-  > 				设置jsp内置对象session是否启用，默认值就是true启用9大内置对象的session
-  > 
-  > 		contentType属性：<%@ page contentType="text/html;charset=UTF-8" %>
-  > 				设置jsp中响应的内容类型，但同时也可以设置响应的字符编码。不写的话默认就是：
-  > 				response.setContextType("text/html");
-  > 
-  > 		pageEncoding属性：<%@ page pageEncoding="GBK" %>
-  > 				设置响应的字符编码，可以直接用上面的方式直接设置，两种方式是一模一样的
-  > 
-  > 		import属性：<%@ page import="xxx,xxx,xxx,..." %>jsp中导包
-  > 
-  > 		errorPage属性：<%@ page errorPage="url" %>设置当前jsp，也就是JSP代码出现异常后的跳转位置
-  > 
-  > 		isErrorPage属性：<%@ page isErrorPage="true|false" %>
-  > 				如果jsp界面使用了这个并且设置为true，表示它是一个error的jsp界面，那么此时这个界面会启用
-  > 				9大内置对象中的exception，程序员可以使用该对象去打印异常堆栈信息到tomcat控制台上
-  > 
-  > 		isELIgnored属性：<%@ page isELIgnored="true|false" %>
-  > 				true表示忽略jsp页面中的EL表达式，将它当作普通字符串，默认false启用
-  > 				（如果想只忽略其中某一个EL表达式，可以用转义字符\${xxx}）
-  > 
-  > 		（了解）language属性：<%@ page language="java" %>
-  > 				该属性用于设置当前JSP页面使用的语言，目前只支持Java语言，所以这个属性只需要知道就行
-  > 
-  > 	# include包含指令：可以将一些重复的jsp代码提取到一个公共的jsp中，然后通过使用该指令将公共jsp引入到某个文件中使用。分为静态包含和动态包含2种。
-  > 	静态包含：使用include指令，<%@ include file="jsp的相对路径" %>，它就是将该标签，直接替换了jsp文件中的所有内容，最后生成一个servlet源代码。虽然运行效率高一点点，但耦合度较高，不够灵活。而且要注意公共jsp中应该出现哪些内容，避免在同一个servlet代码中出现Java语法错误。
-  > 	动态包含：使用jsp的语法标签，<jsp:include page="jsp的相对路径"></jsp:include>，它相当于在运行时方法的调用，会生成多个servlet，效率也高耦合度还低。如果不需要传参数标签中间不要出现任何内容。需要传参数时：在该标签之间使用，<jsp:param name="参数名" value="<%=变量名%>"/>，注意name属性不支持表达式，只能是字符串。获取参数就req.getParameter(变量名);，因为参数是放在了request请求域中。
-  > 	page和file属性都是可以写表达式的。
-  > 	
-  > 	#jsp页面之间做转发，<jsp:forward page=""></jsp:forward>，其中可以携带数据。
-  > --------------------------------------------------------------------------
-  > 
-  > 关于JSP的九大内置对象：
-  > 	(jakarta.servlet.jsp.PageContext)pageContext：页面域。本页面中有效
-  > 	(jakarta.servlet.http.HttpServletRequest)request：请求域
-  > 	(jakarta.servlet.http.HttpSession)session：会话域
-  > 	(jakarta.servlet.ServletContext)application：应用域
-  > 	(jakarta.servlet.http.HttpServletResponse)response：负责响应
-  > 其中这四个域：pageContext<request<session<application，它们都有
-  > setAttribute()、getApplication()、removeAttribute()
-  > 	(jakarta.servlet.ServletConfig)config：配置对象
-  > 	(java.lang.Throwable)exception：异常对象
-  > 	(java.lang.Object)page：当前的jsp对象的引用，其实就是this
-  > 	(jakarta.servlet.jsp.JspWriter)out：负责输出
-  > 
-  > 
-  > ========day11===(关于EL表达式)============================================================
-  > 
-  > # EL表达式是干什么的？
-  > 	·Expression Language(表达式语言)
-  > 	·el表达式是为了使jsp写起来更简单，灵感来自于ECMAScript的模板字符串和xpath表达式语言。它提供了在jsp中简化表达式的方法，让jsp的代码更加简化。EL表达式属于JSP语法的一部分。
-  > 	·在JSP中使用EL表达式可以简化jsp页面的Java代码，提高了页面的可读性和维护性，使得页面更易于理解和维护
-  > 	·JSP中夹杂着各种java代码，导致jsp页面很混乱，不好看，不好维护，所以才有了后期的EL表达式
-  > 
-  > # EL表达式一般操作的都是域中的数据，操作不了局部变量。它会自动调用tostring()将其转换成字符串输出到浏览器：
-  > 	1、从某个域中取数据（页面域pageContext、请求域request、会话域session、应用域application）
-  > 	2、将取出的数据转换成字符串，底层是调用了toString方法
-  > 	3、将字符串输出在浏览器上，和<%=%>一样
-  > 
-  > # EL表达式从域中取数据的语法：${表达式}，默认从小域往大域开始找。全找不到返回空串。指定域去找用jsp的隐式对象：pageScope，requestScope，sessionScope，applicationScope。例如：${pageScope.user}。不过一般域中的数据不会重名。
-  > 			<%
-  > 				User user = new User();
-  > 				user.setUsername("jack");
-  > 				user.setPassword("a123");
-  > 				user.setAge(34);
-  > 				request.setAttribute("userObj", user);
-  > 			%>
-  > 		使用EL表达式来取：${userObj}
-  > 			等同于这段代码：<%=request.getAttribute("userObj")%>
-  > 
-  > # EL表达式从域中取数据的另一种形式：[""]，如果你的key中有特殊字符，可以用中括号[]的方式来取，例如：
-  > 	如果你的域的key是"abc.def"这种形式，为了让浏览器不认为这是对象，你可以用这种方式来取:
-  > 		${requestScope["abc.def"]}
-  > 
-  > # ${"userObj"}这个表示将字符串"userObj"输出在浏览器上，和${userObj不同}
-  > 
-  > # EL表达式取出来的对象，还可以再去获取对象中的私有属性：${user.age}，相当于调用了User类的getAge()方法，前提是
-  > 	必须有getter方法，且按照驼峰命名规则。可以一层层往下找。
-  > 	也可以直接${user.getAge()}
-  > 
-  > # 域中的对象是个数组或集合，可以从集合或数组中取数据：
-  > 		${map.key}		${数组[0]}		${list[3]}list集合也是通过下标取的，和数组一样
-  > 
-  > # 通过EL表达式获取应用的根：
-  > 	EL表达式有一个隐式对象叫pageContext，它和JSP的9大内置对象pageContext是一个东西，
-  > 	pageContext里面有这这个方法：getRequest()返回ServletRequest类型对象，获取的其实就是
-  > 	9大内置对象之一的request，然后request.getContextPath()可以获取根路径；
-  > 	于是EL表达式可以通过这种方式来动态获取应用的根：
-  > 		${pageContext.request.contextPath}
-  > 	*--------------------------------------------------------------------
-  > 		常用的EL表达式：
-  > 			协议:${ pageContext.request.scheme }
-  > 			服务器ip: ${ pageContext.request.serverName }
-  > 			服务器端口: ${ pageContext.request.serverPort }
-  > 			获取应用根路径: ${ pageContext.request.contextPath }
-  > 			获取请求方式（GET/POST/..）: ${ pageContext.request.method }
-  > 			获取B端ip地址: ${ pageContext.request.remoteHost }
-  > 			获取会话的id编号: ${ pageContext.session.id }
-  > 	*--------------------------------------------------------------------
-  > 
-  > # 关于EL表达式的隐含对象：
-  > 	1、pageContext
-  > 	2、param		(获取前端请求域提交过来的数据)
-  > 	3、paramValues	(获取前端请求域提交过来的数据)
-  > 	4、initParam
-  > 	5、其他（不是重点）
-  > 	* pageContext：
-  > 		<%=(HttpServlet)(pageContext.getRequest()).getContextPath()%>等同于：
-  > 		${pageContext.request.contextPath}
-  > 	* param：
-  > 		<%=request.getParameter("key")%>等同于：
-  > 		${param.key}
-  > 	* paramValues：
-  > 		<%= (request.getParameterValues("key"))[0] %>等同于：
-  > 		${paramValues.key[0]}
-  > 	* initParam：获取全局初始化参数
-  > 			<context-param>
-  > 				<param-name>startIndex</param-name>
-  > 				<param-value>0</param-value>
-  > 			</context-param>
-  > 			<context-param>
-  > 				<param-name>stopIndex</param-name>
-  > 				<param-value>10</param-value>
-  > 			</context-param>
-  > 			...
-  > 		<%=application.getInitParameter("key")%>等同于：
-  > 		${initParam.key}
-  > 所以EL表达式是干什么的？就是从域中或对象中取数据，输出；取数据，输出....
-  > 
-  > ----------------------------------------------------------
-  > 关于EL表达式的运算符：
-  > 			1、算术运算符：+ - * / %
-  > 				${10 + "20"}		30
-  > 				（在EL表达式中+只会做求和运算，当两边不是数字的时候，一定会转成数字，这点和Java不同）
-  > 				${10 + "abc"}		数字格式化异常
-  > 				（/还可以用div）
-  > 			2、关系运算符：== != > >= < <= eq
-  > 				${"abc" == "abc"}	true
-  > 				${"abc" eq "abc"}	true
-  > 				k1 = new Object();k2 = k1;	${k1 == k2}	true
-  > 				（双等号==和eq运算符在EL表达式中都是调用了equals方法）
-  > 			3、逻辑运算符：&& || ! not and or	(注意!和not都是取反)
-  > 			4、条件运算符：?:
-  > 			5、取值运算符：[] .
-  > 			6、empty运算符：判断是否为null，如果为空，返回true。遵循，没有就是空。
-  > 				${empty param.aihao}		true
-  > ---------------------------------------------------
-  > JSTL标签库：
-  > ---------------------------------------------
-  > 	# 什么是JSTL标签库？
-  > 		- JSP Standard Tag Lib：JSP标准标签库，它是一个JSP标签集合，它封装了JSP应用的通用核心功能。就是一个定制的标签库。
-  > 		- JSTL标签库通常与EL表达式在jsp页面中一起用，目的是让jsp中的java代码消失
-  > 		- 根据JSTL标签所提供的功能，可以将其分为5个类别：
-  > 			核心标签（常用的功能都在这）
-  > 			格式化标签（做数据格式化的）
-  > 			SQL 标签
-  > 			XML 标签
-  > 			JSTL 函数
-  > 		- JSTL的标签是写在JSP中的，但实际上最终还是执行的java程序，而java程序在jar包中的
-  > 
-  > 	# 使用JSTL标签库的步骤：
-  > 		* 第一步：引入JSTL对应的依赖
-  > 										jakarta.servlet.jsp.jstl-2.0.0.jar（对应关系的xml约束文件）
-  > 			tomcat10之后对应的jar包是{
-  > 										jakarta.servlet.jsp.jstl-api-2.0.0.jar（约束文件对应的Java代码文件）
-  > 
-  > 			tomcat10之前对应的jar包是：
-  >                     <dependency>
-  >                         <groupId>javax.servlet.jsp.jstl</groupId>
-  >                         <artifactId>jstl</artifactId>
-  >                         <version>1.2</version>
-  >                     </dependency>
-  >                     <dependency>
-  >                         <groupId>taglibs</groupId>
-  >                         <artifactId>standard</artifactId>
-  >                         <version>1.1.2</version>
-  >                     </dependency>
-  > 			将这些jar包放在lib目录下就行了
-  > 		* 第二步：在jsp页面中引入要使用的标签库（taglib指令引入）
-  > 			<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-  > 			<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-  > 		这是常用的核心标签库和格式化标签库。prefix是一个标识，指定该标签是哪个库中的标签，核心和格式化标签库一般叫c和fmt
-  > ---------------------------------------------------------------------------------
-  > 	# JSTL标签的原理：
-  > 		* 实际上你在jsp中使用这个：<c:catch></c:catch>标签，它会根据uri去匹配标签库
-  > 			<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>，
-  > 			这个uri指向了jar包中的一个xxx.tld文件，这个文件本质上就是一个
-  > 			xml文件(配置文件)，在该文件中描述了Java类和JSTL标签之间的对应关系。
-  > 			以上核心库对应的配置文件是c.tld，它在：jakarta.servlet.jsp.jstl-2.0.0.jar的META-INF文件中
-  > 		* 源码解析：
-  > 		  <tag>
-  > 			<description>对该标签的描述</description>
-  > 			<name>catch</name>标签名
-  > 			<tag-class>org.apache.taglibs.standard.tag.common.core.CatchTag</tag-class>标签名对应的java类
-  > 			<body-content>JSP</body-content>标签体中可以出现哪些内容，jsp表示可以出现所有jsp代码，包括EL表达式
-  > 			<attribute>
-  > 				<description>属性的描述</description>
-  > 				<name>属性名</name>
-  > 				<required>属性是否是必须的</required>
-  > 				<rtexprvalue>该属性里面是否可以写el表达式</rtexprvalue>
-  > 			</attribute>
-  > 		  </tag>
-  > 
-  > ===================JSTL核心库常用的标签========================================================================
-  > 以下的标签操作的都是域对象
-  > 
-  > # <c:if test="${!empty obj.username}">test属性是必须的，里面可以跟一个boolean类型的东西，支持EL表达式
-  > 	<h1>hello</h1>		//if标签体里面写jsp代码
-  >   </c:if>
-  >   	相当于if(obj的username属性非空){out.print("<h1>hello</h1>");}
-  > 	if标签里面还有var和scope属性，可以保存if的结果，非必须。var是变量名，scopevar的作用域，
-  > 	（page/request/session/application），指将test中的值true|false存储到该变量中，而该变量保存在域中。
-  > 
-  > # <c:choose>			//类似于switch语句
-  > 	<c:when test="${age}<20">青年</c:when>
-  > 	<c:when test="${age}>30">中年</c:when>
-  > 	<c:when test="${age}>60">老年</c:when>
-  > 	<c:otherwise>默认</c:otherwise>
-  >   </c:choose>
-  > 
-  > # <c:forEach var="i" begin="1" end="10" step="1">		分别有var、begin、end、step属性，类似于for循环
-  > 	${i}<br/>
-  >   </c:forEach>		//循环输出1-10
-  > 	（这里其实有隐含的东西，我们既然可以用${i}取出来i，所以i一定被保存在域中，i其实是在最小的域页面域中保存）
-  > 
-  > # <c:forEach items="${lists}" var="list" varStatus="num">
-  > 				编号${num.count},${list[0]}<br/>
-  > 				编号${num.count},${list[1]}<br/>
-  >   </c:forEach>输出：编号1,xxx
-  > 	它里面有一个items属性和var属性，类似于forEach循环。
-  > 	varStatus属性保存循环的状态，该状态对象里面有很多属性：
-  > 		index：保存循环的下标
-  > 		count：保存循环的次数
-  > 		first：是否是第一次循环
-  > 		last：是否是最后一次循环
-  > 
-  > =================================格式化标签库===================================
-  > <fmt:formatNumber>：将数值格式化为指定格式字符串。属性value是源数据，type是格式化类型，var是变量，scope结果放在哪个域中。
-  > 			如果不设置var那么会直接输出，如果设置了就不输出而存放在域中。type可以是NUMBER/CURRENCY/PERCENT，默认number
-  > 			<fmt:setLocale value="en_US">设置时区为美国。此时格式化默认的形式就变了。
-  > <fmt:formatDate>（重要）：日期格式化。同样有value和type属性。type可以是DATE/TIME/BOTH，默认date。
-  > <fmt:parseNumber>：将指定字符串转成数值。
-  > <fmt:parseDate>：将指定字符串转成日期。
-  > 具体其他的用法用的时候可以查文档。
-  > ```
 
 - ## MVC架构模式
 
@@ -759,7 +434,7 @@
                String fileName = UUID.randomUUID().toString()+
                part.getSubmittedFileName().substring(part.getSubmittedFileName().indexOf("."));
        
-               //通过write方法，可以将这个png文件保存在任意路径下，write里面的参数，就是要保存的路径；这种方式比较适合简单的写入，也可以part.getInputStream();手动写入控制更多读写细节
+               //通过write()方法，可以将这个png文件保存在任意路径下，write里面的参数，就是要保存的路径；这种方式比较适合简单的写入，也可以part.getInputStream();手动写入控制更多读写细节
                part.write(filePath+fileName);
        
                //然后给前端返回响应的结果
@@ -771,4 +446,5 @@
        }
        ```
 
+------
 

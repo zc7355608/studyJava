@@ -725,7 +725,7 @@
      >        state: () => {
      >        	return { sum: 0 } // 该模块中存一个状态sum，初值为0
      >        }
-     > }
+     > })
      > // defineStore的返回值是一个函数，函数的执行结果是store对象（Proxy对象）。其中有sum、$state属性
      > ```
      >
@@ -738,7 +738,7 @@
      >        state: () => {
      >        	return { talk: 'haha' }
      >        }
-     >    }
+     >    })
      > ```
      
      > **TIP**：defineStore的第2个参数也可以是一个函数（`()=>{}`），可以实现更多的高级用法：
@@ -788,7 +788,7 @@
     >          actions: { // actions对象中放一个个的action函数，函数中可以写复杂的业务逻辑
     >              increment(v){ this.sum+=v }, // action函数中的this就是store对象，所以不要用箭头函数
     >          }
-    >      }
+    >      })
     >      ```
     >
     >   2. 调用sotre对象上的Action函数：`countStore.increment(100)`
@@ -805,7 +805,7 @@
       getters: {
           bigSum(state){ return state.sum*10 } // 每一个函数中都可以收到state参数，并且其中的this也是store对象
       }
-  }
+  })
   ```
 
   ###### 注意：getters、actions的函数中的this都是当前store对象。
@@ -835,7 +835,7 @@
       // 直接写action函数
       increment(v){ sum+=v }, // action函数中的this就是store对象
   	return { sum, increment }
-  }
+  })
   ```
 
 ------
