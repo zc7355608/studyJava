@@ -1,11 +1,13 @@
 - ## JSP
 
+  > JSP（Java Server Pages）是由Sun公司主导创建的一种动态网页技术标准。JSP将Java代码和特定变动内容嵌入到静态的页面中，实现以静态页面为模板，动态生成其中的部分内容。JSP本质还是servlet，一般每个jsp页面都会生成一个java文件和clsss文件。Tomcat内部就有一个jsp的编译器。
+
   - #### 概念
 
     - ##### 我的第一个JSP程序：
 
       1. 首先在`WEB-INF`目录外面创建一个`index.jsp`文件，内容如下：
-
+  
          ```jsp
          <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
          <!DOCTYPE html>
@@ -22,41 +24,57 @@
       2. 启动Tomcat，打开浏览器，访问以下地址：http://localhost:8080/index.jsp，效果如下：
 
          ![image-20251009233214249](./assets/image-20251009233214249.png)
-
+  
          > ###### 过程说明：
          >
          > - 实际上访问以上的这个：index.jsp，底层执行的是：index_jsp.class 这个java程序。
-         > - 这个index.jsp会被tomcat翻译生成index_jsp.java文件，然后tomcat服务器又会将index_jsp.java编译生成index_jsp.class文件
+         > - 这个index.jsp会被tomcat翻译生成index_jsp.java文件，然后tomcat服务器又会将index_jsp.java编译生成index_jsp.class文件。
          > - 访问index.jsp，实际上执行的是index_jsp.class中的Java代码。
 
     - ##### 关于JSP：
-
+  
       > - JSP其实就是一个Servlet。它们的生命周期完全相同，都是单例的（假单例），完全就是一个东西。没有任何区别。
       >
       > - index.jsp访问的时候，会自动翻译生成index_jsp.java，会自动编译生成index_jsp.class，那么index_jsp 这就是一个类。
       > - index_jsp 类继承 HttpJspBase，而HttpJspBase类继承的是HttpServlet。所以index_jsp类就是一个Servlet类。
-
+      > - 注意：编译不通过的JSP不会生成class，但仍会翻译为Java源文件。
+  
     - ##### JSP的定义：
-
+  
       > - JSP是Java Server Pages的缩写。即**基于Java语言实现的服务器端的页面**。
       > - Servlet是JavaEE的13个子规范之一，那么JSP也是JavaEE的13个子规范之一。
       > - JSP是一套规范。所有的web容器/web服务器都是遵循这套规范的，都是按照这套规范进行的“翻译”。每一个是实现了JSP规范的web容器/web服务器都内置了一个JSP翻译引擎。
       > - 对JSP进行错误调试的时候，还是要直接打开JSP文件对应的java文件，检查java代码。
       > - 开发JSP的最高境界：眼前是JSP代码，但是脑袋中呈现的是java代码。
-
+  
     - ##### 思考：为什么JSP文件第一次打开的时候比较慢？
-
+  
       > 因为第一次比较麻烦：
       >
-      > 1. 要把.jsp文件翻译生成.java源文件
-      > 2. .java源文件要编译生成.class字节码文件
-      > 3. 然后通过class去创建`Servlet`对象
-      > 4. 然后调用`Servlet`对象的`init()`方法
+      > 1. 要把.jsp文件翻译生成.java源文件。
+      > 2. .java源文件要编译生成.class字节码文件。
+      > 3. 然后通过class去创建`Servlet`对象。
+      > 4. 然后调用`Servlet`对象的`init()`方法。
       > 5. 最后调用`Servlet`对象的`service()`方法。
       >
       > 第二次就比较快了，为什么？因为第二次直接调用单例`Servlet`对象的`service()`方法即可。
       >
       > 这也是为什么运维人员在给客户演示JSP项目的时候，都要提前把所有的JSP页面先访问一遍。
+  
+    - ##### JSP文件的扩展名是必须的吗？
+  
+      > 不是，是可以在Tomcat的`conf`中配置的：`CATALINA_HOME/conf/web.xml`
+      >
+      > ```xml
+      > <servlet-mapping>
+      >   <servlet-name>jsp</servlet-name>
+      >   <url-pattern>*.jsp</url-pattern>
+      >   <url-pattern>*.jspx</url-pattern>
+      > </servlet-mapping>
+      > ```
+      >
+      >
+      > 其实这个JSP就是一个普通txt文本，Tomcat认为哪个文件是JSP文件，就翻译哪个。
 
   - #### JSP的语法
 
@@ -70,7 +88,7 @@
       <% String name = “jack”;
       out.write("name = " + name); %>
       ```
-
+  
       > - 在这个符号当中编写的被视为java程序，会被放在Servlet类的`service()`方法内部。
       > - 在一个JSP当中 `<% %>` 符号可以出现多个。它们会按照先后顺序依次被放在`service()`方法中。
       > - 因此`<% %>`中（即`service()`方法中）不能写静态代码块，不能写方法，不能定义成员变量...
@@ -78,73 +96,65 @@
 
     - `<%= 变量名 %>`可以直接输出一个变量或表达式。里面的东西相当于放在了`service()`方法的`out.print()`中了。
 
-    - `<%! %>`中的内容会被放在`service()`方法之外。也就是成员作用域中。
+    - `<%! %>`中的内容会被放在`service()`方法之外。也就是成员作用域中。这种方式编写的代码，出现的位置是类体的开头。
 
+      > 这种方式会被编译到service方法之外，几乎不用，而且不建议用！
+      > 为什么？因为会有线程安全问题，Servlet类就一个，在类体中写的是成员变量，这个成员变量多个线程共享，如果在Tomcat多线程环境下，共享数据存在修改，就会有线程安全问题。
+  
     - JSP中编写注释：`<%-- JSP的专业注释，不会被翻译到java源代码当中 --%>`
-
+  
       > `<!--这种注释属于HTML的注释，这个注释信息仍然会被翻译到java源代码当中，不建议。-->`
-
+  
     - JSP的指令语法：`<%@指令名 属性名=属性值 属性名=属性值 属性名=属性值... %>`
-
+  
   - #### JSP指令
-
+  
     - 指令的作用是：指导JSP的翻译引擎如何工作（指导当前的JSP翻译引擎如何翻译JSP文件）
-
+  
     - 指令包括哪些呢？
-
-      - `include`指令：包含指令，在JSP中完成静态包含，很少用了。（这里不讲）
-
+  
+      - `include`指令：包含指令，在JSP中完成静态包含，很少用了。
+  
+        > include包含指令可以将一些重复的jsp代码提取到一个公共的jsp中，然后通过使用该指令将公共jsp引入到某个文件中使用。
+        >
+        > JSP中有静态包含和动态包含：
+        >
+        > 1. 静态包含：使用include指令，`<%@include file="jsp的相对路径" %>`，它其实就是，将该标签直接替换了jsp文件中的所有内容，最后生成一个servlet源代码。虽然运行效率高一点点，但耦合度较高，不够灵活。
+        > 2. 动态包含：使用jsp的语法标签，`<jsp:include page="jsp的相对路径"></jsp:include>`，它相当于在运行时方法的调用，会生成多个servlet，效率高且耦合度低。如果不需要传参数标签可以用自闭合的形式。需要传参数时，在该标签中间加上标签：`<jsp:param name="参数名" value="<%=变量名%>" />`，注意name属性不支持Java表达式，只能是字符串。获取参数就`req.getParameter(变量名);`，因为这里的参数是放在了request请求域中。page和file属性都是可以写表达式的。
+  
       - `taglib`指令：引入标签库的指令。这个到JJSTL标签库的时候再学习。现在先不管。
-
+  
       - `page`指令：目前重点学习一个page指令。
-
+  
     - JSP指令的语法：`<%@指令名 属性名=属性值 属性名=属性值 属性名=属性值.. %>`
-
+  
     - 关于`page`指令当中都有哪些常用的属性呢？
-
-      ```jsp
-      <%@page session="true|false" %>
-      true表示启用JSP的内置对象session，表示一定启动session对象。没有session对象会创建。
-      如果没有设置，默认值就是session="true"
-      session="false" 表示不启用内置对象session。当前JSP页面中无法使用内置对象session。
-      
-      <%@page contentType="text/json" %>
-      contentType属性用来设置响应的内容类型
-      但同时也可以设置字符集。
-      <%@page contentType="text/json;charset=UTF-8" %>
-      
-      <%@page import="java.util.List, java.util.Date, java.util.ArrayList" %>
-      <%@page import="java.util.*" %>
-      import语句，导包。
-      
-      <%@page errorPage="/error.jsp" %>
-      当前页面出现异常之后，跳转到error.jsp页面。
-      errorPage属性用来指定出错之后的跳转位置。
-      
-      <%@page isErrorPage="true" %>
-      表示启用JSP九大内置对象之一：exception
-      默认值是false。
-      ```
-
+  
+      > - session属性：`<%@ page session="true|false" %>`，设置jsp内置对象session是否启用，默认值就是true启用9大内置对象的session。
+      > - contentType属性：`<%@ page contentType="text/html;charset=UTF-8" %>`，设置jsp中响应的内容类型，但同时也可以设置响应的字符编码。不写的话默认就是：`response.setContextType("text/html");`
+      > - pageEncoding属性：`<%@ page pageEncoding="GBK" %>`，设置响应的字符编码，可以直接用上面的方式直接设置，两种方式是一模一样的。
+      > - import属性：`<%@ page import="xxx,xxx,xxx,..." %>`jsp中导包
+      > - errorPage属性：`<%@ page errorPage="url" %>`设置当前jsp，也就是JSP代码出现异常后的跳转位置
+      > - isErrorPage属性：`<%@ page isErrorPage="true|false" %>`，如果jsp界面使用了这个并且设置为true，表示它是一个error的jsp界面，那么此时这个界面会启用9大内置对象中的exception，程序员可以使用该对象去打印异常堆栈信息到tomcat控制台上
+      > - isELIgnored属性：`<%@ page isELIgnored="true|false" %>`，true表示忽略jsp页面中的EL表达式，将它当作普通字符串，默认false启用。（如果想只忽略其中某一个EL表达式，可以用转义字符`\${xxx}`）
+      > - （了解）language属性：`<%@ page language="java" %>`，该属性用于设置当前JSP页面使用的语言，目前只支持Java语言，所以这个属性只需要知道就行。
+  
     - JSP的九大内置对象：
-
-      - jakarta.servlet.jsp.PageContext pageContext 页面作用域
-      - jakarta.servlet.http.HttpServletRequest request 请求作用域
-      - jakarta.servlet.http.HttpSession session 会话作用域
-      - jakarta.servlet.ServletContext application 应用作用域
-
-      - pageContext < request < session < application
-      - 以上四个作用域都有：setAttribute、getAttribute、removeAttribute方法。
-      - 以上作用域的使用原则：尽可能使用小的域。
-
-      - java.lang.Throwable exception 
-      - jakarta.servlet.ServletConfig config
-      - java.lang.Object page （其实是this，当前的servlet对象）
-      - jakarta.servlet.jsp.JspWriter out （负责输出）
-      - jakarta.servlet.http.HttpServletResponse response （负责响应）
-
+  
+      > - `(jakarta.servlet.jsp.PageContext)pageContext`：页面域。本页面中有效
+      > - `(jakarta.servlet.http.HttpServletRequest)request`：请求域
+      > - `(jakarta.servlet.http.HttpSession)session`：会话域
+      > - `(jakarta.servlet.ServletContext)application`：应用域
+      > - `(jakarta.servlet.http.HttpServletResponse)response`：负责响应
+      > - `(jakarta.servlet.ServletConfig)config`：配置对象
+      > - `(java.lang.Throwable)exception`：异常对象
+      > - `(java.lang.Object)page`：当前的jsp对象的引用，其实就是this
+      > - `(jakarta.servlet.jsp.JspWriter)out`：负责输出
+  
+    - JSP页面之间做转发：`<jsp:forward page=""></jsp:forward>`，其中可以携带数据。
+  
   - #### EL表达式（Expression Language）
-
+  
     > EL表达式可以代替JSP中的java代码，让JSP文件中的程序看起来更加整洁，美观。
     >
     > JSP中夹杂着各种java代码，例如`<% java代码 %>`、`<%=%>`等，导致JSP文件很混乱，不好看，不好维护。所以才有了后期的EL表达式。
@@ -235,9 +245,9 @@
       >   <%@page contentType="text/html;charset=UTF-8" isELIgnored="true" %>
       >   isELIgnored="true" 表示忽略EL表达式
       >   isELIgnored="false" 表示不忽略EL表达式。（这是默认值）
-      >   
+      >       
       >   isELIgnored="true" 这个是全局的控制。
-      >   
+      >       
       >   可以使用反斜杠进行局部控制：\${username} 这样也可以忽略EL表达式。
       >   ```
   
@@ -363,196 +373,6 @@
   
   
   > ```
-  > 分析使用纯粹Servlet开发web应用的缺陷：
-  > 	# 在Servlet当中编写HTML/CSS/JavaScript等前端代码。存在什么样的问题？
-  > 		-在Java程序中编写前端代码，编写难度大，麻烦，不利于查错
-  > 		-显然程序的耦合度非常高
-  > 		-代码非常不美观
-  > 		-维护成本高：修改一个小小的前端代码，还需要动Java程序，那就得重新编译，生成新的class文件，
-  > 			打一个新的war包，重新发布
-  > 	# 思考一下，如果是你的话，你准备怎么解决这个问题？
-  > 		-上面那个Servlet能不能不写了（又是继承HttpServlet，又是重写doGet方法，还得拼接前端代码），
-  > 		让机器自动生成。我们程序员只需要写这个Servlet程序中的“前端的那段代码”，然后让机器将我们
-  > 		写的那段“前端代码”自动翻译成“Servlet的这种java程序”，然后机器再自动将java程序编译生成
-  > 		class文件。然后再使用JVM调用这个class中的方法。
-  > 		-有没有这种机制呢？有，JSP就是，看JSP。
-  > ---------------------
-  > JSP（Java Server Pages）:是由Sun公司主导创建的一种动态网页技术标准。JSP将Java代码和特定变动内容嵌入到静态的页面中，实现以静态页面为模板，动态生成其中的部分内容。JSP本质还是servlet，一般每个jsp页面都会生成一个java文件和clsss文件。tomcat内部就有一个jsp的编译器。
-  > ---------------------------------------------
-  > 	*编写第一个JSP程序：
-  > 		- 在webapp下创建一个index.jsp，里面没有任何内容，空的，这就是第一个JSP程序
-  > 		- 打开浏览器：http://localhost:8080/jsp/index.jsp 页面是空白
-  > 		- 实际上，访问以上的这个index.jsp文件，底层执行的是：index_jsp.class这个java程序
-  > 		- 这个jsp翻译后生成的java程序的位置：如果用IDEA生成的话，位置在：Tomcat启动的时候有一个CATALINA_BASE：
-  > 			后面的路径打开，然后work/Catalina/localhost/jsp/org/apache/jsp，这就是它程序的位置
-  > 		- 这个index.jsp会被tomcat翻译成index_jsp.java文件，然后tomcat服务器会将index_jsp.java文件编译生成
-  > 			index_jsp.class文件
-  > 		- 访问jsp文件，实际上就是执行java的Servlet程序，只不过这个java程序是tomcat自动给生成的
-  > 		- 访问index.jsp，实际上执行的是index_jsp.class中的方法
-  > 		- index_jsp类继承的是HttpJspBase，而HttpJspBase类继承的就是HttpServlet，所以index_jsp类就是一个
-  > 			Servlet类；index_jsp类和HttpServlet生命周期完全相同，就是一个东西，没有任何区别，同样是假单例；
-  > 	*JSP文件在浏览器中第一次访问的时候是比较慢的（服务器开启后，B端第一次访问jsp），为什么？
-  > 		第一次比较麻烦：
-  > 			- 要把jsp文件翻译生成java文件
-  > 			- java文件要编译生成class文件
-  > 			- 然后通过class去创建servlet对象，该对象保存在堆内存中
-  > 			- 然后调用servlet对象的init方法
-  > 			- 最后调用servlet对象的service方法
-  > 		第二次就比较快了，为什么？
-  > 			- 因为第二次直接调用单例Servlet对象的service方法即可，文件已经翻译生成了class在服务器的work目录下，
-  > 			并且该对象已经在服务器中被创建好了，用户请求过来就直接调用它的service方法，进行请求的处理了
-  > 	*这也是jsp的一个缺点，每个jsp界面第一次打开太慢，所以一般项目部署的时候会先给所有的jsp都打开一遍
-  > （注意：虽然各种品牌的服务器都实现了Servlet和JSP规范，但是同样的jsp用不同的服务器翻译成的java文件可能是不同的）
-  > 
-  > · JSP是什么？
-  > 	·JSP是java程序，本质上还是一个Servlet
-  > 	·Servlet和JSP都是JavaEE的13个子规范之一
-  > 	·所有的web容器/web服务器都是遵循这套规范的，都是按照这套规范进行翻译的
-  > 	·每个web容器里都内置有一个JSP翻译引擎
-  > （注意：JSP访问出错，专业人员都是直接打开jsp的java程序进行的调错，不要在jsp文件里找半天，没用，开发JSP的最高境界：
-  > 	眼前是JSP，但是脑袋中都是Java代码）
-  > ---------------------------------
-  > · JSP语法：
-  > 
-  > 	# 在jsp文件中直接编写文字，都会被自动翻译到哪里？
-  > （JSP语法1：）jsp中直接编写的文字都会翻译到servlet类的service方法的out.write("翻译到这里")，
-  > 		被java程序当作字符串打印输出到浏览器，除非你对它进行特殊的处理
-  > 	# 先用JSP的page指令，解决响应中文乱码问题（JSP默认并不是UTF8），在jsp文件的头部，加一个：
-  > 		<%@ page contentType="text/html;charset=UTF-8" %>，表示响应的内容类型是text/html，
-  > 		字符集为UTF-8，这个指令后面再详细说，先解决下中文乱码问题
-  > 
-  > （JSP语法2：）在JSP中编写java程序：<%java语句%>
-  > 	# 在这个符号当中编写的被视为java程序，被翻译到servlet类的service方法内部
-  > 	# 这里你要细心点，在<%  %>这个符号里面写java代码，你要时刻记住你正在service方法的方法体当中写代码，
-  > 	方法体中可以出现什么内容，我们java程序员要非常清楚才行
-  > 	# <%-- --%>是JSP的专业注释，它并不会被翻译到java源代码当中，建议使用这种方式；
-  > 		而<!-- -->这个注释是html注释，这个注释不专业，它会被翻译到out.print里面，不建议使用
-  > 	（注意，这个注释标签不要在其他的<%标签内嵌套使用）
-  > 	# 编译不通过的jsp不会生成class，但仍会翻译为java源文件
-  > 
-  > （JSP语法3：）如果想在service方法外部编写java代码，需要用：<%! %>
-  > 	# 这种方式会被编译到service方法之外，几乎不用，而且不建议用
-  > 		为什么？因为会有线程安全问题，Servlet类就一个，在类体中写的是成员变量，这个成员变量多个线程共享，
-  > 		如果在tomcat多线程环境下，共享数据存在修改，就会有线程安全问题
-  > 	# 这种方式编写的代码，出现的位置是从jsp类体的开头
-  > 
-  > 	# 怎么在JSP中向浏览器上输出一个name变量
-  > 			<%
-  > 				String name="Jack";
-  > 				out.print("name="+ name);
-  > 			%>
-  > 		以上的out是JSP的九大内置对象之一，可以直接拿来用。这九大内置对象在service方法开始中有声明，
-  > 		所以只能在service方法中使用这些内置对象；
-  > 
-  > （JSP语法4：）
-  > 		·如果输出的东西有java代码也有字符串，两种格式拼接在一块的，不用out.write有没有更好的方式
-  > 	# 有，用这个：<%= %>，注意：在=号后面编写要输出的内容
-  > 	# 那么这种格式：<%= %>会被翻译到哪里呢，翻译成什么东西呢？
-  > 		·翻译成了service中这个java代码：out.print(); ，就在这个括号里面，和上面不同的是，不带双引号
-  > 	# 所以如果需要输出java变量加字符串，那么只需要这样：<%= "name="+ name %>
-  > 
-  > ----------------
-  > JSP语法总结：
-  > 	·JSP中直接编写普通字符串
-  > 		# 翻译到service方法的out.write("这里");
-  > 	·<% %>
-  > 		# 翻译到service方法内部，里面是一条一条java语句
-  > 	·<%! %>
-  > 		# 翻译到service方法之外
-  > 	·<%= %>
-  > 		# 翻译到service方法体内部，out.print(这里);
-  > 	·<%@ page contentType="text/html;charset=UTF-8" %>
-  > 		# page指令，通过contentType属性用来设置响应的内容类型
-  > 
-  > ---------------------------------
-  > 既然JSP说到底还是一个Servlet，那么它和Servlet有什么区别呢？
-  > 	# 职责不同：
-  > 		- Servlet的职责：收集数据。Servlet的强项是逻辑处理，业务处理，连接数据库，获取/收集数据
-  > 		- JSP的职责：展示数据。JSP的强项是做数据的展示，只要是B上展示数据，都用JSP写
-  > (纯用JSP可不可以写一个webapp？可以，但是没有必要，你懂的)
-  > 
-  > ----------------------------------------------------
-  > *JSP文件的扩展名是必须的吗？
-  > 	不是，是可以在Tomcat的conf中配置的：CATALINA_HOME/conf/web.xml
-  > 	<servlet-mapping>
-  > 		<servlet-name>jsp</servlet-name>
-  > 		<url-pattern>*.jsp</url-pattern>
-  > 		<url-pattern>*.jspx</url-pattern>
-  > 	</servlet-mapping>
-  > 其实这个jsp就是一个普通txt文本，tomcat认为哪个文件是jsp文件，就翻译哪个
-  > 
-  > -------------------------------------------------------------------------------------
-  > *包名bean是什么意思？
-  > 	javabean(java的logo是一杯冒着热气的咖啡，故javabean被翻译为咖啡豆)
-  > 	java是一杯咖啡，咖啡是由一个个的咖啡豆研磨而成。整个java程序是由一个个的bean组成
-  > 	什么是JavaBean，你可以理解为：符合某种规范的java类
-  > 		·含有无参构造
-  > 		·属性私有化
-  > 		·对外提供公开的set和get方法
-  > 		·实现java.io.Serializable接口(可序列化)private static final long serialVersionUID=xxxL
-  > 		·重写toString、equals和hashCode方法
-  > 	JavaBean其实就是java的实体类。负责数据的封装
-  > 	JavaBean符合JavaBean规范，具有更强的通用性
-  > 
-  > -------------------------------------------------------------------------------
-  > 
-  > 关于JSP的指令：
-  > 	# 指令的作用：指导JSP的翻译引擎如何翻译jsp文件
-  > 	# 指令包括哪些呢：
-  > 		page：通过该指令可以操作jsp生成的servlet类中的一些信息。
-  > 		taglib：引入标签库的指令。
-  > 		include：包含指令，在jsp中完成静态包含或动态包含。
-  > 	# 指令的使用语法：
-  > 		<%@ 指令名 属性名1=属性值1 属性名2=属性值2 属性名3=属性值3 %>
-  > 	# page指令的属性：
-  > 
-  > 		session属性：<%@ page session="true|false" %>
-  > 				设置jsp内置对象session是否启用，默认值就是true启用9大内置对象的session
-  > 
-  > 		contentType属性：<%@ page contentType="text/html;charset=UTF-8" %>
-  > 				设置jsp中响应的内容类型，但同时也可以设置响应的字符编码。不写的话默认就是：
-  > 				response.setContextType("text/html");
-  > 
-  > 		pageEncoding属性：<%@ page pageEncoding="GBK" %>
-  > 				设置响应的字符编码，可以直接用上面的方式直接设置，两种方式是一模一样的
-  > 
-  > 		import属性：<%@ page import="xxx,xxx,xxx,..." %>jsp中导包
-  > 
-  > 		errorPage属性：<%@ page errorPage="url" %>设置当前jsp，也就是JSP代码出现异常后的跳转位置
-  > 
-  > 		isErrorPage属性：<%@ page isErrorPage="true|false" %>
-  > 				如果jsp界面使用了这个并且设置为true，表示它是一个error的jsp界面，那么此时这个界面会启用
-  > 				9大内置对象中的exception，程序员可以使用该对象去打印异常堆栈信息到tomcat控制台上
-  > 
-  > 		isELIgnored属性：<%@ page isELIgnored="true|false" %>
-  > 				true表示忽略jsp页面中的EL表达式，将它当作普通字符串，默认false启用
-  > 				（如果想只忽略其中某一个EL表达式，可以用转义字符\${xxx}）
-  > 
-  > 		（了解）language属性：<%@ page language="java" %>
-  > 				该属性用于设置当前JSP页面使用的语言，目前只支持Java语言，所以这个属性只需要知道就行
-  > 
-  > 	# include包含指令：可以将一些重复的jsp代码提取到一个公共的jsp中，然后通过使用该指令将公共jsp引入到某个文件中使用。分为静态包含和动态包含2种。
-  > 	静态包含：使用include指令，<%@ include file="jsp的相对路径" %>，它就是将该标签，直接替换了jsp文件中的所有内容，最后生成一个servlet源代码。虽然运行效率高一点点，但耦合度较高，不够灵活。而且要注意公共jsp中应该出现哪些内容，避免在同一个servlet代码中出现Java语法错误。
-  > 	动态包含：使用jsp的语法标签，<jsp:include page="jsp的相对路径"></jsp:include>，它相当于在运行时方法的调用，会生成多个servlet，效率也高耦合度还低。如果不需要传参数标签中间不要出现任何内容。需要传参数时：在该标签之间使用，<jsp:param name="参数名" value="<%=变量名%>"/>，注意name属性不支持表达式，只能是字符串。获取参数就req.getParameter(变量名);，因为参数是放在了request请求域中。
-  > 	page和file属性都是可以写表达式的。
-  > 
-  > 	#jsp页面之间做转发，<jsp:forward page=""></jsp:forward>，其中可以携带数据。
-  > --------------------------------------------------------------------------
-  > 
-  > 关于JSP的九大内置对象：
-  > 	(jakarta.servlet.jsp.PageContext)pageContext：页面域。本页面中有效
-  > 	(jakarta.servlet.http.HttpServletRequest)request：请求域
-  > 	(jakarta.servlet.http.HttpSession)session：会话域
-  > 	(jakarta.servlet.ServletContext)application：应用域
-  > 	(jakarta.servlet.http.HttpServletResponse)response：负责响应
-  > 其中这四个域：pageContext<request<session<application，它们都有
-  > setAttribute()、getApplication()、removeAttribute()
-  > 	(jakarta.servlet.ServletConfig)config：配置对象
-  > 	(java.lang.Throwable)exception：异常对象
-  > 	(java.lang.Object)page：当前的jsp对象的引用，其实就是this
-  > 	(jakarta.servlet.jsp.JspWriter)out：负责输出
-  > 
-  > 
   > ========day11===(关于EL表达式)============================================================
   > 
   > # EL表达式是干什么的？
