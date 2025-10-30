@@ -50,34 +50,37 @@
       >
       > 当构建后的代码运行报错了，浏览器就可以通过 `.map` 文件，从构建后代码出错位置找到源代码的出错位置，从而帮助我们更快的找到错误根源。
   
-    - ##### Webpack中配置SourceMap
+    - ##### Webpack中启用SourceMap
   
-      > 通过查看 Webpack DevTool 文档可知，SourceMap 的值有很多种情况。但实际开发时我们只需要关注两种情况即可：
+      > `devtool` 配置项用于控制是否生成、以及如何生成 SourceMap，值是一个字符串或`false`。`false`用于显式设置不生成 SourceMap，强制覆盖开发或生产模式的默认值。其中字符串值有[26种](https://webpack.docschina.org/configuration/devtool/#devtool)，下面是常用的一些：
       >
-      > - 开发模式：`cheap-module-source-map`
+      > **注意：**SourceMap可能是一个单独的文件，也可能添加在bundle.js文件中，这两种情况都叫生成了SourceMap。
+      
+      - `'eval'`（`development`模式下的默认值）：每个模块都使用 `eval()` 执行，并且都有 `//# sourceURL`。由于eval()是在内存中执行，所以没有生成SourceMap文件。此选项会非常快地构建。主要缺点是，由于会映射到转换后的代码，而不是映射到原始代码（没有从 loader 中获取 source map），所以不能正确的显示行数。
+      
+      - `省略devtool选项`（生产模式下的默认值）：此时不会生成SourceMap
+      
+      - `'source-map'`：整个 source map 作为一个单独的文件生成。它为 bundle 添加了一个引用注释，以便开发工具F12知道在哪里可以找到它。它常用于生产环境中。
+      
+        > **警告**：你应该将你的服务器配置为，不允许普通用户访问 source map 文件！
+      
+      - `'cheap-module-source-map'`：没有列映射(column mapping)的 source map，忽略 loader source map。它对于开发环境和生产环境都不理想，是一些特定场景下需要的，例如一些第三方工具。
+      
+      > ```js
+      > module.exports = {
+      >   // 其他省略
+      >   mode: "production",
+      >   devtool: "source-map",
+      > };
+      > ```
       >
-      >   - 优点：打包编译速度快，只包含行映射
-      >   - 缺点：没有列映射
+      > 选择不同的值，最终打包的速度、构建产物的大小都会有所差异。
+      
+      ###### 注意：
+      
+      > 你可以直接使用 `SourceMapDevToolPlugin`/`EvalSourceMapDevToolPlugin` 来替代使用 `devtool` 选项，因为它有更多的选项。切勿同时使用 `devtool` 选项和 `SourceMapDevToolPlugin`/`EvalSourceMapDevToolPlugin` 插件。`devtool` 选项在内部添加过这些插件，所以你最终将应用2次插件。
       >
-      >   ```js
-      >   module.exports = {// 其他省略
-      >     mode: "development",
-      >     devtool: "cheap-module-source-map",
-      >   };
-      >   ```
-      >
-      > - 生产模式：`source-map`
-      >
-      >   - 优点：包含行/列映射
-      >   - 缺点：打包编译速度更慢
-      >
-      >   ```js
-      >   module.exports = {
-      >     // 其他省略
-      >     mode: "production",
-      >     devtool: "source-map",
-      >   };
-      >   ```
+      > 你也可以通过查看 [`source-map-loader`](https://webpack.docschina.org/loaders/source-map-loader) 来对当前的 SourceMap 进行处理。
   
   - #### 提升打包构建速度
   
@@ -2718,7 +2721,7 @@
     >   import "./sass/index.sass";
     >   import "./sass/index.scss";
     >   import "./styl/index.styl";
-    >       
+    >         
     >   const result1 = count(2, 1);
     >   console.log(result1);
     >   const result2 = sum(1, 2, 3, 4);
