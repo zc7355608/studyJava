@@ -15,3 +15,15 @@ RabbitMQ-->RocketMQ --> ActiveMQ-->Dubbo -->盈利宝项目-->SpringCloud-->S
 尚硅谷前端工程化
 黑马node
 尚硅谷mongo
+
+
+html
+css
+js
+[es6]
+vue
+node(包管理器、模块化)
+webpack
+mongodb
+项目
+react
