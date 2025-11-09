@@ -11,7 +11,7 @@
   > 3. 减少代码体积
   > 4. 优化代码运行性能
 
-  - #### 提升开发体验
+  - #### 提升开发体验（只针对开发环境）
 
     - ##### 关于SourceMap
   
@@ -82,7 +82,7 @@
       >
       > 你也可以通过查看 [`source-map-loader`](https://webpack.docschina.org/loaders/source-map-loader) 来对当前的 SourceMap 进行处理。
   
-  - #### 提升打包构建速度
+  - #### 提升打包构建速度（只针对开发环境）
   
     - ##### HotModuleReplacement
   
@@ -441,7 +441,7 @@
          >
          > **注意**：由于我们目前打包的内容都很少，所以因为启动进程开销原因，使用多进程打包实际上会显著的让我们打包时间变得很长。
     
-  - #### 减少代码体积
+  - #### 减少代码体积（只针对生产环境）
   
     - ##### Tree Shaking
   
@@ -567,7 +567,7 @@
          > - `jpegtran.exe`：需要复制到 `node_modules\jpegtran-bin\vendor` 下面。[jpegtran 官网](http://jpegclub.org/jpegtran/)
          > - `optipng.exe`：需要复制到 `node_modules\optipng-bin\vendor` 下面。[OptiPNG 官网](http://optipng.sourceforge.net/)
   
-  - #### 优化代码运行性能
+  - #### 优化代码运行性能（只针对生产环境）
   
     - ##### Code Split
   
@@ -580,7 +580,7 @@
       > 1. 分割文件：将打包生成的文件进行分割，生成多个 js 文件。
       > 2. 按需加载：需要哪个文件就加载哪个文件。
       >
-      > 代码分割实现方式有不同的方式，为了更加方便体现它们之间的差异，我们会分别创建新的文件来演示。
+      > 代码分割可以有不同的方式实现，为了更加方便体现它们之间的差异，我们会分别创建新的文件来演示。
     
       - ###### 多入口：
     
@@ -615,6 +615,19 @@
         > 我们需要提取多入口的重复代码，只打包生成一个 js 文件，其他文件引用它就好。
     
         ```js
+        // 单入口
+        // entry: './src/main.js',
+        // 多入口
+        entry: {
+          // 打包后会生成2个js文件
+          main: "./src/main.js",
+          app: "./src/app.js",
+        },
+        output: {
+          path: path.resolve(__dirname, "./dist"),
+          filename: "js/[name].js",
+          clear: true,
+        },
         optimization: {
           // 代码分割配置
           splitChunks: {
@@ -662,13 +675,11 @@
     
       - ###### 按需加载，动态导入：
     
-        > 想要实现按需加载、动态导入模块，代码中必须使用动态导入语法：`import()`
-        >
-        > 一旦通过 `import()` 动态导入语法导入模块，模块就被代码分割，同时也能按需加载了。
-    
+        > 在Webpack 5的默认配置下，使用`import()`语法动态导入的JS模块通常会被分离为单独的chunk，并在运行时按需加载。这种行为可以通过`splitChunks`等配置进行定制。
+        
       - ###### 单入口：
     
-        > 开发时我们可能是单页面应用（SPA），只有一个入口（单入口）。单入口也可以生成多个js文件，我们需要配置下代码分割：
+        > 开发时我们可能是单页面应用（SPA），只有一个入口（单入口）。单入口也可以通过代码分割来生成多个js文件，这样配置：
     
         ```js
         const path = require("path");
@@ -724,435 +735,434 @@
         };
         ```
     
-      - ###### 更新配置：
+      > 最终我们选择使用单入口+代码分割+动态导入方式来进行配置。更新之前的配置文件：
     
-        > 最终我们会使用单入口+代码分割+动态导入方式来进行配置。更新之前的配置文件：
-    
-        ```js
-        // webpack.prod.js
-        const os = require("os");
-        const path = require("path");
-        const ESLintWebpackPlugin = require("eslint-webpack-plugin");
-        const HtmlWebpackPlugin = require("html-webpack-plugin");
-        const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-        const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-        const TerserPlugin = require("terser-webpack-plugin");
-        const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
-        
-        // cpu核数
-        const threads = os.cpus().length;
-        
-        // 获取处理样式的Loaders
-        const getStyleLoaders = (preProcessor) => {
-          return [
-            MiniCssExtractPlugin.loader,
-            "css-loader",
+      ```js
+      // webpack.prod.js
+      const os = require("os");
+      const path = require("path");
+      const ESLintWebpackPlugin = require("eslint-webpack-plugin");
+      const HtmlWebpackPlugin = require("html-webpack-plugin");
+      const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+      const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+      const TerserPlugin = require("terser-webpack-plugin");
+      const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+      
+      // cpu核数
+      const threads = os.cpus().length;
+      
+      // 获取处理样式的Loaders
+      const getStyleLoaders = (preProcessor) => {
+        return [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  "postcss-preset-env", // 能解决大多数样式兼容性问题
+                ],
+              },
+            },
+          },
+          preProcessor,
+        ].filter(Boolean);
+      };
+      
+      module.exports = {
+        entry: "./src/main.js",
+        output: {
+          path: path.resolve(__dirname, "../dist"), // 生产模式需要输出
+          filename: "static/js/main.js", // 将 js 文件输出到 static/js 目录中
+          clean: true,
+        },
+        module: {
+          rules: [
             {
-              loader: "postcss-loader",
-              options: {
-                postcssOptions: {
+              oneOf: [
+                {
+                  // 用来匹配 .css 结尾的文件
+                  test: /\.css$/,
+                  // use 数组里面 Loader 执行顺序是从右到左
+                  use: getStyleLoaders(),
+                },
+                {
+                  test: /\.less$/,
+                  use: getStyleLoaders("less-loader"),
+                },
+                {
+                  test: /\.s[ac]ss$/,
+                  use: getStyleLoaders("sass-loader"),
+                },
+                {
+                  test: /\.styl$/,
+                  use: getStyleLoaders("stylus-loader"),
+                },
+                {
+                  test: /\.(png|jpe?g|gif|svg)$/,
+                  type: "asset",
+                  parser: {
+                    dataUrlCondition: {
+                      maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
+                    },
+                  },
+                  generator: {
+                    // 将图片文件输出到 static/imgs 目录中
+                    // 将图片文件命名 [hash:8][ext][query]
+                    // [hash:8]: hash值取8位
+                    // [ext]: 使用之前的文件扩展名
+                    // [query]: 添加之前的query参数
+                    filename: "static/imgs/[hash:8][ext][query]",
+                  },
+                },
+                {
+                  test: /\.(ttf|woff2?)$/,
+                  type: "asset/resource",
+                  generator: {
+                    filename: "static/media/[hash:8][ext][query]",
+                  },
+                },
+                {
+                  test: /\.js$/,
+                  // exclude: /node_modules/, // 排除node_modules代码不编译
+                  include: path.resolve(__dirname, "../src"), // 也可以用包含
+                  use: [
+                    {
+                      loader: "thread-loader", // 开启多进程
+                      options: {
+                        workers: threads, // 数量
+                      },
+                    },
+                    {
+                      loader: "babel-loader",
+                      options: {
+                        cacheDirectory: true, // 开启babel编译缓存
+                        cacheCompression: false, // 缓存文件不要压缩
+                        plugins: ["@babel/plugin-transform-runtime"], // 减少代码体积
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        plugins: [
+          new ESLintWebpackPlugin({
+            // 指定检查文件的根目录
+            context: path.resolve(__dirname, "../src"),
+            exclude: "node_modules", // 默认值
+            cache: true, // 开启缓存
+            // 缓存目录
+            cacheLocation: path.resolve(
+              __dirname,
+              "../node_modules/.cache/.eslintcache"
+            ),
+            threads, // 开启多进程
+          }),
+          new HtmlWebpackPlugin({
+            // 以 public/index.html 为模板创建文件
+            // 新的html文件有两个特点：1. 内容和源文件一致 2. 自动引入打包生成的js等资源
+            template: path.resolve(__dirname, "../public/index.html"),
+          }),
+          // 提取css成单独文件
+          new MiniCssExtractPlugin({
+            // 定义输出文件名和目录
+            filename: "static/css/main.css",
+          }),
+          // css压缩
+          // new CssMinimizerPlugin(),
+        ],
+        optimization: {
+          minimizer: [
+            // css压缩也可以写到optimization.minimizer里面，效果一样的
+            new CssMinimizerPlugin(),
+            // 当生产模式会默认开启TerserPlugin，但是我们需要进行其他配置，就要重新写了
+            new TerserPlugin({
+              parallel: threads, // 开启多进程
+            }),
+            // 压缩图片
+            new ImageMinimizerPlugin({
+              minimizer: {
+                implementation: ImageMinimizerPlugin.imageminGenerate,
+                options: {
                   plugins: [
-                    "postcss-preset-env", // 能解决大多数样式兼容性问题
+                    ["gifsicle", { interlaced: true }],
+                    ["jpegtran", { progressive: true }],
+                    ["optipng", { optimizationLevel: 5 }],
+                    [
+                      "svgo",
+                      {
+                        plugins: [
+                          "preset-default",
+                          "prefixIds",
+                          {
+                            name: "sortAttrs",
+                            params: {
+                              xmlnsOrder: "alphabetical",
+                            },
+                          },
+                        ],
+                      },
+                    ],
                   ],
                 },
               },
-            },
-            preProcessor,
-          ].filter(Boolean);
-        };
-        
-        module.exports = {
-          entry: "./src/main.js",
-          output: {
-            path: path.resolve(__dirname, "../dist"), // 生产模式需要输出
-            filename: "static/js/main.js", // 将 js 文件输出到 static/js 目录中
-            clean: true,
+            }),
+          ],
+          // 代码分割配置
+          splitChunks: {
+            chunks: "all", // 对所有模块都进行分割
+            // 其他内容用默认配置即可
           },
-          module: {
-            rules: [
-              {
-                oneOf: [
-                  {
-                    // 用来匹配 .css 结尾的文件
-                    test: /\.css$/,
-                    // use 数组里面 Loader 执行顺序是从右到左
-                    use: getStyleLoaders(),
-                  },
-                  {
-                    test: /\.less$/,
-                    use: getStyleLoaders("less-loader"),
-                  },
-                  {
-                    test: /\.s[ac]ss$/,
-                    use: getStyleLoaders("sass-loader"),
-                  },
-                  {
-                    test: /\.styl$/,
-                    use: getStyleLoaders("stylus-loader"),
-                  },
-                  {
-                    test: /\.(png|jpe?g|gif|svg)$/,
-                    type: "asset",
-                    parser: {
-                      dataUrlCondition: {
-                        maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
-                      },
-                    },
-                    generator: {
-                      // 将图片文件输出到 static/imgs 目录中
-                      // 将图片文件命名 [hash:8][ext][query]
-                      // [hash:8]: hash值取8位
-                      // [ext]: 使用之前的文件扩展名
-                      // [query]: 添加之前的query参数
-                      filename: "static/imgs/[hash:8][ext][query]",
-                    },
-                  },
-                  {
-                    test: /\.(ttf|woff2?)$/,
-                    type: "asset/resource",
-                    generator: {
-                      filename: "static/media/[hash:8][ext][query]",
-                    },
-                  },
-                  {
-                    test: /\.js$/,
-                    // exclude: /node_modules/, // 排除node_modules代码不编译
-                    include: path.resolve(__dirname, "../src"), // 也可以用包含
-                    use: [
-                      {
-                        loader: "thread-loader", // 开启多进程
-                        options: {
-                          workers: threads, // 数量
-                        },
-                      },
-                      {
-                        loader: "babel-loader",
-                        options: {
-                          cacheDirectory: true, // 开启babel编译缓存
-                          cacheCompression: false, // 缓存文件不要压缩
-                          plugins: ["@babel/plugin-transform-runtime"], // 减少代码体积
-                        },
-                      },
-                    ],
-                  },
+        },
+        // devServer: {
+        //   host: "localhost", // 启动服务器域名
+        //   port: "3000", // 启动服务器端口号
+        //   open: true, // 是否自动打开浏览器
+        // },
+        mode: "production",
+        devtool: "source-map",
+      };
+      ```
+    
+      ###### 给动态导入文件取名称：
+    
+      > `webpackChunkName: "math"`：这是webpack动态导入模块的命名方式。`"math"`会作为`[name]`的值显示。
+    
+      ```js
+      import(/* webpackChunkName: "math" */ "./js/math.js").then(({ count }) => {
+        console.log(count(2, 1));
+      });
+      ```
+    
+      > eslint会对动态导入语法报错，需要修改eslint配置文件：（`.eslintrc.js`）
+      >
+    
+      1. 下载包：`npm i eslint-plugin-import -D`
+    
+      2. 配置：
+    
+         ```js
+         // .eslintrc.js
+         module.exports = {
+           // 继承 Eslint 规则
+           extends: ["eslint:recommended"],
+           env: {
+             node: true, // 启用node中全局变量
+             browser: true, // 启用浏览器中全局变量
+           },
+           plugins: ["import"], // 解决动态导入import语法报错问题 --> 实际使用eslint-plugin-import的规则解决的
+           parserOptions: {
+             ecmaVersion: 6,
+             sourceType: "module",
+           },
+           rules: {
+             "no-var": 2, // 不能使用 var 定义变量
+           },
+         };
+         ```
+    
+      > 最终我们来进行统一命名。统一命名设置：
+    
+      ```js
+      const os = require("os");
+      const path = require("path");
+      const ESLintWebpackPlugin = require("eslint-webpack-plugin");
+      const HtmlWebpackPlugin = require("html-webpack-plugin");
+      const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+      const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+      const TerserPlugin = require("terser-webpack-plugin");
+      const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+      
+      // cpu核数
+      const threads = os.cpus().length;
+      
+      // 获取处理样式的Loaders
+      const getStyleLoaders = (preProcessor) => {
+        return [
+          MiniCssExtractPlugin.loader,
+          "css-loader",
+          {
+            loader: "postcss-loader",
+            options: {
+              postcssOptions: {
+                plugins: [
+                  "postcss-preset-env", // 能解决大多数样式兼容性问题
                 ],
               },
-            ],
-          },
-          plugins: [
-            new ESLintWebpackPlugin({
-              // 指定检查文件的根目录
-              context: path.resolve(__dirname, "../src"),
-              exclude: "node_modules", // 默认值
-              cache: true, // 开启缓存
-              // 缓存目录
-              cacheLocation: path.resolve(
-                __dirname,
-                "../node_modules/.cache/.eslintcache"
-              ),
-              threads, // 开启多进程
-            }),
-            new HtmlWebpackPlugin({
-              // 以 public/index.html 为模板创建文件
-              // 新的html文件有两个特点：1. 内容和源文件一致 2. 自动引入打包生成的js等资源
-              template: path.resolve(__dirname, "../public/index.html"),
-            }),
-            // 提取css成单独文件
-            new MiniCssExtractPlugin({
-              // 定义输出文件名和目录
-              filename: "static/css/main.css",
-            }),
-            // css压缩
-            // new CssMinimizerPlugin(),
-          ],
-          optimization: {
-            minimizer: [
-              // css压缩也可以写到optimization.minimizer里面，效果一样的
-              new CssMinimizerPlugin(),
-              // 当生产模式会默认开启TerserPlugin，但是我们需要进行其他配置，就要重新写了
-              new TerserPlugin({
-                parallel: threads, // 开启多进程
-              }),
-              // 压缩图片
-              new ImageMinimizerPlugin({
-                minimizer: {
-                  implementation: ImageMinimizerPlugin.imageminGenerate,
-                  options: {
-                    plugins: [
-                      ["gifsicle", { interlaced: true }],
-                      ["jpegtran", { progressive: true }],
-                      ["optipng", { optimizationLevel: 5 }],
-                      [
-                        "svgo",
-                        {
-                          plugins: [
-                            "preset-default",
-                            "prefixIds",
-                            {
-                              name: "sortAttrs",
-                              params: {
-                                xmlnsOrder: "alphabetical",
-                              },
-                            },
-                          ],
-                        },
-                      ],
-                    ],
-                  },
-                },
-              }),
-            ],
-            // 代码分割配置
-            splitChunks: {
-              chunks: "all", // 对所有模块都进行分割
-              // 其他内容用默认配置即可
             },
           },
-          // devServer: {
-          //   host: "localhost", // 启动服务器域名
-          //   port: "3000", // 启动服务器端口号
-          //   open: true, // 是否自动打开浏览器
-          // },
-          mode: "production",
-          devtool: "source-map",
-        };
-        ```
-    
-      - ###### 给动态导入文件取名称：
-    
-        > `webpackChunkName: "math"`：这是webpack动态导入模块的命名方式。`"math"`会作为`[name]`的值显示。
-    
-        ```js
-        import(/* webpackChunkName: "math" */ "./js/math.js").then(({ count }) => {
-          console.log(count(2, 1));
-        });
-        ```
-    
-        > eslint会对动态导入语法报错，需要修改eslint配置文件：（`.eslintrc.js`）
-        >
-        > 1. 下载包：`npm i eslint-plugin-import -D`
-        >
-        > 2. 配置：
-        >
-        >    ```js
-        >    // .eslintrc.js
-        >    module.exports = {
-        >      // 继承 Eslint 规则
-        >      extends: ["eslint:recommended"],
-        >      env: {
-        >        node: true, // 启用node中全局变量
-        >        browser: true, // 启用浏览器中全局变量
-        >      },
-        >      plugins: ["import"], // 解决动态导入import语法报错问题 --> 实际使用eslint-plugin-import的规则解决的
-        >      parserOptions: {
-        >        ecmaVersion: 6,
-        >        sourceType: "module",
-        >      },
-        >      rules: {
-        >        "no-var": 2, // 不能使用 var 定义变量
-        >      },
-        >    };
-        >    ```
-    
-        ###### 统一命名设置：
-    
-        ```js
-        const os = require("os");
-        const path = require("path");
-        const ESLintWebpackPlugin = require("eslint-webpack-plugin");
-        const HtmlWebpackPlugin = require("html-webpack-plugin");
-        const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-        const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
-        const TerserPlugin = require("terser-webpack-plugin");
-        const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
-        
-        // cpu核数
-        const threads = os.cpus().length;
-        
-        // 获取处理样式的Loaders
-        const getStyleLoaders = (preProcessor) => {
-          return [
-            MiniCssExtractPlugin.loader,
-            "css-loader",
+          preProcessor,
+        ].filter(Boolean);
+      };
+      
+      module.exports = {
+        entry: "./src/main.js",
+        output: {
+          path: path.resolve(__dirname, "../dist"), // 生产模式需要输出
+          filename: "static/js/[name].js", // 入口文件打包输出资源命名方式
+          chunkFilename: "static/js/[name].chunk.js", // 动态导入输出资源命名方式
+          assetModuleFilename: "static/media/[name].[hash][ext]", // 图片、字体等资源命名方式（注意用hash）
+          clean: true,
+        },
+        module: {
+          rules: [
             {
-              loader: "postcss-loader",
-              options: {
-                postcssOptions: {
+              oneOf: [
+                {
+                  // 用来匹配 .css 结尾的文件
+                  test: /\.css$/,
+                  // use 数组里面 Loader 执行顺序是从右到左
+                  use: getStyleLoaders(),
+                },
+                {
+                  test: /\.less$/,
+                  use: getStyleLoaders("less-loader"),
+                },
+                {
+                  test: /\.s[ac]ss$/,
+                  use: getStyleLoaders("sass-loader"),
+                },
+                {
+                  test: /\.styl$/,
+                  use: getStyleLoaders("stylus-loader"),
+                },
+                {
+                  test: /\.(png|jpe?g|gif|svg)$/,
+                  type: "asset",
+                  parser: {
+                    dataUrlCondition: {
+                      maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
+                    },
+                  },
+                  // generator: {
+                  //   // 将图片文件输出到 static/imgs 目录中
+                  //   // 将图片文件命名 [hash:8][ext][query]
+                  //   // [hash:8]: hash值取8位
+                  //   // [ext]: 使用之前的文件扩展名
+                  //   // [query]: 添加之前的query参数
+                  //   filename: "static/imgs/[hash:8][ext][query]",
+                  // },
+                },
+                {
+                  test: /\.(ttf|woff2?)$/,
+                  type: "asset/resource",
+                  // generator: {
+                  //   filename: "static/media/[hash:8][ext][query]",
+                  // },
+                },
+                {
+                  test: /\.js$/,
+                  // exclude: /node_modules/, // 排除node_modules代码不编译
+                  include: path.resolve(__dirname, "../src"), // 也可以用包含
+                  use: [
+                    {
+                      loader: "thread-loader", // 开启多进程
+                      options: {
+                        workers: threads, // 数量
+                      },
+                    },
+                    {
+                      loader: "babel-loader",
+                      options: {
+                        cacheDirectory: true, // 开启babel编译缓存
+                        cacheCompression: false, // 缓存文件不要压缩
+                        plugins: ["@babel/plugin-transform-runtime"], // 减少代码体积
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        plugins: [
+          new ESLintWebpackPlugin({
+            // 指定检查文件的根目录
+            context: path.resolve(__dirname, "../src"),
+            exclude: "node_modules", // 默认值
+            cache: true, // 开启缓存
+            // 缓存目录
+            cacheLocation: path.resolve(
+              __dirname,
+              "../node_modules/.cache/.eslintcache"
+            ),
+            threads, // 开启多进程
+          }),
+          new HtmlWebpackPlugin({
+            // 以 public/index.html 为模板创建文件
+            // 新的html文件有两个特点：1. 内容和源文件一致 2. 自动引入打包生成的js等资源
+            template: path.resolve(__dirname, "../public/index.html"),
+          }),
+          // 提取css成单独文件
+          new MiniCssExtractPlugin({
+            // 定义输出文件名和目录
+            filename: "static/css/[name].css",
+            chunkFilename: "static/css/[name].chunk.css",
+          }),
+          // css压缩
+          // new CssMinimizerPlugin(),
+        ],
+        optimization: {
+          minimizer: [
+            // css压缩也可以写到optimization.minimizer里面，效果一样的
+            new CssMinimizerPlugin(),
+            // 当生产模式会默认开启TerserPlugin，但是我们需要进行其他配置，就要重新写了
+            new TerserPlugin({
+              parallel: threads, // 开启多进程
+            }),
+            // 压缩图片
+            new ImageMinimizerPlugin({
+              minimizer: {
+                implementation: ImageMinimizerPlugin.imageminGenerate,
+                options: {
                   plugins: [
-                    "postcss-preset-env", // 能解决大多数样式兼容性问题
+                    ["gifsicle", { interlaced: true }],
+                    ["jpegtran", { progressive: true }],
+                    ["optipng", { optimizationLevel: 5 }],
+                    [
+                      "svgo",
+                      {
+                        plugins: [
+                          "preset-default",
+                          "prefixIds",
+                          {
+                            name: "sortAttrs",
+                            params: {
+                              xmlnsOrder: "alphabetical",
+                            },
+                          },
+                        ],
+                      },
+                    ],
                   ],
                 },
               },
-            },
-            preProcessor,
-          ].filter(Boolean);
-        };
-        
-        module.exports = {
-          entry: "./src/main.js",
-          output: {
-            path: path.resolve(__dirname, "../dist"), // 生产模式需要输出
-            filename: "static/js/[name].js", // 入口文件打包输出资源命名方式
-            chunkFilename: "static/js/[name].chunk.js", // 动态导入输出资源命名方式
-            assetModuleFilename: "static/media/[name].[hash][ext]", // 图片、字体等资源命名方式（注意用hash）
-            clean: true,
-          },
-          module: {
-            rules: [
-              {
-                oneOf: [
-                  {
-                    // 用来匹配 .css 结尾的文件
-                    test: /\.css$/,
-                    // use 数组里面 Loader 执行顺序是从右到左
-                    use: getStyleLoaders(),
-                  },
-                  {
-                    test: /\.less$/,
-                    use: getStyleLoaders("less-loader"),
-                  },
-                  {
-                    test: /\.s[ac]ss$/,
-                    use: getStyleLoaders("sass-loader"),
-                  },
-                  {
-                    test: /\.styl$/,
-                    use: getStyleLoaders("stylus-loader"),
-                  },
-                  {
-                    test: /\.(png|jpe?g|gif|svg)$/,
-                    type: "asset",
-                    parser: {
-                      dataUrlCondition: {
-                        maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
-                      },
-                    },
-                    // generator: {
-                    //   // 将图片文件输出到 static/imgs 目录中
-                    //   // 将图片文件命名 [hash:8][ext][query]
-                    //   // [hash:8]: hash值取8位
-                    //   // [ext]: 使用之前的文件扩展名
-                    //   // [query]: 添加之前的query参数
-                    //   filename: "static/imgs/[hash:8][ext][query]",
-                    // },
-                  },
-                  {
-                    test: /\.(ttf|woff2?)$/,
-                    type: "asset/resource",
-                    // generator: {
-                    //   filename: "static/media/[hash:8][ext][query]",
-                    // },
-                  },
-                  {
-                    test: /\.js$/,
-                    // exclude: /node_modules/, // 排除node_modules代码不编译
-                    include: path.resolve(__dirname, "../src"), // 也可以用包含
-                    use: [
-                      {
-                        loader: "thread-loader", // 开启多进程
-                        options: {
-                          workers: threads, // 数量
-                        },
-                      },
-                      {
-                        loader: "babel-loader",
-                        options: {
-                          cacheDirectory: true, // 开启babel编译缓存
-                          cacheCompression: false, // 缓存文件不要压缩
-                          plugins: ["@babel/plugin-transform-runtime"], // 减少代码体积
-                        },
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          plugins: [
-            new ESLintWebpackPlugin({
-              // 指定检查文件的根目录
-              context: path.resolve(__dirname, "../src"),
-              exclude: "node_modules", // 默认值
-              cache: true, // 开启缓存
-              // 缓存目录
-              cacheLocation: path.resolve(
-                __dirname,
-                "../node_modules/.cache/.eslintcache"
-              ),
-              threads, // 开启多进程
             }),
-            new HtmlWebpackPlugin({
-              // 以 public/index.html 为模板创建文件
-              // 新的html文件有两个特点：1. 内容和源文件一致 2. 自动引入打包生成的js等资源
-              template: path.resolve(__dirname, "../public/index.html"),
-            }),
-            // 提取css成单独文件
-            new MiniCssExtractPlugin({
-              // 定义输出文件名和目录
-              filename: "static/css/[name].css",
-              chunkFilename: "static/css/[name].chunk.css",
-            }),
-            // css压缩
-            // new CssMinimizerPlugin(),
           ],
-          optimization: {
-            minimizer: [
-              // css压缩也可以写到optimization.minimizer里面，效果一样的
-              new CssMinimizerPlugin(),
-              // 当生产模式会默认开启TerserPlugin，但是我们需要进行其他配置，就要重新写了
-              new TerserPlugin({
-                parallel: threads, // 开启多进程
-              }),
-              // 压缩图片
-              new ImageMinimizerPlugin({
-                minimizer: {
-                  implementation: ImageMinimizerPlugin.imageminGenerate,
-                  options: {
-                    plugins: [
-                      ["gifsicle", { interlaced: true }],
-                      ["jpegtran", { progressive: true }],
-                      ["optipng", { optimizationLevel: 5 }],
-                      [
-                        "svgo",
-                        {
-                          plugins: [
-                            "preset-default",
-                            "prefixIds",
-                            {
-                              name: "sortAttrs",
-                              params: {
-                                xmlnsOrder: "alphabetical",
-                              },
-                            },
-                          ],
-                        },
-                      ],
-                    ],
-                  },
-                },
-              }),
-            ],
-            // 代码分割配置
-            splitChunks: {
-              chunks: "all", // 对所有模块都进行分割
-              // 其他内容用默认配置即可
-            },
+          // 代码分割配置
+          splitChunks: {
+            chunks: "all", // 对所有模块都进行分割
+            // 其他内容用默认配置即可
           },
-          // devServer: {
-          //   host: "localhost", // 启动服务器域名
-          //   port: "3000", // 启动服务器端口号
-          //   open: true, // 是否自动打开浏览器
-          // },
-          mode: "production",
-          devtool: "source-map",
-        };
-        ```
+        },
+        // devServer: {
+        //   host: "localhost", // 启动服务器域名
+        //   port: "3000", // 启动服务器端口号
+        //   open: true, // 是否自动打开浏览器
+        // },
+        mode: "production",
+        devtool: "source-map",
+      };
+      ```
     
     - ##### Preload / Prefetch
     
       > 我们前面已经做了代码分割，同时会使用 `import()` 动态导入语法来进行代码按需加载（我们也叫懒加载，比如路由懒加载就是这样实现的）。
       >
-      > 但是加载速度还不够好，比如：是用户点击按钮时才加载这个资源的，如果资源体积很大，那么用户会感觉到明显卡顿效果。
+      > 但是这样的话，加载速度有点慢了，比如：是用户点击按钮时才加载这个资源的，如果资源体积很大，那么用户会感觉到明显卡顿效果。
       >
       > 我们想在浏览器空闲时间，加载后续需要使用的资源。我们就需要用上 `Preload` 或 `Prefetch` 技术。
       >
@@ -1176,20 +1186,123 @@
       >
       > 它们的问题：兼容性较差。
       >
-      > - 我们可以去 [Can I Useopen in new window](https://caniuse.com/) 网站查询 API 的兼容性问题。
+      > - 我们可以去 [Can I Use](https://caniuse.com/) 网站查询 API 的兼容性问题。
       > - `Preload` 相对于 `Prefetch` 兼容性好一点。
     
-    - ##### Network Cache
+      ###### 使用：
     
-      > 
+      1. 下载包：`npm i @vue/preload-webpack-plugin -D`
+    
+      2. 配置：
+    
+         ```js
+         const PreloadWebpackPlugin = require("@vue/preload-webpack-plugin");
+         // ...
+         
+         module.exports = {
+           // ...
+           plugins: [
+             new PreloadWebpackPlugin({
+               rel: "preload", // preload兼容性更好
+               as: "script",
+               // rel: 'prefetch' // prefetch兼容性更差
+             }),
+           ]
+         }
+         ```
+    
+    - ##### Network Cache（文件指纹）
+    
+      > 将来部署到生产环境时，我们会对静态资源使用缓存来进行优化，这样浏览器第二次请求资源就能读取缓存了，速度很快。
+      >
+      > 但是这样的话就会有一个问题, 因为前后输出的文件名是一样的，都叫 main.js，一旦将来在服务器上更新了静态资源，由于文件名没有变化，浏览器还会走缓存不会加载新资源，客户但访问到的还是旧的资源。
+      >
+      > 为了解决这个问题，我们从文件名入手，确保更新前后的文件名不一样。
+      >
+      > 通过以下webpack内置的占位符（类似于`[name]`）：
+      >
+      > - `[fullhash]`（webpack4 是 `[hash]`）
+      >
+      >   每次修改任何一个文件，所有文件名的 hash 至都将改变。所以一旦修改了任何一个文件，整个项目的文件缓存都将失效。
+      >
+      > - `[chunkhash]`
+      >
+      >   根据不同的入口文件(Entry)进行依赖文件解析、构建对应的 chunk，计算生成对应的哈希值。我们 js 和 css 是同一个引入，会共享一个 hash 值。
+      >
+      > - `[contenthash]`
+      >
+      >   根据文件内容生成 hash 值，只有文件内容变化了，hash 值才会重新计算。所有文件 hash 值是独享且不同的。
+    
+      ###### 使用：
+    
+      ```js
+      module.exports = {
+        entry: "./src/main.js",
+        output: {
+          path: path.resolve(__dirname, "../dist"),
+          // [contenthash:8]使用contenthash，取8位长度
+          filename: "static/js/[name].[contenthash:8].js", // 入口文件打包输出资源命名方式
+          chunkFilename: "static/js/[name].[contenthash:8].chunk.js", // 动态导入输出资源命名方式
+          assetModuleFilename: "static/media/[name].[fullhash][ext]", // 图片、字体等资源命名方式（注意用fullhash）
+          clean: true,
+        },
+      
+        plugins: [
+          // 提取css成单独文件
+          new MiniCssExtractPlugin({
+            // 定义输出文件名和目录
+            filename: "static/css/[name].[contenthash:8].css",
+            chunkFilename: "static/css/[name].[contenthash:8].chunk.css",
+          }),
+        ],
+      
+        // ...
+      }
+      ```
+    
+      > 问题：
+      >
+      > 当我们修改 math.js 文件再重新打包的时候，因为 contenthash 原因，math.js 文件 hash 值发生了变化（这是正常的）。
+      >
+      > 但是 main.js 文件的 hash 值也发生了变化，这会导致 main.js 的缓存失效。明明我们只修改 math.js, 为什么 main.js 也会变身变化呢？
+      >
+      > 原因：
+      >
+      > - 更新前：math.xxx.js, main.js 引用的 math.xxx.js
+      > - 更新后：math.yyy.js, main.js 引用的 math.yyy.js, 文件名发生了变化，间接导致 main.js 也发生了变化
+      >
+      > 解决：
+      >
+      > 将 hash 值单独保管在一个 runtime 文件中。
+      >
+      > 我们最终输出三个文件：main、math、runtime。当 math 文件发送变化，变化的是 math 和 runtime 文件，main 不变。
+      >
+      > runtime 文件只保存文件的 hash 值和它们与文件关系，整个文件体积就比较小，所以变化重新请求的代价也小。
+    
+      ###### 再加一个配置：
+    
+      ```js
+      optimization: {
+        // 提取runtime文件
+        runtimeChunk: {
+          name: (entrypoint) => `runtime~${entrypoint.name}`, // runtime文件命名规则
+        },
+      }
+      ```
     
     - ##### Core-js
     
-      > 
+      > 过去我们使用 babel 对 js 代码进行了兼容性处理，其中使用 `@babel/preset-env` 智能预设来处理兼容性问题。它能将 ES6 的一些语法进行编译转换，比如箭头函数、点点点运算符等。但是如果是 `async` 函数、`Promise` 对象、数组的一些方法（`includes`等），babel就没办法处理了。
+      >
+      > 所以此时我们 js 代码仍然存在兼容性问题，一旦遇到低版本浏览器会直接报错。我们要将 js 兼容性问题彻底解决。
+      >
+      > `core-js` 是专门用来做 ES6 以及以上 API 的 `polyfill`。`polyfill`翻译过来叫做垫片/补丁。就是用社区上提供的一段代码，让我们在不兼容某些新特性的浏览器上，使用该新特性。
     
     - ##### PWA
     
-      > 
+      > 我们开发的 Web 项目一旦处于网络离线情况，就没法访问了，我们希望给项目提供离线体验。
+      >
+      > **渐进式网络应用程序(progressive web application - PWA)**：是一种可以提供类似于 native app(原生应用程序) 体验的 Web 技术。其中最重要的是，在 **离线(offline)** 时应用程序能够继续运行功能。它内部是通过 `Service Workers` 实现的。
 
 ------
 
