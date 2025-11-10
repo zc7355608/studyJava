@@ -283,7 +283,7 @@
     >
     > 这3个loader来处理图片、字体、多媒体等静态资源。
     >
-    > 当CSS中通过`url()`、或JS中通过`import`引入了外部图片时，`file-loader`会将资源原封不动输出。而代码中`import`或`url()`导入的是最终生成文件的 **公共 URL 路径**（如 `"/dist/image.png"`）。
+    > 当CSS中通过`url()`、HTML中通过img的src、或JS中通过`import`引入了外部图片时，`file-loader`会将资源原封不动输出。而代码中`import`或`url()`导入的是最终生成文件的 **公共 URL 路径**（如 `"/dist/image.png"`）。
     >
     > 现在Webpack5已经内置了这3个loader，不用再安装了，直接可以用。
 
@@ -498,17 +498,23 @@
                	test: /\.js$/,
                	exclude: /node_modules/,  // node_modules目录不编译
                	loader: "babel-loader",
+                 // 也可以不创建Babel的配置文件，在这里写配置
+                 // options: {
+                 //   presets: ["@babel/preset-env"],  // 智能预设
+                 // },
                },
                ...
              ]
            }
            ```
-      
+           
            > 然后运行指令`npx webpack`，查看打包后的bundle文件会发现：箭头函数等ES6的语法已经被转换了。
 
   - #### 处理HTML资源：
 
-    > 我们现在还需要在`index.html`中通过`<script>`标签来引入生成的bundle。其实开发中我们通常这样做：将`index.html`作为静态资源一并打包到bundle中，并且我们自己准备的这个`index.html`不需要通过`<script>`标签去引入生成的bundle文件（这样更灵活），引入的操作通过Webpack的插件来完成就可以了。最终生成的整个bundle目录直接放到服务器上就可以了。
+    > 我们现在还需要在`index.html`中通过`<script>`标签来引入生成的bundle。并且如果还依赖了`lodash`等其他的第三方库，我们还需要在`index.html`中手动维护它们的依赖关系，这样容易出顺序问题。
+    >
+    > 其实开发中我们通常这样做：将`index.html`作为静态资源一并打包到bundle中，并且我们自己准备的这个`index.html`不需要通过`<script>`标签去引入生成的bundle文件（或任何其他的依赖），引入的操作通过Webpack的插件来完成就可以了。最终生成的整个bundle目录直接放到服务器上就可以了。
 
     1. 下载包：`npm i html-webpack-plugin -D`
 
@@ -521,7 +527,7 @@
          // ...
          plugins: [
          	new HtmlWebpackPlugin({
-             // 以 public/index.html 为模板创建文件。生成的新html内容和源文件一致，且会自动引入打包生成的bundle
+             // 以 public/index.html 为模板创建文件。生成的新html内容和源文件一致，且会自动引入打包生成的所有bundle
              template: path.resolve(__dirname, "public/index.html"),
          	}),
          ],
@@ -583,15 +589,13 @@
          entry: "./src/main.js",
          output: {
            path: undefined, // 开发模式没有输出，不需要指定输出目录
-           filename: "static/js/main.js", // 将 js 文件输出到 static/js 目录中
+           filename: "static/js/main.js",
            // clean: true, // 开发模式没有输出，不需要清空输出结果
          },
          module: {
            rules: [
              {
-               // 用来匹配 .css 结尾的文件
                test: /\.css$/,
-               // use 数组里面 Loader 执行顺序是从右到左
                use: ["style-loader", "css-loader"],
              },
              {
@@ -611,15 +615,10 @@
                type: "asset",
                parser: {
                  dataUrlCondition: {
-                   maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
+                   maxSize: 10 * 1024,
                  },
                },
                generator: {
-                 // 将图片文件输出到 static/imgs 目录中
-                 // 将图片文件命名 [hash:8][ext][query]
-                 // [hash:8]: hash值取8位
-                 // [ext]: 使用之前的文件扩展名
-                 // [query]: 添加之前的query参数
                  filename: "static/imgs/[hash:8][ext][query]",
                },
              },
@@ -632,19 +631,16 @@
              },
              {
                test: /\.js$/,
-               exclude: /node_modules/, // 排除node_modules代码不编译
+               exclude: /node_modules/,
                loader: "babel-loader",
              },
            ],
          },
          plugins: [
            new ESLintWebpackPlugin({
-             // 指定检查文件的根目录（绝对路径要改下）
              context: path.resolve(__dirname, "../src"),
            }),
            new HtmlWebpackPlugin({
-             // 以 public/index.html 为模板创建文件
-             // 新的html文件有两个特点：1. 内容和源文件一致 2. 自动引入打包生成的js等资源
              template: path.resolve(__dirname, "../public/index.html"),
            }),
          ],
@@ -657,11 +653,11 @@
          mode: "development",
        }
        ```
-
+       
        > 运行开发模式的命令：`npx webpack serve --config ./config/webpack.dev.js`
-
+       
     3. 生产环境下的配置文件：`config/webpack.prod.js`（生产环境下还有其他配置，后面会补充）
-
+    
        ```js
        const path = require("path")
        const ESLintWebpackPlugin = require("eslint-webpack-plugin")
@@ -671,7 +667,7 @@
          entry: "./src/main.js",
          output: {
            path: path.resolve(__dirname, "../dist"), // 生产模式需要输出
-           filename: "static/js/main.js", // 将 js 文件输出到 static/js 目录中
+           filename: "static/js/main.js",
            clean: true, // 自动清理上次打包的资源
          },
          module: {
@@ -735,13 +731,13 @@
          mode: "production", // 生产模式下`html-webpack-plugin`会压缩html代码，js代码Webpack默认就会进行压缩
        }
        ```
-
+    
        > 运行生产模式的指令：`npx webpack --config ./config/webpack.prod.js`
-
+    
     4. 配置运行指令：
-
+    
        > 为了方便运行不同模式的指令，我们将指令定义在`package.json`中`scripts`配置项里面：
-
+    
        ```json
        "scripts": {
          "start": "npm run dev",
@@ -750,21 +746,21 @@
        }
        ```
        
-       > ###### 注意：在scripts中的命令不用以npx开头，默认就会去`./node_modules/bin`目录中找。
+       > ###### 注意：在scripts中的命令不用以`npx`开头，默认就会去`./node_modules/bin`目录中找。
        >
        > 以后启动项目：
        >
        > - 开发模式：`npm start` 或 `npm run dev`
        > - 生产模式：`npm run build`
-
+    
   - #### 生产模式下CSS资源的处理：
-
+  
     1. ##### 将CSS提取为单独文件：
-
+  
        > 开发模式下的CSS文件被打包到JS文件中有助于在代码更改时立即查看到效果（CSS-in-JS）。但是在生产环境下这种方式就不太好了。当JS文件加载时，会动态创建style标签来生成样式。这种方式网络差时会出现闪屏现象，并且没有link标签加载CSS的性能好，代码也无法复用。因此生产模式下对CSS资源的处理是另一种方式。
-
+  
        1. 下载包：`npm i mini-css-extract-plugin -D`
-
+  
        2. 在`webpack.prod.js`中进行配置：
 
           ```js
@@ -785,7 +781,7 @@
             plugins: [
               // 它会将所有css提取合并为一个单独的css文件
               new MiniCssExtractPlugin({
-              	// 定义输出文件名
+              	// 定义输出的css文件名
               	filename: "static/css/main.css",
               }),
             ],
@@ -793,16 +789,16 @@
           }
           ```
           
-          > 这样css文件就会出现在bundle中，被全局导入到html中，而不是内置到js中了。
-
+          > 默认会将所有的css代码合并为一个css文件。最终会被`html-webpack-plugin`插件导入到`index.html`中。
+  
     2. ##### 为CSS做兼容性处理：
-
+  
        > CSS样式也是有兼容性的，所以我们在Webpack中加上`PostCSS`来处理下CSS的兼容性。步骤：
        >
        > **注意**：PostCSS是一个用于处理CSS的工具链的统称，它不仅可以处理CSS兼容性，还可以解决类名冲突等一系列问题。几乎任何对CSS的相关处理你都可以通过PostCSS来做。
-
-       1. 下载包：`npm i postcss-loader postcss postcss-preset-env -D`
-
+  
+       1. 下载包：`npm i postcss postcss-preset-env postcss-loader -D`
+  
           > 分别是postcss、postcss预设的一个功能集插件、还有postcss用于集成在webpack中的loader。
     
        2. 在`webpack.prod.js`中进行配置：
@@ -836,7 +832,7 @@
             // ...
           }
           ```
-
+  
        3. （可选）控制兼容性的处理程度：
     
           > 我们可以在`package.json`中添加`browserslist`来控制CSS的兼容性做到什么程度。（以上配置已经可以处理大部分兼容性问题了）
@@ -856,9 +852,10 @@
           > {
           >   // 其他省略
           >   "browserslist": ["last 2 version", "> 1%", "not dead"]
-          >   // 表示市面上所有浏览器只兼容其最近2个版本，且只覆盖99%的浏览器冷门的不管，且不管没人维护的浏览器了（交集）
           > }
           > ```
+          >
+          > 表示市面上所有浏览器只兼容其最近2个版本，且只覆盖99%的浏览器，冷门的不管，且不管没人维护的浏览器了（交集）。
     
        4. （可选）合并配置：
     
@@ -920,6 +917,21 @@
             // ...
           }
           ```
+          
+          > 或者：
+          >
+          > ```js
+          > module.exports = {
+          >   optimization: {
+          >     // 告知 webpack 使用 TerserPlugin 或其它在 optimization.minimizer定义的插件压缩 bundle，默认为true
+          >     minimize: true,
+          >     minimizer: [
+          >       // css压缩也可以写到optimization.minimizer里面，效果一样的
+          >       new CssMinimizerPlugin(),
+          >     ]
+          >   },
+          > };
+          > ```
 
 ------
 
