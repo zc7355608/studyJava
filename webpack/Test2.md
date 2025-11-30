@@ -42,13 +42,13 @@
       // 其他省略
       ```
   
-      > 所有 css 和 js 合并成了一个文件，并且多了其他代码。此时如果代码运行出错那么提示代码错误位置我们是看不懂的。一旦将来开发代码文件很多，那么很难去发现错误出现在哪里。
+      > 可以看到，所有 css 和 js 合并成了一个文件，并且多了其他代码。此时如果代码运行出错，根据F12中的提示，我们是找不到代码真正出错的地方的。一旦将来开发代码文件很多，那么就很难去定位到真正出现错误的位置了。
       >
       > 所以我们需要更加准确的错误提示，来帮助我们更好的开发代码。
       >
-      > SourceMap（源代码映射）是一个源代码与构建后代码的映射文件。它是一个 `.map` 文件，里面包含源代码和构建后代码每一行、每一列的映射关系。
+      > **SourceMap（源代码映射）是一个源代码与构建后代码的映射文件**。它是一个 `.map` 文件，里面包含源代码和构建后代码每一行、每一列的映射关系。
       >
-      > 当构建后的代码运行报错了，浏览器就可以通过 `.map` 文件，从构建后代码出错位置找到源代码的出错位置，从而帮助我们更快的找到错误根源。
+      > 当构建后的代码运行报错了，浏览器F12就可以通过 `.map` 文件，从构建后代码出错位置找到源代码的出错位置，从而给我们更准确的提示，帮助我们更快的找到错误源。
   
     - ##### Webpack中启用SourceMap
   
@@ -56,11 +56,11 @@
       >
       > **注意：**SourceMap可能是一个单独的文件，也可能添加在bundle.js文件中，这两种情况都叫生成了SourceMap。
       
-      - `'eval'`（`development`模式下的默认值）：每个模块都使用 `eval()` 执行，并且都有 `//# sourceURL`。由于eval()是在内存中执行，所以没有生成SourceMap文件。此选项会非常快地构建。主要缺点是，由于会映射到转换后的代码，而不是映射到原始代码（没有从 loader 中获取 source map），所以不能正确的显示行数。
+      - `'eval'`（`development`模式下的默认值）：每个模块都使用 `eval()` 执行，并且都有 `//# sourceURL`。由于eval()是在内存中执行，所以没有生成SourceMap文件。此选项会非常快地构建。主要缺点是，由于会映射到转换后的代码，而不是映射到原始代码（没有从 loader 中获取 source map），所以不能正确的显示行数，只能显示列数。
       
-      - `省略devtool选项`（生产模式下的默认值）：此时不会生成SourceMap
+      - `(none)`，省略`devtool`选项（生产模式下的默认值）：此时不会生成SourceMap。
       
-      - `'source-map'`：整个 source map 作为一个单独的文件生成。它为 bundle 添加了一个引用注释，以便开发工具F12知道在哪里可以找到它。它常用于生产环境中。
+      - `'source-map'`：整个 source map 作为一个单独的文件生成。它为 bundle 添加了一个引用注释，以便开发工具F12知道在哪里可以找到它。它**常用于生产环境中**。
       
         > **警告**：你应该将你的服务器配置为，不允许普通用户访问 source map 文件！
       
@@ -75,23 +75,28 @@
       ```
       
       > 选择不同的值，最终打包的速度、构建产物的大小都会有所差异。
-      
-      ###### 注意：
-      
-      > 你可以直接使用 `SourceMapDevToolPlugin`/`EvalSourceMapDevToolPlugin` 来替代使用 `devtool` 选项，因为它有更多的选项。切勿同时使用 `devtool` 选项和 `SourceMapDevToolPlugin`/`EvalSourceMapDevToolPlugin` 插件。`devtool` 选项在内部添加过这些插件，所以你最终将应用2次插件。
       >
-      > 你也可以通过查看 [`source-map-loader`](https://webpack.docschina.org/loaders/source-map-loader) 来对当前的 SourceMap 进行处理。
+      > 一般开发环境下：
+      >
+      > 1. **速度优先**：`eval-cheap-source-map`
+      > 2. **调试精度优先**：`eval-source-map`
+      > 3. **需要调试loader原始代码**：`cheap-module-source-map`
+      >
+      > Webpack官方文档也特别指出：在开发环境下不需要关注`.map`文件体积，因此应该优先选择带有`eval`的配置以获得更好的重建性能。
+      
   
-  - #### 提升打包构建速度（只针对开发环境）
+  - #### 提升打包构建速度（开发和生产模式）
   
-    - ##### HotModuleReplacement
+    - ##### HotModuleReplacement（它只针对开发模式）
   
       > 开发时我们修改了其中一个模块代码，Webpack 默认会将所有模块全部重新打包编译，速度很慢。所以我们需要做到修改某个模块代码，就只有这个模块代码需要重新打包编译，其他模块不变，这样打包速度就能很快。
       >
       > **HotModuleReplacement（HMR/热模块替换**）：在程序运行中动态的替换、添加或删除模块，而无需重新加载整个页面。
+      >
+      > HMR只能用于开发环境，生产环境不需要。
   
       ###### 基本配置：
-  
+      
       > ```js
       > module.exports = {
       >     // 其他省略
@@ -99,33 +104,24 @@
       >        host: "localhost", // 启动服务器域名
       >        port: "3000", // 启动服务器端口号
       >        open: true, // 是否自动打开浏览器
-      >        hot: true, // 开启HMR功能（HMR只能用于开发环境，生产环境不需要）
+      >        hot: true, // 开启HMR功能（默认值true）
       >     },
       > };
       > ```
       >
       > 此时 css 样式经过 style-loader 处理，已经具备 HMR 功能了。 但是 js 还不行。
-      >
+      
       > 为什么CSS有HMR而JS没有？
-      >
-      > 在你的Webpack配置中，虽然已经启用了`hot: true`来开启HMR，但CSS和JS的行为不同，是因为它们的loader对HMR的支持机制是不同的：
-      >
-      > - **style-loader的内置HMR支持**。
-      >  - `style-loader`是专门为开发环境设计的CSS加载器
-      >   
-      >  - 它内部已经实现了HMR接口，会自动处理CSS模块的热更新
-      >   
-      >  - 当CSS文件发生变化时，`style-loader`会直接替换DOM中的样式标签而不刷新页面
-      >   
-      >- **JS的默认行为不同**。
-      > - JS默认没有内置的HMR支持
-      >  
-      > - Webpack可以检测到JS文件变化并重新编译，但不知道如何安全地替换运行中的模块
-      >  
-      > - 直接替换JS模块可能导致状态丢失或应用崩溃。**需要显式地添加HMR代码**。
+      > 
+      >    在你的Webpack配置中，虽然已经启用了`hot: true`来开启HMR，但CSS和JS的行为不同，是因为它们的loader对HMR的支持机制是不同的：
+      >    
+      >    - **style-loader的内置HMR支持**。
+      >     - `style-loader`是专门为开发环境设计的CSS加载器，它内部已经实现了HMR接口，会自动处理CSS模块的热更新。当CSS文件发生变化时，`style-loader`会直接替换DOM中的样式标签而不刷新整个页面。
+      >    - **JS的默认行为不同**。默认情况下，JS没有内置的HMR支持。
+      >    - Webpack虽然可以检测到JS文件变化并重新编译，但不知道如何安全地替换运行中的模块。直接替换JS模块可能导致状态丢失或应用崩溃。**因此我们需要显式地添加HMR代码**。
       
       ###### JS配置HMR：
-  
+      
       ```js
       // main.js
       import count from "./js/count";
@@ -143,13 +139,14 @@
       const result2 = sum(1, 2, 3, 4);
       console.log(result2);
       
-      // 判断是否支持HMR功能
+      // 判断浏览器是否支持HMR功能
       if (module.hot) {
+        // 如果支持，当该文件发生变化后，重新接受这个count.js文件。accept的第2个参数是可选的，当内容变化后会被调用
         module.hot.accept("./js/count.js", function (count) {
           const result1 = count(2, 1);
           console.log(result1);
         });
-        
+      
         module.hot.accept("./js/sum.js", function (sum) {
           const result2 = sum(1, 2, 3, 4);
           console.log(result2);
@@ -157,10 +154,10 @@
       }
       ```
       
-      > 这样写太麻烦了，所以实际开发我们会使用一些 loader 来解决JS的HMR。比如：`vue-loader`、`react-hot-loader`。
+      > 这样写太麻烦了，所以实际开发我们会使用一些实现了HMR功能的 loader 来解决JS的HMR。比如：`vue-loader`、`react-hot-loader`。
       
     - ##### OneOf
-  
+    
       > 我们现在执行打包的时候，每个文件都会经过所有 loader 处理，虽然 `test` 正则实际没有匹配上，但是还是都要过一遍，比较慢。
       >
       > `OneOf` 顾名思义就是，只要匹配上一个 loader，剩下的就不再进行匹配了。
@@ -182,6 +179,7 @@
         module: {
           rules: [
             {
+              // 每个文件只能被其中一个loader处理
               oneOf: [
                 {
                   // 用来匹配 .css 结尾的文件
@@ -258,9 +256,9 @@
       ```
     
       > 生产模式也是如此配置。
-  
+    
     - ##### Include/Exclude
-  
+    
       > 开发时我们需要使用第三方的库或插件，所有文件都下载到 `node_modules` 目录中了。而这些文件是不需要编译可以直接使用的。所以我们在对 js 文件处理时，要排除 `node_modules` 目录中的文件。
       >
       > 在`loader`或`plugin`的配置对象中，可以通过`include、exclude`配置项来指定，`loader`在处理时要包含和要排除的文件：
@@ -269,7 +267,7 @@
       > - `exclude`：排除，除了 xxx 文件以外其他文件都处理。
     
       ###### 用法：
-  
+    
       ```js
       module: {
         rules: [
@@ -300,11 +298,11 @@
       
       > 生产模式也是如此配置。
       
-    - ##### Cache
+    - ##### Cache（只针对开发模式）
     
       > 每次打包时 js 文件都要经过 Eslint 检查 和 Babel 编译，速度比较慢。
       >
-      > 我们可以缓存之前的 Eslint 检查 和 Babel 编译结果，这样第二次打包时速度就会更快了。
+      > 我们可以缓存之前的 Eslint 检查 和 Babel 编译结果，这样第二次打包时速度就会更快了（rebuild时的速度更快）。
     
       ###### 对 Eslint 检查 和 Babel 编译结果进行缓存：
     
@@ -320,7 +318,7 @@
                 loader: "babel-loader",
                 options: {
                   cacheDirectory: true, // 开启babel编译缓存
-                  cacheCompression: false, // 缓存文件不要压缩
+                  cacheCompression: false, // 缓存文件不要做压缩
                 },
               },
               // ...
@@ -333,11 +331,11 @@
         new ESLintWebpackPlugin({
           context: path.resolve(__dirname, "../src"),
           exclude: "node_modules",
-          cache: true, // 开启缓存
+          cache: true, // 开启eslint结果缓存
           // 缓存目录
           cacheLocation: path.resolve(
             __dirname,
-            "../node_modules/.cache/.eslintcache"
+            "../node_modules/.cache/eslintcache"
           ),
         }),
         // ...
@@ -345,35 +343,28 @@
       // ...
       ```
       
+      > 这个配置虽然只针对开发模式，但是我们为了方便验证，可以先将其配置到生产模式中。执行`npm run build`后，可以在`node_modules/.cache`中看到我们缓存的文件了。
+      
     - ##### Thread
     
       > 当项目越来越庞大时，打包速度越来越慢，甚至于需要一个下午才能打包出来代码。这个速度是比较慢的。
       >
-      > 我们想要继续提升打包速度，其实就是要提升 js 的打包速度，因为其他文件都比较少。而对 js 文件处理主要就是 eslint 、babel、Terser 三个工具，所以我们要提升它们的运行速度。
+      > 我们想要继续提升打包速度，其实就是要提升 js 的打包速度，因为其他文件都比较少。而对 js 文件处理主要就是 eslint 、babel、Terser（给JS做优化、混淆、压缩的）三个工具，所以我们要提升它们的运行速度。
       >
-      > 我们可以开启多线程同时处理 js 文件，这样速度就比之前的单线程打包更快了。
+      > 我们可以开启多个进程同时处理 js 文件，这样速度就比之前的单进程打包更快了。
       >
-      > **注意**：请仅在特别耗时的操作中使用，因为每个进程启动就有大约为 600ms 左右开销。
+      > **注意**：多进程请仅在特别耗时的操作中使用，因为每个 worker 都是一个独立的 node.js 进程，每个进程启动就有大约为 600ms 左右开销。
     
-      ###### 查看个人电脑的CPU单核的线程数：
+      ###### 使用多进程来提高工具对 JS 的处理速度：
     
-      ```js
-      // nodejs核心模块，直接使用
-      const os = require("os");
-      // cpu核数
-      const threads = os.cpus().length;
-      ```
-  
-      ###### 使用多线程来提高工具对 JS 的处理速度：
-  
       1. 下载包：`npm i thread-loader -D`
-  
-      2. 配置：
-    
+      
+      2. 配置：（使用时，需将 thread-loader 放置在其他 loader 之前。放置在此 loader 后面的 loader 会在一个独立的 worker 池中运行）
+      
          ```js
          // ...
          const os = require("os");
-         const TerserPlugin = require("terser-webpack-plugin");
+         const TerserPlugin = require("terser-webpack-plugin");  // 已经内置了，不需要下载了
          const threads = os.cpus().length;  // cpu核数
          
          // ...
@@ -390,7 +381,7 @@
                      {
                        loader: "thread-loader", // 开启多进程
                        options: {
-                         workers: threads, // 数量
+                         workers: threads, // 进程数量
                        },
                      },
                      {
@@ -418,7 +409,8 @@
              ),
              threads, // 开启多进程
            }),
-         		// new CssMinimizerPlugin(), // css压缩
+         	// new CssMinimizerPlugin(), // css压缩
+           // new TerserPlugin({ parallel: threads })  // 也可以放在这里
            // ...
          ],
          optimization: {
@@ -440,6 +432,8 @@
          > 从 webpack 4 开始，会根据你选择的 `mode` 来执行不同的优化，不过所有的优化还是可以手动配置和重写。通过`optimization`优化配置项。
          >
          > **注意**：由于我们目前打包的内容都很少，所以因为启动进程开销原因，使用多进程打包实际上会显著的让我们打包时间变得很长。
+         
+         > 开发和生产模式都是这样配置。
     
   - #### 减少代码体积（只针对生产环境）
   

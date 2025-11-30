@@ -12,12 +12,12 @@
   
   - ##### 打包工具可以帮我们做什么：
   
-    > 1. 性能优化：通过合并文件，减少了文件的大小，从而减少HTTP请求的数量，加快页面加载速度。
+    > 1. **性能优化**：通过合并文件，减少了文件的大小，从而减少HTTP请求的数量，加快页面加载速度。
     >
-    > 2. 代码预处理和打包：打包工具可以将模块化语法、框架语法（Vue、React）进行预处理。
-    > 3. 资源优化：能够处理各种资源（如图片、字体、样式）并将它们包含在最终的输出中。
-    > 4. 转换&兼容性：可以将高级的 JS（例如 ES6+）或其他编程语言（例如 TS）转换为广泛支持的 ES5 代码。
-    > 5. 依赖管理：确保代码按正确的顺序执行，满足模块间的依赖关系。
+    > 2. **代码预处理和打包**：打包工具可以将模块化语法、框架语法（Vue、React）进行预处理。
+    > 3. **资源优化**：能够处理各种资源（如图片、字体、样式）并将它们包含在最终的输出中。
+    > 4. **转换&兼容性**：可以将高级的 JS（例如 ES6+）或其他编程语言（例如 TS）转换为广泛支持的 ES5 代码。
+    > 5. **依赖管理**：确保代码按正确的顺序执行，满足模块间的依赖关系。
   
   
     - ##### 常见的打包工具：
@@ -38,10 +38,12 @@
   - ### `Webpack` 概述
 
     > Webpack是一个**静态资源打包工具**（就是别人写好的一个基于Node的依赖包）。它会以一个或多个文件作为入口，编译后生成一个或多个文件，输出到指定目录下。通常我们将输出的文件称为`bundle`（束、捆），`bundle`可以直接在浏览器中运行。
+    >
+    > 注意：我们之前都是在html中通过`<script>`标签引入第三方库（如lodash）的js文件的。现在有了Webpack这样的静态资源打包工具就不同了：我们在js代码中import导入这个第三方库，执行打包命令，最终输出的js文件就包含了lodash的代码。
 
     ###### 使用：
 
-    1. ##### 首先初始化`package.json`文件：`npm init`，使我们的开发环境先成为一个Node工程。
+    1. ##### 首先初始化`package.json`文件：`npm init`，使我们的项目目录先成为一个Node工程。
 
     2. ##### 下载`webpack`作为工程的开发依赖：`npm i webpack webpack-cli -D`
 
@@ -61,7 +63,7 @@
     ###### 观察输出文件：
 
     1. 默认`Webpack`将`bundle`输出到项目根目录下的`dist`目录中。
-    2. `Webpack` 本身并不提供任何功能，仅仅只是编译和输出JS文件（即将模块化的代码编译为非模块化的代码）。我们需要的任何功能，都体现在 Webpack 的插件（`plugin`）和加载器（`loader`）中。并且Webpack有很多官方或社区提供的`plugin`和`loader`，我们需要的任何功能，都可以找到对应的 Webpack 插件和加载器，将其配置到 Webpack 配置文件中即可。
+    2. `Webpack` 只是一个*静态模块打包工具*，它本身并不提供任何功能，仅仅只是编译和输出JS文件（即将模块化的代码编译为非模块化的代码）。我们需要的任何功能，都体现在 Webpack 的插件（`plugin`）和加载器（`loader`）中。并且Webpack有很多官方或社区提供的`plugin`和`loader`，我们需要的任何功能，都可以找到对应的 Webpack 插件和加载器，将其配置到 Webpack 配置文件中即可。
     3. 当`main.js`入口文件中`import`导入了`.css`、`.img`等不符合JS语法的静态资源，如果不在 `Webpack` 中进行配置的话，它不去对代码做预处理，那么就会编译失败。因为你的JS代码有语法问题。
 
 - ### `Webpack` 的基本配置
@@ -72,14 +74,12 @@
     2. **输出（output/bundle）**：指定打包后文件的输出位置，如何命名等。
     3. **加载器（loader）**：Webpack本身只能处理JS、JSON资源，处理其他资源需要配置对应的加载器`loader`。
     4. **插件（plugins）**：使用插件可以扩展Webpack的功能，让它做更多的事情。
-    5. **模式（mode）**：主要有2种输出模式，*开发模式（development）*和*生产模式（production）*。Webpack5的生产模式默认会将JS代码进行优化、混淆、压缩（通过内置`terser`来完成的），Webpack4还需要进行配置才可以。
+    5. **模式（mode）**：主要有2种输出模式，*开发模式（development）*和*生产模式（production）*。Webpack5的生产模式默认会将JS代码进行优化、混淆、压缩（内部是通过`terser`来完成的），Webpack4还需要进行配置才可以。
 
   - #### Webpack的配置文件：
 
-    > 对Webpack进行配置需要用到`webpack.config.js`文件，该文件**必须放在Node项目的根目录下**。
-    >
-    > ###### 新建配置文件：
-
+    > 对Webpack进行配置需要用到`webpack.config.js`文件。在Node项目的根目录下新建该文件：（后面会说如何指定文件名和存放路径）
+    
     ```js
     module.exports = {
       // 入口
@@ -102,36 +102,36 @@
     > ###### 修改配置文件：（目前的配置等价于之前的打包命令）
     
     ```js
-    const path = require('path')//用到了path模块
-    modules.exports = {
-    	//入口文件（主文件），从哪个文件开始打包（必须用相对路径）
-        entry: '入口文件的相对路径',
-    	//输出（bundle文件），指定打包后的输出目录（必须用绝对路径）
-        output: {
-            //打包后往哪个目录输出。这里必须配置一个绝对路径
-        	path: path.resolve(__dirname, 'dist'),
-        	//指定main.js主文件打包后的文件名。此时主文件打包后输出为dist/js/main.js
-        	filename: 'js/main.js',
-          clean: true, // 打包前将上次打包目录资源清空
-        },
-    	//加载器
-        module: {
-            //rules中配置loader的规则
-            rules: []
-            //loader的其他配置
-        },
-    	//插件
-        plugins: [],
-    	//模式
-        mode: 'development'
+    const path = require('path')  // 用到了path模块
+    module.exports = {
+    	// 入口文件（主文件），从哪个文件开始打包（必须用相对路径）
+      entry: '入口文件的相对路径',
+    	// 输出（bundle文件），指定打包后的输出目录（必须用绝对路径）
+      output: {
+        // 打包后往哪个目录输出。这里必须配置一个绝对路径
+        path: path.resolve(__dirname, 'dist'),
+    		// 指定main.js主文件打包后的文件名。此时主文件打包后输出为dist/js/main.js
+    		filename: 'js/main.js',
+    		clean: true, // 打包前将上次打包目录资源清空
+      },
+    	// 加载器
+      module: {
+        // rules中配置loader的规则
+        rules: []
+        // loader的其他配置
+      },
+    	// 插件
+      plugins: [],
+    	// 模式
+      mode: 'development'
     }
     ```
     
     > - 配置好后，项目根目录下运行：`npx webpack`，此时不用再加其他参数了，因为该目录下有Webpack的默认配置文件了，如果再指定就会覆盖配置文件中的配置。
     > - 将来都通过`webpack.config.js`文件对 `Webpack` 进行配置，让它能够预处理`.css`资源、做语法转换...
     
-    ###### 接下俩我们分别通过两个模式来对 Webpack 进行配置。先进行开发模式的配置，再完成生产模式的配置。
-
+    ###### 接下来我们分别通过两个模式来对 Webpack 进行配置。先进行开发模式的配置，再完成生产模式的配置。
+  
 - ### 开发模式的配置
 
   > 开发模式顾名思义就是我们开发代码时使用的模式。这个模式下我们主要做两件事：
@@ -147,12 +147,12 @@
     
     - ##### CSS资源：
     
-      > 就是将CSS资源也打包到JS代码中，作为JS代码的一部分使用。即`CSS-in-JS`。这种方式虽然性能会有影响，但是它对热更新友好，而且我们现在是在开发模式中，生产模式下我们还是会将CSS单独提取出来作为静态资源。
+      > 开发时我们将CSS资源打包到JS代码中，作为JS代码的一部分使用，即`CSS-in-JS`。这种方式虽然性能会有影响，但是它对热更新（HMR）友好，方便我们进行开发。生产模式下我们还是会将CSS单独提取出来作为静态资源。
       >
       > ###### 功能介绍：
       >
       > - `css-loader`：负责将 CSS 文件编译成 Webpack 能识别的模块
-      > - `style-loader`：会动态创建一个 Style 标签，里面放置 Webpack 中 Css 模块内容
+      > - `style-loader`：会动态创建一个 Style 标签，里面放置 Webpack 中 CSS 模块内容
       >
       > 此时样式就会以 Style 标签的形式在页面上生效。
     
@@ -160,19 +160,19 @@
     
       1. 安装`css-loader`、`style-loader`包：`npm i css-loader style-loader -D`
     
-      2. 然后在`webpack.config.js`中配置loader：
+      2. 然后在`webpack.config.js`中配置`loader`：
     
          ```js
          module: {
-             rules: [
-                 {
-                     //匹配.css结尾的文件
-                     test: /\.css$/i,
-                     //`use`表示用哪些loader来处理该文件。数组里面Loader的执行顺序是从右到左。css-loader负责将CSS文件预编译成Webpack能识别的CommonJS模块；style-loader会将这些CSS模块（.js文件），通过动态创建<style>标签的方式引入到html中
-                     use: ["style-loader", "css-loader"]  // 这里如果写loader:''配置项，则只能用一个loader
-                 },
-             ]
-         }
+           rules: [
+             {
+               // 匹配.css结尾的文件
+               test: /\.css$/,
+               // `use`表示用哪些loader来处理该文件。数组里面Loader的执行顺序是从右到左。css-loader负责将CSS文件预编译成Webpack能识别的CommonJS模块；style-loader会将这些CSS模块（.js文件），通过动态创建<style>标签的方式引入到html中
+               use: ['style-loader', 'css-loader'],  // 这里如果写loader:''配置项，则只能用一个loader
+             },
+           ]
+         },
          ```
 
       3. 这样在主文件`main.js`中，就可以导入`.css`文件了：`import './index.css'`。注意：只有导入了该文件，Webpack才会将该CSS文件进行打包。
@@ -313,9 +313,9 @@
       >
       > ```js
       > output: {
-      >   filename: 'main.js',
-      >   path: path.resolve(__dirname, 'dist'),
-      >   assetModuleFilename: 'images/[hash][ext][query]'
+      >     filename: 'main.js',
+      >     path: path.resolve(__dirname, 'dist'),
+      >     assetModuleFilename: 'images/[hash][ext][query]'
       > },
       > ```
 
@@ -421,12 +421,12 @@
 
         > ESLint在Webpack4中是一个Loader，在Webpack5中是作为插件Plugin使用。步骤如下：
 
-        1. 下载包：`npm i eslint-webpack-plugin eslint -D`（后者是要用的eslint工具，前者是将eslint集成到Webpack的插件）
+        1. 下载包：`npm i eslint-webpack-plugin@4 eslint@8 -D`（后者是要用的eslint工具，前者是将eslint集成到Webpack的插件）
 
         2. 在项目根目录下编写`.eslintrc.js`文件，并将eslint配置到`webpack.config.js`中：
 
            ```js
-           const ESLintPlugin = require('eslint-webpack-plugin');
+           const ESLintWebpackPlugin = require('eslint-webpack-plugin');
            
            module.exports = {
              // ...
@@ -497,7 +497,7 @@
                {
                	test: /\.js$/,
                	exclude: /node_modules/,  // node_modules目录不编译
-               	loader: "babel-loader",
+               	loader: 'babel-loader',
                  // 也可以不创建Babel的配置文件，在这里写配置
                  // options: {
                  //   presets: ["@babel/preset-env"],  // 智能预设
@@ -512,14 +512,13 @@
 
   - #### 处理HTML资源：
 
-    > 我们现在还需要在`index.html`中通过`<script>`标签来引入生成的bundle。并且如果还依赖了`lodash`等其他的第三方库，我们还需要在`index.html`中手动维护它们的依赖关系，这样容易出顺序问题。
+    > 我们现在还需要在`index.html`中通过`<script>`标签来引入dist目录下生成的bundle。其实开发中我们通常这样做：将`index.html`作为静态资源一并打包到dist目录中，并且我们自己准备的这个`index.html`不需要通过`<script>`标签去引入生成的bundle文件，引入的操作通过Webpack的插件来完成就可以了。最终生成的整个bundle目录直接放到服务器上就可以了。
     >
-    > 其实开发中我们通常这样做：将`index.html`作为静态资源一并打包到bundle中，并且我们自己准备的这个`index.html`不需要通过`<script>`标签去引入生成的bundle文件（或任何其他的依赖），引入的操作通过Webpack的插件来完成就可以了。最终生成的整个bundle目录直接放到服务器上就可以了。
-
+    
     1. 下载包：`npm i html-webpack-plugin -D`
-
+    
     2. `webpack.config.js`中：
-
+    
        ```js
        const HtmlWebpackPlugin = require("html-webpack-plugin")
        
@@ -534,17 +533,17 @@
          // ...
        }
        ```
-
-       > 然后运行指令`npx webpack`，此时dist目录还会输出一个`index.html`文件。并且使用了该插件后，如果设置的是开发模式：`mode: 'development'`，那么默认还会对HTML代码进行压缩。
-
+    
+       > 然后运行指令`npx webpack`，此时dist目录还会输出一个`index.html`文件。并且使用了该插件后，如果设置的是开发模式：`mode: 'development'`，还会对HTML进行压缩。
+    
   - #### 开发服务器&自动化：
-
+  
     > 开发环境下，目前我们每次修改完源代码，还需要重新去执行`npx webpack`重新打包才能看到最新的效果，很麻烦。
     >
-    > 我们可以配置一个开发服务器，将构建的bundle放到服务器目录中，每次改完代码保存后让Webpack自动重新打包，这样整个流程完全自动化了，开发效率大大提高。
-
+    > 我们可以启动一个开发服务器，将构建的bundle放到服务器目录中，每次改完代码保存后让Webpack自动重新打包，这样整个流程完全自动化了，开发效率大大提高。
+  
     1. 下载包：`npm i webpack-dev-server -D`（`webpack-dev-server`会自动开启一个服务器来监视`src/`下的代码，当代码变化后会自动重新打包）
-
+  
     2. `webpack.config.js`中：
     
        ```js
@@ -562,10 +561,10 @@
     
        > 此时就不是执行`npx webpack`了，而是用`npx webpack serve`启动Webpack的开发服务器。
        >
-       > 并且当你使用开发服务器时，所有代码都会在内存中编译打包，并不会输出到 dist 目录下（服务器中所需的资源都在内存中）。
+       > 并且当你使用开发服务器时，所有代码都会在内存中编译打包，并不会输出到 dist 目录下（开发服务器中的静态资源都在内存中）。
        >
        > 因为开发时我们只关心代码能运行，有效果即可，至于代码被编译成什么样子，我们并不需要知道。
-
+  
 - ### 生产模式的配置
 
   > 生产模式是开发完成代码后，我们需要将bundle部署到服务器上。这个模式下我们主要对代码进行优化、压缩，让其运行性能更好。优化主要从两个角度出发：
@@ -575,9 +574,9 @@
 
   - #### 生产模式准备：
 
-    1. 我们准备2个配置文件，分别存放不同环境下的Webpack配置。在根目录下新建2个文件：`config/webpack.dev.js`和`config/webpack.prod.js`。
+    1. 我们准备2个配置文件，分别存放不同环境下的Webpack配置。在根目录下新建`config`目录，里面存放：`webpack.dev.js`和`webpack.prod.js`。
 
-    2. 开发环境下的配置文件：`config/webpack.dev.js`
+    2. 开发环境下的配置文件：`webpack.dev.js`
 
        ```js
        const path = require("path")
@@ -589,7 +588,7 @@
          entry: "./src/main.js",
          output: {
            path: undefined, // 开发模式没有输出，不需要指定输出目录
-           filename: "static/js/main.js",
+           filename: "static/js/main.js",  // 虽然不写入磁盘，但保持配置的完整性
            // clean: true, // 开发模式没有输出，不需要清空输出结果
          },
          module: {
@@ -656,7 +655,7 @@
        
        > 运行开发模式的命令：`npx webpack serve --config ./config/webpack.dev.js`
        
-    3. 生产环境下的配置文件：`config/webpack.prod.js`（生产环境下还有其他配置，后面会补充）
+    3. 生产环境下的配置文件：`webpack.prod.js`（生产环境下还有其他配置，后面会补充）
     
        ```js
        const path = require("path")
@@ -757,7 +756,7 @@
   
     1. ##### 将CSS提取为单独文件：
   
-       > 开发模式下的CSS文件被打包到JS文件中有助于在代码更改时立即查看到效果（CSS-in-JS）。但是在生产环境下这种方式就不太好了。当JS文件加载时，会动态创建style标签来生成样式。这种方式网络差时会出现闪屏现象，并且没有link标签加载CSS的性能好，代码也无法复用。因此生产模式下对CSS资源的处理是另一种方式。
+       > 开发模式下的CSS文件被打包到JS文件中有助于在代码更改时立即查看到效果（CSS-in-JS）。但是在生产环境下这种方式就不太好了。当JS文件加载时，会动态创建`<style>`标签来生成样式，这种方式网络差时会出现闪屏现象，并且没有link标签加载CSS的性能好，代码也无法复用。因此生产模式下对CSS资源的处理是另一种方式。
   
        1. 下载包：`npm i mini-css-extract-plugin -D`
   
@@ -805,7 +804,7 @@
     
           ```js
           module.exports = {
-            // 需要在所有的"css-loader"前面，"less-loader"后面加上该对象
+            // 在所有的"css-loader"和"less-loader"中间加上该对象
             module: {
               rules: [
                 {
@@ -839,19 +838,19 @@
     
           ```json
           {
-            // 其他省略
+            // ...
             "browserslist": ["ie >= 8"] // 设置兼容ie8以上的浏览器
           }
           ```
   
           > 想要知道更多的 `browserslist` 配置，查看[browserslist 文档open in new window](https://github.com/browserslist/browserslist)
           >
-          > 以上为了测试兼容性所以设置兼容浏览器 ie8 以上。实际开发中我们一般不考虑旧版本浏览器了，所以我们可以这样设置：
+          > 以上为了测试兼容性所以设置兼容浏览器 ie8 以上。实际开发中我们一般不考虑像ie8这样低版本的浏览器了，所以我们可以这样设置：
           >
           > ```json
           > {
-          >   // 其他省略
-          >   "browserslist": ["last 2 version", "> 1%", "not dead"]
+          >     // ...
+          >     "browserslist": ["last 2 version", "> 1%", "not dead"]
           > }
           > ```
           >
@@ -922,14 +921,14 @@
           >
           > ```js
           > module.exports = {
-          >   optimization: {
-          >     // 告知 webpack 使用 TerserPlugin 或其它在 optimization.minimizer定义的插件压缩 bundle，默认为true
-          >     minimize: true,
-          >     minimizer: [
-          >       // css压缩也可以写到optimization.minimizer里面，效果一样的
-          >       new CssMinimizerPlugin(),
-          >     ]
-          >   },
+          >     optimization: {
+          >        // 告知 webpack 使用 TerserPlugin 或其它在 optimization.minimizer定义的插件压缩 bundle，默认为true
+          >        minimize: true,
+          >        minimizer: [
+          >          // css压缩也可以写到optimization.minimizer里面，效果一样的
+          >          new CssMinimizerPlugin(),
+          >        ]
+          >     },
           > };
           > ```
 
