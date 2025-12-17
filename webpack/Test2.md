@@ -116,7 +116,7 @@
       >    在你的Webpack配置中，虽然已经启用了`hot: true`来开启HMR，但CSS和JS的行为不同，是因为它们的loader对HMR的支持机制是不同的：
       >    
       >    - **style-loader的内置HMR支持**。
-      >     - `style-loader`是专门为开发环境设计的CSS加载器，它内部已经实现了HMR接口，会自动处理CSS模块的热更新。当CSS文件发生变化时，`style-loader`会直接替换DOM中的样式标签而不刷新整个页面。
+      >         - `style-loader`是专门为开发环境设计的CSS加载器，它内部已经实现了HMR接口，会自动处理CSS模块的热更新。当CSS文件发生变化时，`style-loader`会直接替换DOM中的样式标签而不刷新整个页面。
       >    - **JS的默认行为不同**。默认情况下，JS没有内置的HMR支持。
       >    - Webpack虽然可以检测到JS文件变化并重新编译，但不知道如何安全地替换运行中的模块。直接替换JS模块可能导致状态丢失或应用崩溃。**因此我们需要显式地添加HMR代码**。
       
@@ -435,7 +435,7 @@
          
          > 开发和生产模式都是这样配置。
     
-  - #### 减少代码体积（只针对生产环境）
+  - #### 减少代码体积（针对开发和生产环境）
   
     - ##### Tree Shaking
   
@@ -449,7 +449,7 @@
   
     - ##### Babel
   
-      > **Polyfill（填充物）** 是一块代码（通常是 Web 环境的 JS），用来为旧浏览器提供它没有原生支持的较新的功能。它们填补了浏览器对新功能的支持不足或不完整的差距，使开发人员能够在各种浏览器上使用最新的Web功能。
+      > **Polyfill（填充物）** 是一块代码，用来为旧浏览器提供它没有原生支持的较新的功能。它们填补了浏览器对新功能的支持不足或不完整的差距，使开发人员能够在各种浏览器上使用最新的Web功能（比如`Promise`）。
       >
       > Babel 默认会在编译前，给每个JS源文件中都插入一些辅助代码（Polyfill）。最终打包工具（如 webpack、Rollup）会将这些分散在各文件中的重复辅助代码一并打包到最终的 `bundle.js` 中，导致打包体积增大。
   
@@ -457,7 +457,7 @@
   
       > 我们可以将这些辅助代码作为一个独立模块，来避免重复引入。
       >
-      > 通过`@babel/plugin-transform-runtime`插件来做：禁用了 Babel 自动对每个文件的 runtime 注入，而是引入 `@babel/plugin-transform-runtime` 并使所有辅助代码从这里引用。
+      > 通过Babel提供的插件`@babel/plugin-transform-runtime`：它禁用了 Babel 对每个文件自动注入的辅助代码，而是引入该插件里面定义的辅助代码（模块）。这样体积就会小很多。
   
       ###### 使用：
   
@@ -481,7 +481,7 @@
                options: {
                  cacheDirectory: true,
                  cacheCompression: false,
-                 plugins: ["@babel/plugin-transform-runtime"], // 减少代码体积
+                 plugins: ["@babel/plugin-transform-runtime"], // 这里添加上这个插件，减少代码体积
                },
              },
            ],
@@ -492,7 +492,7 @@
   
       > 开发如果项目中引用了较多图片，那么图片体积会比较大，将来请求速度比较慢。我们可以用`image-minimizer-webpack-plugin`插件对图片进行压缩，减少图片体积。
       >
-      > **注意**：如果项目中图片都是在线链接（比如放在阿里云Bucket中的资源），那么就不需要了。本地项目静态图片才需要进行压缩。
+      > **注意**：我们要处理的是本地加载引入的图片。如果项目中图片都是在线链接（比如放在阿里云Bucket中的资源），那么就不需要了。本地项目静态图片才需要进行压缩。
   
       ###### 使用：
   
@@ -503,7 +503,7 @@
          > - 无损压缩：`npm install imagemin-gifsicle imagemin-jpegtran imagemin-optipng imagemin-svgo -D`
          > - 有损压缩：`npm install imagemin-gifsicle imagemin-mozjpeg imagemin-pngquant imagemin-svgo -D`
          >
-         > [有损/无损压缩的区别](https://baike.baidu.com/item/无损、有损压缩)
+         > 简单来说：无损压缩没有损坏图片内容、质量更好，有损压缩体积可以更小，但是图片质量会受影响。[有损/无损压缩的区别](https://baike.baidu.com/item/无损、有损压缩)
   
       2. 配置：（以无损压缩为例）
   
@@ -517,7 +517,7 @@
              new TerserPlugin({
                parallel: threads,
              }),
-             // 压缩图片
+             // 压缩图片（也可以放到plugins中）
              new ImageMinimizerPlugin({
                minimizer: {
                  implementation: ImageMinimizerPlugin.imageminGenerate,
@@ -549,14 +549,14 @@
          },
          ```
   
-      3. 打包时会出现报错：
+      3. 打包时可能会出现报错：（包没下载完整）
   
          ```tex
          Error: Error with 'src\images\1.jpeg': '"C:\Users\86176\Desktop\webpack\webpack_code\node_modules\jpegtran-bin\vendor\jpegtran.exe"'
          Error with 'src\images\3.gif': spawn C:\Users\86176\Desktop\webpack\webpack_code\node_modules\optipng-bin\vendor\optipng.exe ENOENT
          ```
   
-         > 我们需要安装两个文件到 `node_modules` 中才能解决：
+         > 提示找不到2个exe文件。我们可以手动安装这两个文件到`node_modules`：
          >
          > - `jpegtran.exe`：需要复制到 `node_modules\jpegtran-bin\vendor` 下面。[jpegtran 官网](http://jpegclub.org/jpegtran/)
          > - `optipng.exe`：需要复制到 `node_modules\optipng-bin\vendor` 下面。[OptiPNG 官网](http://optipng.sourceforge.net/)
