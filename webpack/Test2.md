@@ -11,7 +11,7 @@
   > 3. 减少代码体积
   > 4. 优化代码运行性能
 
-  - #### 提升开发体验（只针对开发环境）
+  - #### 提升开发体验
 
     - ##### 关于SourceMap
   
@@ -52,20 +52,6 @@
   
     - ##### Webpack中启用SourceMap
   
-      > `devtool` 配置项用于控制是否生成、以及如何生成 SourceMap，值是一个字符串或`false`。`false`用于显式设置不生成 SourceMap，强制覆盖开发或生产模式的默认值。其中字符串值有[26种](https://webpack.docschina.org/configuration/devtool/#devtool)，下面是常用的一些：
-      >
-      > **注意：**SourceMap可能是一个单独的文件，也可能添加在bundle.js文件中，这两种情况都叫生成了SourceMap。
-      
-      - `'eval'`（`development`模式下的默认值）：每个模块都使用 `eval()` 执行，并且都有 `//# sourceURL`。由于eval()是在内存中执行，所以没有生成SourceMap文件。此选项会非常快地构建。主要缺点是，由于会映射到转换后的代码，而不是映射到原始代码（没有从 loader 中获取 source map），所以不能正确的显示行数，只能显示列数。
-      
-      - `(none)`，省略`devtool`选项（生产模式下的默认值）：此时不会生成SourceMap。
-      
-      - `'source-map'`：整个 source map 作为一个单独的文件生成。它为 bundle 添加了一个引用注释，以便开发工具F12知道在哪里可以找到它。它**常用于生产环境中**。
-      
-        > **警告**：你应该将你的服务器配置为，不允许普通用户访问 source map 文件！
-      
-      - `'cheap-module-source-map'`：没有列映射(column mapping)的 source map，忽略 loader source map。它对于开发环境和生产环境都不理想，是一些特定场景下需要的，例如一些第三方工具。
-      
       ```js
       module.exports = {
         // 其他省略
@@ -73,6 +59,20 @@
         devtool: "source-map",
       };
       ```
+      
+      > `devtool` 配置项用于控制是否生成、以及如何生成 SourceMap，值是一个字符串或`false`。`false`用于显式设置不生成 SourceMap，强制覆盖开发或生产模式的默认值。其中字符串值有[26种](https://webpack.docschina.org/configuration/devtool/#devtool)，下面是常用的一些：
+      >
+      > **注意：**SourceMap可能是一个单独的文件，也可能添加在bundle.js文件中，这两种情况都叫生成了SourceMap。
+      
+      - `'eval'`（开发模式下的默认值）：每个模块都使用 `eval()` 执行，并且都有 `//# sourceURL`。由于eval()是在内存中执行，所以没有生成SourceMap文件。此选项会非常快地构建。主要缺点是，由于会映射到转换后的代码，而不是映射到原始代码（没有从 loader 中获取 source map），所以不能正确的显示行数，只能显示列数。
+      
+      - `(none)`，省略`devtool`选项（生产模式下的默认值）：此时不会生成SourceMap。
+      
+      - `'source-map'`：整个 source map 作为一个单独的文件生成，包含行/列映射；缺点是打包编译速度更慢。它是为 bundle 添加了一个引用注释，以便开发工具F12知道在哪里可以找到它。它**常用于生产环境中**。
+      
+        > **警告**：你应该将你的服务器配置为，不允许普通用户访问 source map 文件！
+      
+      - `'cheap-module-source-map'`：没有列映射(column mapping)的 source map，忽略 loader source map。它对于开发环境和生产环境都不理想，是一些特定场景下需要的，例如一些第三方工具。
       
       > 选择不同的值，最终打包的速度、构建产物的大小都会有所差异。
       >
@@ -85,7 +85,7 @@
       > Webpack官方文档也特别指出：在开发环境下不需要关注`.map`文件体积，因此应该优先选择带有`eval`的配置以获得更好的重建性能。
       
   
-  - #### 提升打包构建速度（开发和生产模式）
+  - #### 提升打包构建速度
   
     - ##### HotModuleReplacement（它只针对开发模式）
   
@@ -99,26 +99,30 @@
       
       > ```js
       > module.exports = {
-      >     // 其他省略
-      >     devServer: {
-      >        host: "localhost", // 启动服务器域名
-      >        port: "3000", // 启动服务器端口号
-      >        open: true, // 是否自动打开浏览器
-      >        hot: true, // 开启HMR功能（默认值true）
+      >  // 其他省略
+      >  devServer: {
+      >     host: "localhost", // 启动服务器域名
+      >     port: "3000", // 启动服务器端口号
+      >     open: true, // 是否自动打开浏览器
+      >     hot: true, // 开启HMR功能（默认值true）
+      >     static: {
+      >       directory: path.join(__dirname, 'public'),  // 这样index.html中就能访问到public下的静态资源了
       >     },
+      >     compress: true,
+      >  },
       > };
       > ```
       >
       > 此时 css 样式经过 style-loader 处理，已经具备 HMR 功能了。 但是 js 还不行。
       
       > 为什么CSS有HMR而JS没有？
-      > 
-      >    在你的Webpack配置中，虽然已经启用了`hot: true`来开启HMR，但CSS和JS的行为不同，是因为它们的loader对HMR的支持机制是不同的：
-      >    
-      >    - **style-loader的内置HMR支持**。
-      >         - `style-loader`是专门为开发环境设计的CSS加载器，它内部已经实现了HMR接口，会自动处理CSS模块的热更新。当CSS文件发生变化时，`style-loader`会直接替换DOM中的样式标签而不刷新整个页面。
-      >    - **JS的默认行为不同**。默认情况下，JS没有内置的HMR支持。
-      >    - Webpack虽然可以检测到JS文件变化并重新编译，但不知道如何安全地替换运行中的模块。直接替换JS模块可能导致状态丢失或应用崩溃。**因此我们需要显式地添加HMR代码**。
+      >
+      > 在你的Webpack配置中，虽然已经启用了`hot: true`来开启HMR，但CSS和JS的行为不同，是因为它们的loader对HMR的支持机制是不同的：
+      >
+      > 1. **style-loader的内置HMR支持**。
+      > 2. `style-loader`是专门为开发环境设计的CSS加载器，它内部已经实现了HMR接口，会自动处理CSS模块的热更新。当CSS文件发生变化时，`style-loader`会直接替换DOM中的样式标签而不刷新整个页面。
+      > 3. **JS的默认行为不同**。默认情况下，JS没有内置的HMR支持。
+      > 4. Webpack虽然可以检测到JS文件变化并重新编译，但不知道如何安全地替换运行中的模块。直接替换JS模块可能导致状态丢失或应用崩溃。**因此我们需要显式地添加HMR代码**。
       
       ###### JS配置HMR：
       
@@ -162,8 +166,8 @@
       >
       > `OneOf` 顾名思义就是，只要匹配上一个 loader，剩下的就不再进行匹配了。
     
-      ###### 用法：
-  
+      ###### 用法：（只需要在原来的loader外面再包一层`oneOf`即可）
+    
       ```js
       const path = require("path");
       const ESLintWebpackPlugin = require("eslint-webpack-plugin");
@@ -259,9 +263,9 @@
     
     - ##### Include/Exclude
     
-      > 开发时我们需要使用第三方的库或插件，所有文件都下载到 `node_modules` 目录中了。而这些文件是不需要编译可以直接使用的。所以我们在对 js 文件处理时，要排除 `node_modules` 目录中的文件。
+      > 开发时我们需要使用第三方的库或插件，所有文件都下载到 `node_modules` 目录中了。而这些文件是不需要编译可以直接使用的。所以我们在对 js 文件处理时，要排除 `node_modules` 目录中的js文件。
       >
-      > 在`loader`或`plugin`的配置对象中，可以通过`include、exclude`配置项来指定，`loader`在处理时要包含和要排除的文件：
+      > 在`loader`或`plugin`的配置对象中，可以通过`include`和`exclude`配置项来指定，`loader`在处理时要包含和要排除的文件：
       >
       > - `include`：包含，只处理 xxx 文件。
       > - `exclude`：排除，除了 xxx 文件以外其他文件都处理。
@@ -349,7 +353,7 @@
     
       > 当项目越来越庞大时，打包速度越来越慢，甚至于需要一个下午才能打包出来代码。这个速度是比较慢的。
       >
-      > 我们想要继续提升打包速度，其实就是要提升 js 的打包速度，因为其他文件都比较少。而对 js 文件处理主要就是 eslint 、babel、Terser（给JS做优化、混淆、压缩的）三个工具，所以我们要提升它们的运行速度。
+      > 我们想要继续提升打包速度，其实就是要提升 js 的打包速度，因为其他文件都比较少。而对 js 文件处理主要就是 eslint 、babel、Terser（给JS做优化、混淆、压缩的）这三个工具，所以我们要提升它们的运行速度。
       >
       > 我们可以开启多个进程同时处理 js 文件，这样速度就比之前的单进程打包更快了。
       >
@@ -409,16 +413,14 @@
              ),
              threads, // 开启多进程
            }),
-         	// new CssMinimizerPlugin(), // css压缩
+         	new CssMinimizerPlugin(),
            // new TerserPlugin({ parallel: threads })  // 也可以放在这里
            // ...
          ],
          optimization: {
-           // 告知 webpack 使用 TerserPlugin 或其它在 optimization.minimizer定义的插件压缩 bundle，默认为true
+           // 告知webpack使用TerserPlugin或其它在optimization.minimizer定义的插件，去压缩bundle，默认为true
            minimize: true,
            minimizer: [
-             // css压缩也可以写到optimization.minimizer里面，效果一样的
-             new CssMinimizerPlugin(),
              // 生产模式会默认开启TerserPlugin，但是如果需要进行其他配置，就要显式写出来
              new TerserPlugin({
                parallel: threads // 开启多进程
@@ -431,11 +433,12 @@
          
          > 从 webpack 4 开始，会根据你选择的 `mode` 来执行不同的优化，不过所有的优化还是可以手动配置和重写。通过`optimization`优化配置项。
          >
-         > **注意**：由于我们目前打包的内容都很少，所以因为启动进程开销原因，使用多进程打包实际上会显著的让我们打包时间变得很长。
-         
          > 开发和生产模式都是这样配置。
+         >
+         > **注意**：由于我们目前打包的内容都很少，所以因为启动进程开销原因，使用多进程打包实际上会显著的让我们打包时间变得很长。因此后面搭建VueCli、ReactCli我们不加多进程打包。因为通常我们的项目代码量并没有那么庞大。
+         
     
-  - #### 减少代码体积（针对开发和生产环境）
+  - #### 减少代码体积
   
     - ##### Tree Shaking
   
@@ -488,7 +491,7 @@
          },
          ```
   
-    - ##### Image Minimizer
+    - ##### Image Minimizer（只针对生产模式）
   
       > 开发如果项目中引用了较多图片，那么图片体积会比较大，将来请求速度比较慢。我们可以用`image-minimizer-webpack-plugin`插件对图片进行压缩，减少图片体积。
       >
@@ -561,7 +564,7 @@
          > - `jpegtran.exe`：需要复制到 `node_modules\jpegtran-bin\vendor` 下面。[jpegtran 官网](http://jpegclub.org/jpegtran/)
          > - `optipng.exe`：需要复制到 `node_modules\optipng-bin\vendor` 下面。[OptiPNG 官网](http://optipng.sourceforge.net/)
   
-  - #### 优化代码运行性能（只针对生产环境）
+  - #### 优化代码运行性能
   
     - ##### Code Split
   
@@ -576,7 +579,7 @@
       >
       > 代码分割可以有不同的方式实现，为了更加方便体现它们之间的差异，我们会分别创建新的文件来演示。
     
-      - ###### 多入口：
+      - ###### 多入口：（`webpack.config.js`）
     
         ```js
         // 单入口
@@ -600,20 +603,15 @@
         >
         > 为什么需要这样命名呢？如果还是之前写法main.js，那么打包生成两个js文件都会叫做main.js会直接报错。
         >
-        > 总之，**配置了几个入口，至少输出几个 js 文件（bundle）**。
+        > **Webpack中，配置了几个入口文件，至少输出几个 js 文件（bundle）**。
     
       - ###### 提取重复代码：
     
-        > 如果多入口文件中都引用了同一份代码，我们不希望这份代码被打包到两个文件中，导致代码重复，体积更大。
+        > 默认情况下，如果多入口文件中都引用了同一份代码，则这份代码会被打包到两个文件中，导致代码重复，体积更大。我们期望在打包时，将这份重复代码生成一个单独的 js 文件，其他的文件里引用它即可。
         >
-        > 我们需要提取多入口的重复代码，只打包生成一个 js 文件，其他文件引用它就好。
-    
+        
         ```js
-        // 单入口
-        // entry: './src/main.js',
-        // 多入口
         entry: {
-          // 打包后会生成2个js文件
           main: "./src/main.js",
           app: "./src/app.js",
         },
@@ -640,7 +638,7 @@
             //     reuseExistingChunk: true, // 如果当前 chunk 包含已从主 bundle 中拆分出的模块，则它将被重用，而不是生成新的模块
             //   },
             //   default: { // 其他没有写的配置会使用上面的默认值
-            //     minChunks: 2, // 这里的minChunks权重更大
+            //     minChunks: 2, // 这里的minChunks权重更大，会覆盖外层的公共配置
             //     priority: -20,
             //     reuseExistingChunk: true,
             //   },
@@ -655,7 +653,7 @@
               // },
               default: {
                 // 其他没有写的配置会使用上面的默认值
-                minSize: 0, // 我们定义的文件体积太小了，所以要改打包的最小文件体积
+                minSize: 0, // 这里我们为了看到效果，故意将文件体积设置为0，这样所有公共代码都会生成单独的bundle。实际开发中不会这么配置
                 minChunks: 2,
                 priority: -20,
                 reuseExistingChunk: true,
@@ -664,17 +662,43 @@
           },
         }
         ```
-    
-        > 此时我们会发现生成 3 个 js 文件，其中有一个就是提取的公共模块。
-    
-      - ###### 按需加载，动态导入：
-    
-        > 在Webpack 5的默认配置下，使用`import()`语法动态导入的JS模块通常会被分离为单独的chunk，并在运行时按需加载。这种行为可以通过`splitChunks`等配置进行定制。
         
-      - ###### 单入口：
-    
+        > 这里我们为了看到效果，故意将`minSize`文件体积设置为0，这样所有公共代码都会生成单独的bundle。实际开发中不会这么配置。
+        >
+        > 此时配置后，我们会发现生成了 3 个 js 文件，其中有一个就是提取的公共模块。
+        
+      - ###### 按需加载，动态导入：
+      
+        > 在Webpack 5的默认配置下，**使用`import()`语法动态导入的JS模块通常会被分离为单独的chunk，并在运行时按需加载**。这种行为可以通过`splitChunks`等配置进行定制。
+        
+        ###### 给动态导入文件取名称：
+        
+        1. 被打包的js文件：
+        
+           ```js
+           // 也叫【webpack魔法命名】
+           import(/* webpackChunkName: "math" */ "./js/math.js").then(({ count }) => {
+             console.log(count(2, 1));
+           });
+           ```
+        
+           > `webpackChunkName: "math"`：这是Webpack动态导入模块的命名方式。`"math"`会作为`[name]`的值。
+        
+        2. `webpack.config.js`中用上这个名字：
+        
+           ```js
+           output: {
+             path: path.resolve(__dirname, './dist'),
+             filename: 'js/main.js',
+             chunkFilename: 'js/[name].js',  // 设置chunk文件名（即：除了入口文件生成的bundle之外，其他chunk文件生成bundle的文件名）
+             clear: true,
+           },
+           ```
+        
+      - ###### 单入口：（重点）
+      
         > 开发时我们可能是单页面应用（SPA），只有一个入口（单入口）。单入口也可以通过代码分割来生成多个js文件，这样配置：
-    
+      
         ```js
         const path = require("path");
         const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -682,18 +706,9 @@
         module.exports = {
           // 单入口
           entry: "./src/main.js",
-          // 多入口
-          // entry: {
-          //   main: "./src/main.js",
-          //   app: "./src/app.js",
-          // },
           output: {
             path: path.resolve(__dirname, "./dist"),
-            // [name]是webpack命名规则，使用chunk的name作为输出的文件名。
-            // 什么是chunk？打包的资源就是chunk，输出出去叫bundle。
-            // chunk的name是啥呢？ 比如： entry中xxx: "./src/xxx.js", name就是xxx。注意是前面的xxx，和文件名无关。
-            // 为什么需要这样命名呢？如果还是之前写法main.js，那么打包生成两个js文件都会叫做main.js会发生覆盖。(实际上会直接报错的)
-            filename: "js/[name].js",
+            filename: "js/main.js",
             clean: true,
           },
           plugins: [
@@ -703,10 +718,9 @@
           ],
           mode: "production",
           optimization: {
-            // 代码分割配置
             splitChunks: {
-              chunks: "all", // 对所有模块都进行分割
-              // 以下是默认值
+              chunks: "all",  // 只配置这一个即可
+              // 其他的都不用配置，用默认值即可
               // minSize: 20000, // 分割代码最小的大小
               // minRemainingSize: 0, // 类似于minSize，最后确保提取的文件大小不能为0
               // minChunks: 1, // 至少被引用的次数，满足条件才会代码分割
@@ -714,13 +728,13 @@
               // maxInitialRequests: 30, // 入口js文件最大并行请求数量
               // enforceSizeThreshold: 50000, // 超过50kb一定会单独打包（此时会忽略minRemainingSize、maxAsyncRequests、maxInitialRequests）
               // cacheGroups: { // 组，哪些模块要打包到一个组
-              //   defaultVendors: { // 组名
+              //   defaultVendors: { // 这里用默认的配置即可，node_modules中的js会打包到一个叫vendors.xxx.chunk.js的chunk中
               //     test: /[\\/]node_modules[\\/]/, // 需要打包到一起的模块
               //     priority: -10, // 权重（越大越高）
               //     reuseExistingChunk: true, // 如果当前 chunk 包含已从主 bundle 中拆分出的模块，则它将被重用，而不是生成新的模块
               //   },
-              //   default: { // 其他没有写的配置会使用上面的默认值
-              //     minChunks: 2, // 这里的minChunks权重更大
+              //   default: {
+              //     minChunks: 2, // 由于我们是单入口，因此这里的默认配置没有任何作用
               //     priority: -20,
               //     reuseExistingChunk: true,
               //   },
@@ -728,9 +742,9 @@
           },
         };
         ```
-    
-      > 最终我们选择使用单入口+代码分割+动态导入方式来进行配置。更新之前的配置文件：
-    
+      
+      > 最终我们选择使用单入口+代码分割+动态导入方式来进行配置。更新之前的配置文件：（开发模式类似）
+      
       ```js
       // webpack.prod.js
       const os = require("os");
@@ -915,52 +929,22 @@
         //   host: "localhost", // 启动服务器域名
         //   port: "3000", // 启动服务器端口号
         //   open: true, // 是否自动打开浏览器
+        //   static: {
+        //     directory: path.join(__dirname, 'public'),  // 这样index.html中就能访问到public下的静态资源了
+        //   },
+        //   compress: true,
         // },
         mode: "production",
         devtool: "source-map",
       };
       ```
-    
-      ###### 给动态导入文件取名称：
-    
-      > `webpackChunkName: "math"`：这是webpack动态导入模块的命名方式。`"math"`会作为`[name]`的值显示。
-    
-      ```js
-      import(/* webpackChunkName: "math" */ "./js/math.js").then(({ count }) => {
-        console.log(count(2, 1));
-      });
-      ```
-    
-      > eslint会对动态导入语法报错，需要修改eslint配置文件：（`.eslintrc.js`）
+      
+      > 目前我们在`output.filename、output.chunkFileName`，处理图片和其他二进制文件的loader中有`generator.filename`，还有压缩css的插件中的`filename`...
       >
-    
-      1. 下载包：`npm i eslint-plugin-import -D`
-    
-      2. 配置：
-    
-         ```js
-         // .eslintrc.js
-         module.exports = {
-           // 继承 Eslint 规则
-           extends: ["eslint:recommended"],
-           env: {
-             node: true, // 启用node中全局变量
-             browser: true, // 启用浏览器中全局变量
-           },
-           plugins: ["import"], // 解决动态导入import语法报错问题 --> 实际使用eslint-plugin-import的规则解决的
-           parserOptions: {
-             ecmaVersion: 6,
-             sourceType: "module",
-           },
-           rules: {
-             "no-var": 2, // 不能使用 var 定义变量
-           },
-         };
-         ```
-    
-      > 最终我们来进行统一命名。统一命名设置：
-    
+      > 我们来进行统一命名，这样更规范清晰一点。统一命名设置：（开发模式类似）
+      
       ```js
+      // webpack.prod.js
       const os = require("os");
       const path = require("path");
       const ESLintWebpackPlugin = require("eslint-webpack-plugin");
@@ -970,10 +954,8 @@
       const TerserPlugin = require("terser-webpack-plugin");
       const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
       
-      // cpu核数
       const threads = os.cpus().length;
       
-      // 获取处理样式的Loaders
       const getStyleLoaders = (preProcessor) => {
         return [
           MiniCssExtractPlugin.loader,
@@ -983,7 +965,7 @@
             options: {
               postcssOptions: {
                 plugins: [
-                  "postcss-preset-env", // 能解决大多数样式兼容性问题
+                  "postcss-preset-env",
                 ],
               },
             },
@@ -995,10 +977,13 @@
       module.exports = {
         entry: "./src/main.js",
         output: {
-          path: path.resolve(__dirname, "../dist"), // 生产模式需要输出
-          filename: "static/js/[name].js", // 入口文件打包输出资源命名方式
-          chunkFilename: "static/js/[name].chunk.js", // 动态导入输出资源命名方式
-          assetModuleFilename: "static/media/[name].[hash][ext]", // 图片、字体等资源命名方式（注意用hash）
+          path: path.resolve(__dirname, "../dist"),
+          // 这样写无论是单入口还是多入口都兼容
+          filename: "static/js/[name].js",
+          // 为了区分主文件和其他chunk文件，通常我们会这样命名chunk
+          chunkFilename: "static/js/[name].chunk.js",
+          // 图片、字体等二进制的、用type:asset处理的资源，统一在这里进行命名
+          assetModuleFilename: "static/media/[name].[hash][ext]",
           clean: true,
         },
         module: {
@@ -1006,9 +991,7 @@
             {
               oneOf: [
                 {
-                  // 用来匹配 .css 结尾的文件
                   test: /\.css$/,
-                  // use 数组里面 Loader 执行顺序是从右到左
                   use: getStyleLoaders(),
                 },
                 {
@@ -1028,15 +1011,10 @@
                   type: "asset",
                   parser: {
                     dataUrlCondition: {
-                      maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
+                      maxSize: 10 * 1024,
                     },
                   },
                   // generator: {
-                  //   // 将图片文件输出到 static/imgs 目录中
-                  //   // 将图片文件命名 [hash:8][ext][query]
-                  //   // [hash:8]: hash值取8位
-                  //   // [ext]: 使用之前的文件扩展名
-                  //   // [query]: 添加之前的query参数
                   //   filename: "static/imgs/[hash:8][ext][query]",
                   // },
                 },
@@ -1049,21 +1027,20 @@
                 },
                 {
                   test: /\.js$/,
-                  // exclude: /node_modules/, // 排除node_modules代码不编译
-                  include: path.resolve(__dirname, "../src"), // 也可以用包含
+                  include: path.resolve(__dirname, "../src"),
                   use: [
                     {
-                      loader: "thread-loader", // 开启多进程
+                      loader: "thread-loader",
                       options: {
-                        workers: threads, // 数量
+                        workers: threads,
                       },
                     },
                     {
                       loader: "babel-loader",
                       options: {
-                        cacheDirectory: true, // 开启babel编译缓存
-                        cacheCompression: false, // 缓存文件不要压缩
-                        plugins: ["@babel/plugin-transform-runtime"], // 减少代码体积
+                        cacheDirectory: true,
+                        cacheCompression: false,
+                        plugins: ["@babel/plugin-transform-runtime"],
                       },
                     },
                   ],
@@ -1074,40 +1051,32 @@
         },
         plugins: [
           new ESLintWebpackPlugin({
-            // 指定检查文件的根目录
             context: path.resolve(__dirname, "../src"),
-            exclude: "node_modules", // 默认值
-            cache: true, // 开启缓存
-            // 缓存目录
+            exclude: "node_modules",
+            cache: true,
             cacheLocation: path.resolve(
               __dirname,
               "../node_modules/.cache/.eslintcache"
             ),
-            threads, // 开启多进程
+            threads,
           }),
           new HtmlWebpackPlugin({
-            // 以 public/index.html 为模板创建文件
-            // 新的html文件有两个特点：1. 内容和源文件一致 2. 自动引入打包生成的js等资源
             template: path.resolve(__dirname, "../public/index.html"),
           }),
-          // 提取css成单独文件
           new MiniCssExtractPlugin({
-            // 定义输出文件名和目录
+      		  // 多入口打包会生成多个css文件，因此这里也要动态设置name
             filename: "static/css/[name].css",
+            // 如果import()导入的js中又import导入了css，那么css也会生成chunk，因此这里也要设置chunk.css
             chunkFilename: "static/css/[name].chunk.css",
           }),
-          // css压缩
-          // new CssMinimizerPlugin(),
+          new CssMinimizerPlugin(),
         ],
         optimization: {
           minimizer: [
-            // css压缩也可以写到optimization.minimizer里面，效果一样的
             new CssMinimizerPlugin(),
-            // 当生产模式会默认开启TerserPlugin，但是我们需要进行其他配置，就要重新写了
             new TerserPlugin({
-              parallel: threads, // 开启多进程
+              parallel: threads,
             }),
-            // 压缩图片
             new ImageMinimizerPlugin({
               minimizer: {
                 implementation: ImageMinimizerPlugin.imageminGenerate,
@@ -1136,39 +1105,39 @@
               },
             }),
           ],
-          // 代码分割配置
           splitChunks: {
-            chunks: "all", // 对所有模块都进行分割
-            // 其他内容用默认配置即可
+            chunks: "all",
           },
         },
-        // devServer: {
-        //   host: "localhost", // 启动服务器域名
-        //   port: "3000", // 启动服务器端口号
-        //   open: true, // 是否自动打开浏览器
-        // },
         mode: "production",
         devtool: "source-map",
       };
       ```
-    
+      
     - ##### Preload / Prefetch
     
       > 我们前面已经做了代码分割，同时会使用 `import()` 动态导入语法来进行代码按需加载（我们也叫懒加载，比如路由懒加载就是这样实现的）。
       >
       > 但是这样的话，加载速度有点慢了，比如：是用户点击按钮时才加载这个资源的，如果资源体积很大，那么用户会感觉到明显卡顿效果。
       >
-      > 我们想在浏览器空闲时间，加载后续需要使用的资源。我们就需要用上 `Preload` 或 `Prefetch` 技术。
+      > 我们想在浏览器空闲时间，加载后续需要使用的资源。我们就需要用上 `Preload` 或 `Prefetch` 技术：
+      >
+      > ```html
+      > <link rel="prefetch">
+      > <link rel="preload">
+      > ```
+      >
+      > `Preload` 或 `Prefetch` 都是让浏览器去加载那些**按需加载的资源**，它们的不同在于：
       >
       > - `Preload`：告诉浏览器立即加载资源。
-      > - `Prefetch`：告诉浏览器在空闲时才开始加载资源。
+      > - `Prefetch`：告诉浏览器在空闲时再加载资源。
       >
-      > 它们共同点：
+      > 它们共同点是：
       >
-      > - 都只会加载资源，并不执行。
+      > - 都只会加载资源，但并不执行。
       > - 都有缓存。
       >
-      > 它们区别：
+      > 它们区别是：
       >
       > - `Preload`加载优先级高，`Prefetch`加载优先级低。
       > - `Preload`只能加载当前页面需要使用的资源，`Prefetch`可以加载当前页面资源，也可以加载下一个页面需要使用的资源。
@@ -1178,12 +1147,12 @@
       > - 当前页面优先级高的资源用 `Preload` 加载。
       > - 下一个页面需要使用的资源用 `Prefetch` 加载。
       >
-      > 它们的问题：兼容性较差。
+      > 它们的问题是：兼容性较差。
       >
       > - 我们可以去 [Can I Use](https://caniuse.com/) 网站查询 API 的兼容性问题。
       > - `Preload` 相对于 `Prefetch` 兼容性好一点。
     
-      ###### 使用：
+      ###### Webpack中，通过`preload-webpack-plugin`插件来生成`preload`或`prefetch`的`<link>`标签：
     
       1. 下载包：`npm i @vue/preload-webpack-plugin -D`
     
@@ -1196,11 +1165,16 @@
          module.exports = {
            // ...
            plugins: [
+             // 里面指定的属性都会作为link标签的属性
              new PreloadWebpackPlugin({
-               rel: "preload", // preload兼容性更好
+               rel: "preload", // preload的兼容性更好
                as: "script",
-               // rel: 'prefetch' // prefetch兼容性更差
              }),
+         
+         // prefetch的用法，它的兼容性较差
+             // new PreloadWebpackPlugin({
+             //   rel: 'prefetch'
+             // }),
            ]
          }
          ```
@@ -1213,7 +1187,7 @@
       >
       > 为了解决这个问题，我们从文件名入手，确保更新前后的文件名不一样。
       >
-      > 通过以下webpack内置的占位符（类似于`[name]`）：
+      > 我们通过以下webpack内置的占位符（类似于`[name]`）作为文件名：
       >
       > - `[fullhash]`（webpack4 是 `[hash]`）
       >
@@ -1221,7 +1195,7 @@
       >
       > - `[chunkhash]`
       >
-      >   根据不同的入口文件(Entry)进行依赖文件解析、构建对应的 chunk，计算生成对应的哈希值。我们 js 和 css 是同一个引入，会共享一个 hash 值。
+      >   根据不同的入口文件(Entry)进行依赖文件解析、构建对应的 chunk，计算生成对应的哈希值。不同chunk之间的hash值不同。
       >
       > - `[contenthash]`
       >
@@ -1254,7 +1228,7 @@
       }
       ```
     
-      > **问题：**
+      > **当前存在的问题：**
       >
       > 当我们修改 math.js 文件再重新打包的时候，因为 contenthash 原因，math.js 文件 hash 值发生了变化（这是正常的）。
       >
@@ -1273,7 +1247,20 @@
       >
       > runtime 文件只保存文件的 hash 值和它们与文件关系，整个文件体积就比较小，所以变化重新请求的代价也小。
       >
-      > **再加一个配置：**
+      > **核心原理：**
+      >
+      > - **没有 runtime 文件时的情况**：
+      >   - main.js 直接包含对 math.js 的引用（包括带 hash 的文件名）
+      >   - math.js 文件名变化 → main.js 内容必须变化 → hash 改变
+      > - **有 runtime 文件时的机制**：
+      >   - main.js **不再直接包含依赖的文件路径**
+      >   - Webpack 会生成一个**模块映射表**(manifest)存放在 runtime.js
+      >   - main.js 通过模块 ID(通常是数字或哈希)引用其他模块
+      >   - runtime.js 负责将模块ID解析为实际带hash的文件名
+      >
+      > 相当于main.js只记录`__webpack_require__(1)`这样的抽象引用，runtime文件维护`{1: "math.abc123.js"}`这样的映射关系。
+    
+      > **因此我们再加一个优化配置：**
       >
       > ```js
       > optimization: {
@@ -1294,19 +1281,19 @@
     
       ###### 使用：
     
-      1. 下载包：`npm i core-js`
+      1. 下载包：`npm i core-js@3`
     
-      2. 引入：
+      2. 引入：（任选其一）
     
-         - 全部引入：`import 'core-js';`
+         - 全部引入：入口文件`main.js`中，加上：`import 'core-js';`
     
            > 这样引入会将所有兼容性代码全部引入，体积太大了。我们只想引入部分新语法的 `polyfill`。
     
-         - 按需引入（只引入`Promise`的`polyfill`）：`import 'core-js/es/promise';`
+         - 按需引入（比如只引入`Promise`的`polyfill`）：`import 'core-js/es/promise';`
     
            > 只引入打包 promise 的 `polyfill`，打包体积更小。但是将来如果还想使用其他语法，我需要手动引入库很麻烦。
     
-         - 自动按需引入。`babel.config.js`：
+         - （**重点**）自动按需引入。`babel.config.js`：
     
            ```js
            module.exports = {
@@ -1321,26 +1308,15 @@
            };
            ```
     
-           > 此时就会自动根据我们代码中使用的语法，来按需加载相应的 `polyfill` 了。
-    
-      > ###### 当前的ESLint语法检查可能不支持最新的 ECMAScript 标准，解决：
-      >
-      > 1. 下载包：`npm i @babel/eslint-parser -D`
-      >
-      > 2. 配置：
-      >
-      >    ```js
-      >    module.exports = {
-      >      // ...
-      >    	parser: "@babel/eslint-parser", // 支持最新的最终 ECMAScript 标准
-      >    };
-      >    ```
+           > 数组的第二个元素是对第一个参数`@babel/preset-env`的配置项，此时Babel就会自动根据我们代码中使用的语法，来按需加载`core-js`中相应的 `polyfill` 了。
     
     - ##### PWA
     
-      > 我们开发的 Web 项目一旦处于网络离线情况，就没法访问了，我们希望给项目提供离线体验。
+      > 我们开发的 Web 项目一旦处于网络离线状态，此时再刷新网页，就啥也看不到了。无论你缓存做的有多好。我们希望给项目提供离线体验，像手机安装的App一样。
       >
       > **渐进式网络应用程序(progressive web application - PWA)**：是一种可以提供类似于 native app(原生应用程序) 体验的 Web 技术。其中最重要的是，在 **离线(offline)** 时应用程序能够继续运行功能。它内部是通过 `Service Workers` 实现的。
+      >
+      > 同样的，Service Workers也有严重的兼容性问题，需要在实现了该特性的浏览器中才能使用。
       
       ###### 使用：
       
@@ -1365,7 +1341,7 @@
          };
          ```
       
-      3. `main.js` 中添加PWA代码：
+      3. `main.js` 中添加PWA代码：（注册生成`Service Workers`）
       
          ```js
          // ...
@@ -1374,10 +1350,10 @@
              navigator.serviceWorker
                .register("/service-worker.js")
                .then((registration) => {
-                 console.log("SW registered: ", registration);
+                 console.log("ServiceWorkers registered: ", registration);
                })
                .catch((registrationError) => {
-                 console.log("SW registration failed: ", registrationError);
+                 console.log("ServiceWorkers registration failed: ", registrationError);
                });
            });
          }
@@ -1385,16 +1361,20 @@
       
       4. 运行：`npm run build`
       
-         > 此时如果直接通过 VSCode 访问打包后页面，在浏览器控制台会发现 `SW registration failed`。
+         > 打包后，`dist`目录下会生成`service-worker.js`文件。浏览器通过该文件来为我们的网页实现PWA。
+         
+         > **注意：**
          >
-         > 因为我们打开的访问路径是：`http://127.0.0.1:5500/dist/index.html`。此时页面会去请求 `service-worker.js` 文件，请求路径是：`http://127.0.0.1:5500/service-worker.js`，这样找不到会 404。
+         > 此时如果直接通过 VSCode 的Live Server插件访问打包后的index.html，在浏览器控制台会发现 `SW registration failed`，SW注册失败了。
          >
-         > 实际 `service-worker.js` 文件路径是：`http://127.0.0.1:5500/dist/service-worker.js`。
+         > 因为我们打开的访问路径是：`http://127.0.0.1:5500/dist/index.html`，Live Server默认是以VS Code的工程目录为基准启动一个开发服务器的，此时页面会去请求 `service-worker.js` 文件，请求路径是：`http://127.0.0.1:5500/service-worker.js`，实际 `service-worker.js` 文件路径是：`http://127.0.0.1:5500/dist/service-worker.js`。这样找不到会 404。
          >
          > ###### 解决路径问题：
          >
          > 1. 下载包：`npm i serve -g`。serve 也是用来启动开发服务器来部署代码查看效果的。
-         > 2. 运行指令：`serve dist`。此时通过 serve 启动的服务器我们 service-worker 就能注册成功了。
+         > 2. 运行指令：`serve dist`。此时就会启动一个开发服务器，部署的是dist目录下的资源。打开index.html后我们的 service-worker 就能注册成功了。将网页调成`offline`之后，刷新后还是可以看到网页资源。因为它将这些资源缓存到了Service Workers中了。
+         >
+         > 如果感兴趣的话，打开浏览器F12的Application，在Service Workers中可以看到我们注册的情况。具体缓存的资源可以在Cache Storage中看到。
 
 ------
 

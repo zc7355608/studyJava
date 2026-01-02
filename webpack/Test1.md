@@ -37,9 +37,9 @@
 
   - ### `Webpack` 概述
 
-    > Webpack是一个**静态资源打包工具**（就是别人写好的一个基于Node的依赖包）。它会以一个或多个文件作为入口，编译后生成一个或多个文件，输出到指定目录下。通常我们将输出的文件称为`bundle`（束、捆），`bundle`可以直接在浏览器中运行。
+    > Webpack是一个**静态资源打包工具**（就是别人写好的一个基于Node的依赖包）。它会以一个或多个文件作为入口，编译后生成一个或多个文件，输出到指定目录下。通常我们将这些输出的文件称为`bundle`（束、捆），`bundle`可以直接在浏览器中运行。
     >
-    > 注意：我们之前都是在html中通过`<script>`标签引入第三方库（如lodash）的js文件的。现在有了Webpack这样的静态资源打包工具就不同了：我们在js代码中import导入这个第三方库，执行打包命令，最终输出的js文件就包含了lodash的代码。
+    > 注意：我们之前都是在html中通过`<script>`标签引入第三方库（如lodash）的js文件的。现在有了Webpack这样的静态资源打包工具就不同了：我们在js代码中`import`导入这个第三方库，执行打包命令，最终输出的js文件就包含了lodash的代码。
 
     ###### 使用：
 
@@ -57,14 +57,14 @@
 
        - **生产模式**打包（默认）：`npx webpack ./src/main.js --mode=production`
 
-         > - 在`webpack`命令后面指定打包的入口文件，也就是从`src`中的`main.js`开始打包。将该入口文件、以及入口文件中通过`import`关联导入的所有文件一起打包，然后输出为一个`bundle`（其中包含一个或多个文件）。
+         > - 在`webpack`命令后面指定打包的入口文件，也就是从`src`中的`main.js`开始打包。将该入口文件、以及入口文件中通过`import`关联导入的所有文件一起打包，然后输出为一个或多个`bundle`。
          > - `--mode=xxx`参数用于指定 Webpack 的工作模式。若是开发模式则输出易读代码，生产模式默认会混淆压缩JS。
 
     ###### 观察输出文件：
 
     1. 默认`Webpack`将`bundle`输出到项目根目录下的`dist`目录中。
-    2. `Webpack` 只是一个*静态模块打包工具*，它本身并不提供任何功能，仅仅只是编译和输出JS文件（即将模块化的代码编译为非模块化的代码）。我们需要的任何功能，都体现在 Webpack 的插件（`plugin`）和加载器（`loader`）中。并且Webpack有很多官方或社区提供的`plugin`和`loader`，我们需要的任何功能，都可以找到对应的 Webpack 插件和加载器，将其配置到 Webpack 配置文件中即可。
-    3. 当`main.js`入口文件中`import`导入了`.css`、`.img`等不符合JS语法的静态资源，如果不在 `Webpack` 中进行配置的话，它不去对代码做预处理，那么就会编译失败。因为你的JS代码有语法问题。
+    2. `Webpack` 只是一个**静态模块打包工具**，它本身并不提供任何功能，仅仅只是编译和输出JS文件（即将模块化的代码编译为非模块化的代码）。我们需要的任何功能，都体现在 Webpack 的插件（`plugin`）和加载器（`loader`）中。并且Webpack有很多官方或社区提供的`plugin`和`loader`，我们需要的任何功能，都可以找到对应的 Webpack 插件和加载器，将其配置到 Webpack 配置文件中即可。
+    3. 当`main.js`入口文件中`import`导入了`.css`、`.img`等不符合JS语法的资源，如果不在 `Webpack` 中进行配置的话，它不去对代码做预处理，那么就会编译失败。因为JS语法不支持这样做。
 
 - ### `Webpack` 的基本配置
 
@@ -74,7 +74,7 @@
     2. **输出（output/bundle）**：指定打包后文件的输出位置，如何命名等。
     3. **加载器（loader）**：Webpack本身只能处理JS、JSON资源，处理其他资源需要配置对应的加载器`loader`。
     4. **插件（plugins）**：使用插件可以扩展Webpack的功能，让它做更多的事情。
-    5. **模式（mode）**：主要有2种输出模式，*开发模式（development）*和*生产模式（production）*。Webpack5的生产模式默认会将JS代码进行优化、混淆、压缩（内部是通过`terser`来完成的），Webpack4还需要进行配置才可以。
+    5. **模式（mode）**：主要有2种输出模式，*开发模式（development）*和*生产模式（production）*。Webpack5在生产模式下默认会将JS代码进行优化、混淆、压缩（内部是通过`terser`来完成的），Webpack4还需要进行配置才可以。
 
   - #### Webpack的配置文件：
 
@@ -152,7 +152,7 @@
       > ###### 功能介绍：
       >
       > - `css-loader`：负责将 CSS 文件编译成 Webpack 能识别的模块
-      > - `style-loader`：会动态创建一个 Style 标签，里面放置 Webpack 中 CSS 模块内容
+      > - `style-loader`：会通过JS动态创建一个 Style 标签到，里面放置 Webpack 中 CSS 模块内容
       >
       > 此时样式就会以 Style 标签的形式在页面上生效。
     
@@ -269,7 +269,7 @@
 
     > 在 webpack 5 之前，通常使用：
     >
-    > - [`raw-loader`](https://v4.webpack.js.org/loaders/raw-loader/) 将文件导入为字符串。
+    > - [`file-loader`](https://v4.webpack.js.org/loaders/file-loader/) 将文件原封不动输出到 bundle 中。
     >
     > - [`url-loader`](https://v4.webpack.js.org/loaders/url-loader/) 将文件作为 data URI 内联到 bundle 中。
     >
@@ -279,7 +279,7 @@
     >   >
     >   > **几乎所有文件都可以用Base64进行转码**，因为Base64是一种将二进制数据编码为ASCII字符的方法。
     >
-    > - [`file-loader`](https://v4.webpack.js.org/loaders/file-loader/) 将文件原封不动输出到 bundle 中。
+    > - [`raw-loader`](https://v4.webpack.js.org/loaders/raw-loader/) 将文件导入为字符串。
     >
     > 这3个loader来处理图片、字体、多媒体等静态资源。
     >
@@ -313,9 +313,9 @@
       >
       > ```js
       > output: {
-      >     filename: 'main.js',
-      >     path: path.resolve(__dirname, 'dist'),
-      >     assetModuleFilename: 'images/[hash][ext][query]'
+      >      filename: 'main.js',
+      >      path: path.resolve(__dirname, 'dist'),
+      >      assetModuleFilename: 'images/[hash][ext][query]'
       > },
       > ```
 
@@ -512,8 +512,9 @@
 
   - #### 处理HTML资源：
 
-    > 我们现在还需要在`index.html`中通过`<script>`标签来引入dist目录下生成的bundle。其实开发中我们通常这样做：将`index.html`作为静态资源一并打包到dist目录中，并且我们自己准备的这个`index.html`不需要通过`<script>`标签去引入生成的bundle文件，引入的操作通过Webpack的插件来完成就可以了。最终生成的整个bundle目录直接放到服务器上就可以了。
+    > 我们现在还需要在`index.html`中通过`<script>`标签来引入dist目录下生成的bundle。
     >
+    > 其实开发中我们通常这样做：将`index.html`作为静态资源一并打包到dist目录中，并且打包生成的这个`index.html`不需要我们通过`<script>`手动引入生成的bundle文件，引入的操作通过Webpack的插件来自动完成。最终生成的整个bundle目录直接放到服务器上就可以运行。
     
     1. 下载包：`npm i html-webpack-plugin -D`
     
@@ -534,7 +535,7 @@
        }
        ```
     
-       > 然后运行指令`npx webpack`，此时dist目录还会输出一个`index.html`文件。并且使用了该插件后，如果设置的是开发模式：`mode: 'development'`，还会对HTML进行压缩。
+       > 然后运行指令`npx webpack`，此时dist目录还会输出一个`index.html`文件。**并且使用了该插件后，如果设置的是开发模式：`mode: 'development'`，还会对HTML进行压缩。**
     
   - #### 开发服务器&自动化：
   
@@ -554,11 +555,18 @@
          	host: "localhost", // 启动服务器ip
          	port: "3000", // 启动服务器端口号
          	open: true, // 服务器启动时是否打开默认浏览器
+           
+           // 以下两个配置项其实不用配置，因为默认就会找public目录，并且会进行gzip压缩
+           // 使用gzip压缩public目录当中的所有内容并提供一个本地服务(serve)
+           static: {
+             directory: path.join(__dirname, 'public'),  // 这样index.html中就能访问到public下的静态资源了
+           },
+           compress: true,
          },
          // ...
        }
        ```
-    
+       
        > 此时就不是执行`npx webpack`了，而是用`npx webpack serve`启动Webpack的开发服务器。
        >
        > 并且当你使用开发服务器时，所有代码都会在内存中编译打包，并不会输出到 dist 目录下（开发服务器中的静态资源都在内存中）。
@@ -648,6 +656,10 @@
            host: "localhost", // 启动服务器域名
            port: "3000", // 启动服务器端口号
            open: true, // 是否自动打开浏览器
+           static: {
+             directory: path.join(__dirname, 'public'),  // 这样index.html中就能访问到public下的静态资源了
+           },
+           compress: true,
          },
          mode: "development",
        }
@@ -726,6 +738,10 @@
          //   host: "localhost", // 启动服务器域名
          //   port: "3000", // 启动服务器端口号
          //   open: true, // 是否自动打开浏览器
+         //   static: {
+         //     directory: path.join(__dirname, 'public'),  // 这样index.html中就能访问到public下的静态资源了
+         //   },
+         //   compress: true,
          // },
          mode: "production", // 生产模式下`html-webpack-plugin`会压缩html代码，js代码Webpack默认就会进行压缩
        }
@@ -745,7 +761,7 @@
        }
        ```
        
-       > ###### 注意：在scripts中的命令不用以`npx`开头，默认就会去`./node_modules/bin`目录中找。
+       > ###### 注意：`scripts`中的命令不用以`npx`开头，默认就会去`./node_modules/bin`目录中找。
        >
        > 以后启动项目：
        >
@@ -753,7 +769,7 @@
        > - 生产模式：`npm run build`
     
   - #### 生产模式下CSS资源的处理：
-  
+
     1. ##### 将CSS提取为单独文件：
   
        > 开发模式下的CSS文件被打包到JS文件中有助于在代码更改时立即查看到效果（CSS-in-JS）。但是在生产环境下这种方式就不太好了。当JS文件加载时，会动态创建`<style>`标签来生成样式，这种方式网络差时会出现闪屏现象，并且没有link标签加载CSS的性能好，代码也无法复用。因此生产模式下对CSS资源的处理是另一种方式。
@@ -761,7 +777,7 @@
        1. 下载包：`npm i mini-css-extract-plugin -D`
   
        2. 在`webpack.prod.js`中进行配置：
-
+  
           ```js
           const MiniCssExtractPlugin = require("mini-css-extract-plugin")
           
@@ -790,7 +806,7 @@
           
           > 默认会将所有的css代码合并为一个css文件。最终会被`html-webpack-plugin`插件导入到`index.html`中。
   
-    2. ##### 为CSS做兼容性处理：
+    2. ##### 为CSS做兼容性处理：（开发和生产模式都需要）
   
        > CSS样式也是有兼容性的，所以我们在Webpack中加上`PostCSS`来处理下CSS的兼容性。步骤：
        >
@@ -817,7 +833,7 @@
                       options: {
                         postcssOptions: {
                           plugins: [
-                            "postcss-preset-env", // 能解决大多数样式兼容性问题
+                            "postcss-preset-env", // 该预设插件，能解决大多数样式兼容性问题
                           ],
                         },
                       },
@@ -854,7 +870,7 @@
           > }
           > ```
           >
-          > 表示市面上所有浏览器只兼容其最近2个版本，且只覆盖99%的浏览器，冷门的不管，且不管没人维护的浏览器了（交集）。
+          > 表示市面上所有浏览器只兼容其最近2个版本，且只覆盖99%的浏览器，冷门的不管，且不管没人维护的、已经凉凉浏览器了（交集）。
     
        4. （可选）合并配置：
     
@@ -877,7 +893,7 @@
                 },
               },
               preProcessor,
-            ].filter(Boolean) //  过滤数组的空值
+            ].filter(Boolean) //  过滤数组的空值undefined
           }
           ```
     

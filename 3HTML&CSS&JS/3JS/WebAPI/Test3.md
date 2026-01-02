@@ -1112,7 +1112,7 @@
       > Response.redirect("https://www.example.com", 302);
       > ```
 
-- ## Server-Sent Events
+- ## Server-Sent Events（SSE）
 
   - #### 简介
 
