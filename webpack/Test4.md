@@ -232,14 +232,14 @@
       > const schema = require("./schema.json");
       > 
       > module.exports = function (content) {
-      >   // 获取loader的options，同时对options内容进行校验
-      >   // schema是options的校验规则（符合 JSON schema 规则）
-      >   const options = this.getOptions(schema);
+      > // 获取loader的options，同时对options内容进行校验
+      > // schema是options的校验规则（符合 JSON schema 规则）
+      > const options = this.getOptions(schema);
       > 
-      >   const prefix = `
-      >     /*
-      >     * Author: ${options.author}
-      >     */
+      > const prefix = `
+      >  /*
+      >   * Author: ${options.author}
+      >   */
       >   `;
       > 
       >   return `${prefix} \n ${content}`;
@@ -251,11 +251,12 @@
       > {
       >   "type": "object",
       >   "properties": {
+      >     // 只允许包含string类型的author属性
       >     "author": {
       >       "type": "string"
       >     }
       >   },
-      >   "additionalProperties": false
+      >   "additionalProperties": false  // 不允许追加其他属性了
       > }
       > ```
   
@@ -263,78 +264,89 @@
   
       > 作用：编译 js 代码，将 ES6+语法编译成 ES5-语法。
       >
-      > 1. 下载包：`npm i @babel/core @babel/preset-env -D`
+      > 说明：由于babel将大部分功能已经做成了一个个的npm包，因此我们只写loader部分的代码，具体的实现直接用babel提供好的包即可。
       >
-      > 2. loaders/babel-loader/index.js：
-      >
-      >    ```js
-      >    const schema = require("./schema.json");
-      >    const babel = require("@babel/core");
-      >    
-      >    module.exports = function (content) {
-      >      const options = this.getOptions(schema);
-      >      // 使用异步loader
-      >      const callback = this.async();
-      >      // 使用babel对js代码进行编译
-      >      babel.transform(content, options, function (err, result) {
-      >        callback(err, result.code);
-      >      });
-      >    };
-      >    ```
-      >
-      > 3. loaders/banner-loader/schema.json：
-      >
-      >    ```js
-      >    {
-      >      "type": "object",
-      >      "properties": {
-      >        "presets": {
-      >          "type": "array"
-      >        }
-      >      },
-      >      "additionalProperties": true
-      >    }
-      >    ```
+      > 这里我们用到了2个包：`@babel/core`和`@babel/preset-env`，分别是babel的核心功能以及具体做哪些语法转换。
+  
+      1. 下载包：`npm i @babel/core @babel/preset-env -D`
+  
+      2. 编写loader代码：
+  
+         ```js
+         // loaders/babel-loader/index.js
+         const schema = require("./schema.json");
+         const babel = require("@babel/core");
+         
+         module.exports = function (content) {
+           const options = this.getOptions(schema);
+           // 使用异步loader
+           const callback = this.async();
+           // 使用babel对js代码进行编译
+           babel.transform(content, options, function (err, result) {
+             // result对象有3个属性，code、map、ast，分别是转换后的代码、sourceMap、以及抽象语法树
+             callback(err, result.code);
+           });
+         };
+         ```
+  
+         > 这部分代码是参考的babel官网。其中：
+         >
+         > `babel.transform`的回调函数是异步的，因此我们使用**异步Loader**。
+  
+      3. 编写schema配置文件：
+  
+         ```js
+         // loaders/banner-loader/schema.json
+         {
+           "type": "object",
+           "properties": {
+             "presets": {
+               "type": "array"
+             }
+           },
+           "additionalProperties": true
+         }
+         ```
   
     - ##### 手写 file-loader
   
       > 作用：将文件原封不动输出出去。
-      >
-      > 1. 下载包：`npm i loader-utils -D`
-      >
-      > 2. loaders/file-loader.js：
-      >
-      >    ```js
-      >    const loaderUtils = require("loader-utils");
-      >    
-      >    function fileLoader(content) {
-      >      // 根据文件内容生产一个新的文件名称
-      >      const filename = loaderUtils.interpolateName(this, "[hash].[ext]", {
-      >        content,
-      >      });
-      >      // 输出文件
-      >      this.emitFile(filename, content);
-      >      // 暴露出去，给js引用。
-      >      // 记得加上''
-      >      return `export default '${filename}'`;
-      >    }
-      >    
-      >    // loader 解决的是二进制的内容
-      >    // 图片是 Buffer 数据
-      >    fileLoader.raw = true;
-      >    
-      >    module.exports = fileLoader;
-      >    ```
-      >
-      > 3. 配置file-loader：
-      >
-      >    ```js
-      >    {
-      >      test: /\.(png|jpe?g|gif)$/,
-      >      loader: "./loaders/file-loader.js",
-      >      type: "javascript/auto", // 解决图片重复打包问题
-      >    },
-      >    ```
+  
+      1. 下载包：`npm i loader-utils -D`
+  
+      2. loaders/file-loader.js：
+  
+         ```js
+         const loaderUtils = require("loader-utils");
+         
+         function fileLoader(content) {
+           // 根据文件内容生产一个新的文件名称
+           const filename = loaderUtils.interpolateName(this, "[hash].[ext]", {
+             content,
+           });
+           // 输出文件
+           this.emitFile(filename, content);
+           // 暴露出去，给js引用。
+           // 记得加上''
+           return `export default '${filename}'`;
+         }
+         
+         // loader 解决的是二进制的内容
+         // 图片是 Buffer 数据
+         fileLoader.raw = true;
+         
+         module.exports = fileLoader;
+         ```
+  
+      3. 配置file-loader：
+  
+         ```js
+         {
+           test: /\.(png|jpe?g|gif)$/,
+           loader: "./loaders/file-loader.js",
+           type: "javascript/auto", // 解决图片重复打包问题
+         },
+         ```
   
     - ##### 手写 style-loader
   
@@ -403,9 +415,9 @@
     > 通过插件我们可以扩展 webpack，加入自定义的构建行为，使 webpack 可以执行更广泛的任务，拥有更强的构建能力。
   
     - ##### Plugin 工作原理
-
+  
       > webpack 就像一条生产线，要经过一系列处理流程后才能将源文件转换成输出结果。 这条生产线上的每个处理流程的职责都是单一的，多个流程之间有存在依赖关系，只有完成当前处理后才能交给下一个流程去处理。 插件就像是一个插入到生产线中的一个功能，在特定的时机对生产线上的资源做处理。webpack 通过 Tapable 来组织这条复杂的生产线。 webpack 在运行过程中会广播事件，插件只需要监听它所关心的事件，就能加入到这条生产线中，去改变生产线的运作。 webpack 的事件流机制保证了插件的有序性，使得整个系统扩展性很好。 ——「深入浅出 Webpack」
-
+  
       站在代码逻辑的角度就是：webpack 在编译代码过程中，会触发一系列 `Tapable` 钩子事件，插件所做的，就是找到相应的钩子，往上面挂上自己的任务，也就是注册事件，这样，当 webpack 构建的时候，插件注册的事件就会随着钩子的触发而执行了。
   
     - ##### Webpack 内部的钩子
@@ -443,7 +455,7 @@
     - ##### Plugin 构建对象
   
       1. ###### Compiler
-
+  
          > compiler 对象中保存着完整的 Webpack 环境配置，每次启动 webpack 构建时它都是一个独一无二，仅仅会创建一次的对象。
          >
          > 这个对象会在首次启动 Webpack 时创建，我们可以通过 compiler 对象上访问到 Webapck 的主环境配置，比如 loader 、 plugin 等等配置信息。
