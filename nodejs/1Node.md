@@ -22,6 +22,7 @@
   - 浏览器环境下的，WebAPI包括：DOM、BOM、AJAX、Stroage、alert、confirm、console、定时器..
   - nodejs环境下的API包括：fs、url、http、util、path、console、定时器..（定时器和console控制台模块通用，其他的不通用）
   - nodejs的顶级对象是`global`，也可以使用`globalThis`来访问顶级对象，一样的。
+  - 
 
 ------
 
@@ -739,10 +740,11 @@ server.listen(9000, () => {
 
 - #### 关于express-generator工具：（以后就用该工具来初始化WEB项目）
 
-> - 它是expres官方给我们提供的一个工具，通过该工具可以快速创建一个WEB应用的骨架。
-> - 使用前先进行全局安装：`npm i -g express-generator`，然后通过该工具的命令`express -h`查看是否安装成功。
-> - 使用该工具生成express框架的WEB项目：`express 项目名`，此时会在运行该命令的当前目录中生成项目名对应的目录，里面包含了express的WEB项目对应的文件代码（如果要用到ejs，运行时还可以加`-e`参数，表示添加ejs模板引擎的支持）
-> - 生成后，我们运行该项目之前，先安装对应的依赖：`npm i`，然后`npm start`运行项目，浏览器访问3000端口，访问成功。
+  - 它是expres官方给我们提供的一个工具，通过该工具可以快速创建一个WEB应用的骨架。
+  - 使用前先进行全局安装：`npm i -g express-generator`，然后通过该工具的命令`express -h`查看是否安装成功。
+  - 使用该工具生成express框架的WEB项目：`express 项目名`，此时会在运行该命令的当前目录中生成项目名对应的目录，里面包含了express的WEB项目对应的文件代码（如果要用到ejs，运行时还可以加`-e`参数，表示添加ejs模板引擎的支持）
+  - 生成后，我们运行该项目之前，先安装对应的依赖：`npm i`，然后`npm start`运行项目，浏览器访问3000端口，访问成功。
+
 
 ------
 
@@ -1034,6 +1036,14 @@ server.listen(9000, () => {
 > ## 强制更新，剩余有效期大于1个月使用
 > certbot --force-renewal
 > ```
+
+------
+
+### NodeJS调试：
+
+> 运行指令：`node --inspect-brk xxx.js`，即可开启NodeJS的调试功能。此时打开任意一个浏览器窗口，F12进入开发者工具，刷新页面或等一会，左上角会出现Node.js按钮，点击后即可进入Chrome提供的调试面板。
+>
+> ![debug](./assets/debug.png)
 
 ------
 
