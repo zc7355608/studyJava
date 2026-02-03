@@ -75,15 +75,15 @@
       >
       >    ```http
       >    Content-Type: multipart/form-data; boundary=--AaB03x
-      >       
+      >          
       >    --AaB03x
       >    Content-Disposition: form-data; name="submit-name"
-      >       
+      >          
       >    Larry
       >    --AaB03x
       >    Content-Disposition: form-data; name="files"; filename="file1.txt"
       >    Content-Type: text/plain
-      >       
+      >          
       >    ... contents of file1.txt ...
       >    --AaB03x--
       >    ```
@@ -456,8 +456,8 @@
       >
       > 该类型有以下配套属性：
       >
-      > - `max`：允许输入的最大数值。
-      > - `min`：允许输入的最小数值。
+      > - `max`：允许输入的最大数值。（max和min不会阻止用户键盘的输入）
+      > - `min`：允许输入的最小数值。（max和min不会阻止用户键盘的输入）
       > - `placeholder`：用户输入为空时，显示的示例值。
       > - `readonly`：布尔属性，表示该控件是否为只读。
       > - `step`：点击向上和向下箭头时，数值每次递减的步长值。如果用户输入的值，不符合步长值的设定，浏览器会自动四舍五入到最近似的值。默认的步长值是`1`，如果初始的`value`属性设为`1.5`，那么点击向上箭头得到`2.5`，点击向下箭头得到`0.5`。

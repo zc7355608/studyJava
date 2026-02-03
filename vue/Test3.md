@@ -534,6 +534,8 @@
   > 我们知道：默认路由的切换是先销毁原来的路由组件，再挂载新的路由组件实例。能不能切换路由时不要销毁原来的路由组件实例，而将其缓存起来呢？
   >
   > 可以，用`<keep-alive>`标签将`<router-view>`标签包起来即可。而且通过给`<keep-alive>`标签设置`include='About'`属性可以指定只缓存其中某些组件，**值是组件名**（字符串或字符串数组）。
+  >
+  > Vue3中，`<keep-alive>`的用法发生了变化。
 
 - #### 路由组件独有的2个生命周期钩子：（在routes配置项中配置的组件都有这两个生命周期钩子）
 
@@ -593,7 +595,7 @@
   >   export default createRouter({
   >       // 使用 history 模式
   >       // history: createWebHistory(),
-  >                             
+  >                               
   >       // 或者用 hash 模式（默认）
   >       history: createWebHashHistory(),
   >       routes: [{},..]
