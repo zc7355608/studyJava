@@ -29,11 +29,46 @@
   > 2. 采用组件化模式、声明化编码，提高开发效率及组件复用率。
   > 3. 在**React Native**中可以使用React进行移动端（安卓、IOS）开发。
 
+- ##### 准备工作：
+
+  - ###### 关于 `@babel/standalone`：
+
+    > `@babel/standalone` 是 Babel 的一个特殊版本，专为**浏览器环境**设计，无需 Node.js 环境即可在浏览器中实时编译 ES6+/JSX 代码。
+    >
+    > 它提供了一个独立构建的 Babel，用于直接在浏览器（其他非 Node.js 环境）中解析和转换现代 JavaScript/JSX 代码。
+
+  - ###### 什么时候用 `@babel/standalone`：
+
+    > 如果你在生产环境中使用 Babel，你通常不应该使用 `@babel/standalone`。相反，你应该使用在 Node.js 上运行的构建系统，例如 Webpack、Rollup 或 Parcel，来提前转换你的 JS。
+
+  - ###### 怎么用？
+
+    > 可以通过包管理器手动安装到本地：`npm i @babel/standalone`，或直接通过 [UNPKG](https://unpkg.com/@babel/standalone/babel.min.js) 在HTML中引入。这是一种将其嵌入网页的简单方法，无需进行任何其他设置：
+    >
+    > ```html
+    > <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    > ```
+    >
+    > 当在浏览器中加载时，`@babel/standalone` 将自动编译并执行所有 `type` 属性值为 `text/babel` 或 `text/jsx` 的 `<script>` 标签：
+    >
+    > ```html
+    > <div id="output"></div>
+    > <!-- 1、引入@babel/standalone -->
+    > <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    > <!-- 2、编写es6或jsx代码 -->
+    > <script type="text/babel">
+    >   const getMessage = () => "Hello World";
+    >   document.getElementById("output").innerHTML = getMessage();
+    > </script>
+    > ```
+    >
+    > 上方代码中，由于 HTML 的 `<script>` 标签不支持 `text/babel` 类型，因此该标签会被浏览器忽略。而Babel会去接管这个 `<script>` 标签，将其中的内容编译后生成新的 `<script>` 标签插入到HTML中。
+
 ------
 
 - ### 第一个React程序
 
-  > 我们先来做一个React程序，这里先用React的旧版本（16.8.4）。
+  > 我们先来做一个React程序，这里先用React的旧版本（16）。
 
   ###### 目前，我们会用到3个文件：
 
@@ -43,7 +78,7 @@
 
   ###### 第一个React程序：
 
-  > index.html：
+  > `index.html`：
   >
   > ```html
   > <!DOCTYPE html>
@@ -55,12 +90,12 @@
   > <body>
   >       <div id="app">33</div>
   > 
-  >        <!-- 引入babel，用于将jsx转为js -->
-  >        <script src="./lib/babel.min.js"></script>
+  >        <!-- 引入@babel/standalone，用于将jsx转为js -->
+  >        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   >        <!-- 引入react核心库 -->
-  >        <script src="./lib/react.development.js"></script>
-  >        <!-- 引入react-dom，用于支持react操作dom。该文件必须在核心库之后引入 -->
-  >        <script src="./lib/react-dom.development.js"></script>
+  >        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+  >        <!-- 引入react-dom，用于支持react操作dom。该文件必须在react核心库之后引入 -->
+  >        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   > 
   >    <!-- type属性写text/babel，表示里面写的是jsx语法（在js的基础上加了xml语法），jsx语法得通过babel来转成js -->
   >        <script type="text/babel">
@@ -87,7 +122,7 @@
   
   ###### 为什么我们不用原生的JS来创建虚拟DOM，而要使用JSX来创建虚拟DOM呢？
   
-  > 要说清楚这个问题，首先我们将上面创建虚拟DOM的方式，改为用JS来写：（不需要引入babel了）
+  > 要说清楚这个问题，首先我们将上面创建虚拟DOM的方式，改为用JS来写：（不用JSX语法了，所以不需要引入 `@babel/standalone` 了）
   >
   > ```html
   > <script>
@@ -115,18 +150,22 @@
   
   ###### 这就是为什么React要打造JSX语法的原因。总结：
   
-  > - JSX只为解决一个问题：原生的JS创建虚拟DOM太麻烦了，用JSX可以让编码人员更加简单的创建虚拟DOM，写起来更加流畅。
+  > - JSX只为解决一个问题：**原生的JS创建虚拟DOM太麻烦了，用JSX可以让编码人员更加简单的创建虚拟DOM**，写起来更加流畅。
   > - 其实babel就是将其中第1步的JSX语法翻译为了JS：`React.createElement('h1',{id:'title'},'Hello React!')`
 
 ------
 
 - ### 虚拟DOM与真实DOM
 
-  ###### 刚刚我们创建的虚拟DOM（VDOM）到底是个什么东西呢？
-
+  > ###### 刚刚我们创建的虚拟DOM（VDOM）到底是个什么东西呢？
+  >
   > - 我们在控制台上打印VDOM，发现它其实就是一个普通JS对象。也就是说，JSX中的标签（虚拟DOM）最终会被Babel转化为JS对象。
   > - 其次，虚拟DOM比较“轻”，真实DOM比较重。因为虚拟DOM只是React内部在用，无需真实DOM上的那么多属性。
-  > - 虚拟DOM最终会被React变成真实DOM渲染到页面上。
+  > - 在Web端，虚拟DOM最终会被ReactDOM映射为HTML的真实DOM到页面上。
+  > - **ReactDOM 是 React 官方提供的用于操作 DOM 的库**，主要负责将 React 组件渲染到浏览器 DOM 中，并处理 DOM 更新。**为什么需要分离**：
+  >   - **平台无关性**：React 核心只处理组件逻辑，不涉及具体平台
+  >   - **多平台支持**：有 ReactDOM（Web）、React Native（移动端）、React VR/AR 等
+  >   - **关注点分离**：组件逻辑与渲染逻辑分离
 
 - ### JSX
 
@@ -165,12 +204,12 @@
   <body>
     <div id="app"></div>
   
-    <!-- 引入babel，用于将jsx转为js -->
-    <script src="./lib/babel.min.js"></script>
+    <!-- 引入@babel/standalone，用于将jsx转为js -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <!-- 引入react核心库 -->
-    <script src="./lib/react.development.js"></script>
-    <!-- 引入react-dom，用于支持react操作dom。该文件必须在核心库之后引入 -->
-    <script src="./lib/react-dom.development.js"></script>
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <!-- 引入react-dom，用于支持react操作dom。该文件必须在react核心库之后引入 -->
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   
     <!-- type属性写text/babel，表示里面写的是jsx，且要通过babel来转成js -->
     <script type="text/babel">
@@ -223,12 +262,12 @@
     	return <h2>我是用函数定义的组件（适用于简单组件的定义）</h2>
     }
     // 2、渲染组件到页面
-    ReactDOM.render(<Demo/>, document.getElementById('app'))
+    ReactDOM.render(<Demo />, document.getElementById('app'))
     ```
   
-    > - 函数式组件的函数名一定要用大写字母开头，因为函数名就是组件标签名，而React组件必须用大写字母开头，小写字母开头会被当做html标签。
+    > - 函数式组件的函数名一定要用大写字母开头，因为函数名就是组件标签名，而React组件必须用大写字母开头，小写字母开头会被当做HTML原生标签。
     > - `ReactDOM.render(<Demo/>, document.getElementById('app'))` 的大致执行流程：
-    >   1. React会去解析组件标签 `<Demo/>`，然后找到对应的Demo组件。
+    >   1. React会去解析组件标签 `<Demo />`，然后找到对应的Demo组件。
     >   2. 发现是函数式组件于是就调用该函数，将函数返回的虚拟DOM转为真实DOM渲染到页面上。
   
     > **Tips**：
@@ -245,8 +284,8 @@
     > 哪些地方**可能**引发副作用 ？
     >
     > 1. 函数式编程在很大程度上依赖于纯函数，但 **某些事物** 在特定情况下不得不发生改变。这是编程的要义！这些变动包括更新屏幕、启动动画、更改数据等，它们被称为 **副作用**。它们是 **“额外”** 发生的事情，与渲染过程无关。
-    > 2. 在 React 中，**副作用通常属于事件处理程序**。事件处理程序是 React 在你执行某些操作（如单击按钮）时运行的函数。即使事件处理程序是在你的组件 **内部** 定义的，它们也不会在渲染期间运行！ **因此事件处理函数无需是纯函数**。
-    > 3. 如果你用尽一切办法，仍无法为副作用找到合适的事件处理程序，你还可以调用组件中的`useEffect()`方法将其附加到返回的JSX中。这会告诉 React 在渲染结束后执行它。**然而，这种方法应该是你最后的手段**。如果可能，请尝试仅通过渲染过程来表达你的逻辑。你会惊讶于这能带给你多少好处！
+    > 2. 在 React 中，**副作用通常属于事件处理程序**。事件处理程序是 React 在你执行某些操作（如单击按钮）时运行的函数。即使事件处理程序是在你的组件 **内部** 定义的，它们也不会在渲染期间运行！**因此事件处理函数无需是纯函数**。
+    > 3. 如果你用尽一切办法，仍无法为副作用找到合适的事件处理程序，你还可以调用组件中的 `useEffect()` 方法将其附加到返回的JSX中。这会告诉 React 在渲染结束后执行它。**然而，这种方法应该是你最后的手段**。如果可能，请尝试仅通过渲染过程来表达你的逻辑。你会惊讶于这能带给你多少好处！
   
   - ##### 方式2：类式组件（低版本中这种用的多）
   
@@ -343,7 +382,7 @@
     
   - #### props（只读的，不能改）
   
-    > 组件实例上的`props`属性可以让组件实例接收外部传过来的数据。只需要使用组件标签时给标签加上属性，React会自动将属性名和属性值以key-value的形式放在组件实例的props属性中，值是一个对象。如：（**注意：props是只读的，不允许改！**）
+    > 组件实例上有 `props` 属性，它是一个对象，可以让组件实例接收外部传过来的数据。只需要使用组件标签时给标签加上属性，React会自动将属性名和属性值以key-value的形式放在组件实例的props属性中。如：
   
     ```jsx
     // 定义Student组件
@@ -363,7 +402,8 @@
     ReactDOM.render(<Student name="艾克" age={15} sex="男"/>, document.getElementById('app'))
     ```
   
-    > 还可以**用展开运算符直接将对象中的键值对传到组件的`props`属性中**：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
+    > - **注意：props是只读的，不允许改！**
+    > - 还可以**用展开运算符直接将对象中的键值对传到组件的`props`属性中**：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
   
     ###### 通过给类加静态属性`propTypes`和`defaultProps`，来约束传递的`props`数据的类型和默认值：
   
@@ -400,21 +440,20 @@
     >
     > ```js
     > class Student extends React.Component {
-    >     constrator(props){
-    >     	super(props)
-    >     	console.log(this.props)
-    >     }
-    >     ...
+    >   constrator(props){
+    >     super(props)
+    >     console.log(this.props)
+    >   }
+    >   ...
     > }
     > ```
     >
     > 当时没说为什么必须写`super(props)`，现在可以说了。其实这里的props实参就是组件实例上的`props`，我们并不是一定要将props传给super()，甚至这个构造器不写都行。那么问题来了：
     >
     > 1. 组件类中的构造器有什么作用，通常在构造器中做什么事情呢？
-    >
     > 2. 这个props传给super()和不传有什么区别吗？
     >
-    >    在React中，构造器仅用于2种情况，**初始化state**和**解决类中自定义函数的this指向**。而props实参如果不传，那么构造器中通过`this.props`无法访问实例上的`props`。（但这个小bug无关紧要，因为构造器通过实参就可以拿到props）
+    > 在React中，构造器仅用于2种情况，**初始化state**和**解决类中自定义函数的this指向**。而props实参如果不传，那么构造器中通过`this.props`无法访问实例上的`props`。（但这个小bug无关紧要，因为构造器通过实参就可以拿到props）
   
     ###### 函数式组件中也有`props`，是在函数的实参上。要限制props的类型和默认值，就给函数上加那2个静态属性即可。（函数式组件暂时用不了state和refs，后面可以通过Hooks做到）
   
@@ -422,7 +461,7 @@
   
     > - 向props中传数据并非只能用标签属性的方式：`<MyComponent name={name} age={age}/>`，还可以将数据放在标签体中：`<MyComponent>About</MyComponent>`，此时标签体中的About文本会被放在组件实例的`props.children`中。（当然不仅可以放文本，也可以放JSX组件）
     >
-    > - `children`是组件标签中的一个特殊的属性，用于显式的往组件的标签体中写东西。（如果props中传了名为 `children` 的属性，且标签体中也写东西了，那么标签体的优先级更高）
+    > - `children` 是组件标签中的一个特殊的属性，用于显式的往组件的标签体中写东西。（如果props中传了名为 `children` 的属性，且标签体中也写东西了，那么标签体的优先级更高）
   
   - #### refs（不要过度使用）
   
@@ -433,7 +472,7 @@
     1. ##### 回调函数的`ref`：
   
        ```jsx
-       <input ref={ (currentNode)=>{this.input1 = currentNode} } type="text"/>
+       <input ref={ (currentNode) => this.input1 = currentNode } type="text"/>
        ```
     
        > `ref`属性的值如果是一个回调函数，React在解析虚拟DOM时发现ref值是一个函数于是立即执行该回调函数并将**当前真实DOM**作为参数传了进去。通常在该回调中我们将真实DOM放在组件实例对象上，这样来访问：`this.input1`
@@ -442,7 +481,7 @@
   
        > - 当每次state变化后重新调用`render()`**更新**页面时，ref指定的回调会被执行2次。并且第1次调用时传的是`null`，第2次才是当前的真实DOM。
        > - 这是因为每次render()渲染时ref的值都是一个新的回调，为了确保新回调能正常执行，它先对旧回调做了清空操作。
-       > - 其实**大多数情况下都不会有什么问题**。如果就想**只执行1次该回调**，可以将该回调写成组件中自定义方法的形式。
+       > - 其实**大多数情况下都不会有什么问题**。如果就想**只执行1次该回调**，可以将该回调定义为组件中的方法。
     
     2. ##### `React.createRef()`：（React最推荐的方式）
   
@@ -515,12 +554,12 @@
   
       1. React首先new出来对应的组件实例对象，此时组件的**constrator()构造器执行了**。
       2. 然后调用了组件实例的`componentWillMount()`方法，此时组件还没被挂载到页面上。
-      3. 紧接着调用组件实例的`render()`方法将组件挂载到页面对应位置上。组件实例**初始化渲染**、以及**state更新**后重新渲染页面时都会调用render()方法。
-      4. 挂载完毕后又调用了组件实例的`componentDidMount()`。（常用）一般在这里做初始化，如：开启定时器，发送请求等。
+      3. 紧接着调用组件实例的`render()`方法将组件挂载到页面对应位置上。（组件实例**初始化渲染**、以及**state更新**后重新渲染页面时都会调用`render()`方法）
+      4. （常用）挂载完毕后又调用了组件实例的`componentDidMount()`。我们一般在这里做初始化操作，如：开启定时器，发送请求等。
   
-    - **更新阶段**：当调用了`setState()`更新state状态，或父组件调用`render()`重新渲染页面时：
+    - **更新阶段**：
   
-      1. React先调用了组件实例的`shouldComponentUpdate(nextProps,nextState)`。它是控制页面更新的阀门，如果该方法返回false，那么接下来的更新流程都不会执行，也就是页面并不会重新渲染。（该方法不写的话默认返回true）
+      1. 当调用了`setState()`更新当前组件的state状态后，React首先调用组件实例的`shouldComponentUpdate(newProps, newState)`，它是控制页面更新的阀门，如果该方法返回`false`，那么接下来的更新流程都不会执行，也就是页面并不会重新渲染。（该方法不写的话默认返回`true`）
   
          > 该方法可以接收到2个参数，分别是新的props和新的state。
   
@@ -528,12 +567,12 @@
   
       3. 之后就调用组件实例的`render()`完成对页面的重新渲染。
   
-      4. 最后渲染完毕后会调用组件实例的`componentDidUpdate()`。
+      4. 最后渲染完毕后会调用组件实例的`componentDidUpdate(preProps, preState)`。
   
-      > - 有时不想更新state中的数据，也希望通过`render()`将页面重新渲染下。此时可以调用组件实例的API：`forceUpdate()`，它直接绕过阀门从更新流程的第2步开始走强制渲染页面。
-      > - 当父组件的state更新后，重新执行`render()`渲染页面时，其中的子组件不仅会进行更新，还会在每次更新前，也就是`shouldComponentUpdate()`执行之前，去调用`componentWillReceiveProps(props)`。也就是子组件收到父组件传递的`props`之前，还可以对数据处理下。（注意：更新时才会执行）
+      > - 有时不想更新state中的数据，也希望通过`render()`将页面重新渲染下。此时可以调用组件实例身上的API：`forceUpdate()`，它直接绕过阀门从更新流程的第2步开始走强制渲染页面。
+      > - 当父组件的state**更新**后，重新执行`render()`渲染页面时，其中的子组件不仅会进行更新，还会在每次更新前，也就是`shouldComponentUpdate()`执行之前，去调用`componentWillReceiveProps(newProps)`。也就是子组件收到父组件传递的新的`props`之前，还可以对这个props再处理下。（注意：**初次挂载**时该钩子不会被触发，因为子组件还没有 **接收过** props，所以谈不上 **将要接收新的 `props`**）
   
-    - **卸载阶段**：当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`之后，React会将HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用（一般在这里做收尾工作）。（**注意**：此时已经过了更新阶段，此时再改state页面也不会变了）
+    - **卸载阶段**：当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`（或其他条件导致组件被卸载）之后，React会将HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用（一般在这里做收尾工作）。此时已经过了更新阶段，在这个钩子中修改state页面不会再变了。
   
   - ###### 关于组件实例的生命周期（17及之后的新版本）：废弃了3个钩子，新增了2个钩子。
   
@@ -541,23 +580,23 @@
   
     > 在新版本React中（17+），`componentWillMount()`、`componentWillUpdate()`、`componentWillReceiveProps(props)`这3个生命周期钩子函数**过时了**，即将被弃用不推荐再用了。如果非要用前面需要加上`UNSAFE_`前缀。因为这3个钩子函数经常会被误解和滥用，尤其是在未来版本启用**异步渲染**之后问题会更严重。
   
-    - （了解）初始化挂载和更新阶段新增了`static getDerivedStateFromProps(props,state)`钩子（得到一个派生的状态从props）。它是实例上的静态方法，且有返回值。返回值可以是2种：
+    - （了解）初始化挂载和更新阶段新增了 `static getDerivedStateFromProps(props,state)` 钩子（从props得到一个派生的状态）。它是实例上的静态方法，且有返回值。返回值可以是2种：
   
       1. 返回一个对象，该对象会和原来的状态对象state进行合并（覆盖原来的同名属性）。
   
-      2. 返回null，此时不会对state有任何的影响。
+      2. 返回`null`，此时不会对state有任何的影响。
   
          > 派生状态会导致代码很冗余，并使组件难以维护，所以该钩子用的极少，了解即可。（只有state的值在任何情况下都取决于props时才考虑使用该钩子函数）
   
-    - （了解）当组件走更新流程render()执行后，在页面完成更新之前，也就是提交到DOM之前还会执行`getSnapshotBeforeUpdate(preProps,preState)`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
+    - （了解）当组件走更新流程 `render()` 执行后，在页面完成更新之前，也就是提交到DOM之前还会执行 `getSnapshotBeforeUpdate(preProps, preState)`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
   
-      > 其实`componentDidUpdate(preProps,preState,snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
+      > 其实`componentDidUpdate(preProps, preState, snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
 ------
 - ### React脚手架
 
   > - 使用React脚手架可以快速创建基于React的项目，在脚手架环境下开发React项目效率更高。
-  > - React官方提供了一个用于快速创建React项目的工具：create-react-app，通过它提供的命令可以快速创建React项目（node项目）。
+  > - React官方提供了一个用于快速创建React项目的工具：`create-react-app`，通过它提供的命令可以快速创建React项目（node项目）。
 
   ###### 安装`create-react-app`工具并通过该工具创建React模版项目（React脚手架环境）：
 
@@ -580,24 +619,26 @@
   >
   > - `npm run build`可以将前端开发完毕的项目，打包生成静态资源文件，由后端部署在服务器上运行。
   >
-  > - `npm run test`是做前端测试的，我们几乎不用。
+  > - `npm run test`是做前端测试的，目前用不到。
   >
-  > - `npm run eject`命令可以将React脚手架隐藏起来的、所有Webpack相关的命令及配置文件都暴露出来，方便我们更底层的配置React脚手架。运行之后项目根目录下会新增两个文件夹config和scripts。
+  > - `npm run eject`命令可以将React脚手架隐藏起来的、所有Webpack相关的命令及配置文件都暴露出来，方便我们更底层的配置React脚手架。运行之后项目根目录下会新增两个文件夹`config`和`scripts`。
   >
   >   - `config` 文件夹包含了项目构建过程中使用的各种配置文件，包括不同环境下的Webpack配置文件。这些文件允许你自定义构建过程中的行为。
   >   - `scripts`文件夹包含了脚手架中原本封装的脚本逻辑，比如启动开发服务器、构建生产版本等。现在你可以直接修改这些脚本来满足特定的需求。
-  >   - 此外该命令还会更新`package.json`文件中的脚本部分，以便指向你项目中的自定义脚本而不是原来的脚本。
+  >   - 此外，运行该命令还会更新`package.json`文件中的脚本部分，以便指向你项目中的自定义脚本而不是原来的脚本。
   >   
-  >   需要注意的是，一旦运行了`npm run eject`，你就回不去了，因为你已经接管了所有配置细节。因此在运行此命令前，请确保你确实需要对配置进行深入定制。（之所以React将其隐藏起来就是怕碰坏了导致项目崩溃，一般我们不用动）
+  >   **注意**：一旦运行了`npm run eject`，你就回不去了，因为你已经接管了所有配置细节。因此在运行此命令前，请确保你确实需要对配置进行深入定制。（之所以React将其隐藏起来就是怕碰坏了导致项目崩溃，一般我们不用动）
 
   ###### 分析脚手架目录：
   
-  - public/：该目录下存放不参与打包的静态资源。其中包含`index.html`，它是React项目的主页面，将来所有的东西都会打包放在这个文件中（以后我们编写的都是SPA单页面应用）。主页中只有一个id为root的div用于存放根组件App的内容。（public下的其他文件目前还用不到删除即可）
+  - `public/`：该目录下存放不参与打包的静态资源。其中包含`index.html`，它是React项目的主页面，将来所有的东西都会打包放在这个文件中（以后我们编写的都是SPA单页面应用）。主页中只有一个`id`为`root`的`<div>`用于存放根组件App的内容。
   
-  - src/：
+    > 该目录下的其他文件目前还用不到，删除即可。
   
-    - App.js & App.css：分别是App组件和App组件的样式文件。**App组件是所有组件的根组件**，id为root的div中只需要引入App组件即可。
-    - index.js & index.css：React项目的**入口文件**和全局样式文件。入口文件中引入了App组件并通过`ReactDOM.render()`将根组件（虚拟DOM）渲染到了id为root的div中（至于为什么能找到index.html是因为脚手架的Webpack中配置好了）。全局样式文件中存放全局样式，如果不想参与打包也可以放在public目录下在index.html中进行导入。
+  - `src/`：
+  
+    - `App.js` & `App.css`：分别是App组件和App组件的样式文件。**App组件是所有组件的根组件**，`id`为`root`的`<div>`中只需要引入App组件即可。
+    - `index.js` & `index.css`：React项目的**入口文件**和全局样式文件。入口文件中引入了App组件并通过`ReactDOM.render()`将根组件（虚拟DOM）渲染到了`id`为`root`的`<div>`中（至于为什么能找到`index.html`是因为脚手架的Webpack中配置好了）。全局样式文件中存放全局样式，如果样式不想参与打包也可以放在`public/`目录下在`index.html`中进行引入。
   
     > App组件中还用了`reportWebVitals.js`，它是用于记录页面上的性能的，里面用的`web-vitals`库。
     
@@ -620,7 +661,7 @@
 
   1. JSX多选框标签上的`checked`属性，会根据值`true/false`来决定是否勾选。如果加了该属性必须同时加上`onChange`属性（值为回调函数名），指定当多选框发生变化时要做什么。不加的话多选框就无法取消勾选了，只取决于checked属性的值了。
   2. 而JSX多选框的`defaultChecked`属性，只在页面初始化时生效，以后`defaultChecked`的值变了也不去关联多选框的勾选和取消勾选状态了。
-  3. 在React脚手架环境下，如果请求了public/目录下不存在的资源，脚手架服务器默认会返回index.html。
+  3. 在React脚手架环境下，如果请求了`public/`目录下不存在的资源，脚手架服务器默认会返回`public/index.html`。
 
 ------
 
