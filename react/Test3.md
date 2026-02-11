@@ -4,20 +4,22 @@
 
 - ### lazyload懒加载（通常要给路由组件开启懒加载）
 
-  > 默认情况下，用户第一次请求index.html时，会将React应用中用到的所有组件资源，通过网络全部都加载回来。这种方式的缺点是：页面上有很多路由组件，我还没点呢，且有可能一直不用，就没有必要初始化时随着整个应用被加载进来。此时可以给组件设置懒加载：
+  > 默认情况下，用户第一次请求index.html时，会将React应用中用到的所有组件资源，通过网络全部都加载回来。这种方式的缺点是：页面上有很多路由组件，我还没点呢，且有可能一直不用，就没有必要初始化时随着整个应用被加载进来。
+  >
+  > 此时可以给组件设置懒加载：
 
-  1. 在使用路由组件的地方，将import导入路由组件的方式，改为用lazy函数导入：
-
+  1. 使用 `import()` 动态导入路由组件，然后将返回的 `Promise` 对象使用 `lazy` 函数包装为React组件：
+  
      ```js
      // 导入lazy函数
      import React, { Component, lazy } from 'react'
      
-     const Home = lazy( () => import('./Home') )
-     const About = lazy( () => import('./About') )
+     const Home = lazy(() => import('./Home'))
+     const About = lazy(() => import('./About'))
      ```
 
-  2. 使用`<Suspense/>`组件，指定当网络出问题组件没有加载回来时，显示哪个组件：（fallback指定的组件就别懒加载了）
-
+  2. 使用`<Suspense/>`组件，指定当网络出问题组件没有加载回来时，显示哪个组件：（`fallback`指定的组件不要懒加载）
+  
      ```xml
      <!-- 用Suspense组件包裹那些可能异步加载的组件，包括<Routes>或<Switch>组件 -->
      <Suspense  fallback={<h1>loading...</h1>}>
@@ -38,8 +40,10 @@
 
   - State Hook：
 
-    > 通过调用`React.useState(initValue)`可以返回一个数组，数组第1个元素就是state中的状态，第2个元素是更新该状态的函数。useState函数的参数用于初始化state中的状态，第一次执行后会将state的值在内部进行缓存。
-
+    > 通过调用`React.useState(initValue)`可以返回一个数组，数组第1个元素就是state中的状态，第2个元素是更新该状态的函数。`useState()` 函数的参数用于设置状态的初值。
+    >
+    > 如果初值需要通过复杂计算获得，则可以给 `useState()` 传入一个函数，在函数中计算并返回初值。此函数只会在初始渲染时被调用，也就是该组件重新挂载时，这个函数不会被再次调用了。
+  
     ```jsx
     function Demo(){ // 该方法调用1+n次
         const [count,setCount] = React.useState(0)
@@ -63,7 +67,7 @@
     > 函数式组件中，通过调用`React.useRef()`来返回一个容器对象，使用方式和之前的`React.createRef()`类似。
 
   - Effect Hook：
-
+  
     > - `React.useEffect(()=>{ return ()=>{} },[])`可以让我们在函数式组件里使用生命周期钩子。
     > - 该方法调用时传入2个参数。第1个函数参数相当于`componentDidmount()`和`componentDidUpdate()`的结合体。第2个数组参数里面写要监视的state中的状态（变量）。如果不指定第2个参数表示监视整个state。
     > - 并且第1个函数参数中，如果返回了一个函数，那么这个函数还相当于`componentWillUnmount()`
@@ -88,10 +92,16 @@
 
      > 如果祖孙组件在不同的文件，那就将Context用export进行导出，需要用的地方import导入。
 
-  2. 将祖组件的直接子组件用`<XxxContext.Provider>`组件标签包裹起来，通过组件标签的`value`属性指定给后代组件传递的数据。
+  2. 将祖组件的直接子组件用`<XxxContext.Provider>`组件标签包裹起来，通过组件标签的`value`属性指定给后代组件传递的数据：
 
+     ```jsx
+     <XxxContext.Provider value={data}>
+       <Children />
+     </XxxContext.Provider>
+     ```
+  
   3. 需要用数据的后代组件声明接收：
-
+  
      ```jsx
      import {XxxContext} from './A'
      ...
@@ -99,11 +109,11 @@
        { value => {} }
      </XxxContext.Consumer>
      ```
-
+  
      > 以上声明接收的方式在类组件和函数组件中都可以用。下面2种分别只能在类和函数组件中使用：
-
+  
      - 仅支持在类组件中声明：（类体中写）
-
+  
        ```js
        import {XxxContext} from './A'
        ...
@@ -111,23 +121,23 @@
        static contextType = XxxContext
        // 此时就可以使用this.context来获取传递的数据了，不声明的话获取的是空对象{}
        ```
-
+  
      - 仅支持在函数组件中声明：（通过useContext Hook）
-
+  
        ```js
        import XxxContext from './A'
        ...
        // 声明并获取祖组件A中传递的value数据
        const value = React.useContext(XxxContext)
        ```
-
+  
   > 在实际开发中我们一般不用context，一般都用它封装的React插件。
 
 ------
 
 - ### PureComponent
 
-  > 默认情况下，只要父组件执行了`render()`，无论给没给子组件传递props，都会重新渲染子组件。这个还可以接收，如果是执行`setState({})`，即便没有更新任何数据，还是会重新渲染整个父子组件。因此Component是有2个问题的：
+  > 默认情况下，只要父组件执行了`render()`，无论给没给子组件传递props，都会重新渲染子组件。这个还可以接受，如果是执行`setState({})`，即便没有更新任何数据，还是会重新渲染整个父子组件。因此Component是有2个问题的：
   >
   > 1. 只要执行setState()，即便不改变任何数据，组件也会重新渲染（效率）。
   > 2. 只要父组件执行了render()，无论给没给子组件传递props，都会重新渲染子组件（效率低）。
@@ -143,6 +153,20 @@
   - 方法2（推荐）：使用PureComponent。它已经帮我们重写了shouldComponentUpdate()。
 
     > PureComponent判断的是浅层次的更改，所以通常在setState()中传新对象。
+
+  ##### 函数式组件如果想要这个效果，需要用 `memo()` 函数：
+
+  > `memo` 允许你的组件在 props 没有改变的情况下跳过重新渲染：`memo(Component, arePropsEqual?)`
+  >
+  > 使用 `memo` 将组件包装起来，以获得该组件的一个 **记忆化** 版本。通常情况下，只要该组件的 props 没有改变，这个记忆化版本就不会在其父组件重新渲染时重新渲染。但 React 仍可能会重新渲染它：记忆化是一种性能优化，而非保证。
+
+  ```jsx
+  import { memo } from 'react';
+  
+  const SomeComponent = memo(function SomeComponent(props) {
+    // ...
+  });
+  ```
 
 - ### 给组件传递标签结构
 
@@ -231,7 +255,7 @@
 >
 > 1. 内置组件的变化：移除了`<Switch/>`，新增了`<Routes/>`等。
 >
-> 2. 语法的变化：`component={About}`变为`element={<About/>}`等。
+> 2. 语法的变化：`<Route component={About} />`变为`<Route element={<About/>} />`等。
 >
 > 3. 新增多个Hook：useParams、useNavigate、useMatch等。
 >
@@ -244,7 +268,7 @@
   > - `<Route>`还可以加`caseSensitive`属性，用于指定匹配时是否区分大小写。默认不区分大小写。
   > - `<Route/>`也可以嵌套使用，且可以配合路由表使用，但需要通过`<Outlet/>`组件来指定子路由的渲染位置。（看完后面在理解）
 
-- 之前的`<Redirect to='/about'>`被移除了，取而代之的是：`<Route path='/' element={<Navigate to='/about'/>}`
+- 之前的`<Redirect to='/about'>`被移除了，取而代之的是：`<Route path='/' element={<Navigate to='/about'/>} />`
 
   > `<Navigate>`的作用：只要Navigate组件被渲染，就会重定向切换路由。因此它也可以加`replace`属性设置路由的跳转模式。
 

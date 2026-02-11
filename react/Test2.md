@@ -88,6 +88,8 @@
    ```
    
    > 在`<Route/>`中注册的组件是路由组件，路由组件是通过`<Link/>`标签放在页面上的，不是我们自己写的。通常为了与普通组件区分开，路由组件会放在pages/或views/目录中，而不是components/中。
+   >
+   > **注意：每次路由组件之间的切换都是卸载和重新挂载。**
 
 ------
 
@@ -98,26 +100,26 @@
 
 - #### Switch标签（组件）
 
-  > - 默认情况下，组件切换时一个path可以匹配多个组件。如果你切换的地方注册了多个路径path相同的组件：
-  >
-  >   ```xml
-  >   <div>
-  >   	<Route path="/about" component={About}/>
-  >   	<Route path="/home" component={Home}/>
-  >   	<Route path="/home" component={Home1}/>
-  >   	<Route path="/home" component={Home2}/>
-  >   </div>
-  >   ```
-  >
-  >   那么路由切换时匹配上了`/home`之后还会继续往下匹配，将符合路径的所有组件都激活展示。
-  >
-  > - 这其实这是存在效率问题的，我们希望它匹配上第一个path之后就不要再激活下面的其他组件了。此时就可以用`<Switch>`标签将`<Route>`包起来。
-  >
-  > - 通常情况下，path和component是一一对应的关系。如果注册了多个组件，通常为了提高效率，会用`<Switch>`标签给这些`<Route>`包起来。
+  - 默认情况下，组件切换时一个path可以匹配多个组件。如果你切换的地方注册了多个路径path相同的组件：
+  
+    ```xml
+    <div>
+    	<Route path="/about" component={About}/>
+    	<Route path="/home" component={Home}/>
+    	<Route path="/home" component={Home1}/>
+    	<Route path="/home" component={Home2}/>
+    </div>
+    ```
+  
+    那么路由切换时匹配上了`/home`之后还会继续往下匹配，将符合路径的所有组件都激活展示。
+  
+  - 这其实这是存在效率问题的，我们希望它匹配上第一个path之后就不要再激活下面的其他组件了。此时就可以用`<Switch>`标签将`<Route>`包起来。
+  
+  - 通常情况下，path和component是一一对应的关系。如果注册了多个组件，通常为了提高效率，会用`<Switch>`标签给这些`<Route>`包起来。
 
 - #### 路由的严格匹配和模糊匹配
 
-  > 默认情况下，每个`<Route path="/home" component={Home2}/>`标签中注册的路由组件都是模糊匹配，也就是说`<Link to="/home/a/b" >Home</Link>`也可以匹配上该组件。如果想设置为严格匹配，加属性：`<Link exact={true}/>`
+  > 默认情况下，每个`<Route path="/home" component={Home2}/>`标签中注册的路由组件都是模糊匹配，也就是说`<Link to="/home/a/b" >Home</Link>`也可以匹配上该组件。如果想设置为严格匹配，加属性：`<Route exact />`
 
   ###### 注意：通常页面没啥问题我们不开启严格匹配。如果严格匹配随便开，有时候会引发很严重的问题（如：无法匹配二级路由等问题）。
 
@@ -137,7 +139,7 @@
   </div>
   ```
 
-  > `<Redirect>`的path是`/`，它实际上是将path进行了重定向。（注意：`/`对应的组件不需要通过`<Link/>`标签去激活了，因为它是页面默认的URL）
+  > `<Redirect>`的path是`/`，它实际上是将path进行了重定向。
 
 ------
 
@@ -147,7 +149,7 @@
   >
   > - 组件被渲染执行`render()`方法时，如果发现其中有`<Route/>`标签，那么会顺序注册这些路由组件。
   > - 注册路由组件时会根据路径给组件分等级。若组件的path包含了另一个组件的path，那么该组件就作为另一个组件的子组件。
-  > - 当路由切换进行路径匹配时，只有父组件的路径匹配成功，才会继续拿着剩下的path去匹配其下的子组件进行展示。（这也是为什么开启路由的严格匹配，会导致无法匹配二级路由。父组件都匹配不上路径无法展示了，子组件就更没有机会去匹配路径和展示组件了）
+  > - 当路由切换进行路径匹配时，只有父组件的路径匹配成功，才会继续用 `to` 的值去匹配其下的子组件进行展示。（这也是为什么开启路由的严格匹配，会导致无法匹配二级路由。父组件都匹配不上路径无法展示了，子组件就更没有机会去匹配路径和展示组件了）
   >
   
 ###### 	所谓路由的嵌套就是：根据路由的注册和匹配模式，注册子路由时，子路由的path开头要加上父路由的path值。
@@ -167,8 +169,8 @@
   >   - state：存放传过来的state对象的。默认值undefined。
   > - match：
   >   - params：存放传过来的params参数对应的对象，默认为空对象`{}`。
-  >   - path：存放该路由组件的path值。不同于pathname，它可能会包含动态参数（params参数的占位符）。
-  >   - url：存放该路由组件的path值。不同于path，它是实际传过来的path，会将动态参数替换为值。
+  >   - path：存放该路由组件的path值。不同于pathname，path可能会包含动态参数（params参数的占位符）。
+  >   - url：存放该路由组件的path值。不同于pathname，url仅限于当前路由组件的匹配部分。
 
 - #### 路由传参
 
@@ -185,7 +187,7 @@
   
     - 从`this.props.location.search`对象中取数据，数据React并没有整理成对象，而是：`?id=001&title=abc`
   
-    - 一般我们用`querystring`库将这个数据再处理下：（无需安装，React脚手架已经下载好了）
+    - 一般我们用`querystring`库将这个数据再处理下：（需要安装）
   
       ```js
       import qs from 'querystring'
@@ -218,9 +220,11 @@
   - ##### state参数：
   
     > 前两种参数都会将数据暴露在地址栏url中，state参数不会在地址栏中暴露数据。
+    >
+    > 注意：这个 `state` 只是路由跳转时携带传递的一个值而已，并不是状态变量。只有切换路由时这个值才会重新变化。
   
     - 路由导航`<Link/>`标签中传数据：state参数要求**to的值必须是一个对象**（其实前两种方式to的值也可以是对象）
-  
+    
       ```jsx
       <Link to={{
           pathname: '/about/message',
@@ -229,7 +233,7 @@
       ```
   
     - 从`this.props.location.state`中可以拿到这个state对象。
-  
+    
     > - 这种方式就算地址栏url中没东西，但**刷新页面仍可以保留住参数**，不会丢数据。因为BrowserRouter的url是靠浏览器的历史记录来维护的，所以没问题。
     > - 但是HashRouter刷新页面state参数会丢失，因为它底层的实现方式不同，没有人帮它去保存和维护url。
 
@@ -446,7 +450,7 @@ store.subscribe(()=>{
   >      // 引入redux-thunk，用于支持Redux处理异步action
   >      import { thunk } from 'redux-thunk'
   >      import countReducer from './count_reducer'
-  >                                                            
+  >                                                               
   >      // 第2个参数中调用applyMiddleware(thunk)应用中间件
   >      export default createStore(countReducer, applyMiddleware(thunk))
   >      ```
@@ -504,7 +508,7 @@ store.subscribe(()=>{
   >   function mapStateToProps(state){
   >       return { count: state }
   >   }
-  >                                       
+  >                                         
   >   function mapDispatchToProps(dispatch) {
   >     return {
   >       increment(v){ dispatch(createIncrementAction(v)) },
@@ -512,7 +516,7 @@ store.subscribe(()=>{
   >       incrementWait(v,t){ dispatch(createIncrementAsyncAction(v,t)) },
   >     }
   >   }
-  >                                       
+  >                                         
   >   export default connect(mapStateToProps,mapActionToProps)(Count)
   >   ```
   
@@ -688,7 +692,7 @@ store.subscribe(()=>{
 
 ------
 
-# 项目打包运行（静态站点生成SSG）
+# 项目打包运行
 
 > 项目写完了，如何将我们写的React应用真正部署在服务器上。步骤：
 
