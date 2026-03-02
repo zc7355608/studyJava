@@ -76,7 +76,7 @@ SQL语句分类：
 MySQL常用命令：
 	·查询当前使用的数据库：select database();
 	·查询mysql版本号：select version();	这个database()和version()实际上是mysql的函数
-	·结束一条语句：\c
+	·清空当前输入：\c
 	·退出mysql：exit、\q、quit、Ctrl+c
 -------------------------
 
@@ -101,7 +101,7 @@ MySQL常用命令：
 		+--------------------+
 
 	第三步：创建属于我们自己的数据库
-		create database if not exists test [default charset 字符集] [collate 排序规则];
+		create database if not exists test [default character set 字符集] [collate 排序规则];
 		drop database if exists test;(这俩也属于MySQL的命令)
 
 		数据库创建之后，编码方式就确定了。修改数据库的编码方式，可以使用alter语句
@@ -326,7 +326,7 @@ MySQL常用命令：
 	select 字段1，字段2... from 表名 where 条件;
 	执行顺序：先from，后where，最后select
 
-	查询工资等于5000的员工姓名：select ENAME form emp where SAL=5000;
+	查询工资等于5000的员工姓名：select ENAME from emp where SAL=5000;
 					+-------+
 					| ENAME |
 					+-------+
@@ -420,9 +420,9 @@ MySQL常用命令：
 
 =======================================================================================
 模糊查询：like % _ [] ^
-			like		写在字段和模糊查询串之间，出现like表示你要用模糊查询了
-			%			表示0到多个任意字符
-			_			表示一个任意字符
+			like		写在字段和模糊查询串之间，出现like表示你要用模糊查询了（标准SQL）
+			%			表示0到多个任意字符（标准SQL）
+			_			表示一个任意字符（标准SQL）
 			[]			表示一个这个范围内的字符，[]写一个范围，例如：[^579]表示不要5或7或9
 			^			写在[]内部的开头，表示不使用这个范围内的任何字符
 模糊查询中，必须掌握两个符号：%和_（%代表任意多个字符，_代表任意一个字符）

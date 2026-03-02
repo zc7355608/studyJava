@@ -71,9 +71,9 @@
     >
     > ```xml
     > <dependency>
-    >     <groupId>org.slf4j</groupId>
-    >     <artifactId>slf4j-simple</artifactId>
-    >     <version>2.0.16</version>
+    >      <groupId>org.slf4j</groupId>
+    >      <artifactId>slf4j-simple</artifactId>
+    >      <version>2.0.16</version>
     > </dependency>
     > ```
     >
@@ -161,9 +161,9 @@
   >
   > ```xml
   > <dependency>
-  >        <groupId>org.springframework.boot</groupId>
-  >        <artifactId>spring-boot-starter-web</artifactId>
-  >        <version>1.4.2.RELEASE</version>
+  >      <groupId>org.springframework.boot</groupId>
+  >      <artifactId>spring-boot-starter-web</artifactId>
+  >      <version>1.4.2.RELEASE</version>
   > </dependency>
   > ```
   >
@@ -214,10 +214,10 @@
     >
     > ```xml
     > <dependency>
-    >     <groupId>org.junit.jupiter</groupId>
-    >     <artifactId>junit-jupiter-api</artifactId>
-    >     <version>5.3.2</version>
-    >     <scope>test</scope>
+    >      <groupId>org.junit.jupiter</groupId>
+    >      <artifactId>junit-jupiter-api</artifactId>
+    >      <version>5.3.2</version>
+    >      <scope>test</scope>
     > </dependency>
     > ```
     >
@@ -225,10 +225,10 @@
     >
     > ```xml
     > <dependency>
-    >     <groupId>mysql</groupId>
-    >     <artifactId>mysql-connector-java</artifactId>
-    >     <version>5.1.48</version>
-    >     <scope>runtime</scope>
+    >      <groupId>mysql</groupId>
+    >      <artifactId>mysql-connector-java</artifactId>
+    >      <version>5.1.48</version>
+    >      <scope>runtime</scope>
     > </dependency>
     > ```
     >
@@ -236,10 +236,10 @@
     >
     > ```xml
     > <dependency>
-    >     <groupId>jakarta.servlet</groupId>
-    >     <artifactId>jakarta.servlet-api</artifactId>
-    >     <version>4.0.0</version>
-    >     <scope>provided</scope>
+    >      <groupId>jakarta.servlet</groupId>
+    >      <artifactId>jakarta.servlet-api</artifactId>
+    >      <version>4.0.0</version>
+    >      <scope>provided</scope>
     > </dependency>
     > ```
     >
@@ -335,15 +335,15 @@
 
        > ```xml
        > <settings>
-       >     <mirrors>
-       >     	<!-- 阿里云镜像（国内推荐） -->
-       >         <mirror>
-       >             <id>aliyun</id>
-       >             <name>阿里云公共仓库</name>
-       >             <url>https://maven.aliyun.com/repository/public</url>
-       >             <mirrorOf>central,jcenter,!repo1,!sonatype,!jitpack</mirrorOf>
-       >         </mirror>
-       >     </mirrors>
+       >      <mirrors>
+       >        <!-- 阿里云镜像（国内推荐） -->
+       >        <mirror>
+       >          <id>aliyun</id>
+       >          <name>阿里云公共仓库</name>
+       >          <url>https://maven.aliyun.com/repository/public</url>
+       >          <mirrorOf>central,jcenter,!repo1,!sonatype,!jitpack</mirrorOf>
+       >        </mirror>
+       >      </mirrors>
        > </settings>
        > ```
        >
@@ -410,9 +410,9 @@
        >
        > ```xml
        > <mirror>
-       >     <id>aliyunmaven</id>
-       >     <url>https://maven.aliyun.com/repository/public</url>
-       >     <mirrorOf>central,jcenter,!internal-repo</mirrorOf>
+       >      <id>aliyunmaven</id>
+       >      <url>https://maven.aliyun.com/repository/public</url>
+       >      <mirrorOf>central,jcenter,!internal-repo</mirrorOf>
        > </mirror>
        > ```
        >
@@ -420,10 +420,10 @@
        >
        > ```xml
        > <repositories>
-       >     <repository>
-       >         <id>internal-repo</id>
-       >         <url>http://nexus.example.com/repository/maven-public/</url>
-       >     </repository>
+       >      <repository>
+       >        <id>internal-repo</id>
+       >        <url>http://nexus.example.com/repository/maven-public/</url>
+       >      </repository>
        > </repositories>
        > ```
 
@@ -459,7 +459,7 @@
 
     > 使用Maven时，我们首先要了解什么是Maven的生命周期（lifecycle）。
     >
-    > Maven的生命周期由一系列阶段（phase）构成，以内置的生命周期`default`为例，它包含以下阶段（phase）：
+    > Maven的生命周期由一系列阶段（phase）构成，以内置的生命周期`default`为例，它包含以下阶段：
     >
     > - validate
     > - initialize
@@ -485,6 +485,8 @@
     > - install
     > - deploy
     >
+    > Maven的构建命令：`mvn 阶段1 阶段2...`
+    >
     > 如果我们运行`mvn package`，Maven就会执行`default`生命周期，它会从开始一直运行到`package`这个phase为止：
     >
     > - validate
@@ -501,7 +503,7 @@
     > - process-resources
     > - compile
     >
-    > Maven另一个常用的生命周期是`clean`，它会执行3个phase：
+    > Maven另一个常用的生命周期是`clean`，它会执行3个阶段：
     >
     > - pre-clean
     > - clean
@@ -630,11 +632,11 @@
   >
   > ```xml
   ><configuration>
-  >  <transformers>
-  >     <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-  >          <mainClass>com.itranswarp.learnjava.Main</mainClass>
-  >      </transformer>
-  >     </transformers>
+  >    <transformers>
+  >        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+  >        	<mainClass>com.itranswarp.learnjava.Main</mainClass>
+  >        </transformer>
+  >      </transformers>
   >    </configuration>
   >    ```
   >    
@@ -677,15 +679,15 @@
   >
   > ```
   > multiple-projects
-  > ├── module-a
-  > │   ├── pom.xml
-  > │   └── src
-  > ├── module-b
-  > │   ├── pom.xml
-  > │   └── src
-  > └── module-c
-  >        ├── pom.xml
-  >        └── src
+  >   ├── module-a
+  >   │   ├── pom.xml
+  >   │   └── src
+  >   ├── module-b
+  >   │   ├── pom.xml
+  >   │   └── src
+  >   └── module-c
+  >          ├── pom.xml
+  >          └── src
   > ```
   >
   > Maven可以有效地管理多个模块，我们只需要把每个模块当作一个独立的Maven项目，它们有各自独立的`pom.xml`。例如，模块A的`pom.xml`：
@@ -703,33 +705,33 @@
   > 
   >     <name>module-a</name>
   > 
-  >     <properties>
-  >         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  >         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  >         <maven.compiler.source>11</maven.compiler.source>
-  >         <maven.compiler.target>11</maven.compiler.target>
-  >         <java.version>11</java.version>
-  >     </properties>
+  >      <properties>
+  >        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  >        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  >        <maven.compiler.source>11</maven.compiler.source>
+  >        <maven.compiler.target>11</maven.compiler.target>
+  >        <java.version>11</java.version>
+  >      </properties>
   > 
-  >     <dependencies>
-  >         <dependency>
-  >             <groupId>org.slf4j</groupId>
-  >             <artifactId>slf4j-api</artifactId>
-  >             <version>1.7.28</version>
-  >         </dependency>
-  >         <dependency>
-  >             <groupId>ch.qos.logback</groupId>
-  >             <artifactId>logback-classic</artifactId>
-  >             <version>1.2.3</version>
-  >             <scope>runtime</scope>
-  >         </dependency>
-  >         <dependency>
-  >             <groupId>org.junit.jupiter</groupId>
-  >             <artifactId>junit-jupiter-engine</artifactId>
-  >             <version>5.5.2</version>
-  >             <scope>test</scope>
-  >         </dependency>
-  >     </dependencies>
+  >      <dependencies>
+  >        <dependency>
+  >          <groupId>org.slf4j</groupId>
+  >          <artifactId>slf4j-api</artifactId>
+  >          <version>1.7.28</version>
+  >        </dependency>
+  >        <dependency>
+  >          <groupId>ch.qos.logback</groupId>
+  >          <artifactId>logback-classic</artifactId>
+  >          <version>1.2.3</version>
+  >          <scope>runtime</scope>
+  >        </dependency>
+  >        <dependency>
+  >          <groupId>org.junit.jupiter</groupId>
+  >          <artifactId>junit-jupiter-engine</artifactId>
+  >          <version>5.5.2</version>
+  >          <scope>test</scope>
+  >        </dependency>
+  >      </dependencies>
   > </project>
   > ```
   >
@@ -739,42 +741,42 @@
   ><project xmlns="http://maven.apache.org/POM/4.0.0"
   >  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   >  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  >     <modelVersion>4.0.0</modelVersion>
+  >      <modelVersion>4.0.0</modelVersion>
   >    
-  >     <groupId>com.itranswarp.learnjava</groupId>
-  >  <artifactId>module-b</artifactId>
-  >     <version>1.0</version>
-  >     <packaging>jar</packaging>
+  >      <groupId>com.itranswarp.learnjava</groupId>
+  >    <artifactId>module-b</artifactId>
+  >      <version>1.0</version>
+  >      <packaging>jar</packaging>
   >    
-  >     <name>module-b</name>
+  >    	<name>module-b</name>
   > 
-  >     <properties>
-  >      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  >         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  >         <maven.compiler.source>11</maven.compiler.source>
-  >         <maven.compiler.target>11</maven.compiler.target>
-  >         <java.version>11</java.version>
-  >     </properties>
+  >      <properties>
+  >        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  >        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  >        <maven.compiler.source>11</maven.compiler.source>
+  >        <maven.compiler.target>11</maven.compiler.target>
+  >        <java.version>11</java.version>
+  >      </properties>
   >    
-  >     <dependencies>
-  >      <dependency>
-  >             <groupId>org.slf4j</groupId>
-  >             <artifactId>slf4j-api</artifactId>
-  >             <version>1.7.28</version>
-  >         </dependency>
-  >         <dependency>
-  >             <groupId>ch.qos.logback</groupId>
-  >             <artifactId>logback-classic</artifactId>
-  >             <version>1.2.3</version>
-  >             <scope>runtime</scope>
-  >         </dependency>
-  >         <dependency>
-  >             <groupId>org.junit.jupiter</groupId>
-  >             <artifactId>junit-jupiter-engine</artifactId>
-  >             <version>5.5.2</version>
-  >             <scope>test</scope>
-  >         </dependency>
-  >     </dependencies>
+  >      <dependencies>
+  >        <dependency>
+  >          <groupId>org.slf4j</groupId>
+  >          <artifactId>slf4j-api</artifactId>
+  >          <version>1.7.28</version>
+  >        </dependency>
+  >        <dependency>
+  >          <groupId>ch.qos.logback</groupId>
+  >          <artifactId>logback-classic</artifactId>
+  >          <version>1.2.3</version>
+  >          <scope>runtime</scope>
+  >        </dependency>
+  >        <dependency>
+  >          <groupId>org.junit.jupiter</groupId>
+  >          <artifactId>junit-jupiter-engine</artifactId>
+  >          <version>5.5.2</version>
+  >          <scope>test</scope>
+  >        </dependency>
+  >      </dependencies>
   >    </project>
   >    ```
   > 
@@ -827,18 +829,18 @@
   > 
   > ```tex
   >multiple-project
-  > ├── pom.xml
-  >├── parent
-  > │   └── pom.xml
-  >├── module-a
-  > │   ├── pom.xml
-  > │   └── src
-  > ├── module-b
-  > │   ├── pom.xml
-  > │   └── src
-  > └── module-c
-  >      ├── pom.xml
-  >      └── src
+  >   ├── pom.xml
+  >  ├── parent
+  >   │   └── pom.xml
+  >  ├── module-a
+  >   │   ├── pom.xml
+  >   │   └── src
+  >   ├── module-b
+  >   │   ├── pom.xml
+  >   │   └── src
+  >   └── module-c
+  >          ├── pom.xml
+  >          └── src
   > ```
   > 
   > 这样模块A就可以简化为：
@@ -950,16 +952,17 @@
     > ├── .mvn
     > │   └── wrapper
     > │       └── maven-wrapper.properties
+    > │       └── maven-wrapper.jar
     > ├── mvnw
     > ├── mvnw.cmd
     > ├── pom.xml
     > └── src
-    > ├── main
-    > │   ├── java
-    > │   └── resources
-    > └── test
-    >      ├── java
-    >      └── resources
+    >     ├── main
+    >     │   ├── java
+    >     │   └── resources
+    >     └── test
+    >         ├── java
+    >         └── resources
     > ```
     >
     > - `mvnw`: 这是 Unix/Linux/macOS 系统上的 Maven Wrapper 启动脚本。
@@ -968,7 +971,7 @@
     > - `.mvn/wrapper/maven-wrapper.jar`: 这是 Maven Wrapper 的核心 JAR 文件，它负责确保使用正确的 Maven 版本。
     >
     > 我们只需要把`mvn`命令改成`mvnw`就可以使用跟项目关联的Maven：`mvnw clean package`
-  
+    
     > - 添加的 Maven Wrapper 默认使用最新版本的Maven。如果要指定使用的Maven版本，使用下面的安装命令指定版本，例如`3.9.0`：
     >
     >   ```bash
@@ -1075,9 +1078,9 @@
     >
     > ```xml
     > <dependency>
-    >     <groupId>com.itranswarp.rich</groupId>
-    >     <artifactId>how-to-become-rich</artifactId>
-    >     <version>1.0.0</version>
+    >      <groupId>com.itranswarp.rich</groupId>
+    >      <artifactId>how-to-become-rich</artifactId>
+    >      <version>1.0.0</version>
     > </dependency>
     > ```
     >
@@ -1279,14 +1282,14 @@
     >
     > ```xml
     > <settings ...>
-    >     ...
-    >    <servers>
-    >         <server>
-    >            <id>github-release</id>
-    >             <username>GITHUB-USERNAME</username>
-    >            <password>f052...c21f</password>
-    >         </server>
-    >    </servers>
+    >      ...
+    >      <servers>
+    >        <server>
+    >          <id>github-release</id>
+    >          <username>GITHUB-USERNAME</username>
+    >          <password>f052...c21f</password>
+    >        </server>
+    >      </servers>
     > </settings>
     > ```
     >

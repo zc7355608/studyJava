@@ -288,7 +288,7 @@
 
 ## http模块
 
-> 我们可以通过http模块，来创建一个处理请求的WEB服务，用来对前端发过来的http的请求做出响应。如下：	
+> 我们可以通过http模块，来创建一个处理请求的WEB服务，用来对前端发过来的http的请求做出响应。如下：
 
 ```javascript
 const http = require('http')
@@ -1046,4 +1046,8 @@ server.listen(9000, () => {
 > ![debug](./assets/debug.png)
 
 ------
+
+### Fetch API：
+
+> Node18 版本后新增 `fetch()` 函数，用法和浏览器端基本一致。它是基于 Node.js 的**`undici`**（高性能 HTTP 客户端）实现的。
 

@@ -252,6 +252,8 @@ fetch('url?name=value..',{
 }
 ```
 
+> Node.js 18 之后也支持 `fetch()`，用法和浏览器端基本一致。它是基于 Node.js 的 **`undici`** （高性能 HTTP 客户端）实现的。
+
 ------
 
 ### AJAX的跨域访问：

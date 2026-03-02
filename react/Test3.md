@@ -137,22 +137,22 @@
 
 - ### PureComponent
 
-  > 默认情况下，只要父组件执行了`render()`，无论给没给子组件传递props，都会重新渲染子组件。这个还可以接受，如果是执行`setState({})`，即便没有更新任何数据，还是会重新渲染整个父子组件。因此Component是有2个问题的：
+  > 默认情况下，只要父组件执行了`render()`，无论给没给子组件传递props，都会重新渲染子组件。这个还可以接受，如果是执行`setState({})`，即便没有更新任何数据，还是会重新渲染整个父子组件。因此 `React.Component` 是有2个问题的：
   >
   > 1. 只要执行setState()，即便不改变任何数据，组件也会重新渲染（效率）。
   > 2. 只要父组件执行了render()，无论给没给子组件传递props，都会重新渲染子组件（效率低）。
   >
   > 效率高的做法是：只有当组件的状态或props发生变化时，才需要执行render()
   >
-  > 其实根本原因是：Component中的shouldComponentUpdate()总是返回true
+  > 其实根本原因是：`React.Component` 中的shouldComponentUpdate()总是返回true
 
   ##### 解决：
 
   - 方法1：自己在shouldComponentUpdate()中写判断逻辑。
 
-  - 方法2（推荐）：使用PureComponent。它已经帮我们重写了shouldComponentUpdate()。
+  - 方法2（推荐）：使用 `React.PureComponent`。它已经帮我们重写了shouldComponentUpdate()。
 
-    > PureComponent判断的是浅层次的更改，所以通常在setState()中传新对象。
+    > `React.PureComponent` 判断的是浅层次的更改，所以通常在setState()中传新对象。
 
   ##### 函数式组件如果想要这个效果，需要用 `memo()` 函数：
 
