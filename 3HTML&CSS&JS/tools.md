@@ -6,6 +6,7 @@
 - `remark、remark-html`：
 - `tailwind`：
 - `excalidraw`：
+- `lowdb`：
 
 ------
 

@@ -14,7 +14,7 @@
 
     > 早期SUN公司的天才们想编写一套可以连接天下所有数据库的API，但是当他们刚刚开始时就发现这是不可完成的任务，因为各个厂商的数据库服务器差异太大了。后来SUN开始与数据库厂商们讨论，最终得出的结论是，由SUN提供一套访问数据库的规范（就是一组接口），并提供连接数据库的协议标准，然后各个数据库厂商会遵循SUN的规范提供一套访问自己公司数据库服务器的API。SUN提供的规范命名为JDBC，而各个厂商提供的，遵循了JDBC规范的，可以访问自己数据库的API被称之为驱动！
     >
-    > ![图片2.png](./assets/1701931393355-983a997d-c44c-4a48-b1b0-91b281b5a98b.webp)
+    > ![图片2.png](../assets/1701931393355-983a997d-c44c-4a48-b1b0-91b281b5a98b.webp)
     >
     > JDBC是接口，而JDBC驱动才是接口的实现，没有驱动无法完成数据库连接！每个数据库厂商都有自己的驱动，用来连接自己公司的数据库。
     >
@@ -131,9 +131,9 @@
 
        > JDBC接口在JDK中。对应的包是：**java.sql.\*;**
        >
-       > ![image.png](./assets/1701939712048-f4487a29-3eb7-494f-b7c0-b72c6c0c03ad.webp)
+       > ![image.png](../assets/1701939712048-f4487a29-3eb7-494f-b7c0-b72c6c0c03ad.webp)
        >
-       > ![image.png](./assets/1701939824373-e1c98bbf-cc6a-44c0-95b6-d2c3a0ecbf52.webp)
+       > ![image.png](../assets/1701939824373-e1c98bbf-cc6a-44c0-95b6-d2c3a0ecbf52.webp)
 
     2. ##### 驱动在哪：
 
@@ -199,7 +199,7 @@
          > 1. 将 JDBC 驱动程序从硬盘上的文件系统中加载到内存。
          > 2. 让 DriverManager 可以通过一个统一的接口来管理该驱动程序的所有连接操作。
          >
-         > ![image.png](./assets/1702375429683-7a25727f-4615-45f1-a56c-fd02eea60dd2.webp)
+         > ![image.png](../assets/1702375429683-7a25727f-4615-45f1-a56c-fd02eea60dd2.webp)
 
        ```java
        import java.sql.Driver;
@@ -229,7 +229,7 @@
 
          > 获取java.sql.Connection对象，该对象的创建标志着mysql进程和jvm进程之间的通道打开了。
          >
-         > ![image.png](./assets/1702375535525-fad3b7e2-b7f5-4079-a2e1-31c597ae8165.webp)
+         > ![image.png](../assets/1702375535525-fad3b7e2-b7f5-4079-a2e1-31c597ae8165.webp)
 
        ```java
        import java.sql.Driver;
@@ -260,7 +260,7 @@
 
          > 执行结果如下：
          >
-         > ![image.png](./assets/1702372789612-ac3b38a8-6f6d-44f2-8024-ccab0bac9380.webp)
+         > ![image.png](../assets/1702372789612-ac3b38a8-6f6d-44f2-8024-ccab0bac9380.webp)
          >
          > 看到以上的输出结果，表示数据库已经连接成功了。
          >
@@ -394,7 +394,7 @@
 
          > 数据库操作对象是这个接口：java.sql.Statement。这个对象负责将SQL语句发送给数据库服务器，服务器接收到SQL后进行编译，然后执行SQL。
          >
-         > ![image.png](./assets/1702441460073-15a0cb32-b979-442c-900b-ec3109722750.webp)
+         > ![image.png](../assets/1702441460073-15a0cb32-b979-442c-900b-ec3109722750.webp)
 
        ```java
        import java.sql.Driver;
@@ -431,7 +431,7 @@
 
          > 执行结果如下：
          >
-         > ![image.png](./assets/1702441181097-76775506-0d8a-4c6b-a077-4feaf637c82a.webp)
+         > ![image.png](../assets/1702441181097-76775506-0d8a-4c6b-a077-4feaf637c82a.webp)
          >
          > 同样可以看到：java.sql.Statement接口在MySQL驱动中的实现类是：com.mysql.cj.jdbc.StatementImpl。不过我们同样是不需要关心这个具体的实现类。因为后续的代码仍然是面向Statement接口写代码的。
 
@@ -439,7 +439,7 @@
 
          > 当获取到Statement对象后，调用这个接口中的相关方法即可执行SQL语句。
          >
-         > ![image.png](./assets/1702441577751-223506b2-73c9-47ee-a614-4b95fe555df3.webp)
+         > ![image.png](../assets/1702441577751-223506b2-73c9-47ee-a614-4b95fe555df3.webp)
          >
          > - 该方法的参数是一个SQL语句，只要将insert语句传递过来即可。当执行executeUpdate(sql)方法时，JDBC会将sql语句发送给数据库服务器，数据库服务器对SQL语句进行编译，然后执行SQL。
          > - 该方法的返回值是int类型，返回值的含义是：影响了数据库表当中几条记录。例如：返回1表示1条数据插入成功，返回2表示2条数据插入成功，以此类推。如果一条也没有插入，则返回0。
@@ -482,9 +482,9 @@
 
          > 执行结果如下：
          >
-         > ![image.png](./assets/1702441948716-d8c4638f-5d7a-4d26-b3d0-a2ed4872e6a4.webp)
+         > ![image.png](../assets/1702441948716-d8c4638f-5d7a-4d26-b3d0-a2ed4872e6a4.webp)
          >
-         > ![image.png](./assets/1702441971625-ba842802-4881-48ab-a4f3-17acc229d9c2.webp)
+         > ![image.png](../assets/1702441971625-ba842802-4881-48ab-a4f3-17acc229d9c2.webp)
 
     5. ##### 释放资源：
 
@@ -585,7 +585,7 @@
     >
     > 实现原理是什么？找一下`com.mysql.cj.jdbc.Driver`的源码：
     >
-    > ![image.png](./assets/1702447333885-23189b4e-5767-4dba-ae21-bdc543241db6.webp)
+    > ![image.png](../assets/1702447333885-23189b4e-5767-4dba-ae21-bdc543241db6.webp)
     >
     > 通过源码不难发现，在`com.mysql.cj.jdbc.Driver`类中有一个静态代码块，在这个静态代码块中调用了`java.sql.DriverManager.registerDriver(new Driver());`完成了驱动的注册。而`Class.forName("com.mysql.cj.jdbc.Driver");`代码的作用就是让`com.mysql.cj.jdbc.Driver`类完成加载，执行它的静态代码块。
 
@@ -719,7 +719,7 @@
 
     > 除了以上的这种方式之外，还有两种方式，通过API帮助文档可以看到：
     >
-    > ![image.png](./assets/1702453145756-8174de75-a789-4030-b496-8b7fd700afb6.webp)
+    > ![image.png](../assets/1702453145756-8174de75-a789-4030-b496-8b7fd700afb6.webp)
 
     - ##### `getConnection(String url)`：
 
@@ -819,7 +819,7 @@
        >
        > 要查询的数据如下图：
        >
-       > ![image.png](./assets/1702536722789-fc5bbe25-598a-4619-b5b0-2dc1871da569.webp)
+       > ![image.png](../assets/1702536722789-fc5bbe25-598a-4619-b5b0-2dc1871da569.webp)
 
        ###### 代码如下（重点关注第4步、第5步、第6步）：
 
@@ -901,7 +901,7 @@
 
        > 执行结果如下：
        >
-       > ![image.png](./assets/1702537178277-7ea8b4eb-1088-45cb-9493-18fe44b90287.webp)
+       > ![image.png](../assets/1702537178277-7ea8b4eb-1088-45cb-9493-18fe44b90287.webp)
 
        ###### 代码解读：
 
@@ -932,7 +932,7 @@
        > - while循环体当中的代码是处理当前游标指向的这一行的数据。（注意：是处理的一行数据）
        > - rs.getString(int columnIndex) 其中 int 类型的 columnIndex 是查询结果的列下标，列下标从1开始，以1递增。
        >
-       > ![image.png](./assets/1702538306701-4341b895-f91b-4501-af67-4746b6327884.webp)
+       > ![image.png](../assets/1702538306701-4341b895-f91b-4501-af67-4746b6327884.webp)
        >
        > - rs.getString(...) 方法在执行时，不管底层数据库中的数据类型是什么，统一以字符串 String 类型来接收。
 
@@ -975,11 +975,11 @@
        >
        > 执行结果是：
        >
-       > ![image.png](./assets/1702539677907-26c84361-6874-421b-a612-dd754f7fb8f3.webp)
+       > ![image.png](../assets/1702539677907-26c84361-6874-421b-a612-dd754f7fb8f3.webp)
        >
        > 我们可以按照查询结果的列名来获取数据：
        >
-       > ![image.png](./assets/1702540371842-53a5c738-db3b-4040-aa0a-cd6dc9b9bb22.webp)
+       > ![image.png](../assets/1702540371842-53a5c738-db3b-4040-aa0a-cd6dc9b9bb22.webp)
        >
        > **注意：是根据查询结果的列名，而不是表中的列名。以上查询的时候将字段name起别名username了，所以要根据username来获取，而不能再根据name来获取了。**
 
@@ -989,9 +989,9 @@
        >
        > 使用PowerDesigner再设计一张商品表：t_product，使用Navicat for MySQL工具准备数据如下：
        >
-       > ![image.png](./assets/1702541223024-4e5acb77-ef8b-4437-ba3d-10c02ba0999b.webp)
+       > ![image.png](../assets/1702541223024-4e5acb77-ef8b-4437-ba3d-10c02ba0999b.webp)
        >
-       > ![image.png](./assets/1702541500905-f5e0a70b-19b0-4469-97db-68e414f92984.webp)
+       > ![image.png](../assets/1702541500905-f5e0a70b-19b0-4469-97db-68e414f92984.webp)
        >
        > id以long类型获取，name以String类型获取，price以double类型获取，create_time以`java.sql.Date`类型获取，代码如下：
        >
@@ -1072,7 +1072,7 @@
        >
        > 执行结果如下：
        >
-       > ![image.png](./assets/1702541874721-10c9a4f2-370f-4ce4-985e-6cf8da2e3ffb.webp)
+       > ![image.png](../assets/1702541874721-10c9a4f2-370f-4ce4-985e-6cf8da2e3ffb.webp)
 
     4. ##### 获取结果集的元数据信息（了解）：
 
@@ -1156,7 +1156,7 @@
        >
        > 执行结果如下：
        >
-       > ![image.png](./assets/1702542217121-d413b4dc-1bf2-45ca-80c8-551d2a3705b8.webp)
+       > ![image.png](../assets/1702542217121-d413b4dc-1bf2-45ca-80c8-551d2a3705b8.webp)
        >
        > 在上面的代码中，我们首先创建了一个 Statement 对象，然后执行了一条 SQL 查询语句，生成了一个 ResultSet 对象。接下来，我们通过 ResultSet 对象的 getMetaData() 方法获取了 ResultSetMetaData 对象，进而获取了查询结果中列的信息并进行输出。需要注意的是，在进行列信息的获取时，列的编号从 1 开始计算。该示例代码将获取查询结果集中所有列名、数据类型以及长度等信息。
 
@@ -1243,9 +1243,9 @@
     >
     > 执行结果如下：
     >
-    > ![image.png](./assets/1702543846750-ba186e76-04fa-4ef1-8d57-7fc40598c02e.webp)
+    > ![image.png](../assets/1702543846750-ba186e76-04fa-4ef1-8d57-7fc40598c02e.webp)
     >
-    > ![image.png](./assets/1702543887747-8bfa21c9-e7b4-49c9-8dec-dbca00a645a7.webp)
+    > ![image.png](../assets/1702543887747-8bfa21c9-e7b4-49c9-8dec-dbca00a645a7.webp)
     >
     > 以上代码中，我们将 `Statement.RETURN_GENERATED_KEYS` 传递给 `executeUpdate()` 方法，以指定需要获取插入的主键值。然后，通过调用 Statement 对象的 `getGeneratedKeys()` 方法获取包含插入的主键值的 ResultSet 对象，通过 ResultSet 对象获取主键值。需要注意的是，在使用 Statement 对象的 `getGeneratedKeys()` 方法获取自动生成的主键值时，主键值的获取方式具有一定的差异，需要根据不同的数据库种类和版本来进行调整。
     >
