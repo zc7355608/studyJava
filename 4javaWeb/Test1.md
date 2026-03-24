@@ -644,7 +644,7 @@
         1. 正常关闭，执行安装目录bin下的`shutdown.bat`，或在Tomcat的启动命令行里，用键盘输入Ctrl + C。
         2. 直接叉掉命令框，属于强制关闭（不推荐）。
     
-    - Tomcat的启动原理：
+    - ##### Tomcat的启动原理：
     
       - xxx.bat文件是windows系统专用的可执行程序，是batch批处理文件，这种文件中存放大量的DOS命令，执行bat文件就相当于批量的执行dos命令，也就相当于执行了exe文件。
     
@@ -665,7 +665,7 @@
                        redirectPort="8443" />
         ```
     
-      - JavaWeb应用开发完成后会打成war包，放在webapps目录下。webapps目录中的war包会在启动时被Tomcat自动解压并加载。
+      - JavaWeb应用开发完成后会打成`.war`包（不是`.jar`），放在webapps目录下。webapps目录中的war包会在Tomcat启动时被自动解压并加载。
 
 ------
 

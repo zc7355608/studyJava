@@ -1,5 +1,132 @@
 # 名词解释
 
+- **Token（令牌）**：是一个广义概念。
+
+  - 编程与人工智能（AI）领域，指的是**文本的最小单位**。大语言模型在理解文字时，并不是直接看单个字，而是先把句子切分成小块（**可以是词、字或子词**），这些小块就是 Token。
+  - 在计算机安全与认证领域，它是一种经过加密或签名的数据载体、用来证明用户身份的凭证。Token通常是一个加密字符串。JWT就是Token的一种实现方式。Token 放在请求头中，不受 Cookie 的同源策略限制，便于实现单点登录（一次登录，访问多个系统）和移动端 App 认证。
+
+- **JWT**：JWT是Json Web Token的缩写，它是目前Web开发中最流行的Token实现方案。一个典型的JWT字符串长这样：
+
+  ```tex
+  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyMzQ1LCJ1c2VybmFtZSI6InpoYW5nc2FuIiwicm9sZSI6ImFkbWluIiwiZXhwIjoxNzAwMDAwMDAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+  ```
+
+  它由三部分组成，用点号`.`分隔：**Header(头部).Payload(负载).Signature(签名)**
+
+  1. Header（头部）
+
+     ```json
+     {
+       "alg": "HS256",    // 签名算法，常用HS256(对称加密)或RS256(非对称加密)
+       "typ": "JWT"       // 令牌类型，固定为JWT
+     }
+     ```
+
+  2. Payload（负载）- **核心数据区**
+
+     ```json
+     {
+       // 注册声明（标准字段）
+       "iss": "auth-server",     // 签发者
+       "sub": "user-token",      // 主题
+       "aud": "client-app",      // 受众
+       "exp": 1700000000,        // 过期时间（时间戳）
+       "iat": 1699996400,        // 签发时间
+       "nbf": 1699996400,        // 生效时间
+       
+       // 公共/私有声明（自定义数据）
+       "userId": 12345,
+       "username": "zhangsan",
+       "role": "admin",
+       "email": "zhangsan@example.com"
+     }
+     ```
+
+     - **重要**：Payload只是Base64编码，**不是加密的**！任何人都可以解码看到内容
+     - **绝对不要**存放密码、信用卡号等敏感信息
+
+  3. Signature（签名）- **防伪标识**
+
+     ```tex
+     HMACSHA256(
+       base64UrlEncode(header) + "." + base64UrlEncode(payload),
+       secret                    // 服务器保存的密钥
+     )
+     ```
+
+     - 服务器用密钥对前两部分进行签名
+     - 如果有人篡改了Payload，服务器验证签名时就会发现不匹配
+     - 没有密钥的人无法伪造有效的签名
+
+  JWT的原理：服务器响应给前端一段短期有效的JWT字符串，前端对其进行保存（通常保存在`LocalStorage/SessionStorage`）。每次请求时将其放在请求头中携带给服务器。服务器对Token验证通过后再响应用户数据。
+
+- **CSRF（跨站请求伪造）**：Cross-Site Request Forgery，跨站请求伪造是一种：攻击者诱导用户访问恶意网站，利用用户在其他网站已登录的状态（保存的Cookie），通过一段恶意脚本**伪造请求**，执行非用户本意操作的攻击方式。
+
+  CSRF防护措施：
+
+  1. CSRF Token（最常用、最有效）：服务器生成随机Token，存在Session中，前端提交请求时必须携带这个Token验证。
+  2. SameSite Cookie属性（现代浏览器防护）：设置Cookie的`SameSite`属性，限制跨站请求是否携带Cookie。
+  3. 验证Referer/Origin头：检查请求来源，只接受可信域的请求。
+  4. 使用自定义请求头：对于API请求，要求必须携带自定义头（如`X-Requested-With: XMLHttpRequest`）。
+  5. 双重认证（敏感操作）：对敏感操作（转账、改密）进行二次验证。
+
+- **XSS（跨站脚本攻击）**：XSS（Cross-Site Scripting，跨站脚本攻击）是一种**代码注入攻击**。攻击者通过在目标网站上**注入恶意脚本**，当其他用户访问时执行这些脚本，从而窃取信息或冒充用户操作。
+
+  XSS防护措施：
+
+  1. 输入过滤（Input Sanitization）：永远不要信任用户输入！
+
+  2. 输出编码（Output Encoding）：根据数据将要出现的上下文，将其转换成该上下文中无意义的形式。
+
+  3. 内容安全策略（CSP）- **最强防线**：通过HTTP头限制脚本执行。
+
+     ```http
+     # 只允许同源脚本
+     Content-Security-Policy: script-src 'self'
+     
+     # 允许特定CDN
+     Content-Security-Policy: script-src 'self' https://trusted-cdn.com
+     
+     # 禁止内联脚本（防止反射型XSS）
+     Content-Security-Policy: script-src 'self' 'unsafe-inline'
+     
+     # 完整示例
+     Content-Security-Policy: 
+       default-src 'self';
+       script-src 'self' https://apis.google.com;
+       style-src 'self' https://fonts.googleapis.com;
+       img-src 'self' data: https:;
+       connect-src 'self' https://api.example.com;
+     ```
+
+  4. HttpOnly Cookie（防窃取）：
+
+     ```js
+     // 设置Cookie为HttpOnly，JavaScript无法读取
+     res.cookie('sessionId', 'abc123', {
+       httpOnly: true,   // 禁止JS访问
+       secure: true,     // 仅HTTPS
+       sameSite: 'strict'
+     });
+     
+     // 现在即使有XSS漏洞，攻击者也读不到Cookie
+     console.log(document.cookie);  // 空字符串或只显示非HttpOnly的Cookie
+     ```
+
+  5. 框架自带防护（推荐）：现代前端框架默认都有XSS防护
+
+     ```jsx
+     // React 自动转义
+     const userInput = '<script>alert(1)</script>';
+     return <div>{userInput}</div>;  // 显示文本，不执行脚本
+     
+     // Vue 自动转义
+     <div>{{ userInput }}</div>  // 安全的
+     
+     // 如果确实需要HTML（危险操作）
+     <div dangerouslySetInnerHTML={{__html: sanitizedHtml}} />
+     ```
+
 - **CDN**：CDN是”内容分发网络“（Content Delivery Network）的缩写，主要用来加速互联网内容的传输，让用户更快、更稳定地访问网站、视频、文件等内容。
 
   CDN的工作原理：

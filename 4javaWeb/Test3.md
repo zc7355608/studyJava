@@ -1,4 +1,4 @@
-- ## session和cookie
+- ## Session和Cookie
 
   - #### Session
 
@@ -255,7 +255,7 @@
         >
         >    比如：当web应用有大量用户访问量，服务器会创建大量的session对象，占用大量的内存资源。我们可以设置：当用户一分钟不操作时，就把session钝化，生成文件保存到磁盘上。当用户再访问时，Tomcat会把磁盘文件反序列化恢复成为session对象。
         >
-        > **Tomcat的Session钝化机制配置：**
+        > **Tomcat的Session钝化机制配置：（针对PersistentManager方式）**
         >
         > 那么应该怎样进行配置呢？Tomcat提供了很多种配置方式，这里介绍三种：
         >
@@ -355,20 +355,22 @@
 
     - ##### 关于三层架构（web层/表示层、service层/业务层、DAO层/持久化层）：
 
-      > 每一层都是一个目录，目录中的代码之间互相都通过接口来调用，具体每一层的实现类在每一层包下会有一个`impl`目录，实现类的类名就是在接口名后面加了`Impl`结尾。web层的实现类中，包含了service层的接口（以属性的形式）；service层的实现类中，又包含了dao层的接口。
+      > 每一层都是一个目录，层与层之间都通过接口来调用。web层的实现类中，包含了service层的接口（以属性的形式）；service层的实现类中，又包含了dao层的接口。
       >
-      > - 表示层/表现层/web层：Servlet、JSP，用于处理前端发送过来的请求以及界面的展示；
-      > - 业务逻辑层Service：java代码，用于具体业务的具体处理与实现，调用DAO进行数据的持久化，调用各种javabean进行数据的封装；一般情况下，每张表都对应处理这张表相关业务的service类；
-      > - 持久化层DAO：和业务无关的jdbc代码，将数据持久化保存到数据库；我们之后会学一些DAO层的框架，如：MyBatis、SpringData..
+      > 通常在每一层的目录下存放接口，对应接口的实现类会单独放到当前目录下的`impl`的目录中，类名用`接口名`+`Impl`。
+      >
+      > - 表示层 / 表现层 / web层：Servlet、JSP，用于处理前端发送过来的请求以及界面的展示；
+      > - 业务逻辑层Service：Java代码，用于具体业务的具体处理与实现，调用DAO进行数据的持久化，调用各种JavaBean进行数据的封装；一般情况下，每张表都对应处理这张表相关业务的Service类；
+      > - 持久化层DAO：和业务无关的JDBC代码，将数据持久化保存到数据库；我们之后会学一些DAO层的框架，如：MyBatis、SpringData..
       >
       > ![三层架构.png](./assets/1661705335838-491775c3-3c9c-4634-9c96-1afb301841a6.webp)
       >
       > ![三层架构2.png](./assets/1661705344624-6307d23b-2ab1-4916-a234-b1a8503530bc.webp)
 
-  - #### 文件上传
+  - #### Servlet做文件上传
 
     1. ##### 前端：
-
+  
        ```html
        <!DOCTYPE html>
        <html lang="en">
@@ -379,14 +381,14 @@
        <body>
            <form action="/upload" method="post" enctype="multipart/form-data">
                <input type="file" name="img"><p>
-               <input type="submit" value=" 提 交 ">
+               <input type="submit" value="提交">
            </form>
        </body>
        </html>
        ```
 
     2. ##### 后端`web.xml`中进行配置后端路由：
-
+  
        ```xml
        <?xml version="1.0" encoding="UTF-8"?>
        <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
@@ -419,7 +421,7 @@
        > 也可以使用注解来代替xml中的配置：`@MultipartConfig( fileSizeThreshold = 1024 * 1024,  maxFileSize = 1024 * 1024 * 10,  maxRequestSize = 1024 * 1024 * 50 )`
 
     3. ##### 后端Servlet处理用户请求：
-
+  
        ```java
        public class FileUploadServlet extends HttpServlet {
        	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

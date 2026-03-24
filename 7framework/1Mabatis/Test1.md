@@ -18,7 +18,7 @@
 
 > - Spring：项目大管家，负责整个项目所有对象的创建以及维护对象和对象之间的关系
 > - Spring MVC：将MVC模式体现的淋漓尽致，在这个基础上开发的WEB项目一定是用了MVC架构模式的，Spring MVC框架已经把MVC架构给你搭建出来了
-> - MyBatis：DAO层框架，jdbc代码封装（MyBatis/Spring Data/Hibernate）
+> - MyBatis：DAO层框架，JBBC代码封装（MyBatis/Spring Data/Hibernate）
 
 ###### 为什么需要MyBatis呢？因为jdbc有不足的地方：
 
@@ -147,6 +147,7 @@
 ##### 3、将CarMapper.xml配置文件关联到mybatis-config.xml核心配置文件中，告诉MyBatis你的sql在哪：
 
 ```xml
+...
 <!--mybatis-config.xml默认从当前所在的类路径下开始找资源-->
 <mappers>
     <!--resource表示从类路径下开始找资源，还有其他后面再说-->
@@ -184,7 +185,7 @@ public void testFirst() throws FileNotFoundException {
 
 > - `SqlSession`是专门执行sql语句的，是一个Java程序和数据库之间的一次会话（链接），需要关闭。多次操作数据库，就得openSession()开启多次数据库会话（链接）。
 >
-> - 要获取SqlSession对象，必须先获取`SqlSessionFactory`对象。该对象是数据库对象，数据库会话（链接）的工厂，通过SqlSessionFactory工厂的openSession()来生产一个SqlSession对象，每操作数据库都要通过数据库对象来获取会话（链接）对象。
+> - 要获取SqlSession对象，必须先获取`SqlSessionFactory`对象。该对象是数据库对象，数据库会话（链接）的工厂，通过SqlSessionFactory工厂的openSession()来生产一个SqlSession对象。每次操作数据库都要通过数据库对象来获取会话（链接）对象。
 >
 > - SqlSessionFactory对象的获取需要用到Mybatis配置文件的信息去链接数据库，所以需要SqlSessionFactoryBuilder对象的build方法去解析配置文件获取该对象。每个`SqlSessionFactory`对象对应一个数据库，该对象一旦获取就不要轻易让JVM回收了，因为要经常用。通常该对象一直在JVM堆中存在。而SqlSessionFactoryBuilder对象用它解析完配置文件信息后，该对象就没用了，因此它一般放在局部作用域中。
 >
@@ -195,7 +196,7 @@ public void testFirst() throws FileNotFoundException {
 ###### 还有一些小细节：
 
 > - CarMapper.xml配置文件里的`<mapper resource="CarMapper.xml"/>`标签中的resource属性，它是从类路径src下找资源的
-> - 值还可以是url，以本地计算机中的绝对路径的方式加载资源的，并且绝对路径前要加上【file:///绝对路径】，如：`file:///d:/CarMapper.xml`。因为无论哪种操作系统，采用的文件协议都是file协议。
+> - 值还可以是url，以本地计算机中的绝对路径的方式加载资源的，并且绝对路径前要加上【file://绝对路径】，如：`file:///d:/CarMapper.xml`。因为无论哪种操作系统，采用的文件协议都是file://协议。
 > - 建议使用resource，url这种方式不太好，因为绝对路径的方式移植性太差。还有其他加载mapper文件的属性，后面再说。
 
 ------
@@ -388,6 +389,7 @@ public void testUtil() {
       delete
       from t_car
       where id = #{id}
+    	<!-- 参数只有一个时，这里的形参名其实可以随便写，不过用id语义化更好 -->
   </delete>
   ```
 
