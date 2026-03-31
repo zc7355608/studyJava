@@ -20,12 +20,12 @@
     > <link href="basic.css" rel="alternate stylesheet" title="Basic">
     > ```
     >
-    > 上面代码中，`default.css`是默认样式表，默认就会生效。`fancy.css`和`basic.css`是替换样式表（`rel="alternate stylesheet"`），默认不生效。**`title`属性在这里是必需的**，用来在浏览器菜单里面列出这些样式表的名字，供用户选择，以替代默认样式表。
+    > 上面代码中，`default.css`是默认样式表，默认就会生效。`fancy.css`和`basic.css`是替换样式表（`rel="alternate stylesheet"`），默认不生效。**`title`属性在这里是必需的**，用来在浏览器菜单里面列出这些样式表的名字，供用户选择，以替代默认样式表。（使用这种方式要注意查看各浏览器的支持情况，google默认不支持）
     >
     > `<link>`还可以加载网站的 favicon 图标文件。
     >
     > ```html
-    > <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    > <link rel="icon" type="image/x-icon" href="/favicon.ico">
     > ```
     >
     > 手机访问时，网站通常需要提供不同分辨率的图标文件。
@@ -141,13 +141,19 @@
       >
       > 上面代码要求浏览器提前下载并缓存`style.css`和`main.js`。
       >
-      > `as`属性指定加载资源的类型，它的值一般有下面几种：
+      > `as`属性指定加载资源的类型，常用的值有下面几种：
       >
-      > - "script"
-      > - "style"
-      > - "image"
-      > - "media"
-      > - "document"
+      > - `script`
+      >
+      > - `style`
+      >
+      > - `image`
+      >
+      > - `media`
+      >
+      > - `document`
+      >
+      >   ...
       >
       > **如果不指定`as`属性，或者它的值是浏览器不认识的，那么浏览器会以较低的优先级下载这个资源**。
       >
@@ -227,7 +233,7 @@
 
   - #### 其他属性
 
-    > `<link>`标签的其他属性如下。
+    > `<link>`标签的其他属性如下：
     >
     > - `crossorigin`：加载外部资源的跨域设置。
     > - `href`：外部资源的网址。
@@ -288,9 +294,9 @@
     > - `async`：该属性指定 JavaScript 代码为异步执行，不是造成阻塞效果，JavaScript 代码默认是同步执行。
     > - `defer`：该属性指定 JavaScript 代码不是立即执行，而是页面解析完成后执行。
     > - `crossorigin`：如果采用这个属性，就会采用跨域的方式加载外部脚本，即 HTTP 请求的头信息会加上`origin`字段。
-    > - `integrity`：给出外部脚本的哈希值，防止脚本被篡改。只有哈希值相符的外部脚本，才会执行。
-    > - `nonce`：一个密码随机数，由服务器在 HTTP 头信息里面给出，每次加载脚本都不一样。它相当于给出了内嵌脚本的白名单，只有在白名单内的脚本才能执行。
     > - `referrerpolicy`：HTTP 请求的`Referer`字段的处理方法。
+    > - `integrity`：给出外部脚本的哈希值，防止脚本被篡改。浏览器拿到脚本后，根据其内容计算出hash值，如果和`<script>`标签指定的hash值相同，才会执行。
+    > - `nonce`：一个密码随机数（每次加载脚本时这个数都不一样），由服务器在 HTTP 头信息里面给出（`Content-Security-Policy: script-src 'nonce-abc123xyz789...'`），浏览器**记住**这个策略：只有 `nonce="abc123xyz789..."` 的脚本才能执行。它相当于给出了内嵌脚本的白名单，只有在白名单内的脚本才能执行。因此`<script>`标签的`nonce`属性值必须随着响应头去动态变化。
 
   - ##### `<noscript>`：
 

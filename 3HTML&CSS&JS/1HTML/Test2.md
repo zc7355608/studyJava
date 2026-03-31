@@ -10,11 +10,11 @@
     >
     > ```html
     > <div class="main">
-    > <div class="article">
-    >   <div class="title">
-    >     <h1>文章标题</h1>
-    >   </div>
-    >  </div>
+    >   <div class="article">
+    >       <div class="title">
+    >        	<h1>文章标题</h1>
+    >       </div>
+    >    </div>
     > </div>
     > ```
     >
@@ -22,11 +22,11 @@
     >
     > ```html
     > <main>
-    > <article>
-    >  <header>
-    >    <h1>文章标题</h1>
-    >  </header>
-    > </article>
+    >   <article>
+    >      <header>
+    >        	<h1>文章标题</h1>
+    >      </header>
+    >   </article>
     > </main>
     > ```
     >
@@ -35,8 +35,8 @@
     >
     > ```html
     > <div>
-    > <img src="warning.jpg" alt="警告">
-    > <p>小心</p>
+    >   <img src="warning.jpg" alt="警告">
+    >   <p>小心</p>
     > </div>
     > ```
     >
@@ -101,7 +101,7 @@
     >
     > ```html
     > <p>
-    > Fernstraßen<wbr>bau<wbr>privat<wbr>finanzierungs<wbr>gesetz
+    > 	Fernstraßen<wbr>bau<wbr>privat<wbr>finanzierungs<wbr>gesetz
     > </p>
     > ```
     >
@@ -268,10 +268,10 @@
     >
     > ```html
     > <pre>
-    >   <code>
-    >       let a = 1;
-    >       console.log(a);
-    >   </code>
+    >     <code>
+    >        let a = 1;
+    >        console.log(a);
+    >     </code>
     > </pre>
     > ```
 
