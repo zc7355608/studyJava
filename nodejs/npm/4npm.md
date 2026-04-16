@@ -213,3 +213,66 @@
 > - `nvm install 版本号`：安装该版本的node。`nvm install latest`是安装最新版node
 > - `nvm uninstall 版本号`：卸载该版本的node
 > - `nvm use 版本号`：使用该版本的node
+
+------
+
+#### Corepack：
+
+> Corepack 是 Node.js 官方自带的“包管理器管理工具”。它的核心作用是让你和你的团队在开发项目时，不必再手动全局安装 Yarn 或 pnpm，更不用操心每个项目该用哪个版本，它会自动处理这一切。
+>
+> 你可以把它理解成一个“包管理器的统一调度中心”，主要解决了两个痛点：
+>
+> 1. **新成员上手项目时**：不需要再问“这个项目是用 Yarn 还是 pnpm？版本是多少？怎么装？”，Corepack 会自动搞定。
+> 2. **团队协作时**：彻底杜绝因包管理器版本不一致导致的“我这里明明可以运行啊”这类问题。
+
+###### 它是如何工作的？
+
+1. **声明**：你只需要在项目的 `package.json` 里，通过 `"packageManager"` 字段明确指定要用哪个包管理器及其精确版本。
+
+   ```json
+   {
+     "packageManager": "pnpm@9.15.0"
+   }
+   ```
+
+2. **拦截与执行**：当你在项目目录下运行 `pnpm install` 时，Corepack 会拦截这个命令。
+
+3. **自动下载**：它会读取 `package.json` 中的配置，检查本地是否有 `pnpm@9.15.0`。如果没有，它会自动、透明地从网络下载这个精确版本，然后用它来执行安装。（Corepack 下载的 pnpm 可执行文件放在系统缓存目录`~/.cache/node/corepack/` 目录下，不会出现在你的项目 `node_modules` 里，也不会写入 `package.json` 的任何依赖字段）
+
+###### 如何使用？
+
+Corepack 从 Node.js `v16.9.0` 和 `v14.19.0` 开始就已内置，但它目前仍是一个**实验性功能**，需要手动启用一下。
+
+**1. 启用 Corepack**
+在终端执行以下命令，它会在你的系统里设置好环境，让你能直接使用 `yarn` 和 `pnpm` 命令。
+
+```bash
+corepack enable
+```
+
+> 如果你想用 Corepack 也管理 `npm` 本身，可以运行 `corepack enable npm`。
+
+**2. 为一个新项目指定包管理器**
+在项目根目录下运行，Corepack 会自动下载指定版本，并帮你把 `packageManager` 字段写入 `package.json`。
+
+```bash
+# 告诉项目使用 pnpm 的最新 9.x 版本
+corepack use pnpm@9.x
+```
+
+###### 需要注意的点
+
+- **状态**：Corepack 目前仍是 **实验性** 功能。这意味着它的接口或行为在未来版本中可能会有调整，但目前已被主流项目广泛使用，相当稳定。
+
+- **网络依赖**：它默认在团队每个人**首次运行**或**切换版本**时需要网络连接来下载包管理器。
+
+  > 如果需要在完全离线的生产环境（如 CI/CD）中使用，可以先通过 `corepack pack` 命令提前打包好。
+  >
+  > 完整的流程是：
+  >
+  > 1. 在能联网的机器上（如本地电脑）执行 `corepack pack`，这会生成一个 `.tgz` 文件，你可以把它提交到 Git 仓库，或放在构建镜像里。
+  > 2. 在离线的生产环境/CI机器上执行 `corepack install -g --cache-only <path/to/corepack.tgz>`：
+  >    这个命令会读取第一步生成的 `.tgz` 文件，并将其中的包管理器安装到 Corepack 的缓存中（即`~/.cache/node/corepack/`）。之后，Corepack 就能在完全不联网的情况下，直接使用这个缓存版本来运行 `pnpm install` 了。
+
+------
+
