@@ -367,7 +367,7 @@
   
     > JS 解析或运行时，一旦发生错误，引擎就会抛出一个错误对象。JS 原生提供`Error`构造函数，所有抛出的错误都是这个构造函数的实例。
     >
-    > ```
+    > ```js
     > var err = new Error('出错了');
     > err.message // "出错了"
     > ```
@@ -433,10 +433,10 @@
     >
     > ```js
     > try {
-    > 	throw new Error('出错了!');
+    >   throw new Error('出错了!');
     > } catch (e) {
-    >    console.log(e.name + ": " + e.message);
-    >    console.log(e.stack);
+    >      console.log(e.name + ": " + e.message);
+    >      console.log(e.stack);
     > }
     > // Error: 出错了!
     > //   at <anonymous>:3:9
@@ -457,7 +457,7 @@
     
     > `try...catch`结构允许在最后添加一个`finally`代码块，表示不管是否出现错误，都必需在最后执行的语句。
     >
-    > 即使`try`代码块里面还包括`return`语句，`finally`代码块最后依然会执行。（finally块在return之后执行）
+    > 即使`try`代码块里面还包括`return`语句，`finally`代码块最后依然会执行。（`finally`块中的代码在`return`之后执行）
     
   - #### 全局对象`console`
   
@@ -467,11 +467,11 @@
     > - 提供了一个命令行接口，用来与网页代码互动。
     >
     > `console`对象的浏览器实现，包含在浏览器自带的开发工具之中（F12）。`console`对象提供的各种静态方法，用来与控制台窗口互动：（`console`对象的所有方法，都可以被覆盖。因此，可以按照自己的需要，定义`console.log`方法）
-    
+  
     - `console.log()`：用于在控制台输出信息。它可以接受一个或多个参数，将它们用空格连接起来输出。它会自动在每次输出的结尾添加换行符。
   
       > 如果第一个参数是格式字符串（使用了格式占位符），`console.log`方法将依次用后面的参数替换占位符，然后再进行输出。
-    >
+      >
       > ```js
       > console.log('%s + %s = %s', 1, 1, 2)  // 1 + 1 = 2
       > ```
@@ -495,7 +495,6 @@
       > ```
       >
       > 上面代码运行后，输出的内容将显示为黄底红字。
-    
     - `console.info()`：它是`console.log`方法的别名，用法完全一样。只不过`console.info`方法会在输出信息的前面，加上一个蓝色图标。
   
     - `console.debug()`：`console.debug`方法与`console.log`方法类似，会在控制台输出调试信息。但是，默认情况下，`console.debug`输出的信息不会显示，只有在打开显示级别在`verbose`的情况下，才会显示。
@@ -526,11 +525,10 @@
       console.groupEnd(); // 二级分组结束
       console.groupEnd(); // 一级分组结束
       ```
-    
+  
       > 上面代码会将“二级分组”显示在“一级分组”内部，并且“一级分组”和“二级分组”前面都有一个折叠符号，可以用来折叠本级的内容。
-    >
+      >
       > `groupCollapsed`方法与`group`方法很类似，唯一的区别是该组的内容，在第一次显示时是收起的（collapsed），而不是展开的。
-    
     - `console.trace()`：显示当前执行的代码在堆栈中的调用路径。
   
     - `console.clear()`：清除当前控制台的所有输出，将光标回置到第一行。如果用户选中了控制台的“Preserve log”选项，该方法将不起作用。
@@ -584,7 +582,7 @@
       > 构造函数的特点有两个：
       >
       > - 函数体内部使用了`this`关键字，代表了所要生成的对象实例。
-      > - 调用构造函数生成对象的时候，必须使用`new`命令调用。
+      > - 通过构造函数生成对象的时候，必须使用`new`命令调用。
       >
       > 下面先介绍`new`命令。
 
@@ -594,7 +592,7 @@
       >
       > ```js
       >var Vehicle = function () {
-      > 	this.price = 1000;
+      >   this.price = 1000;
       > };
       >   var v = new Vehicle();
       > v.price // 1000
@@ -612,7 +610,7 @@
       >
       > ```js
       >var Vehicle = function (){
-      > 	this.price = 1000;
+      >   this.price = 1000;
       > };
       >   var v = Vehicle();
       > v // undefined
@@ -625,9 +623,9 @@
       >
       > ```js
       >function Fubar(foo, bar){
-      >     'use strict';
-      >     this._foo = foo;
-      >   	this._bar = bar;
+      >      'use strict';
+      >      this._foo = foo;
+      >     this._bar = bar;
       > }
       > Fubar()  // TypeError: Cannot set property '_foo' of undefined
       > ```
@@ -638,12 +636,12 @@
       > 
       > ```js
       > function Fubar(foo, bar) {
-      >     if (!(this instanceof Fubar)) {
-      >     	return new Fubar(foo, bar);
-      > 	}
+      >      if (!(this instanceof Fubar)) {
+      >      	return new Fubar(foo, bar);
+      >   }
       >
-      >     this._foo = foo;
-      >    this._bar = bar;
+      >      this._foo = foo;
+      >      this._bar = bar;
       > }
       >Fubar(1, 2)._foo // 1
       > (new Fubar(1, 2))._foo // 1
@@ -687,22 +685,22 @@
 
   - ### `this` 关键字
 
-    > 环境对象`this`是函数内部的一个特殊变量（箭头函数没有`this`），代表了当前函数运行时所在的上下文环境。不同环境下`this`的指向不同。那怎么看this指向谁呢？
-    >
-    > 谁调用的该函数，函数中的`this`指向谁。
-    >
-    > `this`指向调用这个函数的对象。全局作用域中调用的函数，`this`指向全局作用域的`window`对象；回调函数中的this通常指向该函数所在的作用域（或者称为“该回调的调用者”）；事件回调函数中的this指向调用者，也就是发生事件的DOM元素；箭头函数中没有`this`，它继承了上个作用域的`this`。
-    >
-    > （回调函数中的`this`往往会改变指向，最好避免使用。因此很多回调函数都写成箭头函数）
+    环境对象`this`是函数内部的一个特殊变量（箭头函数没有`this`），代表了当前函数运行时所在的上下文环境。不同环境下`this`的指向不同。那怎么看this指向谁呢？
+  
+    谁调用的该函数，函数中的`this`指向谁。
+  
+    `this`指向调用这个函数的对象。全局作用域中调用的函数，`this`指向全局作用域的`window`对象；回调函数中的this通常指向该函数所在的作用域（或者称为“该回调的调用者”）；事件回调函数中的this指向调用者，也就是发生事件的DOM元素；箭头函数中没有`this`，它继承了上个作用域的`this`。
+  
+    （回调函数中的`this`往往会改变指向，最好避免使用。因此很多回调函数都写成箭头函数）
 
     ###### `this`的动态切换，固然为 JS 创造了巨大的灵活性，但也使得编程变得困难和模糊。有时，需要把`this`固定下来，避免出现意想不到的情况。JS 提供了`call`、`apply`、`bind`这三个方法，来切换/固定`this`的指向：
 
     1. `fnc.call(thisObj, 函数参数..)`：它会调用fnc函数，并将函数中的`this`指向第1个参数。
 
-       > 注意：
-       >
-       > 1. 第1个参数应该是一个对象，如果参数为`null`或`undefined`，则默认传入全局对象window。
-       > 2. 如果第1个参数是一个原始值，那么这个原始值会自动转成对应的包装对象。
+       注意：
+       
+       1. 第1个参数是一个对象，如果传了`null`或`undefined`，则普通模式下`this`指向全局对象（`window/global`），严格模式下传了什么值，`this`就是什么。
+       2. 如果第1个参数是一个原始值，那么这个原始值会自动转成对应的包装对象。
 
        ###### `call`方法的一个应用是调用对象的原生方法：
 
@@ -723,327 +721,329 @@
 
     2. `fnc.apply(thisObj, 数组)`：和`call()`函数类似，只不过函数参数放在了数组中。
 
-       > - 比如求数组最大值可以：`Math.max.apply(null, arr)`
-       >
-       > - 将数组的空位元素变为`undefined`：`Array.apply(null, ['a', ,'b'])`
-       >
-       >   > 空元素与`undefined`的差别在于，数组的`forEach`方法会跳过空元素，但是不会跳过`undefined`。因此，遍历内部元素的时候，会得到不同的结果。
-       >
-       > - 将伪数组转为数组：`Array.prototype.slice.apply({0: 1, length: 1}) // [1]`
-       >
-       >   > 这个方法起作用的前提是，被处理的对象必须有`length`属性，以及相对应的数字键。
+       - 比如求数组最大值可以：`Math.max.apply(null, arr)`
+  
+       - 将数组的空位元素变为`undefined`：`Array.apply(null, ['a', ,'b'])`
+  
+         > 空元素与`undefined`的差别在于，数组的`forEach`方法会跳过空元素，但是不会跳过`undefined`。因此，遍历内部元素的时候，会得到不同的结果。
+  
+       - 将伪数组转为数组：`Array.prototype.slice.apply({0: 1, length: 1}) // [1]`
+  
+         > 这个方法起作用的前提是，被处理的对象必须有`length`属性，以及相对应的数字键。
 
     3. `fnc.bind(thisObj, 函数的预设参数..)`：它改变函数的`this`后返回一个新函数。后面的参数用于给函数预设实参。
 
-    ###### `this`的本质：
+       > 返回的新函数一般不带自己的`prototype`，但仍可被`new`，并复用原函数的构造能力。
 
-    > 其实`this`本质上就是函数运行时所在的环境，JS 语言之所以有 this 的设计，跟内存里面的数据结构有关系。
-    >
-    > ```js
-    > var obj = { foo:  5 };
-    > ```
-    >
-    > 上面的代码将一个对象赋值给变量`obj`。JS 引擎会先在内存里面，生成一个对象`{ foo: 5 }`，然后把这个对象的内存地址赋值给变量`obj`。也就是说，变量`obj`是一个地址（reference）。后面如果要读取`obj.foo`，引擎先从`obj`拿到内存地址，然后再从该地址读出原始的对象，返回它的`foo`属性。
-    >
-    > 原始的对象以字典结构保存，每一个属性名都对应一个属性描述对象。举例来说，上面例子的`foo`属性，实际上是以下面的形式保存的。
-    >
-    > ```js
-    > {
-    >     foo: {
-    >         [[value]]: 5
-    >         [[writable]]: true
-    >         [[enumerable]]: true
-    >         [[configurable]]: true
-    >     }
-    > }
-    > ```
-    >
-    > 注意，`foo`属性的值保存在属性描述对象的`value`属性里面。
-    >
-    > 这样的结构是很清晰的，问题在于属性的值可能是一个函数。
-    >
-    > ```js
-    > var obj = { foo: function () {} };
-    > ```
-    >
-    > 这时，引擎会将函数单独保存在内存中，然后再将函数的地址赋值给`foo`属性的`value`属性。
-    >
-    > ```js
-    > {
-    >     foo: {
-    >         [[value]]: 函数的地址
-    >         ...
-    >     }
-    > }
-    > ```
-    >
-    > 由于函数是一个单独的值，所以它可以在不同的环境（上下文）执行。
-    >
-    > ```js
-    > var f = function () {};
-    > var obj = { f: f };
-    > 
-    > // 单独执行
-    > f()
-    > 
-    > // obj 环境执行
-    > obj.f()
-    > ```
-    >
-    > JS 允许在函数体内部，引用当前环境的其他变量。
-    >
-    > ```js
-    > var f = function () {
-    > 	console.log(x);
-    > };
-    > ```
-    >
-    > 上面代码中，函数体里面使用了变量`x`。该变量由运行环境提供。
-    >
-    > 现在问题就来了，由于函数可以在不同的运行环境执行，所以需要有一种机制，能够在函数体内部获得当前的运行环境（context）。所以，`this`就出现了，它的设计目的就是在函数体内部，指代函数当前的运行环境。
-    >
-    > ```js
-    > var f = function () {
-    > 	console.log(this.x);
-    > }
-    > ```
-    >
-    > 上面代码中，函数体里面的`this.x`就是指当前运行环境的`x`。
-    >
-    > ```js
-    > var f = function () {
-    > 	console.log(this.x);
-    > }
-    > 
-    > var x = 1;
-    > var obj = {
-    >     f: f,
-    >     x: 2,
-    > };
-    > 
-    > // 单独执行
-    > f() // 1
-    > 
-    > // obj 环境执行
-    > obj.f() // 2
-    > ```
-    >
-    > 上面代码中，函数`f`在全局环境执行，`this.x`指向全局环境的`x`；在`obj`环境执行，`this.x`指向`obj.x`。
+    ###### `this`的本质：
+  
+    其实`this`本质上就是函数运行时所在的环境，JS 语言之所以有 this 的设计，跟内存里面的数据结构有关系。
+  
+    ```js
+    var obj = { foo:  5 };
+    ```
+  
+    上面的代码将一个对象赋值给变量`obj`。JS 引擎会先在内存里面，生成一个对象`{ foo: 5 }`，然后把这个对象的内存地址赋值给变量`obj`。也就是说，变量`obj`是一个地址（reference）。后面如果要读取`obj.foo`，引擎先从`obj`拿到内存地址，然后再从该地址读出原始的对象，返回它的`foo`属性。
+  
+    原始的对象以字典结构保存，每一个属性名都对应一个属性描述对象。举例来说，上面例子的`foo`属性，实际上是以下面的形式保存的。
+  
+    ```js
+    {
+     foo: {
+         [[value]]: 5
+         [[writable]]: true
+         [[enumerable]]: true
+         [[configurable]]: true
+     }
+    }
+    ```
+  
+    注意，`foo`属性的值保存在属性描述对象的`value`属性里面。
+  
+    这样的结构是很清晰的，问题在于属性的值可能是一个函数。
+  
+    ```js
+    var obj = { foo: function () {} };
+    ```
+  
+    这时，引擎会将函数单独保存在内存中，然后再将函数的地址赋值给`foo`属性的`value`属性。
+  
+    ```js
+    {
+     foo: {
+         [[value]]: 函数的地址
+         ...
+     }
+    }
+    ```
+  
+    由于函数是一个单独的值，所以它可以在不同的环境（上下文）执行。
+  
+    ```js
+    var f = function () {};
+    var obj = { f: f };
+    
+    // 单独执行
+    f()
+    
+    // obj 环境执行
+    obj.f()
+    ```
+  
+    JS 允许在函数体内部，引用当前环境的其他变量。
+  
+    ```js
+    var f = function () {
+    	console.log(x);
+    };
+    ```
+  
+    上面代码中，函数体里面使用了变量`x`。该变量由运行环境提供。
+  
+    现在问题就来了，由于函数可以在不同的运行环境执行，所以需要有一种机制，能够在函数体内部获得当前的运行环境（context）。所以，`this`就出现了，它的设计目的就是在函数体内部，指代函数当前的运行环境。
+  
+    ```js
+    var f = function () {
+    	console.log(this.x);
+    }
+    ```
+  
+    上面代码中，函数体里面的`this.x`就是指当前运行环境的`x`。
+  
+    ```js
+    var f = function () {
+    	console.log(this.x);
+    }
+    
+    var x = 1;
+    var obj = {
+     f: f,
+     x: 2,
+    };
+    
+    // 单独执行
+    f() // 1
+    
+    // obj 环境执行
+    obj.f() // 2
+    ```
+  
+    上面代码中，函数`f`在全局环境执行，`this.x`指向全局环境的`x`；在`obj`环境执行，`this.x`指向`obj.x`。
 
   - ### JS 中的原型继承
-
-    > 面向对象编程很重要的一个方面，就是对象的继承。A 对象通过继承 B 对象，就能直接拥有 B 对象的所有属性和方法。这对于代码的复用是非常有用的。
-    >
-    > 大部分面向对象的编程语言，都是通过“类”（class）实现对象的继承。传统上，JS 语言的继承不通过类，而是通过“原型对象”（prototype）实现，本章介绍 JS 的原型继承。
-    >
-    > （ES6 引入了 class 语法，基于 class 的继承不在这里介绍，请参考ES6笔记。不过它本质上就是原型继承的语法糖而已）
+  
+    面向对象编程很重要的一个方面，就是对象的继承。A 对象通过继承 B 对象，就能直接拥有 B 对象的所有属性和方法。这对于代码的复用是非常有用的。
+    
+    大部分面向对象的编程语言，都是通过“类”（class）实现对象的继承。传统上，JS 语言的继承不通过类，而是通过“原型对象”（prototype）实现，本章介绍 JS 的原型继承。
+    
+    （ES6 引入了 class 语法，基于 class 的继承不在这里介绍，请参考ES6笔记。不过它本质上就是原型继承的语法糖而已）
 
     - ##### 构造函数的缺点：
-
-      > 通过构造函数为实例对象定义属性，虽然很方便，但是有一个缺点。同一个构造函数的多个实例之间，无法共享属性，从而造成对系统资源的浪费。
-      >
-      > ```js
-      > function Cat(name, color) {
-      >     this.name = name;
-      >     this.color = color;
-      >     this.meow = function () {
-      >     	console.log('喵喵');
-      >     };
-      > }
-      > 
-      > var cat1 = new Cat('大毛', '白色');
-      > var cat2 = new Cat('二毛', '黑色');
-      > 
-      > cat1.meow === cat2.meow  // false
-      > ```
-      >
-      > 上面代码中，`cat1`和`cat2`是同一个构造函数的两个实例，它们都具有`meow`方法。由于`meow`方法是生成在每个实例对象上面，所以两个实例就生成了两次。也就是说，每新建一个实例，就会新建一个`meow`方法。这既没有必要，又浪费内存，因为所有`meow`方法都是同样的行为，完全应该共享。
-      >
-      > 这个问题的解决方法，就是 JS 的原型对象（prototype）。
+  
+      通过构造函数为实例对象定义属性，虽然很方便，但是有一个缺点。同一个构造函数的多个实例之间，无法共享属性，从而造成对系统资源的浪费。
+      
+      ```js
+      function Cat(name, color) {
+        this.name = name;
+        this.color = color;
+        this.meow = function () {
+        	console.log('喵喵');
+        };
+      }
+      
+      var cat1 = new Cat('大毛', '白色');
+      var cat2 = new Cat('二毛', '黑色');
+      
+      cat1.meow === cat2.meow  // false
+      ```
+      
+      上面代码中，`cat1`和`cat2`是同一个构造函数的两个实例，它们都具有`meow`方法。由于`meow`方法是生成在每个实例对象上面，所以两个实例就生成了两次。也就是说，每新建一个实例，就会新建一个`meow`方法。这既没有必要，又浪费内存，因为所有`meow`方法都是同样的行为，完全应该共享。
+      
+      这个问题的解决方法，就是 JS 的原型对象（prototype）。
 
     - ##### 原型对象（prototype）：
-
-      > JS 的每个函数中都有一个`prototype`属性，指向一个对象，这个普通的对象就叫原型对象。**原型对象一般会包含`constructor`属性。**（箭头函数、简写的对象方法、`async`异步函数中没有`prototype`属性）
-      >
-      > **每个 JS 对象都有`__proto__`属性指向自己所关联的原型对象。**
-      >
-      > JS 继承的设计思想是：将需要被所有实例共享的属性和方法，放在原型对象上。所有实例都能访问到它们共同的原型对象上的属性和方法。当实例对象本身没有某个属性或方法的时候，它会到自己的原型对象上去找该属性或方法。如果实例对象自身就有某个属性或方法，它就不会再去原型对象寻找这个属性或方法。这就是原型对象的特殊之处。
-      >
-      > 原型对象的属性不是实例对象自身的属性。只要修改原型对象，变动就立刻会体现在**所有**实例对象上。
+  
+      JS 的每个函数中都有一个`prototype`属性，指向一个对象，这个普通的对象就叫原型对象。**原型对象一般会包含`constructor`属性，指向自己所在的构造函数。**（箭头函数、简写的对象方法、`async`异步函数中没有`prototype`属性）
+      
+      **每个 JS 对象都有`__proto__`属性指向自己所关联的原型对象。**
+      
+      JS 继承的设计思想是：将需要被所有实例共享的属性和方法，放在原型对象上。所有实例都能访问到它们共同的原型对象上的属性和方法。当实例对象本身没有某个属性或方法的时候，它会到自己的原型对象上去找该属性或方法。如果实例对象自身就有某个属性或方法，它就不会再去原型对象寻找这个属性或方法。这就是原型对象的特殊之处。
+      
+      原型对象的属性不是实例对象自身的属性。只要修改原型对象，变动就立刻会体现在**所有**实例对象上。
       
     - ##### 原型链：
     
-      > JS 规定，所有对象都有自己的原型对象（prototype）。一方面，任何一个对象，都可以充当其他对象的原型；另一方面，由于原型对象也是对象，所以它也有自己的原型。因此，就会形成一个“原型链”（prototype chain）：对象到原型，再到原型的原型……
-      >
-      > 如果一层层地上溯，所有对象的原型最终都可以上溯到`Object.prototype`，即`Object`构造函数的`prototype`属性。也就是说，所有对象都继承了`Object.prototype`上的成员。这就是所有对象都有`valueOf`和`toString`方法的原因，因为这是从`Object.prototype`继承的。
-      >
-      > 那么，`Object.prototype`对象有没有它的原型呢？回答是`Object.prototype`的原型是`null`。`null`没有任何属性和方法，也没有自己的原型。因此，原型链的尽头就是`null`。
-      >
-      > 读取对象的某个属性时，JS 引擎先寻找对象本身的属性，如果找不到，就到它的原型去找，如果还是找不到，就到原型的原型去找。如果直到最顶层的`Object.prototype`还是找不到，则返回`undefined`。如果对象自身和它的原型，都定义了一个同名属性，那么优先读取对象自身的属性，这叫做“覆盖”（overriding）。
+      JS 规定，所有对象都有自己的原型对象（prototype）。一方面，任何一个对象，都可以充当其他对象的原型；另一方面，由于原型对象也是对象，所以它也有自己的原型。因此，就会形成一个“原型链”（prototype chain）：对象到原型，再到原型的原型……
+      
+      如果一层层地上溯，所有对象的原型最终都可以上溯到`Object.prototype`，即`Object`构造函数的`prototype`属性。也就是说，所有对象都继承了`Object.prototype`上的成员。这就是所有对象都有`valueOf`和`toString`方法的原因，因为这是从`Object.prototype`继承的。
+      
+      那么，`Object.prototype`对象有没有它的原型呢？回答是`Object.prototype`的原型是`null`。`null`没有任何属性和方法，也没有自己的原型。因此，原型链的尽头就是`null`。
+      
+      读取对象的某个属性时，JS 引擎先寻找对象本身的属性，如果找不到，就到它的原型去找，如果还是找不到，就到原型的原型去找。如果直到最顶层的`Object.prototype`还是找不到，则返回`undefined`。如果对象自身和它的原型，都定义了一个同名属性，那么优先读取对象自身的属性，这叫做“覆盖”（overriding）。
     
       ###### 注意：一级级向上，在整个原型链上寻找某个属性，对性能是有影响的。所寻找的属性在越上层的原型对象，对性能的影响越大。如果寻找某个不存在的属性，将会遍历整个原型链。
     
     - ##### `constructor` 属性：
-
-      > 原型对象通常有一个`constructor`属性，默认指向原型对象所在的构造函数。
-      >
-      > 由于`constructor`属性定义在`prototype`对象上面，意味着可以被所有实例对象继承。因此每个实例可以通过原型上的`constructor`来访问构造该实例的构造函数。
-      >
-      > 另一方面，有了`constructor`属性，就可以从一个实例对象新建另一个实例。
-      >
-      > ```js
-      > function Constr() {}
-      > var x = new Constr();
-      > var y = new x.constructor();
-      > y instanceof Constr // true
-      > ```
-      >
-      > 上面代码中，`x`是构造函数`Constr`的实例，可以从`x.constructor`间接调用构造函数。这使得在实例方法中，调用自身的构造函数成为可能。
-      >
-      > ```js
-      > Constr.prototype.createCopy = function () {
-      > 	return new this.constructor();
-      > };
-      > ```
-      >
-      > `constructor`属性表示原型对象与构造函数之间的关联关系，如果修改了原型对象，一般会同时修改`constructor`属性，防止引用的时候出错。
-      >
-      > ```js
-      > function Person(name) {
-      > 	this.name = name;
-      > }
-      > Person.prototype.constructor === Person // true
-      > Person.prototype = {
-      > 	method: function () {}
-      > };
-      > Person.prototype.constructor === Person // false
-      > Person.prototype.constructor === Object // true
-      > ```
-      >
-      > 上面代码中，构造函数`Person`的原型对象改掉了，但是没有修改`constructor`属性，导致这个属性不再指向`Person`。由于`Person`的新原型是一个普通对象，而普通对象的`constructor`属性指向`Object`构造函数，导致`Person.prototype.constructor`变成了`Object`。
-      >
-      > 所以，修改原型对象时，一般要同时修改`constructor`属性的指向。
-      >
-      > ```js
-      > // 坏的写法
-      > C.prototype = {
-      >   method1: function (...) { ... },
-      >   // ...
-      > };
-      > 
-      > // 好的写法
-      > C.prototype = {
-      >   constructor: C,
-      >   method1: function (...) { ... },
-      >   // ...
-      > };
-      > 
-      > // 更好的写法
-      > C.prototype.method1 = function (...) { ... };
-      > ```
-      >
-      > 上面代码中，要么将`constructor`属性重新指向原来的构造函数，要么只在原型对象上添加方法，这样可以保证`instanceof`运算符不会失真。
+  
+      原型对象通常有一个`constructor`属性，默认指向原型对象所在的构造函数。
+      
+      由于`constructor`属性定义在`prototype`对象上面，意味着可以被所有实例对象继承。因此每个实例可以通过原型上的`constructor`来访问构造该实例的构造函数。
+      
+      另一方面，有了`constructor`属性，就可以从一个实例对象新建另一个实例。
+      
+      ```js
+      function Constr() {}
+      var x = new Constr();
+      var y = new x.constructor();
+      y instanceof Constr // true
+      ```
+      
+      上面代码中，`x`是构造函数`Constr`的实例，可以从`x.constructor`间接调用构造函数。这使得在实例方法中，调用自身的构造函数成为可能。
+      
+      ```js
+      Constr.prototype.createCopy = function () {
+        return new this.constructor();
+      };
+      ```
+      
+      `constructor`属性表示原型对象与构造函数之间的关联关系，如果修改了原型对象，一般会同时修改`constructor`属性，防止引用的时候出错。（保证`instanceof`运算符不会失真）
+      
+      ```js
+      function Person(name) {
+        this.name = name;
+      }
+      Person.prototype.constructor === Person // true
+      Person.prototype = {
+        method: function () {}
+      };
+      Person.prototype.constructor === Person // false
+      Person.prototype.constructor === Object // true
+      ```
+      
+      上面代码中，构造函数`Person`的原型对象改掉了，但是没有修改`constructor`属性，导致这个属性不再指向`Person`。由于`Person`的新原型是一个普通对象，而普通对象的`constructor`属性指向`Object`构造函数，导致`Person.prototype.constructor`变成了`Object`。
+      
+      所以，修改原型对象时，一般要同时修改`constructor`属性的指向。
+      
+      ```js
+      // 坏的写法
+      C.prototype = {
+        method1: function (...) { ... },
+        // ...
+      };
+      
+      // 好的写法
+      C.prototype = {
+        constructor: C,
+        method1: function (...) { ... },
+        // ...
+      };
+      
+      // 更好的写法
+      C.prototype.method1 = function (...) { ... };
+      ```
+      
+      上面代码中，要么将`constructor`属性重新指向原来的构造函数，要么只在原型对象上添加方法，这样可以保证`instanceof`运算符不会失真。
     
     - ##### `instanceof` 运算符：
     
-      > `instanceof`运算符返回一个布尔值，表示对象是否为某个构造函数的实例。
-      >
-      > ```js
-      > var v = new Vehicle();
-      > v instanceof Vehicle // true
-      > ```
-      >
-      > `instanceof`运算符的左边是实例对象，右边是构造函数。它会检查右边构造函数的原型对象（prototype），是否在左边对象的原型链上。因此，下面两种写法是等价的。
-      >
-      > ```js
-      > v instanceof Vehicle
-      > // 等同于
-      > Vehicle.prototype.isPrototypeOf(v)
-      > ```
-      >
+      `instanceof`运算符返回一个布尔值，表示对象是否为某个构造函数的实例。
+      
+      ```js
+      var v = new Vehicle();
+      v instanceof Vehicle // true
+      ```
+      
+      `instanceof`运算符的左边是实例对象，右边是构造函数。它会**检查右边构造函数的原型对象（prototype），是否在左边对象的原型链上**。因此，下面两种写法是等价的。
+      
+      ```js
+      v instanceof Vehicle
+      // 等同于
+      Vehicle.prototype.isPrototypeOf(v)
+      ```
+      
       > 上面代码中，`Vehicle`是对象`v`的构造函数，它的原型对象是`Vehicle.prototype`，`isPrototypeOf()`方法是 JS 提供的原生方法，用于检查某个对象是否为另一个对象的原型，详细解释见后文。
     
-      > **注意：`instanceof`运算符只能用于引用类型，不适用基本类型。**
-      >
-      > ```js
-      > var s = 'hello';
-      > s instanceof String // false
-      > ```
-      >
-      > 上面代码中，字符串不是`String`对象的实例（因为字符串不是对象），所以返回`false`。
-      >
-      > 此外，对于`undefined`和`null`，`instanceof`运算符总是返回`false`。
+      **注意：`instanceof`运算符只能用于引用类型，不适用基本类型。**
+      
+      ```js
+      var s = 'hello';
+      s instanceof String // false
+      ```
+      
+      上面代码中，字符串不是`String`对象的实例（因为字符串不是对象），所以返回`false`。
+      
+      此外，对于`undefined`和`null`，`instanceof`运算符总是返回`false`。
     
-      > 由于`instanceof`检查整个原型链，因此同一个实例对象，可能会对多个构造函数都返回`true`。
-      >
-      > 除了`null`，任意对象都是`Object`的实例，所以`instanceof`运算符可以判断一个值是否为非`null`的对象。
-      >
-      > `instanceof`的原理是检查右边构造函数的`prototype`属性，是否在左边对象的原型链上。有一种特殊情况，就是左边对象的原型链上，只有`null`对象。这时，`instanceof`判断会失真：
-      >
-      > ```js
-      > var obj = Object.create(null);
-      > typeof obj // "object"
-      > obj instanceof Object // false
-      > ```
-      >
+      **由于`instanceof`检查整个原型链，因此同一个实例对象，可能会对多个构造函数都返回`true`**。
+      
+      **除了`null`，任意对象都是`Object`的实例，所以`instanceof`运算符可以判断一个值是否为非`null`的对象**。
+      
+      `instanceof`的原理是检查右边构造函数的`prototype`属性，是否在左边对象的原型链上。有一种特殊情况，就是左边对象的原型链上，只有`null`对象。这时，`instanceof`判断会失真：
+      
+      ```js
+      var obj = Object.create(null);
+      typeof obj // "object"
+      obj instanceof Object // false
+      ```
+      
       > 上面代码中，`Object.create(null)`返回一个新对象`obj`，它的原型是`null`（`Object.create()`的详细介绍见后文）。右边的构造函数`Object`的`prototype`属性，不在左边的原型链上，因此`instanceof`就认为`obj`不是`Object`的实例。这是唯一的`instanceof`运算符判断会失真的情况（一个对象的原型是`null`）。
     
-      > `instanceof`运算符的一个用处，是判断值的类型。
-      >
-      > ```js
-      > var x = [1, 2, 3];
-      > var y = {};
-      > x instanceof Array // true
-      > y instanceof Object // true
-      > ```
-      >
+      `instanceof`运算符的一个用处，是判断值的类型。
+      
+      ```js
+      var x = [1, 2, 3];
+      var y = {};
+      x instanceof Array // true
+      y instanceof Object // true
+      ```
+      
       > 上面代码中，`instanceof`运算符判断，变量`x`是数组，变量`y`是对象。
     
-      > 利用`instanceof`运算符，还可以巧妙地解决，调用构造函数时，忘了加`new`命令的问题。
-      >
-      > ```js
-      > function Fubar (foo, bar) {
-      >   if (this instanceof Fubar) {
-      >     this._foo = foo;
-      >     this._bar = bar;
-      >   } else {
-      >     return new Fubar(foo, bar);
-      >   }
-      > }
-      > ```
-      >
+      利用`instanceof`运算符，还可以巧妙地解决，调用构造函数时，忘了加`new`命令的问题。
+      
+      ```js
+      function Fubar (foo, bar) {
+        if (this instanceof Fubar) {
+          this._foo = foo;
+          this._bar = bar;
+        } else {
+          return new Fubar(foo, bar);
+        }
+      }
+      ```
+      
       > 上面代码使用`instanceof`运算符，在函数体内部判断`this`关键字是否为构造函数`Fubar`的实例。如果不是，就表明忘了加`new`命令。
     
     - ##### 构造函数的继承（类的继承）：
     
-      > 让一个构造函数继承另一个构造函数，是非常常见的需求。这可以分成两步实现：
-      >
-      > 1. 在子类的构造函数中，调用父类的构造函数。
-      >
-      >    ```js
-      >    function Sub(value) {
-      >        Super.call(this);
-      >        this.prop = value;
-      >    }
-      >    ```
-      >
-      > 2. 让子类的原型指向父类原型创建的实例，这样子类就可以继承父类。
-      >
-      >    ```js
-      >    Sub.prototype = Object.create(Super.prototype);
-      >    Sub.prototype.constructor = Sub;
-      >    Sub.prototype.method = '...';
-      >    ```
-      >
-      >    上面代码中，`Sub.prototype`是子类的原型，要将它赋值为`Object.create(Super.prototype)`，而不是直接等于`Super.prototype`。否则后面两行对`Sub.prototype`的操作，会连父类的原型`Super.prototype`一起修改掉。
-      >
-      > 另外一种写法是`Sub.prototype`等于一个父类实例：
-      >
-      > ```js
-      > Sub.prototype = new Super();
-      > ```
-      >
-      > 上面这种写法也有继承的效果，但是子类会具有父类实例的方法。有时，这可能不是我们需要的，所以不推荐。
+      让一个构造函数继承另一个构造函数，是非常常见的需求。这可以分成两步实现：
+      
+      1. 在子类的构造函数中，调用父类的构造函数。
+      
+         ```js
+         function Sub(value) {
+           Super.call(this);
+           this.prop = value;
+         }
+         ```
+      
+      2. 让子类的原型指向父类的实例，这样子类就可以继承父类。
+      
+         ```js
+         Sub.prototype = Object.create(Super.prototype);
+         Sub.prototype.constructor = Sub;
+         Sub.prototype.method = '...';
+         ```
+      
+         上面代码中，`Sub.prototype`是子类的原型，要将它赋值为`Object.create(Super.prototype)`，而不是直接等于`Super.prototype`。否则后面两行对`Sub.prototype`的操作，会连父类的原型`Super.prototype`一起修改掉。
+      
+      另外一种写法是`Sub.prototype`等于一个父类实例：
+      
+      ```js
+      Sub.prototype = new Super();
+      ```
+      
+      上面这种写法也有继承的效果，但是子类会具有父类实例的方法。有时，这可能不是我们需要的，所以不推荐。
     
       举例来说，下面是一个`Shape`构造函数。
     
@@ -1080,175 +1080,175 @@
     
       ###### 多重继承：
     
-      > JS 不提供多重继承功能，即不允许一个对象同时继承多个对象。但是，可以通过变通方法，实现这个功能。
-      >
-      > ```js
-      > function M1() {
-      >   this.hello = 'hello';
-      > }
-      > 
-      > function M2() {
-      >   this.world = 'world';
-      > }
-      > 
-      > function S() {
-      >   M1.call(this);
-      >   M2.call(this);
-      > }
-      > 
-      > // 继承 M1
-      > S.prototype = Object.create(M1.prototype);
-      > // 继承链上加入 M2
-      > Object.assign(S.prototype, M2.prototype);
-      > 
-      > // 指定构造函数
-      > S.prototype.constructor = S;
-      > 
-      > var s = new S();
-      > s.hello // 'hello'
-      > s.world // 'world'
-      > ```
-      >
-      > 上面代码中，子类`S`同时继承了父类`M1`和`M2`。这种模式又称为 Mixin（混入）。
+      JS 不提供多重继承功能，即不允许一个对象同时继承多个对象。但是，可以通过变通方法，实现这个功能。
+      
+      ```js
+      function M1() {
+        this.hello = 'hello';
+      }
+      
+      function M2() {
+        this.world = 'world';
+      }
+      
+      function S() {
+        M1.call(this);
+        M2.call(this);
+      }
+      
+      // 继承 M1
+      S.prototype = Object.create(M1.prototype);
+      // 继承链上加入 M2
+      Object.assign(S.prototype, M2.prototype);
+      
+      // 指定构造函数
+      S.prototype.constructor = S;
+      
+      var s = new S();
+      s.hello // 'hello'
+      s.world // 'world'
+      ```
+      
+      上面代码中，子类`S`同时继承了父类`M1`和`M2`。这种模式又称为 Mixin（混入）。
     
     - ##### JS 的模块化：
     
-      > 随着网站逐渐变成“互联网应用程序”，嵌入网页的 JS 代码越来越庞大，越来越复杂。网页越来越像桌面程序，需要一个团队分工协作、进度管理、单元测试等等……开发者必须使用软件工程的方法，管理网页的业务逻辑。
-      >
-      > JS 的模块化编程已经成为一个迫切的需求。理想情况下，开发者只需要实现核心的业务逻辑，其他都可以加载别人已经写好的模块。
-      >
-      > 但是，JS 不是一种模块化编程语言，ES6 才开始支持“类”和“模块”。下面介绍传统的做法，利用对象实现模块的效果。
+      随着网站逐渐变成“互联网应用程序”，嵌入网页的 JS 代码越来越庞大，越来越复杂。网页越来越像桌面程序，需要一个团队分工协作、进度管理、单元测试等等……开发者必须使用软件工程的方法，管理网页的业务逻辑。
+      
+      JS 的模块化编程已经成为一个迫切的需求。理想情况下，开发者只需要实现核心的业务逻辑，其他都可以加载别人已经写好的模块。
+      
+      但是，JS 不是一种模块化编程语言，ES6 才开始支持“类”和“模块”。下面介绍传统的做法，利用对象实现模块的效果。
     
       ###### 模块：
     
-      > **模块是实现特定功能的一组属性和方法的封装**。因此最简单的做法是把模块写成一个对象，所有的模块成员都放到这个对象里面：
-      >
-      > ```js
-      > var module1 = {
-      >     _count : 0,
-      >     m1 : function (){
-      >     	//...
-      >     },
-      >     m2 : function (){
-      >     	//...
-      >     }
-      > };
-      > ```
-      >
-      > 上面的函数`m1`和`m2`，都封装在`module1`对象里。使用的时候，就是调用这个对象的属性。
-      >
-      > 但是，这样的写法会暴露所有模块成员，内部状态可以被外部改写，这里外部就能直接改内部计数器`_count`的值。
-      >
-      > 我们可以利用构造函数，封装私有变量：
-      >
-      > ```js
-      > function StringBuilder() {
-      >     var buffer = [];
-      > 
-      >     this.add = function (str) {
-      >     	buffer.push(str);
-      >     };
-      > 
-      >     this.toString = function () {
-      >     	return buffer.join('');
-      >     };
-      > }
-      > ```
-      >
-      > 上面代码中，`buffer`是函数里的局部变量，一旦生成实例对象，外部是无法直接访问`buffer`的。
-      >
-      > 但是，这种方法将私有变量封装在构造函数中，导致构造函数与实例对象是一体的，总是存在于内存之中，无法在使用完成后清除。这意味着，构造函数有双重作用，既用来塑造实例对象，又用来保存实例对象的数据，违背了构造函数与实例对象在数据上相分离的原则（即实例对象的数据，不应该保存在实例对象以外）。同时，非常耗费内存。
-      >
-      > 另一种做法是使用“立即执行函数”（Immediately-Invoked Function Expression，IIFE），将相关的属性和方法封装在一个函数作用域里面，可以达到不暴露私有成员的目的。
-      >
-      > ```js
-      > var module1 = (function () {
-      >     var _count = 0;
-      >     var m1 = function () {
-      > 	    //...
-      >     };
-      >     var m2 = function () {
-      >     	//...
-      >     };
-      >     return {
-      >         m1 : m1,
-      >         m2 : m2
-      >     };
-      > })();
-      > ```
-      >
-      > 下面再对这种写法进行加工。
-      >
-      > 如果一个模块很大，必须分成几个部分，或者一个模块需要继承另一个模块，这时就有必要采用“放大模式”（augmentation）。
-      >
-      > ```js
-      > var module1 = (function (mod){
-      >     mod.m3 = function () {
-      >     	//...
-      >     };
-      >     return mod;
-      > })(module1);
-      > ```
-      >
-      > 上面的代码为`module1`模块添加了一个新方法`m3()`，然后返回新的`module1`模块。
-      >
-      > 在浏览器环境中，模块的各个部分通常都是从网上获取的，有时无法知道哪个部分会先加载。如果采用上面的写法，第一个执行的部分有可能加载一个不存在空对象，这时就要采用"宽放大模式"（Loose augmentation）。
-      >
-      > ```js
-      > var module1 = (function (mod) {
-      > 　//...
-      > 　return mod;
-      > })(window.module1 || {});
-      > ```
-      >
-      > 与"放大模式"相比，“宽放大模式”就是“立即执行函数”的参数可以是空对象。
+      **模块是实现特定功能的一组属性和方法的封装**。因此最简单的做法是把模块写成一个对象，所有的模块成员都放到这个对象里面：
+      
+      ```js
+      var module1 = {
+        _count : 0,
+        m1 : function (){
+        	//...
+        },
+        m2 : function (){
+        	//...
+        }
+      };
+      ```
+      
+      上面的函数`m1`和`m2`，都封装在`module1`对象里。使用的时候，就是调用这个对象的属性。
+      
+      但是，这样的写法会暴露所有模块成员，内部状态可以被外部改写，这里外部就能直接改内部计数器`_count`的值。
+      
+      我们可以利用构造函数，封装私有变量：
+      
+      ```js
+      function StringBuilder() {
+        var buffer = [];
+      
+        this.add = function (str) {
+        	buffer.push(str);
+        };
+      
+        this.toString = function () {
+        	return buffer.join('');
+        };
+      }
+      ```
+      
+      上面代码中，`buffer`是函数里的局部变量，一旦生成实例对象，外部是无法直接访问`buffer`的。
+      
+      但是，这种方法将私有变量封装在构造函数中，导致构造函数与实例对象是一体的，**总是存在于内存之中，无法在使用完成后清除**。这意味着，构造函数有双重作用，既用来塑造实例对象，又用来保存实例对象的数据，违背了构造函数与实例对象在数据上相分离的原则（即实例对象的数据，不应该保存在实例对象以外）。同时，非常耗费内存。
+      
+      另一种做法是使用“立即执行函数”（Immediately-Invoked Function Expression，IIFE），将相关的属性和方法封装在一个函数作用域里面，可以达到不暴露私有成员的目的。
+      
+      ```js
+      var module1 = (function () {
+        var _count = 0;
+        var m1 = function () {
+        	//...
+        };
+        var m2 = function () {
+        	//...
+        };
+        return {
+          m1 : m1,
+          m2 : m2
+        };
+      })();
+      ```
+      
+      下面再对这种写法进行加工。
+      
+      如果一个模块很大，必须分成几个部分，或者一个模块需要继承另一个模块，这时就有必要采用“放大模式”（augmentation）。
+      
+      ```js
+      var module1 = (function (mod){
+        mod.m3 = function () {
+        	//...
+        };
+        return mod;
+      })(module1);
+      ```
+      
+      上面的代码为`module1`模块添加了一个新方法`m3()`，然后返回新的`module1`模块。
+      
+      在浏览器环境中，模块的各个部分通常都是从网上获取的，有时无法知道哪个部分会先加载。如果采用上面的写法，第一个执行的部分有可能加载一个不存在空对象，这时就要采用"宽放大模式"（Loose augmentation）。
+      
+      ```js
+      var module1 = (function (mod) {
+      　//...
+      　return mod;
+      })(window.module1 || {});
+      ```
+      
+      与"放大模式"相比，“宽放大模式”就是“立即执行函数”的参数可以是空对象。
     
-      > 独立性是模块的重要特点，模块内部最好不与程序的其他部分直接交互。
-      >
-      > 为了在模块内部调用全局变量，必须显式地将其他变量输入模块。
-      >
-      > ```js
-      > var module1 = (function ($, YAHOO) {
-      > 　//...
-      > })(jQuery, YAHOO);
-      > ```
-      >
-      > 上面的`module1`模块需要使用 jQuery 库和 YUI 库，就把这两个库（其实是两个模块）当作参数输入`module1`。这样做除了保证模块的独立性，还使得模块之间的依赖关系变得明显。
-      >
-      > 立即执行函数还可以起到命名空间的作用。
-      >
-      > ```js
-      > (function($, window, document) {
-      > 
-      >   function go(num) {
-      >   }
-      > 
-      >   function handleEvents() {
-      >   }
-      > 
-      >   function initialize() {
-      >   }
-      > 
-      >   function dieCarouselDie() {
-      >   }
-      > 
-      >   //attach to the global scope
-      >   window.finalCarousel = {
-      >     init : initialize,
-      >     destroy : dieCarouselDie
-      >   }
-      > 
-      > })( jQuery, window, document );
-      > ```
-      >
-      > 上面代码中，`finalCarousel`对象输出到全局，对外暴露`init`和`destroy`接口，内部方法`go`、`handleEvents`、`initialize`、`dieCarouselDie`都是外部无法调用的。
+      独立性是模块的重要特点，模块内部最好不与程序的其他部分直接交互。
+      
+      为了在模块内部调用全局变量，必须显式地将其他变量输入模块。
+      
+      ```js
+      var module1 = (function ($, YAHOO) {
+      　//...
+      })(jQuery, YAHOO);
+      ```
+      
+      上面的`module1`模块需要使用 jQuery 库和 YUI 库，就把这两个库（其实是两个模块）当作参数输入`module1`。这样做除了保证模块的独立性，还使得模块之间的依赖关系变得明显。
+      
+      立即执行函数还可以起到命名空间的作用。
+      
+      ```js
+      (function($, window, document) {
+      
+      function go(num) {
+      }
+      
+      function handleEvents() {
+      }
+      
+      function initialize() {
+      }
+      
+      function dieCarouselDie() {
+      }
+      
+      //attach to the global scope
+      window.finalCarousel = {
+        init : initialize,
+        destroy : dieCarouselDie
+      }
+      
+      })( jQuery, window, document );
+      ```
+      
+      上面代码中，`finalCarousel`对象输出到全局，对外暴露`init`和`destroy`接口，内部方法`go`、`handleEvents`、`initialize`、`dieCarouselDie`都是外部无法调用的。
     
   - ### 严格模式
   
     > 除了正常的运行模式，JS 还有第二种运行模式：严格模式（strict mode）。顾名思义，这种模式采用更加严格的 JS 语法。
     >
     > 同样的代码，在正常模式和严格模式中，可能会有不一样的运行结果。一些在正常模式下可以运行的语句，在严格模式下将不能运行。
-
+  
     ###### 设计目的：
   
     > 早期的 JS 语言有很多设计不合理的地方，但是为了兼容以前的代码，又不能改变老的语法，只能不断添加新的语法，引导程序员使用新语法。
@@ -1267,7 +1267,7 @@
     > 进入严格模式的标志，是一行字符串`'use strict';`。
     >
     > 老版本的引擎会把它当作一行普通字符串，加以忽略。新版本的引擎就会进入严格模式。
-
+  
     ###### 严格模式可以用于单个脚本（即单个`<script>`中），也可以用于单个函数：
   
     - **单个脚本：**`use strict`放在脚本文件的第一行，**整个脚本**都将以严格模式运行。如果这行语句不在第一行就无效，整个脚本会以正常模式运行。（严格地说，只要前面不是产生实际运行结果的语句，`use strict`可以不在第一行，比如直接跟在一个空的分号后面，或者跟在注释后面）
@@ -1291,7 +1291,7 @@
     
     1. **严格模式下，函数只能在全局作用域、函数作用域中声明。**
     
-    2. **正常模式下，如果函数有多个重名的参数，可以用`arguments[i]`读取。严格模式下，这属于语法错误。**
+    2. **正常模式下，如果函数有多个重名的形参，可以用`arguments[i]`读取。严格模式下，这属于语法错误。**
     
     3. **严格模式下，禁止函数内部的`this`关键字指向全局对象，避免无意间创造全局变量。此时this是`undefined`。**
     
@@ -1299,8 +1299,8 @@
        >
        > ```js
        > function f() {
-       >     'use strict';
-       >     this.a = 1;
+       >      'use strict';
+       >      this.a = 1;
        > };
        > f();  // 报错，this 未定义
        > ```
@@ -1317,14 +1317,16 @@
     
     8. 正常模式下，整数的第一位如果是`0`，表示这是八进制数，比如`0100`等于十进制的64。严格模式禁止这种表示法，整数第一位为`0`，将报错。
     
-    9. 正常模式中，如果一个变量没有声明就赋值，默认是全局变量。严格模式禁止这种用法，变量必须先声明再使用。
+    9. 正常模式中，如果一个变量没有声明就赋值，默认是全局变量。严格模式禁止这种用法，**变量必须先声明再使用**。
     
-    10. 严格模式下，函数直接调用时（不使用`new`调用），函数内部的`this`表示`undefined`（未定义），因此**可以用`call`、`apply`和`bind`方法，将任意值绑定在`this`上面**。正常模式下，`this`指向全局对象，如果绑定的值是非对象，将被自动转为对象再绑定上去，而`null`和`undefined`这两个无法转成对象的值，将被忽略。
+    10. 严格模式下，函数直接调用时（不使用`new`调用），函数内部的`this`表示`undefined`（未定义）。因此**可以用`call`、`apply`和`bind`方法，将任意值绑定在`this`上面**。
+    
+        > 正常模式下，`this`指向全局对象，如果绑定的值是非对象，将被自动转为对象再绑定上去，而`null`和`undefined`这两个无法转成对象的值，将被忽略。
     
         ```js
         // 正常模式
         function fun() {
-            return this;
+          return this;
         }
         
         fun() // window
@@ -1336,7 +1338,7 @@
         // 严格模式
         'use strict';
         function fun() {
-            return this;
+          return this;
         }
         
         fun() //undefined
@@ -1358,7 +1360,7 @@
     >
     > 1. 严格模式创设了第三种作用域：`eval`作用域。也就是说，`eval`所生成的变量只能用于`eval`内部。
     > 2. 严格模式下，函数内部的`arguments`与函数形参之间的联系被切断了，两者不再存在联动关系。
-    > 3. 严格模式下禁止使用`with`语句。
+    > 3. 严格模式下禁止使用`with`语句。（我们不学这个东西，知道曾经有这个语法就行，实际开发中不用它）
     
     ###### 向下一个版本的 JS 过渡：
     
