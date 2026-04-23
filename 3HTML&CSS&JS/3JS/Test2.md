@@ -610,7 +610,7 @@
       >
       > ```js
       >var Vehicle = function (){
-      >   this.price = 1000;
+      >     this.price = 1000;
       > };
       >   var v = Vehicle();
       > v // undefined
@@ -625,7 +625,7 @@
       >function Fubar(foo, bar){
       >      'use strict';
       >      this._foo = foo;
-      >     this._bar = bar;
+      >      this._bar = bar;
       > }
       > Fubar()  // TypeError: Cannot set property '_foo' of undefined
       > ```
@@ -637,8 +637,8 @@
       > ```js
       > function Fubar(foo, bar) {
       >      if (!(this instanceof Fubar)) {
-      >      	return new Fubar(foo, bar);
-      >   }
+      >        return new Fubar(foo, bar);
+      >     }
       >
       >      this._foo = foo;
       >      this._bar = bar;
@@ -685,9 +685,9 @@
 
   - ### `this` 关键字
 
-    环境对象`this`是函数内部的一个特殊变量（箭头函数没有`this`），代表了当前函数运行时所在的上下文环境。不同环境下`this`的指向不同。那怎么看this指向谁呢？
+    环境对象`this`是函数内部的一个特殊变量（箭头函数没有`this`），代表了当前函数运行时所在的上下文环境。不同环境下`this`的指向不同。简单说，`this`就是属性或方法“当前”所在的对象。
   
-    谁调用的该函数，函数中的`this`指向谁。
+    那怎么看this指向谁呢？谁调用的该函数，函数中的`this`指向谁。
   
     `this`指向调用这个函数的对象。全局作用域中调用的函数，`this`指向全局作用域的`window`对象；回调函数中的this通常指向该函数所在的作用域（或者称为“该回调的调用者”）；事件回调函数中的this指向调用者，也就是发生事件的DOM元素；箭头函数中没有`this`，它继承了上个作用域的`this`。
   
@@ -698,9 +698,9 @@
     1. `fnc.call(thisObj, 函数参数..)`：它会调用fnc函数，并将函数中的`this`指向第1个参数。
 
        注意：
-       
-       1. 第1个参数是一个对象，如果传了`null`或`undefined`，则普通模式下`this`指向全局对象（`window/global`），严格模式下传了什么值，`this`就是什么。
-       2. 如果第1个参数是一个原始值，那么这个原始值会自动转成对应的包装对象。
+  
+       1. 第1个参数通常是一个对象。但其实可以传任意值，这个值会直接赋值给`this`（严格模式下）。
+       2. 非严格模式下，`call` / `apply` / `bind` 的第1个参数如果是 `null` 或 `undefined`，会被替换成**全局对象**（浏览器 `window`，Node.js `global`）；如果是原始值（数字、字符串、布尔），会被**自动包装成对应的对象类型**(Symbol/BigInt没有对应的包装类型，因此不会做自动包装)。
 
        ###### `call`方法的一个应用是调用对象的原生方法：
 
@@ -875,7 +875,7 @@
     
       JS 规定，所有对象都有自己的原型对象（prototype）。一方面，任何一个对象，都可以充当其他对象的原型；另一方面，由于原型对象也是对象，所以它也有自己的原型。因此，就会形成一个“原型链”（prototype chain）：对象到原型，再到原型的原型……
       
-      如果一层层地上溯，所有对象的原型最终都可以上溯到`Object.prototype`，即`Object`构造函数的`prototype`属性。也就是说，所有对象都继承了`Object.prototype`上的成员。这就是所有对象都有`valueOf`和`toString`方法的原因，因为这是从`Object.prototype`继承的。
+      如果一层层地上溯，所有对象的原型最终都可以上溯到`Object.prototype`，即`Object`构造函数的`prototype`属性。也就是说，所有对象都继承了`Object.prototype`上的成员。这就是所有对象都有`valueOf`和`toString`方法的原因，因为这是从`Object.prototype`继承的。（其实对于我们创建的普通对象`{}`来说，它的原型就是`Object.prototype`）
       
       那么，`Object.prototype`对象有没有它的原型呢？回答是`Object.prototype`的原型是`null`。`null`没有任何属性和方法，也没有自己的原型。因此，原型链的尽头就是`null`。
       
