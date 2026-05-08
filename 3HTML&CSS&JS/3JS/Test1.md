@@ -1047,7 +1047,7 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
       
       ```js
       function add(x, y) {
-      	return x + y;
+        return x + y;
       }
       add(1, 1) // 调用函数
       ```
@@ -1061,8 +1061,23 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
     - ##### 第一等公民
     
       JS 语言将函数看作一种值，与其它值（数值、字符串、布尔值等等）地位相同。凡是可以使用值的地方，就能使用函数。比如，可以把函数赋值给变量和对象的属性，也可以当作参数传入其他函数，或者作为函数的结果返回。函数只是一个可以执行的值，此外并无特殊之处。
-      
+    
       由于函数与其他数据类型地位平等，所以在 JS 语言中又称函数为第一等公民。
+    
+      ```js
+      function add(x, y) {
+        return x + y;
+      }
+      
+      // 将函数赋值给一个变量
+      var operator = add;
+      
+      // 将函数作为参数和返回值
+      function a(op){
+        return op;
+      }
+      a(add)(1, 1) // 2
+      ```
     
     - ##### 高阶函数
     
@@ -1073,7 +1088,7 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
     
     - ##### 函数提升
     
-      JS 引擎将函数名视为var的变量名，所以采用`function`命令声明函数时，**整个函数**会像`var`声明的变量一样，会被提升到当前作用域的顶部。所以，下面的代码不会报错：
+      JS 引擎将函数名视为`var`的变量名，所以采用`function`命令声明函数时，**整个函数**会像`var`声明的变量一样，会被提升到当前作用域的顶部。所以，下面的代码不会报错：
       
       ```js
       f();
@@ -1102,10 +1117,10 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
       
       ```js
       var f = function () {
-       console.log('1');
+        console.log('1');
       }
       function f() {
-       console.log('2');
+        console.log('2');
       }
       f() // 1
       ```
@@ -1114,68 +1129,66 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
     
     - ##### 函数的属性和方法
     
-      - `name`属性：函数的`name`属性返回函数的名字（字符串）。这个属性早就被浏览器广泛支持，但是直到 ES6，才将其写入了标准。
+      - `name`属性：函数的`name`属性返回函数的名字（字符串）。这个属性早就被浏览器广泛支持，但是直到 ES6，才将其写入了标准。需要注意的是：
     
-        > **特殊情况：**
-        >
-        > - 如果是通过变量赋值定义的匿名函数，那么`name`属性返回变量名。（ES5环境下返回的是空字符串）
-        >
-        >   > 但是上面这种情况，只有在变量的值是一个匿名函数时才是如此。如果变量的值是一个具名函数，那么`name`属性返回`function`关键字之后的那个函数名。
-        >
-        > - `Function`构造函数返回的函数实例，`name`属性的值为`anonymous`。
-        >
-        >   ```js
-        >   (new Function()).name // "anonymous"
-        >   ```
-        >
-        > - `bind`返回的新函数，`name`属性值会加上`bound`前缀。
-        >
-        >   ```js
-        >   function foo() {};
-        >   foo.bind({}).name // "bound foo"
-        >   (function(){}).bind({}).name // "bound "
-        >   ```
-        >
-        > - （ES6）如果对象的方法使用了取值函数（`getter`）和存值函数（`setter`），则`name`属性不是在该方法上面，而是该方法的属性的描述对象的`get`和`set`属性上面，返回值是方法名前加上`get`和`set`。
-        >
-        >   ```js
-        >   const obj = {
-        >     get foo() {},
-        >     set foo(x) {}
-        >   };
-        >   
-        >   obj.foo.name
-        >   // TypeError: Cannot read property 'name' of undefined
-        >   
-        >   const descriptor = Object.getOwnPropertyDescriptor(obj, 'foo');
-        >   
-        >   descriptor.get.name // "get foo"
-        >   descriptor.set.name // "set foo"
-        >   ```
-        >
-        > - （ES6）如果对象的方法名是一个 Symbol 值，那么`name`属性返回的是这个 Symbol 值的描述。
-        >
-        >   ```js
-        >   const key1 = Symbol('description');
-        >   const key2 = Symbol();
-        >   let obj = {
-        >     [key1]() {},
-        >     [key2]() {},
-        >   };
-        >   obj[key1].name // "[description]"
-        >   obj[key2].name // ""
-        >   ```
-        >
-        >   > 上面代码中，`key1`对应的 Symbol 值有描述，`key2`没有。
+        - 如果是通过变量赋值定义的匿名函数，那么`name`属性返回变量名。（ES5环境下返回的是空字符串）
+        
+          > 只有在变量的值是一个匿名函数时才是如此。如果变量的值是一个具名函数，那么`name`属性返回`function`关键字之后的那个函数名。
+        
+        - `Function`构造函数返回的函数实例，`name`属性的值为`anonymous`。
+        
+          ```js
+          (new Function()).name // "anonymous"
+          ```
+        
+        - `bind`返回的新函数，`name`属性值会加上`bound`前缀。
+        
+          ```js
+          function foo() {};
+          foo.bind({}).name // "bound foo"
+          (function(){}).bind({}).name // "bound "
+          ```
+        
+          > 上面代码中，具名函数`bind`后返回的新函数，`name`值为`bound 函数名`，匿名函数则为：`bound `
+        
+        - （ES6）如果对象的方法使用了取值函数（`getter`）和存值函数（`setter`），则`name`属性不是在该方法上面，而是该方法的属性的描述对象的`get`和`set`属性上面，返回值是方法名前加上`get`和`set`。
+        
+          ```js
+          const obj = {
+            get foo() {},
+            set foo(x) {}
+          };
+        
+          obj.foo.name
+          // TypeError: Cannot read property 'name' of undefined
+        
+          const descriptor = Object.getOwnPropertyDescriptor(obj, 'foo');
+        
+          descriptor.get.name // "get foo"
+          descriptor.set.name // "set foo"
+          ```
+        
+        - （ES6）如果对象的方法名是一个 Symbol 值，那么`name`属性返回的是这个 Symbol 值的描述。
+        
+          ```js
+          const key1 = Symbol('description');
+          const key2 = Symbol();
+          let obj = {
+            [key1]() {},
+            [key2]() {},
+          };
+          obj[key1].name // "[description]"
+          obj[key2].name // ""
+          ```
+        
+          > 上面代码中，`key1`对应的 Symbol 值有描述，`key2`没有。
     
-      - `length`属性：函数的`length`属性返回函数形参的个数。
-    
-        `length`属性提供了一种机制，判断定义时和调用时参数的差异，以便实现面向对象编程的“方法重载”（overload）。
+      - `length`属性：函数的`length`属性返回函数形参的个数。`length`属性提供了一种机制，判断定义时和调用时参数的差异，以便实现面向对象编程的“方法重载”（overload）。
     
       - `toString()`方法：函数的`toString()`方法返回一个字符串，内容是函数的源码，包括换行符和注释。
     
         ```js
-        function f() {
+      function f() {
           a();
           b();
           c();
@@ -1187,8 +1200,8 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
         //  c();
         // }
         ```
-    
-        > 对于那些 JS 标准自带的原生函数，`toString()`方法返回`function (){[native code]}`。这是因为它们的实现是用底层语言（如 C++）编写的，而不是 JS 代码。
+      
+        > 对于那些 JS 标准自带的原生函数，`toString()`方法返回`'function sqrt() { [native code] }'`。这是因为它们的实现是用底层语言（如 C++）编写的，而不是 JS 代码。
     
     - ##### 函数的作用域
     
