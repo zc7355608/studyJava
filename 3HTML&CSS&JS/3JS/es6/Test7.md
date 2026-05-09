@@ -1,4 +1,4 @@
-- ## Promise 对象
+- ## Promise 对象（TODO,JS教程，异步操作、promise对象）
 
   - #### Promise 的含义
 

@@ -2,14 +2,14 @@
 
   - ### Object 对象
 
-    > JS 原生提供`Object`对象，JS 的所有其他对象都继承自`Object`对象，即那些对象都是`Object`的实例。
-    >
-    > 并且在 JS  中，`new Object()` 和 `{}` 都可以用来创建一个新对象，**它们在本质上是相同的**，但存在一些细微的差异和使用场景的区别：
-    >
-    > 1. 字面量方式 `{}` 创建对象是 JS 引擎直接优化的语法，无需调用构造函数，创建速度更快。`new Object()` 的性能稍低，需解析构造函数。并且代码还很冗余。
-    > 2. 如果全局 `Object` 构造函数被修改，`new Object()` 的行为会受影响，而 `{}` 不受影响。
-    >
-    > 因此**优先使用 `{}` 来创建对象**，更简洁、安全且性能更好。但其实两种方式在本质上是没有区别的。
+    JS 原生提供`Object`对象，JS 的所有其他对象都继承自`Object`对象，即那些对象都是`Object`的实例。
+    
+    并且在 JS  中，`new Object()` 和 `{}` 都可以用来创建一个新对象，**它们在本质上是相同的**，但存在一些细微的差异和使用场景的区别：
+    
+    1. 字面量方式 `{}` 创建对象是 JS 引擎直接优化的语法，无需调用构造函数，创建速度更快。`new Object()` 的性能稍低，需解析构造函数。并且代码还很冗余。
+    2. 如果全局 `Object` 构造函数被修改，`new Object()` 的行为会受影响，而 `{}` 不受影响。
+    
+    因此**优先使用 `{}` 来创建对象**，更简洁、安全且性能更好。但其实两种方式在本质上是没有区别的。
   
     - `Object`本身是一个函数，可以当作工具方法使用，将任意值转为对象。这个方法常用于保证某个值一定是对象。如果参数为空（或者为`undefined`和`null`），`Object()`返回一个空对象。如果参数是原始类型的值，`Object`方法将其转为对应的包装对象的实例。
   
@@ -35,7 +35,7 @@
   
     - ##### `Object`的静态方法：
       
-      - `Object.keys()`，`Object.getOwnPropertyNames()`：这俩都用来遍历对象的属性，并且参数都是一个对象，返回一个数组，该数组的成员都是该对象自身的（而不是继承的）所有属性名字符串。区别是`Object.getOwnPropertyNames`还可以返回不可枚举的属性名（秘密属性也可以访问到）。（前者更常用）
+      - `Object.keys(obj)`，`Object.getOwnPropertyNames(obj)`：它们都可以遍历参数对象的属性，返回一个数组，该数组的成员都是该对象自身的（而不是继承的）所有属性名字符串。区别是`Object.getOwnPropertyNames`还可以返回不可枚举的属性名（秘密属性也可以访问到）。前者更常用。
       
       > 有时需要冻结对象的读写状态，防止对象被改变。JS 提供了三种冻结方法，最弱的一种是`Object.preventExtensions`，其次是`Object.seal`，最强的是`Object.freeze`。
       
@@ -46,40 +46,38 @@
       - `Object.freeze()`：冻结一个对象。被冻结的对象不能添加、删除或修改任何属性，所有属性都变为只读。此时这个对象实际上变成了常量。
       - `Object.isFrozen()`：判断一个对象是否被冻结。
       
-      > 上面的三个方法锁定对象的可写性有一个漏洞：可以通过改变原型对象，来为对象增加属性。
+      上面的三个方法锁定对象的可写性有一个漏洞：可以通过改变原型对象，来为对象增加属性。
       
-      - `Object.create()`：该方法可以指定原型对象和属性，返回一个新的对象。该方法的第一个参数必须是对象或`null`，否则会报错。
+      - `Object.create()`：通过指定原型对象和实例属性，生成一个新的对象。该方法的第一个参数必须是对象或`null`，作为新对象的原型；第二个参数是一个属性描述对象，它所描述的属性会被添加到新的实例对象上，作为该对象自身的属性：
       
-        > 除了对象的原型，`Object.create()`方法还可以接受第二个参数。该参数是一个属性描述对象，它所描述的对象属性，会添加到实例对象，作为该对象自身的属性：
-        >
-        > ```js
-        > var obj = Object.create({}, {
-        >     p1: {
-        >         value: 123,
-        >         enumerable: true,
-        >         configurable: true,
-        >         writable: true,
-        >     },
-        >     p2: {
-        >         value: 'abc',
-        >         enumerable: true,
-        >         configurable: true,
-        >         writable: true,
-        >     }
-        > });
-        > 
-        > // 等同于
-        > var obj = Object.create({});
-        > obj.p1 = 123;
-        > obj.p2 = 'abc';
-        > ```
+        ```js
+        var obj = Object.create({}, {
+         p1: {
+             value: 123,
+             enumerable: true,
+             configurable: true,
+             writable: true,
+         },
+         p2: {
+             value: 'abc',
+             enumerable: true,
+             configurable: true,
+             writable: true,
+         }
+        });
+        
+        // 等同于
+        var obj = Object.create({});
+        obj.p1 = 123;
+        obj.p2 = 'abc';
+        ```
+        
+      - `Object.getPrototypeOf(obj)`：获取参数对象的`prototype`原型对象。这是获取原型对象的标准方法，而不是通过对象的`__proto__`属性去获取。
       
-      - `Object.getPrototypeOf()`：获取对象的`prototype`原型对象。这是获取原型对象的标准方法，而不是通过对象的`__proto__`属性去获取。
-      
-      - `Object.setPrototypeOf()`：为对象设置原型并返回。它接受两个参数，第1个是现有对象，第2个是原型对象。
+      - `Object.setPrototypeOf(obj)`：为参数对象设置原型，返回该参数对象。它接受两个参数，第1个是现有对象，第2个是原型对象。
       
     - `Object`的实例方法：
-  
+    
       - `Object.prototype.valueOf()`：返回一个对象的“值”，默认情况下返回对象本身。 `valueOf`方法的主要用途是，JS 进行自动类型转换时会默认调用这个方法。该方法通常用于被子类型重写/覆盖。
   
       - `Object.prototype.toString()`：返回当前对象对应的字符串形式，默认情况下返回类型字符串。可以通过自定义`toString`方法，可以让对象在自动类型转换时，得到想要的字符串形式。
@@ -111,16 +109,16 @@
       
         > 这个方法的主要作用是留出一个接口，让各种不同的对象实现自己版本的`toLocaleString`，用来返回针对某些地域的特定的值。目前，主要有`Array、Number、Date`这三个对象自定义了`toLocaleString`方法。
       
-      - `Object.prototype.hasOwnProperty()`：判断某个属性是否为当前对象自身拥有的属性，继承自原型的属性不算。
+      - `Object.prototype.hasOwnProperty('proName')`：判断当前对象自身是否拥有该属性，继承自原型的属性不算。
       
-      - `Object.prototype.isPrototypeOf()`：判断当前对象是否为参数对象的原型。只要当前实例对象在参数对象的原型链上，`isPrototypeOf`方法都返回`true`。
+      - `Object.prototype.isPrototypeOf(obj)`：判断当前对象是否为参数对象的原型。只要当前实例对象在参数对象的原型链上，`isPrototypeOf`方法都返回`true`。
       
       - `Object.prototype.__proto__`：返回该对象的原型。该属性可读可写。（Node/浏览器环境专属）
       
         > 根据 JS 语言标准，`__proto__`属性只有浏览器才需要部署，其他环境可以没有这个属性。它前后的两根下划线，表明它本质是一个内部属性，不应该对使用者暴露。因此，应该尽量少用这个属性，而是用`Object.getPrototypeOf()`和`Object.setPrototypeOf()`进行原型对象的读写操作。
       
       - `Object.prototype.propertyIsEnumerable()`：判断某个属性是否可枚举。
-  
+    
   - ### 属性描述对象
   
     > JS 提供了一个内部数据结构，用来描述对象的属性，控制它的行为，比如该属性是否可写、可遍历等等。这个内部数据结构称为“属性描述对象”（attributes object）。每个属性都有自己对应的属性描述对象，保存该属性的一些元信息。

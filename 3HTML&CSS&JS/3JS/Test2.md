@@ -15,7 +15,7 @@
       如果运算子是对象（引用类型），此时会先转成原始类型的值，然后再相加。对象转成原始类型的值，规则如下：（见下文的“JS 类型转换真相”）
       
       1. 首先调用对象的`valueOf`方法。如果该方法返回原始类型值，那么就不再调用`toString`。
-      2. 反之如果返回对象类型，则继续调用对象的`toString`方法，将其转为字符串。
+      2. 反之如果返回对象类型，则改为调用对象的`toString`方法，将其转为字符串。
       
       这里有一个特例，如果运算子是一个`Date`对象的实例，那么会优先执行`toString`方法。
 
@@ -444,8 +444,8 @@
 
       - `Number()`：`Number`函数可以将任意类型的值转化成数字，转换规则如下。
 
-        原始类型值的转换规则如下：
-        
+        ###### 原始类型：
+  
         ```js
         // 数值：转换后还是原来的值
         Number(324) // 324
@@ -469,20 +469,24 @@
         // null：转成0
         Number(null) // 0
         ```
-        
-        `Number`函数将字符串转为数值，要比`parseInt`函数严格很多。基本上，只要有一个字符无法转成数值，整个字符串就会被转为`NaN`。另外，`parseInt`和`Number`函数都会自动过滤掉字符串前后的空白。
+  
+        `Number`函数将字符串转为数值，要比`parseInt`函数严格很多。基本上，只要有一个字符无法转成数值，整个字符串就会被转为`NaN`。
 
-        > 对象类型：
-        >
-        > 简单的规则是，`Number`方法的参数是对象时，将返回`NaN`，除非是包含单个数值的数组，如`[5]`。之所以会这样，是因为`Number`背后的转换规则比较复杂：
-        >
-        > 1. 调用对象自身的`valueOf`方法。如果返回原始类型的值，则直接对该值使用`Number`函数，不再进行后续步骤。
-        > 2. 如果`valueOf`方法返回的还是对象，则改为调用对象自身的`toString`方法。如果`toString`方法返回原始类型的值，则对该值使用`Number`函数，不再进行后续步骤。
-        > 3. 如果`toString`方法返回的是对象，就报错。
+        另外，`parseInt`和`Number`函数都会自动过滤掉字符串前后的空白。
+  
+        ###### 对象类型：
+  
+        简单的规则是，`Number`方法的参数是对象时，将返回`NaN`，除非是包含单个数值的数组，如`[5]`。
+  
+        之所以会这样，是因为`Number`背后的转换规则比较复杂：
 
+        1. 调用对象自身的`valueOf`方法。如果返回原始类型的值，则直接对该值使用`Number`函数，不再进行后续步骤。
+        2. 如果`valueOf`方法返回的还是对象，则改为调用对象自身的`toString`方法。如果`toString`方法返回原始类型的值，则对该值使用`Number`函数，不再进行后续步骤。
+        3. 如果`toString`方法返回的是对象，就报错。
+  
       - `String()`：`String`函数可以将任意类型的值转化成字符串，转换规则如下。
-
-        原始类型：
+  
+        ###### 原始类型：
         
         - **数值**：转为相应的字符串。
         - **字符串**：转换后还是原来的值。
@@ -490,7 +494,7 @@
         - **undefined**：转为字符串`"undefined"`。
         - **null**：转为字符串`"null"`。
         
-        对象类型：
+        ###### 对象类型：
         
         `String`方法的参数如果是对象，返回一个类型字符串；如果是数组，返回该数组的字符串形式。
         
@@ -502,21 +506,21 @@
         `String`方法背后的转换规则，与`Number`方法基本相同，只是互换了`valueOf`方法和`toString`方法的执行顺序。
         
         1. 先调用对象自身的`toString`方法。如果返回原始类型的值，则对该值使用`String`函数，不再进行以下步骤。
-        2. 如果`toString`方法返回的是对象，再调用原对象的`valueOf`方法。如果`valueOf`方法返回原始类型的值，则对该值使用`String`函数，不再进行以下步骤。
+        2. 如果`toString`方法返回的是对象，改为调用原对象的`valueOf`方法。如果`valueOf`方法返回原始类型的值，则对该值使用`String`函数，不再进行以下步骤。
         3. 如果`valueOf`方法返回的是对象，就报错。
 
       - `Boolean()`：`Boolean()`函数可以将任意类型的值转为布尔值。这个不再细说，前面说过了。
-
+  
     - ##### 自动类型转换：
-
-      自动类型转换是以强制转换为基础的。遇到以下几种情况时，JS 会进行自动类型转换：
+  
+      自动类型转换是以强制转换为基础的。遇到以下几种情况时，JS 会自动转换数据类型：
   
       1. 不同类型的数据互相运算。
       2. 对非布尔值类型的数据求布尔值。
       3. 对非数值类型的值使用一元运算符（即`+`和`-`）。
       4. 当通过原始类型值调用其对应的包装对象原型上的方法时，原始类型会先自动转为对应的包装对象再调用。
   
-      自动转换的规则是这样的：预期什么类型的值，就调用该类型的转换函数。比如，某个位置预期为字符串，就调用`String()`函数进行转换。如果该位置既可以是字符串，也可能是数值，那么默认转为数值。
+      自动转换的规则是这样的：**预期什么类型的值，就调用该类型的转换函数**。比如，某个位置预期为字符串，就调用`String()`函数进行转换。如果该位置既可以是字符串，也可能是数值，那么默认转为数值。
   
       由于自动转换具有不确定性，而且不易除错，建议在预期为布尔值、数值、字符串的地方，全部使用`Boolean()`、`Number()`和`String()`函数进行显式转换。
   
@@ -528,143 +532,166 @@
   
       主要有2种 `hint`：
   
-      - `number`路线：优先转成数字。先调用 `valueOf()`，如果返回原始类型则用它；否则继续调用 `toString()`，再不行就报错。
-      - `string`路线：优先转成字符串。先调用 `toString()`，如果返回原始类型则用它；否则继续调用 `valueOf()`，再不行就报错。
+      - `number`路线：优先转成数字。先调用 `valueOf()`，如果返回原始类型则用它；否则再调用 `toString()`，再不行就报错。
+      - `string`路线：优先转成字符串。先调用 `toString()`，如果返回原始类型则用它；否则再调用 `valueOf()`，再不行就报错。
   
       默认情况，即上下文对原始类型没有要求时，大部分对象是走`number`路线。`Date`对象除外，它默认走`string`路线。
   
   - #### JS 的错误处理机制
   
-    > JS 解析或运行时，一旦发生错误，引擎就会抛出一个错误对象。JS 原生提供`Error`构造函数，所有抛出的错误都是这个构造函数的实例。
-    >
-    > ```js
-    > var err = new Error('出错了');
-    > err.message // "出错了"
-    > ```
-    >
-    > `Error()`构造函数接受一个参数，表示错误提示，可以从实例的`message`属性读到这个参数。当使用`throw`关键字抛出`Error`实例后，整个程序就中断在发生错误的地方，不再往下执行。
-    >
-    > JS 语言标准只提到，`Error`实例对象必须有`message`属性，表示出错时的提示信息，没有提到其他属性。大多数 JS 引擎，对`Error`实例还提供`name`和`stack`属性，分别表示错误的名称和错误的堆栈，但它们是非标准的，不是每种实现都有。
-    >
-    > - **message**：错误提示信息
-    > - **name**：错误名称（非标准属性）
-    > - **stack**：错误的堆栈（非标准属性）
-    >
-    > `Error`实例对象是最一般的错误类型，在它的基础上，JS 还定义了其他6种错误对象。也就是说，存在`Error`的6个子类型对象。
+    JS 解析或运行时，一旦发生错误，引擎就会抛出一个错误对象。JS 原生提供 `Error` 构造函数，所有抛出的错误都是这个构造函数的实例。
   
-    - `SyntaxError` 对象：解析代码时发生的语法错误。
+    ```js
+    var err = new Error('出错了');
+    err.message // "出错了"
+    ```
+  
+    上面代码中，我们调用`Error()`构造函数，生成一个实例对象`err`。`Error()`构造函数接受一个参数，表示错误提示，可以从实例的`message`属性读到这个参数。JS 引擎抛出这个`Error`实例对象之后，整个程序就中断到这里了，不再往下执行。
+  
+    JS 语言标准只提到，`Error`实例对象必须有`message`属性，表示出错时的提示信息，没有提到其他属性。大多数 JS 引擎，对`Error`实例还提供`name`和`stack`属性，分别表示错误的名称和错误的堆栈，但它们是非标准的，不是每种实现都有。
+  
+    - **message**：错误提示信息
+    - **name**：错误名称（非标准）
+    - **stack**：错误的堆栈（非标准）
+  
+    `Error`实例对象是最一般的错误类型，在它的基础上，JS 还定义了其他6种错误对象。也就是说，存在`Error`的6个子类型对象。
+  
+    - `SyntaxError` 对象：解析代码时发生的语法错误。一般都是 JS 语法报错。
   
     - `ReferenceError` 对象：引用一个不存在的变量时发生的错误。
   
-      > 另一种触发场景是，将一个值分配给无法分配的对象，比如对函数的运行结果赋值。
-      >
-      > ```js
-      > // 等号左侧不是变量
-      > console.log() = 1
-      > // Uncaught ReferenceError: Invalid left-hand side in assignment
-      > ```
+      另一种触发场景是，将一个值分配给无法分配的对象，比如对函数的运行结果赋值。
+      
+      ```js
+      // 等号左侧不是变量
+      console.log() = 1
+      // Uncaught ReferenceError: Invalid left-hand side in assignment
+      ```
   
     - `RangeError` 对象：一个值超出有效范围时发生的错误。主要有几种情况，一是数组长度为负数，二是`Number`对象的方法参数超出范围，以及函数堆栈超过最大值。
   
-    - `TypeError` 对象：变量或参数不是预期类型时发生的错误。比如，对字符串、布尔值、数值等原始类型的值使用`new`命令，就会抛出这种错误，因为`new`命令的参数应该是一个构造函数。
+    - `TypeError` 对象：变量或参数不是预期类型时发生的错误。比如，对字符串、布尔值、数值等原始类型的值使用`new`命令，就会抛出这种错误，因为`new`命令的参数应该是一个构造函数。调用对象不存在的方法，也会抛出`TypeError`错误。
   
     - `URIError` 对象：URI 相关函数的参数不正确时抛出的错误，主要涉及`encodeURI()`、`decodeURI()`、`encodeURIComponent()`、`decodeURIComponent()`、`escape()`和`unescape()`这六个函数。
   
-    - `EvalError` 对象：`eval`函数没有被正确执行时抛出的错误。该错误类型已经不再使用了，只是为了保证与以前代码兼容，才继续保留。
+    - ~~`EvalError` 对象~~：`eval`函数没有被正确执行时抛出的错误。该错误类型已经不再使用了，只是为了保证与以前代码兼容，才继续保留。
   
-    > 以上这6种派生错误，连同原始的`Error`对象，都是构造函数。开发者可以使用它们，手动生成错误对象的实例。这些构造函数都接受一个参数，代表错误提示信息（message）。
+    以上这6种派生错误，连同原始的`Error`对象，都是构造函数。开发者可以使用它们，手动生成错误对象的实例。这些构造函数都接受一个参数，代表错误提示信息（message）。
   
     ###### 自定义错误：
   
-    > 除了 JS 原生提供的七种错误对象，还可以定义自己的错误对象。
-    >
-    > ```js
-    > function UserError(message) {
-    >        this.message = message || '默认信息';
-    >        this.name = 'UserError';
-    > }
-    > UserError.prototype = new Error();
-    > UserError.prototype.constructor = UserError;
-    > ```
-    >
-    > 上面代码自定义一个错误对象`UserError`，让它继承`Error`对象。然后，就可以生成这种自定义类型的错误了。
+    除了 JS 原生提供的七种错误对象，还可以定义自己的错误对象。
+  
+    ```js
+    function UserError(message) {
+      this.message = message || '默认信息';
+      this.name = 'UserError';
+    }
+    UserError.prototype = new Error();
+    UserError.prototype.constructor = UserError;
+    ```
+  
+    上面代码自定义一个错误对象`UserError`，让它继承`Error`对象。然后，就可以生成这种自定义类型的错误了。
   
     ###### `throw` 语句：
   
-    > `throw`语句的作用是手动中断程序执行，并抛出一个错误。语法：`throw 值;`。
-    >
-    > 实际上，`throw`可以抛出任何类型的值。也就是说，它的参数可以是任何值。
-    >
-    > 对于 JS 引擎来说，遇到`throw`语句，程序就中止了。引擎会接收到`throw`抛出的信息，可能是一个错误实例，也可能是其他类型的值。
+    `throw`语句的作用是手动中断程序执行，并抛出一个任意值。语法：`throw 值;`
   
-    ###### `try{}catch(){}` 结构：
+    对于 JS 引擎来说，遇到`throw`语句，程序就中止了。引擎会接收到`throw`抛出的信息，可能是一个错误实例，也可能是其他类型的值。
   
-    > 一旦发生错误，程序就中止执行了。JS 提供了`try{}catch(){}`结构，允许对错误进行处理，选择是否往下执行。
-    >
-    > ```js
-    > try {
-    >   throw new Error('出错了!');
-    > } catch (e) {
-    >      console.log(e.name + ": " + e.message);
-    >      console.log(e.stack);
-    > }
-    > // Error: 出错了!
-    > //   at <anonymous>:3:9
-    > //   ...
-    > ```
-    >
-    > 上面`try`代码块中，如果代码运行出现了错误（无论是手动抛出错误还是运行错误），JS 引擎就立即把代码的执行转到`catch`代码块中，或者说错误被`catch`代码块捕获了。`catch`接受一个参数，表示`try`代码块抛出的值。
-    >
-    > 如果你不确定某些代码是否会报错，就可以把它们放在`try...catch`代码块之中，便于进一步对错误进行处理。
-    >
-    > `catch`代码块捕获错误之后，程序不会中断，会按照正常流程继续执行下去。
-    >
-    > `catch`代码块之中，还可以再抛出错误，甚至使用嵌套的`try...catch`结构。
-    >
-    > **注意：**try{}中的异步任务发生异常catch()是捕获不到的。因此，**开发者应避免使用Try Catch捕获由异步任务引发的错误**。
+    ###### `try...catch` 结构：
+  
+    一旦发生错误，程序就中止执行了。因此 JS 提供了`try...catch`结构，可以对错误进行处理，选择是否往下执行。
+  
+    ```js
+    try {
+      throw new Error('出错了!');
+    } catch (e) {
+      console.log(e.name + ": " + e.message);
+      console.log(e.stack);
+    }
+    // Error: 出错了!
+    //   at <anonymous>:3:9
+    //   ...
+    ```
+  
+    上面`try`代码块中，如果代码运行出现了错误（无论是手动抛出错误还是运行错误），JS 引擎就立即把代码的执行转到`catch`代码块中，或者说错误被`catch`代码块捕获了。`catch`接受一个参数，接收`throw`抛出的值。
+  
+    如果你不确定某些代码是否会报错，就可以把它们放在`try...catch`代码块之中，便于进一步对错误进行处理。
+  
+    `catch`代码块捕获错误之后，程序不会中断，会按照正常流程继续执行下去。
+  
+    `catch`代码块之中，还可以再抛出错误，甚至使用嵌套的`try...catch`结构。
+  
+    为了捕捉不同类型的错误，`catch`代码块之中可以加入判断语句。
+  
+    ```js
+    try {
+      foo.bar();
+    } catch (e) {
+      if (e instanceof EvalError) {
+        console.log(e.name + ": " + e.message);
+      } else if (e instanceof RangeError) {
+        console.log(e.name + ": " + e.message);
+      }
+      // ...
+    }
+    ```
+  
+    **注意：**`try{}`中的异步任务发生异常后，`catch`是捕获不到的。因此，**开发者应避免使用Try Catch捕获由异步任务引发的错误**。
   
     ###### `finally` 代码块：
-    
-    > `try...catch`结构允许在最后添加一个`finally`代码块，表示不管是否出现错误，都必需在最后执行的语句。
-    >
-    > 即使`try`代码块里面还包括`return`语句，`finally`代码块最后依然会执行。（`finally`块中的代码在`return`之后执行）
-    
+  
+    `try...catch`结构允许在最后添加一个`finally`代码块，表示不管是否出现错误，都必需在最后执行的语句。
+  
+    即使`try`代码块里面还包括`return`语句，`finally`代码块最后依然会执行。（`finally`块中的代码在`return`语句后执行）
+  
   - #### 全局对象`console`
   
-    > `console`对象是 JS 的原生对象，它有点像 Unix 系统的标准输出`stdout`和标准错误`stderr`，可以输出各种信息到控制台，并且还提供了很多有用的辅助方法。`console`的常见用途有两个：
-    >
-    > - 调试程序，显示网页代码运行时的错误信息。
-    > - 提供了一个命令行接口，用来与网页代码互动。
-    >
-    > `console`对象的浏览器实现，包含在浏览器自带的开发工具之中（F12）。`console`对象提供的各种静态方法，用来与控制台窗口互动：（`console`对象的所有方法，都可以被覆盖。因此，可以按照自己的需要，定义`console.log`方法）
+    `console`对象是 JS 的原生对象，它有点像 Unix 系统的标准输出`stdout`和标准错误`stderr`，可以输出各种信息到控制台，并且还提供了很多有用的辅助方法。`console`的常见用途有两个：
+  
+    - 调试程序，显示网页代码运行时的错误信息。
+    - 提供了一个命令行接口，用来与网页代码互动。
+  
+    `console`对象的浏览器实现，包含在浏览器自带的开发工具之中（F12）。`console`对象提供的各种静态方法，用来与控制台窗口互动：
   
     - `console.log()`：用于在控制台输出信息。它可以接受一个或多个参数，将它们用空格连接起来输出。它会自动在每次输出的结尾添加换行符。
   
-      > 如果第一个参数是格式字符串（使用了格式占位符），`console.log`方法将依次用后面的参数替换占位符，然后再进行输出。
-      >
-      > ```js
-      > console.log('%s + %s = %s', 1, 1, 2)  // 1 + 1 = 2
-      > ```
-      >
-      > `console.log`方法支持以下占位符，不同类型的数据必须使用对应的占位符。
-      >
-      > - `%s` 字符串
-      > - `%d` 整数
-      > - `%i` 整数
-      > - `%f` 浮点数
-      > - `%o` 对象的链接
-      > - `%c` CSS 格式字符串
-      >
-      > 使用`%c`占位符时，对应的参数必须是 CSS 代码，用来对输出内容进行 CSS 渲染。
-      >
-      > ```js
-      > console.log(
-      >     '%cThis text is styled!',
-      >     'color: red; background: yellow; font-size: 24px;'
-      > )
-      > ```
-      >
-      > 上面代码运行后，输出的内容将显示为黄底红字。
+      如果第一个参数是格式字符串（使用了格式占位符），`console.log`方法将依次用后面的参数替换占位符，然后再进行输出。
+      
+      ```js
+      console.log('%s + %s = %s', 1, 1, 2)  // 1 + 1 = 2
+      ```
+      
+      上面代码中，`console.log`方法的第一个参数有三个占位符（`%s`），第二、三、四个参数会在显示时，依次替换掉这个三个占位符。
+      
+      `console.log`方法支持以下占位符，不同类型的数据必须使用对应的占位符。
+      
+      - `%s` 字符串
+      - `%d` 整数
+      - `%i` 整数
+      - `%f` 浮点数
+      - `%o` 对象的链接
+      - `%c` CSS 格式字符串
+      
+      使用`%c`占位符时，对应的参数必须是 CSS 代码，用来对输出内容进行 CSS 渲染。
+      
+      ```js
+      console.log(
+          '%cThis text is styled!',
+          'color: red; background: yellow; font-size: 24px;'
+      )
+      ```
+      
+      上面代码运行后，输出的内容将显示为黄底红字。
+      
+      `console.log`方法的两种参数格式，可以结合在一起使用：
+      
+      ```js
+      console.log(' %s + %s ', 1, 1, '= 2')
+      // 1 + 1  = 2
+      ```
+      
     - `console.info()`：它是`console.log`方法的别名，用法完全一样。只不过`console.info`方法会在输出信息的前面，加上一个蓝色图标。
   
     - `console.debug()`：`console.debug`方法与`console.log`方法类似，会在控制台输出调试信息。但是，默认情况下，`console.debug`输出的信息不会显示，只有在打开显示级别在`verbose`的情况下，才会显示。
@@ -679,7 +706,9 @@
   
     - `console.dirxml()`：用于以目录树的形式，显示 DOM 节点。如果参数不是 DOM 节点，而是普通的 JS 对象，`console.dirxml`等同于`console.dir`。
   
-    - `console.assert()`：用于在程序运行过程中进行条件判断，如果不满足条件就显示一个错误，但不会中断程序执行。这样就相当于提示用户，内部状态不正确。它接受两个参数，第1个参数是表达式，第2个参数是字符串。只有当第1个参数为`false`时，才会在控制台输出第2个参数，否则不会显示任何内容。
+    - `console.assert()`：用于在程序运行过程中进行条件判断，如果不满足条件就显示一个错误（但不会中断程序执行）。这样就相当于提示用户，内部状态不正确。
+  
+      它接受两个参数，第1个参数是表达式，第2个参数是字符串。只有当第1个参数为`false`时，才会在控制台输出第2个参数，否则不会输出任何内容。
   
     - `console.time()`和`console.timeEnd()`：这两个方法用于计时，可以算出一个操作所花费的准确时间。`time`方法表示计时开始，`timeEnd`方法表示计时结束。它们的参数是计时器的名称。调用`timeEnd`方法之后，控制台会显示“计时器名称: 所耗费的时间”。注意：开始和结束方法的参数要保持一致。
   
@@ -696,184 +725,305 @@
       console.groupEnd(); // 一级分组结束
       ```
   
-      > 上面代码会将“二级分组”显示在“一级分组”内部，并且“一级分组”和“二级分组”前面都有一个折叠符号，可以用来折叠本级的内容。
-      >
-      > `groupCollapsed`方法与`group`方法很类似，唯一的区别是该组的内容，在第一次显示时是收起的（collapsed），而不是展开的。
+      上面代码会将“二级分组”显示在“一级分组”内部，并且“一级分组”和“二级分组”前面都有一个折叠符号，可以用来折叠本级的内容。
+      
+      `groupCollapsed`方法与`group`方法很类似，唯一的区别是该组的内容，在第一次显示时是收起的（collapsed），而不是展开的。
+      
     - `console.trace()`：显示当前执行的代码在堆栈中的调用路径。
+  
+      ```js
+      console.trace()
+      // console.trace()
+      //   (anonymous function)
+      //   InjectedScript._evaluateOn
+      //   InjectedScript._evaluateAndWrap
+      //   InjectedScript.evaluate
+      ```
   
     - `console.clear()`：清除当前控制台的所有输出，将光标回置到第一行。如果用户选中了控制台的“Preserve log”选项，该方法将不起作用。
   
+    `console`对象的所有方法，都可以被覆盖。因此，可以按照自己的需要，自定义`console.log`方法。
+  
   - #### `debugger` 语句
   
-    > `debugger`语句作用是设置断点，主要用于排错。如果有正在运行的排错工具，程序运行到`debugger`语句时会自动停下。如果没有除错工具，`debugger`语句不会产生任何结果，JS 引擎自动跳过这一句。
-    >
-    > Chrome 浏览器中打开F12时，当代码运行到`debugger`语句时，就会暂停运行，自动打开脚本源码界面。
+    `debugger`语句作用是设置断点，主要用于排错。如果有正在运行的排错工具，程序运行到`debugger`语句时会自动停下。如果没有除错工具，`debugger`语句不会产生任何结果，JS 引擎自动跳过这一句。
+  
+    Chrome 浏览器中打开F12后，当代码运行到`debugger`语句时，就会暂停运行，自动打开脚本源码界面。
+  
+  - #### ~~（了解即可，不用学）控制台命令行 API~~
+  
+    浏览器控制台中，除了使用`console`对象，还可以使用一些控制台自带的命令行方法。
+  
+    （1）`$_`
+  
+    `$_`属性返回上一个表达式的值。
+  
+    ```js
+    2 + 2
+    // 4
+    $_
+    // 4
+    ```
+  
+    （2）`$0` - `$4`
+  
+    控制台保存了最近5个在 Elements 面板选中的 DOM 元素，`$0`代表倒数第一个（最近一个），`$1`代表倒数第二个，以此类推直到`$4`。
+  
+    （3）`$(selector)`
+  
+    `$(selector)`返回第一个匹配的元素，等同于`document.querySelector()`。注意，如果页面脚本对`$`有定义，则会覆盖原始的定义。比如，页面里面有 jQuery，控制台执行`$(selector)`就会采用 jQuery 的实现，返回一个数组。
+  
+    （4）`$$(selector)`
+  
+    `$$(selector)`返回选中的 DOM 对象，等同于`document.querySelectorAll`。
+  
+    （5）`$x(path)`
+  
+    `$x(path)`方法返回一个数组，包含匹配特定 XPath 表达式的所有 DOM 元素。
+  
+    ```js
+    $x("//p[a]")
+    ```
+  
+    上面代码返回所有包含`a`元素的`p`元素。
+  
+    （6）`inspect(object)`
+  
+    `inspect(object)`方法打开相关面板，并选中相应的元素，显示它的细节。DOM 元素在`Elements`面板中显示，比如`inspect(document)`会在 Elements 面板显示`document`元素。JavaScript 对象在控制台面板`Profiles`面板中显示，比如`inspect(window)`。
+  
+    （7）`getEventListeners(object)`
+  
+    `getEventListeners(object)`方法返回一个对象，该对象的成员为`object`登记了回调函数的各种事件（比如`click`或`keydown`），每个事件对应一个数组，数组的成员为该事件的回调函数。
+  
+    （8）`keys(object)`，`values(object)`
+  
+    `keys(object)`方法返回一个数组，包含`object`的所有键名。
+  
+    `values(object)`方法返回一个数组，包含`object`的所有键值。
+  
+    ```js
+    var o = {'p1': 'a', 'p2': 'b'};
+    
+    keys(o)
+    // ["p1", "p2"]
+    values(o)
+    // ["a", "b"]
+    ```
+  
+    （9）`monitorEvents(object[, events]) ，unmonitorEvents(object[, events])`
+  
+    `monitorEvents(object[, events])`方法监听特定对象上发生的特定事件。事件发生时，会返回一个`Event`对象，包含该事件的相关信息。`unmonitorEvents`方法用于停止监听。
+  
+    ```js
+    monitorEvents(window, "resize");
+    monitorEvents(window, ["resize", "scroll"])
+    ```
+  
+    上面代码分别表示单个事件和多个事件的监听方法。
+  
+    ```js
+    monitorEvents($0, 'mouse');
+    unmonitorEvents($0, 'mousemove');
+    ```
+  
+    上面代码表示如何停止监听。
+  
+    `monitorEvents`允许监听同一大类的事件。所有事件可以分成四个大类。
+  
+    - mouse："mousedown", "mouseup", "click", "dblclick", "mousemove", "mouseover", "mouseout", "mousewheel"
+    - key："keydown", "keyup", "keypress", "textInput"
+    - touch："touchstart", "touchmove", "touchend", "touchcancel"
+    - control："resize", "scroll", "zoom", "focus", "blur", "select", "change", "submit", "reset"
+  
+    ```js
+    monitorEvents($("#msg"), "key");
+    ```
+  
+    上面代码表示监听所有`key`大类的事件。
+  
+    （10）其他方法
+  
+    命令行 API 还提供以下方法。
+  
+    - `clear()`：清除控制台的历史。
+    - `copy(object)`：复制特定 DOM 元素到剪贴板。
+    - `dir(object)`：显示特定对象的所有属性，是`console.dir`方法的别名。
+    - `dirxml(object)`：显示特定对象的 XML 形式，是`console.dirxml`方法的别名。
   
 - ## 面向对象编程
 
-  > JS 语言具有很强的面向对象编程能力，本章介绍 JS 面向对象编程的基础知识。
+  JS 语言具有很强的面向对象编程能力，本章介绍 JS 面向对象编程的基础知识。
 
-  - ### 对象和构造函数
+  - #### 对象和构造函数
 
-    - 面向对象编程：
+    - ##### 面向对象编程：
 
-      > 面向对象编程（Object Oriented Programming，缩写为 OOP）是目前主流的编程范式。它将真实世界各种复杂的关系，抽象为一个个对象，然后由对象之间的分工与合作，完成对真实世界的模拟。
-      >
-      > 每一个对象都是功能中心，具有明确分工，可以完成接受信息、处理数据、发出信息等任务。对象可以复用，通过继承机制还可以定制。因此，面向对象编程具有灵活、代码可复用、高度模块化等特点，容易维护和开发，比起由一系列函数或指令组成的传统的过程式编程（procedural programming），更适合多人合作的大型软件项目。
-      >
-      > 那么，“对象”（object）到底是什么？我们从两个层次来理解：
-      >
-      > 1. **对象是单个实物的抽象。**
-      >
-      >    一本书、一辆汽车、一个人都可以是对象，一个数据库、一张网页、一个远程服务器连接也可以是对象。当实物被抽象成对象，实物之间的关系就变成了对象之间的关系，从而就可以模拟现实情况，针对对象进行编程。
-      >
-      > 2. **对象是一个容器，封装了属性（property）和方法（method），统称为成员。**
-      >
-      >    属性是对象的状态，方法是对象的行为（完成某种任务）。比如，我们可以把动物抽象为`animal`对象，使用“属性”记录具体是哪一种动物，使用“方法”表示动物的某种行为（奔跑、捕猎、休息等等）。
+      面向对象编程（Object Oriented Programming，缩写为 OOP）是目前主流的编程范式。它将真实世界各种复杂的关系，抽象为一个个对象，然后由对象之间的分工与合作，完成对真实世界的模拟。
+  
+      每一个对象都是功能中心，具有明确分工，可以完成接受信息、处理数据、发出信息等任务。对象可以复用，通过继承机制还可以定制。因此，面向对象编程具有灵活、代码可复用、高度模块化等特点，容易维护和开发，比起由一系列函数或指令组成的传统的过程式编程（procedural programming），更适合多人合作的大型软件项目。
+  
+      那么，“对象”（object）到底是什么？我们从两个层次来理解：
+  
+      1. **对象是单个实物的抽象。**
+  
+         一本书、一辆汽车、一个人都可以是对象，一个数据库、一张网页、一个远程服务器连接也可以是对象。当实物被抽象成对象，实物之间的关系就变成了对象之间的关系，从而就可以模拟现实情况，针对对象进行编程。
+  
+      2. **对象是一个容器，封装了属性（property）和方法（method），统称为成员。**
+  
+         属性是对象的状态，方法是对象的行为（完成某种任务）。比如，我们可以把动物抽象为`animal`对象，使用“属性”记录具体是哪一种动物，使用“方法”表示动物的某种行为（奔跑、捕猎、休息等等）。
 
-    - 构造函数：
+    - ##### 构造函数：
 
-      > 面向对象编程的第一步，就是要生成对象。前面说过，对象是单个实物的抽象。通常需要一个模板，表示某一类实物的共同特征，然后对象根据这个模板生成。
-      >
-      > 典型的面向对象编程语言（比如 C++ 和 Java），都有“类”（class）这个概念。所谓“类”就是对象的模板，对象就是“类”的实例。但是 JS 的对象体系，不是基于“类”的，而是基于构造函数（constructor）和原型链（prototype）。
-      >
-      > JS 使用构造函数（constructor）作为对象的模板。所谓”构造函数”，就是专门用来生成实例对象的函数。它就是对象的模板，描述实例对象的基本结构。一个构造函数，可以生成多个实例对象，这些实例对象都有相同的结构。
-      >
-      > 构造函数就是一个普通的函数，但具有自己的特征和用法：
-      >
-      > ```js
-      > var Vehicle = function () {
-      > 	this.price = 1000;
-      > };
-      > ```
-      >
-      > 上面代码中，`Vehicle`就是构造函数。为了与普通函数区别，构造函数名字的第一个字母通常大写。
-      >
-      > 构造函数的特点有两个：
-      >
-      > - 函数体内部使用了`this`关键字，代表了所要生成的对象实例。
-      > - 通过构造函数生成对象的时候，必须使用`new`命令调用。
-      >
-      > 下面先介绍`new`命令。
+      面向对象编程的第一步，就是要生成对象。前面说过，对象是单个实物的抽象。通常需要一个模板，表示某一类实物的共同特征，然后对象根据这个模板生成。
+  
+      典型的面向对象编程语言（比如 C++ 和 Java），都有“类”（class）这个概念。所谓“类”就是对象的模板，对象就是“类”的实例。但是 JS 的对象体系，不是基于“类”的，而是基于构造函数（constructor）和原型链（prototype）。
+  
+      JS 使用构造函数（constructor）作为对象的模板。所谓”构造函数”，就是专门用来生成实例对象的函数。它就是对象的模板，描述实例对象的基本结构。一个构造函数，可以生成多个实例对象，这些实例对象都有相同的结构。
+  
+      构造函数就是一个普通的函数，但具有自己的特征和用法：
+  
+      ```js
+      var Vehicle = function () {
+        this.price = 1000;
+      };
+      ```
+  
+      上面代码中，`Vehicle`就是构造函数。为了与普通函数区别，构造函数名字的第一个字母通常大写。
+  
+      构造函数的特点有两个：
+  
+      - 函数体内部使用了`this`关键字，代表了所要生成的对象实例。
+      - 通过构造函数生成对象的时候，必须使用`new`命令调用。
+  
+      下面先介绍`new`命令。
 
-    - `new` 命令：
+    - ##### `new` 命令：
 
-      > `new`命令的作用，就是调用构造函数并返回一个实例对象。
-      >
-      > ```js
-      >var Vehicle = function () {
-      >   this.price = 1000;
-      > };
-      >   var v = new Vehicle();
-      > v.price // 1000
-      > ```
-      > 
-      > 上面代码通过`new`命令，让构造函数`Vehicle`生成一个实例对象，保存在变量`v`中。这个新生成的实例对象，从构造函数`Vehicle`得到了`price`属性。`new`命令执行时，构造函数内部的`this`就指向了新生成的实例对象，`this.price`用于给实例对象添加一个`price`属性，值是1000。
-      > 
-      >使用`new`命令时，根据需要，构造函数也可以接受参数。
-      > 
-      >`new`命令本身就可以执行构造函数，所以后面的构造函数如果不传参数可以带括号，也可以不带括号。推荐带上括号。
+      `new`命令的作用，就是调用构造函数并返回一个实例对象。
+  
+      ```js
+      var Vehicle = function () {
+        this.price = 1000;
+      };
+      var v = new Vehicle();
+      v.price // 1000
+      ```
+  
+      上面代码通过`new`命令，让构造函数`Vehicle`生成一个实例对象，保存在变量`v`中。这个新生成的实例对象，从构造函数`Vehicle`得到了`price`属性。`new`命令执行时，构造函数内部的`this`就指向了新生成的实例对象，`this.price`用于给实例对象添加一个`price`属性，值是1000。
+  
+      使用`new`命令时，根据需要，构造函数也可以接受参数。
+  
+      `new`命令本身就可以执行构造函数，所以后面的构造函数如果不传参数可以带括号，也可以不带括号。推荐带上括号。
 
       ###### 一个很自然的问题是，如果忘了使用`new`命令，直接调用构造函数会发生什么事？
 
-      > 这种情况下，构造函数就变成了普通函数，并不会生成实例对象。而且由于后面会说到的原因，`this`这时指向全局对象window，这会造成一些意想不到的结果。
-      >
-      > ```js
-      >var Vehicle = function (){
-      >     this.price = 1000;
-      > };
-      >   var v = Vehicle();
-      > v // undefined
-      > price // 1000
-      > ```
-      > 
-      > 上面代码中，调用`Vehicle`构造函数时，忘了加上`new`命令。结果，变量`v`变成了`undefined`，而`price`属性变成了全局变量。因此，应该非常小心，避免不使用`new`命令、直接调用构造函数。
-      >
-      > **为了保证构造函数必须与`new`命令一起使用，一个解决办法是，构造函数内部使用严格模式，即第一行加上`use strict`。这样的话，一旦忘了使用`new`命令，直接调用构造函数就会报错。**
-      >
-      > ```js
-      >function Fubar(foo, bar){
-      >      'use strict';
-      >      this._foo = foo;
-      >      this._bar = bar;
-      > }
-      > Fubar()  // TypeError: Cannot set property '_foo' of undefined
-      > ```
-      > 
-      >上面代码的`Fubar`为构造函数，`use strict`命令保证了该函数在严格模式下运行。由于严格模式中，函数内部的`this`不能指向全局对象，默认等于`undefined`，导致不加`new`调用会报错（JS 不允许对`undefined`添加属性）。
-      > 
-      >另一个解决办法，构造函数内部判断是否使用`new`命令，如果发现没有使用，则直接返回一个实例对象。
-      > 
-      > ```js
-      > function Fubar(foo, bar) {
-      >      if (!(this instanceof Fubar)) {
-      >        return new Fubar(foo, bar);
-      >     }
-      >
-      >      this._foo = foo;
-      >      this._bar = bar;
-      > }
-      >Fubar(1, 2)._foo // 1
-      > (new Fubar(1, 2))._foo // 1
-      > ```
-      >   
-      > 上面代码中的构造函数，不管加不加`new`命令，都会得到同样的结果。
+      这种情况下，构造函数就变成了普通函数，并不会生成实例对象。而且由于后面会说到的原因，`this`这时指向全局对象`window/global`，这会造成一些意想不到的结果。
+  
+      ```js
+      var Vehicle = function (){
+        this.price = 1000;
+      };
+      var v = Vehicle();
+      v // undefined
+      price // 1000
+      ```
+  
+      上面代码中，调用`Vehicle`构造函数时，忘了加上`new`命令。结果，变量`v`变成了`undefined`，而`price`属性变成了全局变量。因此，应该非常小心，避免不使用`new`命令、直接调用构造函数。
+  
+      **为了保证构造函数必须与`new`命令一起使用，一个解决办法是，构造函数内部使用严格模式，即第一行加上`use strict`。这样的话，一旦忘了使用`new`命令，直接调用构造函数就会报错。**
+  
+      ```js
+      function Fubar(foo, bar){
+        'use strict';
+        this._foo = foo;
+        this._bar = bar;
+      }
+      Fubar()  // TypeError: Cannot set property '_foo' of undefined
+      ```
+  
+      上面代码的`Fubar`为构造函数，`use strict`命令保证了该函数在严格模式下运行。由于严格模式中，函数内部的`this`不能指向全局对象，默认等于`undefined`，导致不加`new`调用会报错（JS 不允许对`undefined`添加属性）。
+  
+      另一个解决办法，构造函数内部判断是否使用`new`命令，如果发现没有使用，则直接返回一个实例对象。
+  
+      ```js
+      function Fubar(foo, bar) {
+        if (!(this instanceof Fubar)) {
+          return new Fubar(foo, bar);
+        }
+      
+        this._foo = foo;
+        this._bar = bar;
+      }
+      Fubar(1, 2)._foo // 1
+      (new Fubar(1, 2))._foo // 1
+      ```
+  
+      上面代码中的构造函数，不管加不加`new`命令，都会得到同样的结果。
 
-    - `new` 命令的原理：
+    - ##### `new` 命令的原理：
 
-      > 使用`new`命令时，它后面的函数依次执行下面的步骤：
-      >
-      > 1. 创建一个空对象，作为将要返回的对象实例。
-      >2. 将这个空对象的`__proto__`（原型）设置为构造函数的`prototype`属性的值。
-      > 3. 将内部的`this`关键字指向这个空对象。
-      > 4. 最后开始执行构造函数内部的代码。
-      >   
-      > 也就是说，构造函数内部，`this`指的是一个新生成的空对象，所有针对`this`的操作，都会发生在这个空对象上。构造函数之所以叫“构造函数”，就是说这个函数的目的，就是操作一个空对象（即`this`对象），将其“构造”为需要的样子。
-      > 
-      > **如果构造函数内部有`return`语句，而且`return`后面跟着一个对象，`new`命令会返回`return`语句指定的对象；否则，就会不管`return`语句，返回`this`指向的这个对象**。
+      使用`new`命令时，它后面的函数依次执行下面的步骤：
+  
+      1. 创建一个空对象，作为将要返回的对象实例。
+      2. 将这个空对象的`__proto__`（原型）设置为构造函数的`prototype`属性的值。
+      3. 将内部的`this`关键字指向这个空对象。
+      4. 最后开始执行构造函数内部的代码。
+  
+      也就是说，构造函数内部，`this`指的是一个新生成的空对象，所有针对`this`的操作，都会发生在这个空对象上。构造函数之所以叫“构造函数”，就是说这个函数的目的，就是操作一个空对象（即`this`对象），将其“构造”为需要的样子。
+  
+      **如果构造函数内部有`return`语句，而且`return`后面跟着一个对象，`new`命令会返回`return`语句指定的对象；否则，就会不管`return`语句，返回`this`指向的这个对象**。
+
+      另一方面，如果对普通函数（内部没有`this`关键字的函数）使用`new`命令，则会返回一个空对象。
 
       ###### `new`命令简化的内部流程，可以用下面的代码表示：
-
+  
       ```js
       function _new(/* 构造函数 */ constructor, /* 构造函数参数 */ params) {
-          // 将 arguments 对象转为数组
-          var args = [].slice.call(arguments);
-          // 取出构造函数
-          var constructor = args.shift();
-          // 创建一个空对象，继承构造函数的 prototype 属性
-          var context = Object.create(constructor.prototype);
-          // 执行构造函数
-          var result = constructor.apply(context, args);
-          // 如果返回结果是对象，就直接返回，否则返回 context 对象
-          return (typeof result === 'object' && result != null) ? result : context;
+        // 将 arguments 对象转为数组
+        var args = [].slice.call(arguments);
+        // 取出构造函数
+        var constructor = args.shift();
+        // 创建一个空对象，继承构造函数的 prototype 属性
+        var context = Object.create(constructor.prototype);
+        // 执行构造函数
+        var result = constructor.apply(context, args);
+        // 如果返回结果是对象，就直接返回，否则返回 context 对象
+        return (typeof result === 'object' && result != null) ? result : context;
       }
       // 实例
       var actor = _new(Person, '张三', 28);
       ```
 
-      > **函数中的`new.target`属性：**函数内部可以使用`new.target`属性。如果当前函数是`new`命令调用，`new.target`指向当前函数，否则为`undefined`。（箭头函数中没有`new.target`）
+    - ##### 函数中的`new.target`属性：
 
-  - ### `this` 关键字
-
-    环境对象`this`是函数内部的一个特殊变量（箭头函数没有`this`），代表了当前函数运行时所在的上下文环境。不同环境下`this`的指向不同。简单说，`this`就是属性或方法“当前”所在的对象。
+      所有函数/方法内部可以都有`new.target`属性（除了箭头函数），如果当前函数是`new`命令调用，`new.target`指向当前函数，否则为`undefined`。
+  
+  - #### `this` 关键字
+  
+    环境对象`this`是函数/方法内部的一个特殊变量（箭头函数没有`this`），代表了当前函数运行时所在的上下文环境。不同环境下`this`的指向不同。简单说，`this`就是属性或方法“当前”所在的对象。
   
     那怎么看this指向谁呢？谁调用的该函数，函数中的`this`指向谁。
-  
-    `this`指向调用这个函数的对象。全局作用域中调用的函数，`this`指向全局作用域的`window`对象；回调函数中的this通常指向该函数所在的作用域（或者称为“该回调的调用者”）；事件回调函数中的this指向调用者，也就是发生事件的DOM元素；箭头函数中没有`this`，它继承了上个作用域的`this`。
-  
-    （回调函数中的`this`往往会改变指向，最好避免使用。因此很多回调函数都写成箭头函数）
 
-    ###### `this`的动态切换，固然为 JS 创造了巨大的灵活性，但也使得编程变得困难和模糊。有时，需要把`this`固定下来，避免出现意想不到的情况。JS 提供了`call`、`apply`、`bind`这三个方法，来切换/固定`this`的指向：
+    `this`指向调用这个函数的对象。全局作用域中调用的函数，`this`指向全局作用域的`window/global`对象；回调函数中的`this`通常指向该函数所在的作用域（或者称为“该回调的调用者”）；事件回调函数中的`this`指向调用者，也就是发生事件的DOM元素；箭头函数中没有`this`，它继承了上个作用域的`this`。
+
+    > 回调函数中的`this`往往会改变指向，最好避免使用。因此，回调函数最好都写成箭头函数。
+    >
+  
+    ###### 绑定`this`的方法：
+  
+    `this`的动态切换，固然为 JS 创造了巨大的灵活性，但也使得编程变得困难和模糊。有时，需要把`this`固定下来，避免出现意想不到的情况。
+
+    JS 提供了`call`、`apply`、`bind`这三个方法，来切换/固定`this`的指向：
 
     1. `fnc.call(thisObj, 函数参数..)`：它会调用fnc函数，并将函数中的`this`指向第1个参数。
-
+  
        注意：
   
        1. 第1个参数通常是一个对象。但其实可以传任意值，这个值会直接赋值给`this`（严格模式下）。
        2. 非严格模式下，`call` / `apply` / `bind` 的第1个参数如果是 `null` 或 `undefined`，会被替换成**全局对象**（浏览器 `window`，Node.js `global`）；如果是原始值（数字、字符串、布尔），会被**自动包装成对应的对象类型**(Symbol/BigInt没有对应的包装类型，因此不会做自动包装)。
-
-       ###### `call`方法的一个应用是调用对象的原生方法：
-
+  
+       `call`方法的一个应用是调用对象的原生方法：
+  
        ```js
        var obj = {};
        obj.hasOwnProperty('toString') // false
@@ -886,28 +1036,24 @@
        
        Object.prototype.hasOwnProperty.call(obj, 'toString') // false
        ```
-
-       > 上面代码中，`hasOwnProperty`是`obj`对象继承的方法，如果这个方法一旦被覆盖，就不会得到正确结果。`call`方法可以解决这个问题，它将`hasOwnProperty`方法的原始定义放到`obj`对象上执行，这样无论`obj`上有没有同名方法，都不会影响结果。
-
-    2. `fnc.apply(thisObj, 数组)`：和`call()`函数类似，只不过函数参数放在了数组中。
-
+  
+       上面代码中，`hasOwnProperty`是`obj`对象继承的方法，如果这个方法一旦被覆盖，就不会得到正确结果。`call`方法可以解决这个问题，它将`hasOwnProperty`方法的原始定义放到`obj`对象上执行，这样无论`obj`上有没有同名方法，都不会影响结果。
+  
+    2. `fnc.apply(thisObj, 数组)`：和`call()`函数类似的，只不过函数的参数放在了数组中。
+  
        - 比如求数组最大值可以：`Math.max.apply(null, arr)`
   
-       - 将数组的空位元素变为`undefined`：`Array.apply(null, ['a', ,'b'])`
-  
-         > 空元素与`undefined`的差别在于，数组的`forEach`方法会跳过空元素，但是不会跳过`undefined`。因此，遍历内部元素的时候，会得到不同的结果。
+       - 将数组的空位元素填充为`undefined`：`Array.apply(null, ['a', ,'b'])`
   
        - 将伪数组转为数组：`Array.prototype.slice.apply({0: 1, length: 1}) // [1]`
   
-         > 这个方法起作用的前提是，被处理的对象必须有`length`属性，以及相对应的数字键。
-
     3. `fnc.bind(thisObj, 函数的预设参数..)`：它改变函数的`this`后返回一个新函数。后面的参数用于给函数预设实参。
-
+  
        > 返回的新函数一般不带自己的`prototype`，但仍可被`new`，并复用原函数的构造能力。
-
+  
     ###### `this`的本质：
   
-    其实`this`本质上就是函数运行时所在的环境，JS 语言之所以有 this 的设计，跟内存里面的数据结构有关系。
+    其实`this`本质上就是函数运行时所在的环境，JS 语言之所以有 `this` 的设计，跟内存里面的数据结构有关系。
   
     ```js
     var obj = { foo:  5 };
@@ -919,12 +1065,12 @@
   
     ```js
     {
-     foo: {
-         [[value]]: 5
-         [[writable]]: true
-         [[enumerable]]: true
-         [[configurable]]: true
-     }
+      foo: {
+        [[value]]: 5
+        [[writable]]: true
+        [[enumerable]]: true
+        [[configurable]]: true
+      }
     }
     ```
   
@@ -940,10 +1086,10 @@
   
     ```js
     {
-     foo: {
-         [[value]]: 函数的地址
-         ...
-     }
+      foo: {
+        [[value]]: 函数的地址
+        ...
+      }
     }
     ```
   
@@ -964,7 +1110,7 @@
   
     ```js
     var f = function () {
-    	console.log(x);
+      console.log(x);
     };
     ```
   
@@ -974,7 +1120,7 @@
   
     ```js
     var f = function () {
-    	console.log(this.x);
+      console.log(this.x);
     }
     ```
   
@@ -982,13 +1128,13 @@
   
     ```js
     var f = function () {
-    	console.log(this.x);
+      console.log(this.x);
     }
     
     var x = 1;
     var obj = {
-     f: f,
-     x: 2,
+      f: f,
+      x: 2,
     };
     
     // 单独执行
@@ -999,25 +1145,25 @@
     ```
   
     上面代码中，函数`f`在全局环境执行，`this.x`指向全局环境的`x`；在`obj`环境执行，`this.x`指向`obj.x`。
-
-  - ### JS 中的原型继承
+  
+  - #### JS 中的原型继承
   
     面向对象编程很重要的一个方面，就是对象的继承。A 对象通过继承 B 对象，就能直接拥有 B 对象的所有属性和方法。这对于代码的复用是非常有用的。
     
     大部分面向对象的编程语言，都是通过“类”（class）实现对象的继承。传统上，JS 语言的继承不通过类，而是通过“原型对象”（prototype）实现，本章介绍 JS 的原型继承。
     
     （ES6 引入了 class 语法，基于 class 的继承不在这里介绍，请参考ES6笔记。不过它本质上就是原型继承的语法糖而已）
-
+  
     - ##### 构造函数的缺点：
   
-      通过构造函数为实例对象定义属性，虽然很方便，但是有一个缺点。同一个构造函数的多个实例之间，无法共享属性，从而造成对系统资源的浪费。
+      JS 通过构造函数生成实例对象，虽然很方便，但是有一个缺点。同一个构造函数的多个实例之间，无法共享属性，从而造成对系统资源的浪费。
       
       ```js
       function Cat(name, color) {
         this.name = name;
         this.color = color;
         this.meow = function () {
-        	console.log('喵喵');
+          console.log('喵喵');
         };
       }
       
@@ -1030,16 +1176,20 @@
       上面代码中，`cat1`和`cat2`是同一个构造函数的两个实例，它们都具有`meow`方法。由于`meow`方法是生成在每个实例对象上面，所以两个实例就生成了两次。也就是说，每新建一个实例，就会新建一个`meow`方法。这既没有必要，又浪费内存，因为所有`meow`方法都是同样的行为，完全应该共享。
       
       这个问题的解决方法，就是 JS 的原型对象（prototype）。
-
+  
     - ##### 原型对象（prototype）：
   
       JS 的每个函数中都有一个`prototype`属性，指向一个对象，这个普通的对象就叫原型对象。**原型对象一般会包含`constructor`属性，指向自己所在的构造函数。**（箭头函数、简写的对象方法、`async`异步函数中没有`prototype`属性）
       
-      **每个 JS 对象都有`__proto__`属性指向自己所关联的原型对象。**
+      对于普通函数来说，该属性基本无用。但是，对于构造函数来说，生成实例的时候，该函数对应的原型对象会自动成为实例对象的原型（`__proto__`）。
+      
+      **每个 JS 对象都有`__proto__`属性指向自己所关联的原型对象（`window/global`）。**
       
       JS 继承的设计思想是：将需要被所有实例共享的属性和方法，放在原型对象上。所有实例都能访问到它们共同的原型对象上的属性和方法。当实例对象本身没有某个属性或方法的时候，它会到自己的原型对象上去找该属性或方法。如果实例对象自身就有某个属性或方法，它就不会再去原型对象寻找这个属性或方法。这就是原型对象的特殊之处。
       
-      原型对象的属性不是实例对象自身的属性。只要修改原型对象，变动就立刻会体现在**所有**实例对象上。
+      只要修改原型对象上的属性、方法，变动就立刻会体现在**所有**实例对象上。
+      
+      原型对象的作用，就是定义所有实例对象共享的属性和方法。这也是它被称为原型对象的原因。
       
     - ##### 原型链：
     
@@ -1050,16 +1200,16 @@
       那么，`Object.prototype`对象有没有它的原型呢？回答是`Object.prototype`的原型是`null`。`null`没有任何属性和方法，也没有自己的原型。因此，原型链的尽头就是`null`。
       
       读取对象的某个属性时，JS 引擎先寻找对象本身的属性，如果找不到，就到它的原型去找，如果还是找不到，就到原型的原型去找。如果直到最顶层的`Object.prototype`还是找不到，则返回`undefined`。如果对象自身和它的原型，都定义了一个同名属性，那么优先读取对象自身的属性，这叫做“覆盖”（overriding）。
-    
+  
       ###### 注意：一级级向上，在整个原型链上寻找某个属性，对性能是有影响的。所寻找的属性在越上层的原型对象，对性能的影响越大。如果寻找某个不存在的属性，将会遍历整个原型链。
     
     - ##### `constructor` 属性：
-  
-      原型对象通常有一个`constructor`属性，默认指向原型对象所在的构造函数。
+    
+      原型对象通常有一个`constructor`属性，指向原型对象所在的构造函数。
       
       由于`constructor`属性定义在`prototype`对象上面，意味着可以被所有实例对象继承。因此每个实例可以通过原型上的`constructor`来访问构造该实例的构造函数。
       
-      另一方面，有了`constructor`属性，就可以从一个实例对象新建另一个实例。
+      `constructor`属性的作用是，可以得知某个实例对象，到底是哪一个构造函数产生的。另一方面，有了`constructor`属性，就可以从一个实例对象新建另一个实例。
       
       ```js
       function Constr() {}
@@ -1092,7 +1242,7 @@
       
       上面代码中，构造函数`Person`的原型对象改掉了，但是没有修改`constructor`属性，导致这个属性不再指向`Person`。由于`Person`的新原型是一个普通对象，而普通对象的`constructor`属性指向`Object`构造函数，导致`Person.prototype.constructor`变成了`Object`。
       
-      所以，修改原型对象时，一般要同时修改`constructor`属性的指向。
+      所以，修改原型对象时，一定要同时修改`constructor`属性的指向。
       
       ```js
       // 坏的写法
@@ -1131,22 +1281,11 @@
       Vehicle.prototype.isPrototypeOf(v)
       ```
       
-      > 上面代码中，`Vehicle`是对象`v`的构造函数，它的原型对象是`Vehicle.prototype`，`isPrototypeOf()`方法是 JS 提供的原生方法，用于检查某个对象是否为另一个对象的原型，详细解释见后文。
-    
-      **注意：`instanceof`运算符只能用于引用类型，不适用基本类型。**
-      
-      ```js
-      var s = 'hello';
-      s instanceof String // false
-      ```
-      
-      上面代码中，字符串不是`String`对象的实例（因为字符串不是对象），所以返回`false`。
-      
-      此外，对于`undefined`和`null`，`instanceof`运算符总是返回`false`。
+      上面代码中，`Vehicle`是对象`v`的构造函数，它的原型对象是`Vehicle.prototype`，`isPrototypeOf()`方法是 JS 提供的原生方法，用于检查某个对象是否为另一个对象的原型，详细解释见后文。
     
       **由于`instanceof`检查整个原型链，因此同一个实例对象，可能会对多个构造函数都返回`true`**。
       
-      **除了`null`，任意对象都是`Object`的实例，所以`instanceof`运算符可以判断一个值是否为非`null`的对象**。
+      **由于任意对象（除了`null`）都是`Object`的实例，所以`instanceof`运算符可以判断一个值是否为非`null`的对象**。
       
       `instanceof`的原理是检查右边构造函数的`prototype`属性，是否在左边对象的原型链上。有一种特殊情况，就是左边对象的原型链上，只有`null`对象。这时，`instanceof`判断会失真：
       
@@ -1156,8 +1295,8 @@
       obj instanceof Object // false
       ```
       
-      > 上面代码中，`Object.create(null)`返回一个新对象`obj`，它的原型是`null`（`Object.create()`的详细介绍见后文）。右边的构造函数`Object`的`prototype`属性，不在左边的原型链上，因此`instanceof`就认为`obj`不是`Object`的实例。这是唯一的`instanceof`运算符判断会失真的情况（一个对象的原型是`null`）。
-    
+      上面代码中，`Object.create(null)`返回一个新对象`obj`，它的原型是`null`。右边的构造函数`Object`的`prototype`属性，不在左边的原型链上，因此`instanceof`就认为`obj`不是`Object`的实例。这是唯一的`instanceof`运算符判断会失真的情况（一个对象的原型是`null`）。
+      
       `instanceof`运算符的一个用处，是判断值的类型。
       
       ```js
@@ -1167,10 +1306,19 @@
       y instanceof Object // true
       ```
       
-      > 上面代码中，`instanceof`运算符判断，变量`x`是数组，变量`y`是对象。
+      **注意：`instanceof`运算符只能用于引用类型，不适用基本类型。**
     
-      利用`instanceof`运算符，还可以巧妙地解决，调用构造函数时，忘了加`new`命令的问题。
+      ```js
+      var s = 'hello';
+      s instanceof String // false
+      ```
       
+      上面代码中，字符串不是`String`对象的实例（因为字符串不是对象），所以返回`false`。
+      
+      此外，对于`undefined`和`null`，`instanceof`运算符总是返回`false`。
+      
+      利用`instanceof`运算符，还可以巧妙地解决，调用构造函数时，忘了加`new`命令的问题。
+    
       ```js
       function Fubar (foo, bar) {
         if (this instanceof Fubar) {
@@ -1182,38 +1330,38 @@
       }
       ```
       
-      > 上面代码使用`instanceof`运算符，在函数体内部判断`this`关键字是否为构造函数`Fubar`的实例。如果不是，就表明忘了加`new`命令。
-    
+      上面代码使用`instanceof`运算符，在函数体内部判断`this`关键字是否为构造函数`Fubar`的实例。如果不是，就表明忘了加`new`命令。
+      
     - ##### 构造函数的继承（类的继承）：
     
       让一个构造函数继承另一个构造函数，是非常常见的需求。这可以分成两步实现：
-      
+    
       1. 在子类的构造函数中，调用父类的构造函数。
-      
+    
          ```js
          function Sub(value) {
            Super.call(this);
            this.prop = value;
          }
          ```
-      
+    
       2. 让子类的原型指向父类的实例，这样子类就可以继承父类。
-      
+    
          ```js
          Sub.prototype = Object.create(Super.prototype);
          Sub.prototype.constructor = Sub;
          Sub.prototype.method = '...';
          ```
-      
+    
          上面代码中，`Sub.prototype`是子类的原型，要将它赋值为`Object.create(Super.prototype)`，而不是直接等于`Super.prototype`。否则后面两行对`Sub.prototype`的操作，会连父类的原型`Super.prototype`一起修改掉。
-      
-      另外一种写法是`Sub.prototype`等于一个父类实例：
-      
-      ```js
-      Sub.prototype = new Super();
-      ```
-      
-      上面这种写法也有继承的效果，但是子类会具有父类实例的方法。有时，这可能不是我们需要的，所以不推荐。
+         
+         另外一种写法是`Sub.prototype`等于一个父类实例：
+         
+         ```js
+         Sub.prototype = new Super();
+         ```
+         
+         上面这种写法也有继承的效果，但是子类会具有父类实例的方法。有时，这可能不是我们需要的，所以不推荐。
     
       举例来说，下面是一个`Shape`构造函数。
     
@@ -1248,10 +1396,30 @@
       Rectangle.prototype.constructor = Rectangle;
       ```
     
+      采用这样的写法以后，`instanceof`运算符会对子类和父类的构造函数，都返回`true`。
+    
+      ```js
+      var rect = new Rectangle();
+      
+      rect instanceof Rectangle  // true
+      rect instanceof Shape  // true
+      ```
+    
+      上面代码中，子类是整体继承父类。有时只需要单个方法的继承，这时可以采用下面的写法。
+    
+      ```js
+      ClassB.prototype.print = function() {
+        ClassA.prototype.print.call(this);
+        // some code
+      }
+      ```
+    
+      上面代码中，子类`B`的`print`方法先调用父类`A`的`print`方法，再部署自己的代码。这就等于继承了父类`A`的`print`方法。
+    
       ###### 多重继承：
     
       JS 不提供多重继承功能，即不允许一个对象同时继承多个对象。但是，可以通过变通方法，实现这个功能。
-      
+    
       ```js
       function M1() {
         this.hello = 'hello';
@@ -1278,7 +1446,7 @@
       s.hello // 'hello'
       s.world // 'world'
       ```
-      
+    
       上面代码中，子类`S`同时继承了父类`M1`和`M2`。这种模式又称为 Mixin（混入）。
     
     - ##### JS 的模块化：
@@ -1297,10 +1465,10 @@
       var module1 = {
         _count : 0,
         m1 : function (){
-        	//...
+          //...
         },
         m2 : function (){
-        	//...
+          //...
         }
       };
       ```
@@ -1316,11 +1484,11 @@
         var buffer = [];
       
         this.add = function (str) {
-        	buffer.push(str);
+          buffer.push(str);
         };
       
         this.toString = function () {
-        	return buffer.join('');
+          return buffer.join('');
         };
       }
       ```
@@ -1335,10 +1503,10 @@
       var module1 = (function () {
         var _count = 0;
         var m1 = function () {
-        	//...
+          //...
         };
         var m2 = function () {
-        	//...
+          //...
         };
         return {
           m1 : m1,
@@ -1347,14 +1515,14 @@
       })();
       ```
       
-      下面再对这种写法进行加工。
+      这就是 JS 模块的基本写法，下面再对这种写法进行加工。
       
       如果一个模块很大，必须分成几个部分，或者一个模块需要继承另一个模块，这时就有必要采用“放大模式”（augmentation）。
       
       ```js
       var module1 = (function (mod){
         mod.m3 = function () {
-        	//...
+          //...
         };
         return mod;
       })(module1);
@@ -1366,8 +1534,8 @@
       
       ```js
       var module1 = (function (mod) {
-      　//...
-      　return mod;
+        //...
+        return mod;
       })(window.module1 || {});
       ```
       
@@ -1379,7 +1547,7 @@
       
       ```js
       var module1 = (function ($, YAHOO) {
-      　//...
+        //...
       })(jQuery, YAHOO);
       ```
       
@@ -1390,23 +1558,23 @@
       ```js
       (function($, window, document) {
       
-      function go(num) {
-      }
+        function go(num) {
+        }
       
-      function handleEvents() {
-      }
+        function handleEvents() {
+        }
       
-      function initialize() {
-      }
+        function initialize() {
+        }
       
-      function dieCarouselDie() {
-      }
+        function dieCarouselDie() {
+        }
       
-      //attach to the global scope
-      window.finalCarousel = {
-        init : initialize,
-        destroy : dieCarouselDie
-      }
+        //attach to the global scope
+        window.finalCarousel = {
+          init : initialize,
+          destroy : dieCarouselDie
+        }
       
       })( jQuery, window, document );
       ```
@@ -1415,32 +1583,34 @@
     
   - ### 严格模式
   
-    > 除了正常的运行模式，JS 还有第二种运行模式：严格模式（strict mode）。顾名思义，这种模式采用更加严格的 JS 语法。
-    >
-    > 同样的代码，在正常模式和严格模式中，可能会有不一样的运行结果。一些在正常模式下可以运行的语句，在严格模式下将不能运行。
+    除了正常的运行模式，JS 还有第二种运行模式：严格模式（strict mode）。顾名思义，这种模式采用更加严格的 JS 语法。
+    
+    同样的代码，在正常模式和严格模式中，可能会有不一样的运行结果。一些在正常模式下可以运行的语句，在严格模式下将不能运行。
   
     ###### 设计目的：
   
-    > 早期的 JS 语言有很多设计不合理的地方，但是为了兼容以前的代码，又不能改变老的语法，只能不断添加新的语法，引导程序员使用新语法。
-    >
-    > 严格模式是从 ES5 进入标准的，主要目的有以下几个：
-    >
-    > - 明确禁止一些不合理、不严谨的语法，减少 JS 语言的一些怪异行为。
-    > - 增加更多报错的场合，消除代码运行的一些不安全之处，保证代码运行的安全。
-    > - 提高编译器效率，提升运行速度。
-    > - 为未来新版本的 JS 语法做好铺垫。
-    >
-    > 总之，严格模式体现了 JS 更合理、更安全、更严谨的发展方向。
+    早期的 JS 语言有很多设计不合理的地方，但是为了兼容以前的代码，又不能改变老的语法，只能不断添加新的语法，引导程序员使用新语法。
+    
+    严格模式是从 ES5 进入标准的，主要目的有以下几个：
+    
+    - 明确禁止一些不合理、不严谨的语法，减少 JS 语言的一些怪异行为。
+    - 增加更多报错的场合，消除代码运行的一些不安全之处，保证代码运行的安全。
+    - 提高编译器效率，提升运行速度。
+    - 为未来新版本的 JS 语法做好铺垫。
+    
+    总之，严格模式体现了 JS 更合理、更安全、更严谨的发展方向。
   
     ###### 开启严格模式：
   
-    > 进入严格模式的标志，是一行字符串`'use strict';`。
-    >
-    > 老版本的引擎会把它当作一行普通字符串，加以忽略。新版本的引擎就会进入严格模式。
+    进入严格模式的标志，是一行字符串`'use strict'`
+    
+    老版本的引擎会把它当作一行普通字符串，加以忽略。新版本的引擎就会进入严格模式。
   
-    ###### 严格模式可以用于单个脚本（即单个`<script>`中），也可以用于单个函数：
+    ###### 严格模式可以用于当前脚本（当前`<script>`标签中），也可以用于当前函数：
   
-    - **单个脚本：**`use strict`放在脚本文件的第一行，**整个脚本**都将以严格模式运行。如果这行语句不在第一行就无效，整个脚本会以正常模式运行。（严格地说，只要前面不是产生实际运行结果的语句，`use strict`可以不在第一行，比如直接跟在一个空的分号后面，或者跟在注释后面）
+    - **当前脚本：**`'use strict';`放在单个脚本文件、或单个`<sciprt>`标签的第一行，当前的*整个脚本/标签*都将以严格模式运行。如果这行语句不在第一行就无效，整个脚本会以正常模式运行。
+    
+      严格地说，只要前面不是产生实际运行结果的语句，`'use strict';`可以不在第一行，比如直接跟在一个空的分号后面，或者跟在注释后面。
     
       ```html
       <script>
@@ -1453,45 +1623,47 @@
       </script>
       ```
     
-      > 上面代码中，一个网页文件依次有两段 JS 代码。前一个`<script>`标签是严格模式，后一个不是。
+      上面代码中，一个网页文件依次有两段 JS 代码。前一个`<script>`标签是严格模式，后一个不是。
     
-    - **单个函数：**`use strict`放在函数体中第一行，则整个函数以严格模式运行。
+    - **单个函数：**`'use strict';`放在函数体中第一行，则当前的整个函数将以严格模式运行。
     
-    ###### 严格模式使得 JS 的语法变得更严格，更多的操作会显式报错：（有些操作在正常模式下只会默默地失败，不会报错）
+    有时，需要把不同的脚本合并在一个文件里面。如果一个脚本是严格模式，另一个脚本不是，它们的合并就可能出错。严格模式的脚本在前，则合并后的脚本都是严格模式；如果正常模式的脚本在前，则合并后的脚本都是正常模式。这两种情况下，合并后的结果都是不正确的。这时可以考虑把整个脚本文件放在一个立即执行的匿名函数之中。
     
-    1. **严格模式下，函数只能在全局作用域、函数作用域中声明。**
+    ###### 严格模式使得 JS 的语法变得更严格，更多的操作会显式报错。其中有些操作在正常模式下只会默默地失败，不会报错。
     
-    2. **正常模式下，如果函数有多个重名的形参，可以用`arguments[i]`读取。严格模式下，这属于语法错误。**
+    1. **严格模式下，禁止函数内部的`this`关键字指向全局对象（`window/global`），避免无意间创造全局变量。此时`this`是`undefined`。**
     
-    3. **严格模式下，禁止函数内部的`this`关键字指向全局对象，避免无意间创造全局变量。此时this是`undefined`。**
+       这种限制对于构造函数尤其有用。使用构造函数时，有时忘了加`new`，这时`this`不再指向全局对象，而是报错。
     
-       > 这种限制对于构造函数尤其有用。使用构造函数时，有时忘了加`new`，这时`this`不再指向全局对象，而是报错。
-       >
-       > ```js
-       > function f() {
-       >      'use strict';
-       >      this.a = 1;
-       > };
-       > f();  // 报错，this 未定义
-       > ```
+       ```js
+       function f() {
+         'use strict';
+         this.a = 1;
+       };
+       f();  // 报错，this 未定义
+       ```
     
-    4. **严格模式下禁止用`delete`关键字删除对象的属性，除非对象的属性的描述对象的`configurable`设置为`true`。**
+    2. **严格模式下，对只读属性赋值、或用`delete`删除对象中的不可配置的属性都会报错。**
     
-       > 严格模式下，对只读属性赋值，或用`delete`关键字删除对象中不可配置（non-configurable）的属性都会报错。
+    3. 严格模式下，函数只能在全局作用域、函数作用域中声明。其他的块级作用域中不能声明函数。
     
-    5. 严格模式下，对一个只有取值器（getter）、没有存值器（setter）的属性赋值，会报错。
+    4. 严格模式下，对一个只有取值器（getter）、没有存值器（setter）的属性赋值，会报错。
     
-    6. 严格模式下，对禁止扩展的对象添加新属性，会报错。
+    5. 严格模式下，对禁止扩展的对象添加新属性，会报错。
     
-    7. 严格模式下，使用`eval`或者`arguments`作为标识符，将会报错。
+    6. 严格模式下，使用`eval`或者`arguments`作为标识符，将会报错。
     
-    8. 正常模式下，整数的第一位如果是`0`，表示这是八进制数，比如`0100`等于十进制的64。严格模式禁止这种表示法，整数第一位为`0`，将报错。
+    7. 正常模式下，如果函数有多个重名的形参，可以用`arguments[i]`读取。严格模式下，这属于语法错误。
     
-    9. 正常模式中，如果一个变量没有声明就赋值，默认是全局变量。严格模式禁止这种用法，**变量必须先声明再使用**。
+    8. 正常模式下，整数的第一位如果是`0`，表示这是八进制数，比如`0100`等于十进制的64。严格模式禁止这种表示法，整数第一位为`0`，将报错。八进制数必须以`00`或`0o`开头。
     
-    10. 严格模式下，函数直接调用时（不使用`new`调用），函数内部的`this`表示`undefined`（未定义）。因此**可以用`call`、`apply`和`bind`方法，将任意值绑定在`this`上面**。
+    9. 正常模式下，如果一个变量没有声明就赋值，默认是全局变量。严格模式禁止这种用法，**变量必须先声明再使用**。
     
-        > 正常模式下，`this`指向全局对象，如果绑定的值是非对象，将被自动转为对象再绑定上去，而`null`和`undefined`这两个无法转成对象的值，将被忽略。
+    10. 正常模式下，使用`delete`删除`var`声明的全局/局部变量时，操作会默默失败但不报错。严格模式下会报错。
+    
+    11. 严格模式下，函数直接调用时（不使用`new`调用），函数内部的`this`表示`undefined`（未定义）。因此**可以用`call`、`apply`和`bind`方法，将任意值绑定在`this`上面**。
+    
+        正常模式下，`this`指向全局对象，如果绑定的值是非对象，将被自动转为对象再绑定上去，而`null`和`undefined`这两个无法转成对象的值，将被忽略。
     
         ```js
         // 正常模式
@@ -1518,28 +1690,51 @@
         fun.call(undefined) // undefined
         ```
     
-        > 上面代码中，可以把任意类型的值，绑定在`this`上面。
+        上面代码中，可以把任意类型的值，绑定在`this`上面。
     
-    ###### 静态绑定
+    12. 禁止使用 `fn.callee`、`fn.caller`。函数内部不得使用`fn.caller`、`fn.arguments`，否则会报错。这意味着不能在函数内部得到调用栈了。
     
-    > JS 语言的一个特点就是允许“动态绑定”，即某些属性和方法到底属于哪一个对象，不是在编译时确定的，而是在运行时（runtime）确定的。
-    >
-    > 严格模式对动态绑定做了一些限制。某些情况下只允许静态绑定。也就是说，属性和方法到底归属哪个对象，必须在编译阶段就确定。这样做有利于编译效率的提高，也使得代码更容易阅读，更少出现意外。
-    >
-    > 具体来说，涉及以下几个方面：
-    >
-    > 1. 严格模式创设了第三种作用域：`eval`作用域。也就是说，`eval`所生成的变量只能用于`eval`内部。
-    > 2. 严格模式下，函数内部的`arguments`与函数形参之间的联系被切断了，两者不再存在联动关系。
-    > 3. 严格模式下禁止使用`with`语句。（我们不学这个东西，知道曾经有这个语法就行，实际开发中不用它）
+        ```js
+        function f1() {
+          'use strict';
+          f1.caller;    // 报错
+          f1.arguments; // 报错
+        }
+        
+        f1();
+        ```
+    
+    13. 禁止使用 `arguments.callee`、`arguments.caller`。`arguments.callee`和`arguments.caller`是两个历史遗留的变量，从来没有标准化过，现在已经取消了。正常模式下调用它们没有什么作用，但是不会报错。严格模式明确规定，函数内部使用`arguments.callee`、`arguments.caller`将会报错。
+    
+        ```js
+        'use strict';
+        var f = function () {
+          return arguments.callee;
+        };
+        
+        f(); // 报错
+        ```
+    
+    ###### 静态绑定：
+    
+    JS 语言的一个特点就是允许“动态绑定”，即某些属性和方法到底属于哪一个对象，不是在编译时确定的，而是在运行时（runtime）确定的。
+    
+    严格模式对动态绑定做了一些限制。某些情况下只允许静态绑定。也就是说，属性和方法到底归属哪个对象，必须在编译阶段就确定。这样做有利于编译效率的提高，也使得代码更容易阅读，更少出现意外。
+    
+    具体来说，涉及以下几个方面：
+    
+    1. 严格模式创设了第三种作用域：`eval`作用域。也就是说，`eval`所生成的变量只能用于`eval`内部。
+    2. 严格模式下，函数内部的`arguments`与函数形参之间的联系被切断了，两者不再存在联动关系。
+    3. 严格模式下禁止使用`with`语句。（我们不学这个东西，知道曾经有这个语法就行，实际开发中不用它）
     
     ###### 向下一个版本的 JS 过渡：
     
-    > JS 语言的下一个版本是 ECMAScript 6，为了平稳过渡，严格模式引入了一些 ES6 语法。
-    >
-    > 1. ES6 会引入块级作用域。为了与新版本接轨，ES5 的严格模式只允许在全局作用域或函数作用域声明函数。也就是说，不允许在非函数的代码块内声明函数。
-    > 2. 为了向将来 JS 的新版本过渡，严格模式新增了一些保留字（implements、interface、let、package、private、protected、public、static、yield等）。使用这些词作为变量名将会报错。
+    JS 语言的下一个版本是 ECMAScript 6，为了平稳过渡，严格模式引入了一些 ES6 语法。
     
-    ###### 严格模式增强了安全保护，从语法上防止了一些不小心会出现的错误。
+    1. ES6 会引入块级作用域。为了与新版本接轨，ES5 的严格模式只允许在全局作用域或函数作用域声明函数。也就是说，不允许在非函数的代码块内声明函数。
+    2. 为了向将来 JS 的新版本过渡，严格模式新增了一些保留字（implements、interface、let、package、private、protected、public、static、yield等）。使用这些词作为变量名将会报错。
+    
+    严格模式增强了安全保护，从语法上防止了一些不小心会出现的错误。
 
 ------
 
