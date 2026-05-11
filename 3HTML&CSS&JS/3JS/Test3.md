@@ -1,6 +1,6 @@
-- ## 标准库(to write)
+- ## 标准库
 
-  - ### Object 对象
+  - #### Object 对象
 
     JS 原生提供`Object`对象，JS 的所有其他对象都继承自`Object`对象，即那些对象都是`Object`的实例。
     
