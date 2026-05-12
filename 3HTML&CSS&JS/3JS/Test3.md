@@ -45,18 +45,7 @@
     
     - ##### `Object`的静态方法：
     
-      > 有时需要冻结对象的读写状态，防止对象被改变。JS 提供了三种冻结方法，最弱的一种是`Object.preventExtensions`，其次是`Object.seal`，最强的是`Object.freeze`。
-    
-      - `Object.preventExtensions()`：防止对象扩展。即该对象不能再有新的属性被添加，但可以修改现有属性的值或删除属性。
-      - `Object.isExtensible()`：判断对象是否可扩展。
-      - `Object.seal()`：密封一个对象。密封后的对象不能添加新属性，也不能删除已有属性（但还是可写的），并且所有现有属性的可配置性（configurable）会被设置为false。
-      - `Object.isSealed()`：判断一个对象是否被密封。
-      - `Object.freeze()`：冻结一个对象。被冻结的对象不能添加、删除或修改任何属性，所有属性都变为只读。此时这个对象实际上变成了常量。
-      - `Object.isFrozen()`：判断一个对象是否被冻结。
-    
-      上面的三个方法锁定对象的可写性有一个**漏洞：可以通过改变原型对象，来为对象增加属性**。
-    
-      - `Object.keys(obj)`，`Object.getOwnPropertyNames(obj)`：它们都可以遍历参数对象的属性，返回一个数组，该数组的成员都是该对象自身的（而不是继承的）所有属性名字符串。区别是`Object.getOwnPropertyNames`还可以返回不可枚举的属性名（秘密属性也可以访问到）。前者更常用。
+      - `Object.keys(obj)`，`Object.getOwnPropertyNames(obj)`：它们都可以遍历参数对象的属性，返回一个字符串数组，数组的成员是该对象自身的（而不是继承的）所有属性名。区别是`Object.getOwnPropertyNames`还可以返回不可枚举的属性名（秘密属性也可以访问到）。前者更常用。
     
       - `Object.create()`：通过指定原型对象和实例属性，生成一个新的对象。该方法的第一个参数必须是对象或`null`，作为新对象的原型；第二个参数是一个属性描述对象，它所描述的属性会被添加到新的实例对象上，作为该对象自身的属性：
     
@@ -81,7 +70,7 @@
         obj.p1 = 123;
         obj.p2 = 'abc';
         ```
-  
+    
       - `Object.getPrototypeOf(obj)`：获取参数对象的`prototype`原型对象。这是获取原型对象的标准方法，而不是通过对象的`__proto__`属性去获取。
     
       - `Object.setPrototypeOf(obj, proto)`：为参数对象设置原型，返回该参数对象。它接受两个参数，第1个是现有对象，第2个是原型对象。
@@ -129,88 +118,96 @@
     
         根据 JS 语言标准，`__proto__`属性只有浏览器才需要部署，其他环境可以没有这个属性。它前后的两根下划线，表明它本质是一个内部属性，不应该对使用者暴露。因此，应该尽量少用这个属性，而是用`Object.getPrototypeOf()`和`Object.setPrototypeOf()`进行原型对象的读写操作。
     
-      - `Object.prototype.propertyIsEnumerable()`：判断某个属性是否可枚举。
+      - `Object.prototype.propertyIsEnumerable()`：判断某个属性是否可遍历。注意，这个方法只能用于判断**对象自身的属性**，对于继承的属性一律返回`false`。
     
-  - ### 属性描述对象
+    - ##### 控制对象状态：
+    
+      有时需要冻结对象的读写状态，防止对象被改变。JS 提供了三种冻结方法，最弱的一种是`Object.preventExtensions`，其次是`Object.seal`，最强的是`Object.freeze`。
+    
+      - `Object.preventExtensions()`：防止对象扩展。即该对象不能再有新的属性被添加，但可以修改现有属性的值或删除属性。
+      - `Object.isExtensible()`：判断对象是否可扩展。
+      - `Object.seal()`：密封一个对象。密封后的对象不能添加新属性，也不能删除已有属性（但还是可写的），并且所有现有属性的可配置性（`configurable`）会被设置为false。
+      - `Object.isSealed()`：判断一个对象是否被密封。
+      - `Object.freeze()`：冻结一个对象。被冻结的对象不能添加、删除或修改任何属性，所有属性都变为只读。此时这个对象实际上变成了常量。
+      - `Object.isFrozen()`：判断一个对象是否被冻结。
+    
+      上面的三个方法锁定对象的可写性有一个**漏洞：可以通过改变原型对象，来为对象增加属性**。
+    
+  - #### 属性描述对象
   
-    > JS 提供了一个内部数据结构，用来描述对象的属性，控制它的行为，比如该属性是否可写、可遍历等等。这个内部数据结构称为“属性描述对象”（attributes object）。每个属性都有自己对应的属性描述对象，保存该属性的一些元信息。
-    >
-    > 下面是属性描述对象的一个例子：
-    >
-    > ```js
-    > {
-    >      value: 123,
-    >      writable: false,
-    >      enumerable: true,
-    >      configurable: false,
-    >      get: undefined,
-    >      set: undefined
-    > }
-    > ```
+    JS 提供了一个内部数据结构，用来描述对象的属性，控制它的行为，比如该属性是否可写、可遍历等等。这个内部数据结构称为“属性描述对象”（attributes object）。每个属性都有自己对应的属性描述对象，保存该属性的一些元信息。
   
-    ##### `Object`构造器上有3个静态方法，可以通过**属性描述对象**来设置对象的属性：
+    下面是属性描述对象的一个例子：
   
-    - `Object.getOwnPropertyDescriptor()`：获取某个属性的**属性描述对象**。它的第一个参数是目标对象，第二个参数是一个字符串，对应目标对象的某个属性名。该方法只能用于对象自身的属性，不能用于继承的属性。
+    ```js
+    {
+      value: 123,
+      writable: false,
+      enumerable: true,
+      configurable: false,
+    }
+    ```
   
-    - `Object.defineProperty()`：该方法允许通过属性描述对象，定义或修改一个属性，然后返回修改后的对象。如果属性已经存在，`Object.defineProperty()`方法相当于更新该属性的属性描述对象。（实参中的对象会和原属性描述对象进行合并）
+    属性描述符有2种主要类型：数据描述符和访问器描述符。**数据描述符**是一个具有可写或不可写值的属性（具有 [`value` 或 `writable`] ）。**访问器描述符**是由 `getter/setter` 函数对描述的属性（具有 [`get` 或 `set`] ）。
   
-      > 用法：`Object.defineProperty(object, propertyName, attributesObject)`
-      >
-      > ```js
-      > var obj = Object.defineProperty({}, 'p', {
-      >     value: 123,
-      >     writable: false,
-      >     enumerable: true,
-      >     configurable: false
-      > });
-      > 
-      > obj.p // 123
-      > 
-      > obj.p = 246;
-      > obj.p // 123
-      > ```
-      >
-      > 上面代码中，`Object.defineProperty()`方法定义了`obj.p`属性。由于属性描述对象的`writable`属性为`false`，所以`obj.p`属性不能被重新赋值。注意，这里的`Object.defineProperty`方法的第一个参数是`{}`（一个新建的空对象），`p`属性直接定义在这个空对象上面，然后返回这个对象，这是`Object.defineProperty()`的常见用法。
-      >
+    描述符只能是这两种类型之一，不能同时为两者。如果描述符同时具有 [`value` 或 `writable`] 和 [`get` 或 `set`] 键，则会抛出异常。
+  
+    如果描述符没有 `get` 或 `set` 键，它将被视为数据描述符。
+  
+    ###### `Object`构造器上有3个静态方法，用于访问和设置属性描述对象：
+  
+    - `Object.getOwnPropertyDescriptor(obj, 'proName')`：获取某个属性的**属性描述对象**。它的第一个参数是目标对象，第二个参数是一个字符串，对应目标对象的某个属性名。该方法只能用于**对象自身的属性**，不能用于继承的属性。
+  
+    - `Object.defineProperty()`：该方法允许通过属性描述对象，定义或修改一个对象的属性，然后返回修改后的对象。如果属性已经存在，`Object.defineProperty()`方法相当于更新该对象属性的属性描述对象。实参中的属性描述对象会和原属性描述对象进行合并。用法：
+  
+      ```js
+      Object.defineProperty(object, propertyName, attributesObject)
+      ```
       
-    - `Object.defineProperties()`：通过属性描述对象，定义多个属性。
-  
-      > ```js
-      > var obj = Object.defineProperties({}, {
-      >   p1: { value: 123, enumerable: true },
-      >   p2: { value: 'abc', enumerable: true },
-      >   p3: { get: function () { return this.p1 + this.p2 },
-      >     enumerable:true,
-      >     configurable:true
-      >   }
-      > });
-      > 
-      > obj.p1 // 123
-      > obj.p2 // "abc"
-      > obj.p3 // "123abc"
-      > ```
-      >
-      > 上面代码中，`Object.defineProperties()`同时定义了`obj`对象的三个属性。其中，`p3`属性定义了取值函数`get`，即每次读取该属性，都会调用这个取值函数。
+      `Object.defineProperty`方法接受三个参数，分别是：属性所在的对象、属性名字符串、属性描述对象。
       
-      > `Object.defineProperty()`和`Object.defineProperties()`参数里面的属性描述对象，`writable`、`configurable`、`enumerable`这三个属性的默认值都为`false`：
-      > 
-      >   ```js
-      >   var obj = {};
-      >   Object.defineProperty(obj, 'foo', {});
-      >    Object.getOwnPropertyDescriptor(obj, 'foo')
-      >    // {
-      >   //   value: undefined,
-      > //   writable: false,
-      > //   enumerable: false,
-      > //   configurable: false
-      > // }
-      > ```
-      > 
-      >上面代码中，定义`obj.foo`时用了一个空的属性描述对象，就可以看到各个元属性的默认值。
+      举例来说，定义`obj.p`可以写成下面这样。
+      
+      ```js
+      var obj = Object.defineProperty({}, 'p', {
+        value: 123,
+        writable: false,
+        enumerable: true,
+        configurable: false
+      });
+      
+      obj.p // 123
+      
+      obj.p = 246;
+      obj.p // 123
+      ```
+      
+      上面代码中，`Object.defineProperty()`方法定义了`obj.p`属性。由于属性描述对象的`writable`属性为`false`，所以`obj.p`属性不能被重新赋值。注意，这里的`Object.defineProperty`方法的第一个参数是`{}`（一个新建的空对象），`p`属性直接定义在这个空对象上面，然后返回这个对象，这是`Object.defineProperty()`的常见用法。
+      
+      如果属性已经存在，`Object.defineProperty()`方法相当于更新该属性的属性描述对象。
+      
+    - `Object.defineProperties()`：通过属性描述对象，一次性定义多个属性。
   
-    ##### 属性描述对象的各个属性称为“元属性”，因为它们可以看作是控制属性的属性：
+      ```js
+      var obj = Object.defineProperties({}, {
+        p1: { value: 123, enumerable: true },
+        p2: { value: 'abc', enumerable: true },
+        p3: { get: function () { return this.p1 + this.p2 },
+          enumerable:true,
+          configurable:true
+        }
+      });
+      
+      obj.p1 // 123
+      obj.p2 // "abc"
+      obj.p3 // "123abc"
+      ```
+      
+      上面代码中，`Object.defineProperties()`同时定义了`obj`对象的三个属性。其中，`p3`属性定义了取值函数`get`，即每次读取该属性，都会调用这个取值函数。
   
-    - value：`value`属性是目标属性的值。
+    ###### 属性描述对象的各个属性称为“元属性”，因为它们可以看作是控制属性的属性：
+  
+    - `value`：`value`属性是目标属性的值。默认为`undefined`。
   
       ```js
       var obj = {};
@@ -225,7 +222,7 @@
   
       上面代码是通过属性描述对象的`value`属性，读写`obj.p`的例子。
   
-    - writable：`writable`属性是一个布尔值，决定了目标属性的值（value）是否可以被修改。
+    - `writable`：`writable`属性是一个布尔值，决定了目标属性的值（`value`）是否可以被修改。默认为`false`。
   
       ```js
       var obj = {};
@@ -240,9 +237,9 @@
       obj.a // 37
       ```
   
-      > 上面代码中，`obj.a`的`writable`属性是`false`。然后，改变`obj.a`的值，不会有任何效果，只会默默失败。（严格模式下会报错，即使赋相同的值）
-      >
-      > 如果属性的`configurable`为`true`，那么还是可以通过`Object.defineProperty`去改属性的值。
+      上面代码中，`obj.a`的`writable`属性是`false`。然后，改变`obj.a`的值，不会有任何效果，只会默默失败。严格模式下会报错，即使赋相同的值。
+      
+      如果属性的`configurable`为`true`，那么还是可以通过`Object.defineProperty`去改属性的值。
   
       注意：如果原型对象上某个属性的`writable`为`false`，那么子对象自身将无法添加该属性了。（严格模式下还会报错）
   
@@ -274,46 +271,47 @@
       obj.foo // "b"
       ```
   
-    - enumerable：`enumerable`（可遍历性）返回一个布尔值，表示目标属性是否可遍历。
+    - `enumerable`：`enumerable`（可遍历性）返回一个布尔值，表示目标属性是否可遍历。默认为`false`。
   
-      > JS 的早期版本，`for...in`循环是基于`in`运算符的。我们知道，`in`运算符不管某个属性是对象自身的还是继承的，都会返回`true`。这显然不太合理，后来就引入了“可遍历性”这个概念。只有可遍历的属性，才会被`for...in`循环遍历，同时还规定`toString`这一类实例对象继承的原生属性，都是不可遍历的，这样就保证了`for...in`循环的可用性。
-      >
-      > 具体来说，如果一个属性的`enumerable`为`false`，下面三个操作不会取到该属性：
-      >
-      > - `for..in`循环
-      > - `Object.keys`方法
-      > - `JSON.stringify`方法
-      >
-      > 因此，`enumerable`可以用来设置“秘密”属性。但不是真正的私有属性，还是可以直接获取它的值。
-      >
-      > `JSON.stringify`方法会排除`enumerable`为`false`的属性，有时可以利用这一点。如果对象的 JSON 格式输出要排除某些属性，就可以把这些属性的`enumerable`设为`false`。
-  
-    - configurable：`configurable`(可配置性）返回一个布尔值，决定了是否可以修改属性描述对象。也就是说，`configurable`为`false`时，`writable`、`enumerable`和`configurable`都不能被修改了、`get/set`也不能改了。另外，可配置性决定了目标属性是否可以被`delete`关键字删除。
-  
-      > 注意，当`configurable`为`false`时，`writable`属性只有在`false`改为`true`时会报错，`true`改为`false`是允许的。
-      >
+      JS 的早期版本，`for...in`循环是基于`in`运算符的。我们知道，`in`运算符不管某个属性是对象自身的还是继承的，都会返回`true`。这显然不太合理，后来就引入了“可遍历性”这个概念。只有可遍历的属性，才会被`for...in`循环遍历，同时还规定`toString`这一类实例对象继承的原生属性，都是不可遍历的，这样就保证了`for...in`循环的可用性。
       
-    - 存取器（getter/setter）：除了直接定义以外，属性还可以用存取器（accessor）定义。其中，存值函数称为`setter`，使用属性描述对象的`set`属性；取值函数称为`getter`，使用属性描述对象的`get`属性。一旦对目标属性定义了存取器，那么存取的时候，都将执行对应的函数。利用这个功能，可以实现许多高级特性，比如定制属性的读取和赋值行为。
+      具体来说，如果一个属性的`enumerable`为`false`，下面三个操作不会取到该属性：
+      
+      - `for..in`循环
+      - `Object.keys`方法
+      - `JSON.stringify`方法
+      
+      因此，`enumerable`可以用来设置“秘密”属性。但不是真正的私有属性，还是可以直接获取它的值。
+      
+      `JSON.stringify`方法会排除`enumerable`为`false`的属性，有时可以利用这一点。如果对象的 JSON 格式输出要排除某些属性，就可以把这些属性的`enumerable`设为`false`。
   
-      > ```js
-      > var obj = Object.defineProperty({}, 'p', {
-      >     get: function () {
-      >        return 'getter';
-      >     },
-      >     set: function (value) {
-      >        console.log('setter: ' + value);
-      >     }
-      > });
-      > 
-      > obj.p // "getter"
-      > obj.p = 123 // "setter: 123"
-      > ```
-      >
-      > 上面代码中，`obj.p`定义了`get`和`set`属性。`obj.p`取值时，就会调用`get`；赋值时，就会调用`set`。
-      >
-      > 注意，取值函数`get`不能接受参数，存值函数`set`只能接受一个参数（即属性的值）。
+    - `configurable`：`configurable`(可配置性）返回一个布尔值，决定了是否可以修改属性描述对象。默认为`false`。
   
-      JS 还提供了存取器的另一种写法：
+      也就是说，`configurable`为`false`时，`writable`、`enumerable`、`configurable`、`get/set` 都不能被修改了。另外，可配置性也决定了目标属性是否可以被`delete`关键字删除。
+      
+      注意，当`configurable`为`false`时，`writable`属性只有在`false`改为`true`时会报错，`true`改为`false`是允许的。
+      
+    - 存取器（`getter/setter`）：除了直接定义以外，属性还可以用存取器（accessor）定义。其中，存值函数称为`setter`，使用属性描述对象的`set`属性；取值函数称为`getter`，使用属性描述对象的`get`属性。一旦对目标属性定义了存取器，那么存取的时候，都将执行对应的函数。利用这个功能，可以实现许多高级特性，比如定制属性的读取和赋值行为。
+  
+      ```js
+      var obj = Object.defineProperty({}, 'p', {
+        get: function () {
+          return 'getter';
+        },
+        set: function (value) {
+          console.log('setter: ' + value);
+        }
+      });
+      
+      obj.p // "getter"
+      obj.p = 123 // "setter: 123"
+      ```
+      
+      上面代码中，`obj.p`定义了`get`和`set`属性。`obj.p`取值时，就会调用`get`；赋值时，就会调用`set`。
+      
+      注意，取值函数`get`不能接受参数，存值函数`set`只能接受一个参数（即属性的值）。
+  
+      JS 还提供了存取器的另一种写法：（ES5）
   
       ```js
       // 写法二
@@ -327,13 +325,13 @@
       };
       ```
   
-      > 上面两种写法，虽然属性`p`的读取和赋值行为是一样的，但是有一些细微的区别。
-      >
-      > 第一种写法，属性`p`的`configurable`和`enumerable`默认都是`false`，从而导致属性`p`是不可遍历的；第二种写法，属性`p`的`configurable`和`enumerable`默认为`true`，因此属性`p`是可遍历的。因此，实际开发中，写法二更常用。
+      上面两种写法，虽然属性`p`的读取和赋值行为是一样的，但是有一些细微的区别。
+      
+      第一种写法，属性`p`的`configurable`和`enumerable`默认都是`false`，从而导致属性`p`是不可遍历的；第二种写法，属性`p`的`configurable`和`enumerable`默认为`true`，因此属性`p`是可遍历的。因此，实际开发中，写法二更常用。
   
-      ###### 注意：一旦定义了取值函数`get`或存值函数`set`，就不能同时再设置`writable`和`value`属性了。
+      注意：一旦定义了取值函数`get`或存值函数`set`，就不能同时再设置`writable`和`value`属性了。
   
-  - ### Array 对象
+  - #### Array 对象
   
     `Array`是 JS 的原生对象，同时也是一个构造函数，通过它也可以创建数组。
   
@@ -381,7 +379,7 @@
     new Array('a', 'b', 'c') // ['a', 'b', 'c']
     ```
   
-    可以看到，`Array()`作为构造函数，行为很不一致。因此，不建议使用它生成新数组，直接使用数组字面量是更好的做法。
+    可以看到，`Array()`作为构造函数，行为很不一致。因此，不建议使用它生成新数组，**直接使用数组字面量是更好的做法**。
   
     ```js
     // bad
@@ -409,7 +407,7 @@
   
     上面代码中，`a`是`Array()`生成的一个长度为3的空数组，`b`是一个三个成员都是`undefined`的数组，这两个数组是不一样的。读取键值的时候，`a`和`b`都返回`undefined`，但是`a`的键名（成员的序号）都是空的，`b`的键名是有值的。
   
-    - #### 静态方法
+    - ##### 静态方法
   
       - `Array.isArray()`：该方法返回一个布尔值，表示参数是否为数组。它可以弥补`typeof`运算符的不足。
   
@@ -422,7 +420,7 @@
   
         > 上面代码中，`typeof`运算符只能显示数组的类型是`Object`，而`Array.isArray`方法可以识别数组。
   
-    - #### 实例方法
+    - ##### 实例方法
   
       - `valueOf()`：`valueOf`方法是一个所有对象都拥有的方法，表示对该对象求值。不同对象的`valueOf`方法不尽一致，数组的`valueOf`方法返回数组本身。
   
@@ -441,7 +439,7 @@
         arr.toString() // "1,2,3,4,5,6"
         ```
   
-      - `push()，pop()`：`push`方法用于在数组的末端添加一个或多个元素，并返回添加新元素后的数组长度。注意，该方法会改变原数组。
+      - `push()，pop()`：`push`方法用于在数组的末端添加一个或多个元素，并返回添加新元素后的数组长度。注意，该方法会修改原数组。
   
         ```js
         var arr = [];
@@ -454,7 +452,7 @@
   
         上面代码使用`push`方法，往数组中添加了四个成员。
   
-        `pop`方法用于删除数组的最后一个元素，并返回该元素。注意，该方法会改变原数组。
+        `pop`方法用于删除数组的最后一个元素，并返回该元素。注意，该方法会修改原数组。
   
         ```js
         var arr = ['a', 'b', 'c'];
@@ -481,7 +479,7 @@
   
         上面代码中，`3`是最后进入数组的，但是最早离开数组。
   
-      - `shift()，unshift()`：`shift()`方法用于删除数组的第一个元素，并返回该元素。注意，该方法会改变原数组。
+      - `shift()，unshift()`：`shift()`方法用于删除数组的第一个元素，并返回该元素。注意，该方法会修改原数组。
   
         ```js
         var a = ['a', 'b', 'c'];
@@ -499,7 +497,7 @@
         var item;
         
         while (item = list.shift()) {
-        console.log(item);
+          console.log(item);
         }
         
         list // []
@@ -509,7 +507,7 @@
   
         `push()`和`shift()`结合使用，就构成了“先进先出”的队列结构（queue）。
   
-        `unshift()`方法用于在数组的第一个位置添加元素，并返回添加新元素后的数组长度。注意，该方法会改变原数组。
+        `unshift()`方法用于在数组的第一个位置添加元素，并返回添加新元素后的数组长度。注意，该方法会修改原数组。
   
         ```js
         var a = ['a', 'b', 'c'];
@@ -582,7 +580,7 @@
   
         如果数组成员包括对象，`concat`方法返回当前数组的一个浅拷贝。所谓“浅拷贝”，指的是新数组拷贝的是对象的引用。
   
-      - `reverse()`：`reverse`方法用于颠倒排列数组元素，返回改变后的数组。注意，该方法将改变原数组。
+      - `reverse()`：`reverse`方法用于颠倒排列数组元素，返回改变后的数组。注意，该方法将修改原数组。
       
         ```js
         var a = ['a', 'b', 'c'];
@@ -591,12 +589,70 @@
         a // ["c", "b", "a"]
         ```
       
+      - `sort()`：`sort`方法对数组成员进行排序，默认是按照字典顺序排序。排序后，原数组将被改变。
+      
+        ```js
+        ['d', 'c', 'b', 'a'].sort()
+        // ['a', 'b', 'c', 'd']
+        
+        [4, 3, 2, 1].sort()
+        // [1, 2, 3, 4]
+        
+        [11, 101].sort()
+        // [101, 11]
+        
+        [10111, 1101, 111].sort()
+        // [10111, 1101, 111]
+        ```
+      
+        上面代码的最后两个例子，需要特殊注意。`sort()`方法不是按照大小排序，而是按照字典顺序。也就是说，数值会被先转成字符串，再按照字典顺序进行比较，所以`101`排在`11`的前面。
+  
+        如果想让`sort`方法按照自定义方式排序，可以传入一个函数作为参数。
+  
+        ```js
+        [10111, 1101, 111].sort(function (a, b) {
+          return a - b;
+        })
+        // [111, 1101, 10111]
+        ```
+      
+        上面代码中，`sort`的参数函数本身接受两个参数，表示进行比较的两个数组成员。如果该函数的返回值大于`0`，表示第一个成员排在第二个成员后面；其他情况下，都是第一个元素排在第二个元素前面。
+        
+        ```js
+        [
+          { name: "张三", age: 30 },
+          { name: "李四", age: 24 },
+          { name: "王五", age: 28  }
+        ].sort(function (o1, o2) {
+          return o1.age - o2.age;
+        })
+        // [
+        //   { name: "李四", age: 24 },
+        //   { name: "王五", age: 28  },
+        //   { name: "张三", age: 30 }
+        // ]
+        ```
+        
+        注意，**自定义的排序函数应该返回数值**，否则不同的浏览器可能有不同的实现，不能保证结果都一致。
+        
+        ```js
+        // bad
+        [1, 4, 2, 6, 0, 6, 2, 6].sort((a, b) => a > b)
+        
+        // good
+        [1, 4, 2, 6, 0, 6, 2, 6].sort((a, b) => a - b)
+        ```
+        
+        上面代码中，前一种排序算法返回的是布尔值，这是不推荐使用的。后一种是数值，才是更好的写法。
+        
+        `sort`方法传入的这个自定义函数，在不同浏览器上被调用的次数是不同的。因为不同的JS引擎使用的排序算法不同。如果想指定某个排序算法，那么就不要使用`Array.prototype.sort()`方法，而是自己实现数组排序。
+      
       - `slice()`：`slice`（分片）用于提取目标数组的一部分，返回一个新数组，原数组不变。
       
         ```js
         arr.slice(start, end);
         ```
-      
+  
         它的第一个参数为起始位置（从0开始，会包括在返回的新数组之中），第二个参数为终止位置（但该位置的元素本身不包括在内）。如果省略第二个参数，则一直返回到原数组的最后一个成员。
       
         ```js
@@ -609,8 +665,8 @@
         a.slice() // ["a", "b", "c"]
         ```
   
-        上面代码中，最后一个例子`slice()`没有参数，实际上等于返回一个原数组的拷贝。
-  
+        上面代码中，最后一个例子**`slice()`没有参数，实际上等于返回一个原数组的拷贝**。
+      
         如果`slice()`方法的参数是负数，则表示倒数计算的位置。
       
         ```js
@@ -620,9 +676,9 @@
         ```
       
         上面代码中，`-2`表示倒数计算的第二个位置，`-1`表示倒数计算的第一个位置。
-  
+      
         如果第一个参数大于等于数组长度，或者第二个参数小于第一个参数，则返回空数组。
-  
+      
         ```js
         var a = ['a', 'b', 'c'];
         a.slice(4) // []
@@ -630,7 +686,7 @@
         ```
       
         `slice()`方法的一个重要应用，是将类似数组的对象转为真正的数组。
-  
+      
         ```js
         Array.prototype.slice.call({ 0: 'a', 1: 'b', length: 2 })
         // ['a', 'b']
@@ -640,9 +696,9 @@
         ```
       
         上面代码的参数都不是数组，但是通过`call`方法，在它们上面调用`slice()`方法，就可以把它们转为真正的数组。
-  
-      - `splice()`：`splice`（剪接）用于删除原数组的一部分成员，并可以在删除的位置添加新的数组成员，返回值是被删除的元素。注意，该方法会改变原数组。
-  
+      
+      - `splice()`：`splice`（剪接）用于删除原数组的一部分成员，并可以在删除的位置添加新的数组成员，返回值是被删除的元素组成的数组。注意，该方法会修改原数组。
+      
         ```js
         arr.splice(start, count, addElement1, addElement2, ...);
         ```
@@ -654,7 +710,7 @@
         a.splice(4, 2) // ["e", "f"]
         a // ["a", "b", "c", "d"]
         ```
-  
+      
         上面代码从原数组4号位置，删除了两个数组成员。
       
         ```js
@@ -666,7 +722,7 @@
         上面代码除了删除成员，还插入了两个新成员。
       
         起始位置如果是负数，就表示从倒数位置开始删除。
-  
+      
         ```js
         var a = ['a', 'b', 'c', 'd', 'e', 'f'];
         a.splice(-4, 2) // ["c", "d"]
@@ -688,76 +744,52 @@
         ```js
         var a = [1, 2, 3, 4];
         a.splice(2) // [3, 4]
-        a // [1, 2]
+      a // [1, 2]
         ```
-      
-      - `sort()`：`sort`方法对数组成员进行排序，默认是按照字典顺序排序。排序后，原数组将被改变。
-      
-        ```js
-        ['d', 'c', 'b', 'a'].sort()
-        // ['a', 'b', 'c', 'd']
-        
-        [4, 3, 2, 1].sort()
-        // [1, 2, 3, 4]
-        
-        [11, 101].sort()
-        // [101, 11]
-        
-        [10111, 1101, 111].sort()
-        // [10111, 1101, 111]
-        ```
-      
-        上面代码的最后两个例子，需要特殊注意。`sort()`方法不是按照大小排序，而是按照字典顺序。也就是说，数值会被先转成字符串，再按照字典顺序进行比较，所以`101`排在`11`的前面。
-      
-        如果想让`sort`方法按照自定义方式排序，可以传入一个函数作为参数。
-      
-        ```js
-        [10111, 1101, 111].sort(function (a, b) {
-          return a - b;
-        })
-        // [111, 1101, 10111]
-        ```
-      
-        上面代码中，`sort`的参数函数本身接受两个参数，表示进行比较的两个数组成员。如果该函数的返回值大于`0`，表示第一个成员排在第二个成员后面；其他情况下，都是第一个元素排在第二个元素前面。
-      
-        ```js
-        [
-          { name: "张三", age: 30 },
-          { name: "李四", age: 24 },
-          { name: "王五", age: 28  }
-        ].sort(function (o1, o2) {
-          return o1.age - o2.age;
-        })
-        // [
-        //   { name: "李四", age: 24 },
-        //   { name: "王五", age: 28  },
-        //   { name: "张三", age: 30 }
-        // ]
-        ```
-      
-        注意，**自定义的排序函数应该返回数值**，否则不同的浏览器可能有不同的实现，不能保证结果都一致。
-      
-        ```js
-        // bad
-        [1, 4, 2, 6, 0, 6, 2, 6].sort((a, b) => a > b)
-        
-        // good
-        [1, 4, 2, 6, 0, 6, 2, 6].sort((a, b) => a - b)
-        ```
-      
-        上面代码中，前一种排序算法返回的是布尔值，这是不推荐使用的。后一种是数值，才是更好的写法。
   
-        `sort`方法传入的这个自定义函数，在不同浏览器上被调用的次数是不同的。因为不同的JS引擎使用的排序算法不同。如果想指定某个排序算法，那么就不要使用`Array.prototype.sort()`方法，而是自己实现数组排序。
-  
-      - `forEach()`：`forEach()`方法与`map()`方法很相似，也是对数组的所有成员依次执行参数函数。但是，`forEach()`方法不返回值，只用来操作数据。这就是说，如果数组遍历的目的是为了得到返回值，那么使用`map()`方法，否则使用`forEach()`方法。
+      - `indexOf()，lastIndexOf()`：`indexOf`方法返回给定元素在数组中第一次出现的位置，如果没有出现则返回`-1`。
       
-        > `forEach(callback)`中回调函数`return`的返回值无任何意义，仅仅只是提前退出当前回调的执行（类似`continue`），但不会终止整个循环。
+        ```js
+        var a = ['a', 'b', 'c'];
+        
+        a.indexOf('b') // 1
+        a.indexOf('y') // -1
+        ```
+      
+        `indexOf`方法还可以接受第二个参数，表示搜索的开始位置。
+      
+        ```js
+        ['a', 'b', 'c'].indexOf('a', 1) // -1
+        ```
+      
+        上面代码从1号位置开始搜索字符`a`，结果为`-1`，表示没有搜索到。
+      
+        `lastIndexOf`方法返回给定元素在数组中最后一次出现的位置，如果没有出现则返回`-1`。
+      
+        ```js
+        var a = [2, 5, 9, 2];
+        a.lastIndexOf(2) // 3
+        a.lastIndexOf(7) // -1
+        ```
+      
+        注意，这两个方法不能用来搜索`NaN`的位置，即它们无法确定数组成员是否包含`NaN`。
+      
+        ```js
+        [NaN].indexOf(NaN) // -1
+        [NaN].lastIndexOf(NaN) // -1
+        ```
+      
+        这是因为**这两个方法内部，使用严格相等运算符（`===`）进行比较**，而`NaN`是唯一一个不等于自身的值。
+      
+      - `forEach()`：`forEach()`方法与`map()`方法很相似，也是对数组的所有成员依次执行参数函数。但是，`forEach()`方法不返回值，只用来操作数据。这就是说，如果数组遍历的目的是为了得到返回值，那么要使用`map()`方法。
+      
+        > 注意：`forEach(callback)`中回调函数中的`return`语句无任何意义，仅仅只是提前退出当前回调的执行（类似`continue`），但不会终止整个循环。
       
         `forEach()`的用法与`map()`方法一致，参数是一个函数，该函数同样接受三个参数：当前值、当前位置、整个数组。
       
         ```js
         function log(element, index, array) {
-        console.log('[' + index + '] = ' + element);
+          console.log('[' + index + '] = ' + element);
         }
         
         [2, 5, 9].forEach(log);
@@ -774,7 +806,7 @@
         var out = [];
         
         [1, 2, 3].forEach(function(elem) {
-        this.push(elem * elem);
+          this.push(elem * elem);
         }, out);
         
         out // [1, 4, 9]
@@ -788,8 +820,8 @@
         var arr = [1, 2, 3];
         
         for (var i = 0; i < arr.length; i++) {
-        if (arr[i] === 2) break;
-        console.log(arr[i]);
+          if (arr[i] === 2) break;
+          console.log(arr[i]);
         }
         // 1
         ```
@@ -800,7 +832,7 @@
       
         ```js
         var log = function (n) {
-        console.log(n + 1);
+          console.log(n + 1);
         };
         
         [1, undefined, 2].forEach(log)
@@ -826,7 +858,7 @@
         var numbers = [1, 2, 3];
         
         numbers.map(function (n) {
-        return n + 1;
+          return n + 1;
         });
         // [2, 3, 4]
         
@@ -835,12 +867,12 @@
         ```
       
         上面代码中，`numbers`数组的所有成员依次执行参数函数，运行结果组成一个新数组返回，原数组没有变化。
-      
+  
         `map()`方法接受一个函数作为参数。该函数调用时，`map()`方法向它传入三个参数：当前成员、当前位置和数组本身。
       
         ```js
         [1, 2, 3].map(function(elem, index, arr) {
-        return elem * index;
+          return elem * index;
         });
         // [0, 2, 6]
         ```
@@ -853,7 +885,7 @@
         var arr = ['a', 'b', 'c'];
         
         [1, 2].map(function (e) {
-        return this[e];
+          return this[e];
         }, arr)
         // ['b', 'c']
         ```
@@ -869,16 +901,16 @@
         [1, null, 2].map(f) // ["a", "a", "a"]
         [1, , 2].map(f) // ["a", , "a"]
         ```
-  
+      
         上面代码中，`map()`方法不会跳过`undefined`和`null`，但是会跳过空位。
       
       - `filter()`：`filter()`方法用于过滤数组成员，满足条件的成员组成一个新数组返回。
       
-        它的参数是一个函数，所有数组成员依次执行该函数，返回结果为`true`的成员组成一个新数组返回。该方法不会改变原数组。
+        它的参数是一个函数，所有数组成员依次执行该函数，返回结果为`true`的成员组成一个新数组返回。该方法不会修改原数组。
       
         ```js
         [1, 2, 3, 4, 5].filter(function (elem) {
-        return (elem > 3);
+          return (elem > 3);
         })
         // [4, 5]
         ```
@@ -898,7 +930,7 @@
       
         ```js
         [1, 2, 3, 4, 5].filter(function (elem, index, arr) {
-        return index % 2 === 0;
+          return index % 2 === 0;
         });
         // [1, 3, 5]
         ```
@@ -910,7 +942,7 @@
         ```js
         var obj = { MAX: 3 };
         var myFilter = function (item) {
-        if (item > this.MAX) return true;
+          if (item > this.MAX) return true;
         };
         
         var arr = [2, 8, 3, 4, 1, 3, 2, 9];
@@ -928,11 +960,11 @@
         ```js
         var arr = [1, 2, 3, 4, 5];
         arr.some(function (elem, index, arr) {
-        return elem >= 3;
+          return elem >= 3;
         });
         // true
         ```
-  
+      
         上面代码中，如果数组`arr`有一个成员大于等于3，`some`方法就返回`true`。
       
         `every`方法是所有成员的返回值都是`true`，整个`every`方法才返回`true`，否则返回`false`。
@@ -940,11 +972,11 @@
         ```js
         var arr = [1, 2, 3, 4, 5];
         arr.every(function (elem, index, arr) {
-        return elem >= 3;
+          return elem >= 3;
         });
         // false
         ```
-  
+      
         上面代码中，数组`arr`并非所有成员大于等于`3`，所以返回`false`。
       
         注意，对于空数组，`some`方法返回`false`，`every`方法返回`true`，回调函数都不会执行。
@@ -961,10 +993,10 @@
       - `reduce()，reduceRight()`：`reduce()`方法和`reduceRight()`方法依次处理数组的每个成员，最终累计为一个值。它们的差别是，`reduce()`是从左到右处理（从第一个成员到最后一个成员），`reduceRight()`则是从右到左（从最后一个成员到第一个成员），其他完全一样。
       
         ```js
-        [1, 2, 3, 4, 5].reduce(function (pre, cur) {
+        [1, 2, 3, 4, 5].reduce(function (pre, cur, index, arr) {
           console.log(pre, cur);
           return pre + cur;
-        })
+        }, initValue)
         // 1 2
         // 3 3
         // 6 4
@@ -1040,46 +1072,12 @@
         ```
       
         上面代码中，`reduce()`的参数函数会将字符长度较长的那个数组成员，作为累积值。这导致遍历所有成员之后，累积值就是字符长度最长的那个成员。
-      
-      - `indexOf()，lastIndexOf()`：`indexOf`方法返回给定元素在数组中第一次出现的位置，如果没有出现则返回`-1`。
-      
-        ```js
-        var a = ['a', 'b', 'c'];
-        
-        a.indexOf('b') // 1
-        a.indexOf('y') // -1
-        ```
-      
-        `indexOf`方法还可以接受第二个参数，表示搜索的开始位置。
-      
-        ```js
-        ['a', 'b', 'c'].indexOf('a', 1) // -1
-        ```
-      
-        上面代码从1号位置开始搜索字符`a`，结果为`-1`，表示没有搜索到。
-      
-        `lastIndexOf`方法返回给定元素在数组中最后一次出现的位置，如果没有出现则返回`-1`。
-      
-        ```js
-        var a = [2, 5, 9, 2];
-        a.lastIndexOf(2) // 3
-        a.lastIndexOf(7) // -1
-        ```
-      
-        注意，这两个方法不能用来搜索`NaN`的位置，即它们无法确定数组成员是否包含`NaN`。
-      
-        ```js
-        [NaN].indexOf(NaN) // -1
-        [NaN].lastIndexOf(NaN) // -1
-        ```
-      
-        这是因为**这两个方法内部，使用严格相等运算符（`===`）进行比较**，而`NaN`是唯一一个不等于自身的值。
   
-  - ### 包装对象
+  - #### 包装对象
   
-    > 对象是 JS 语言最主要的数据类型，三种原始类型的值（数值、字符串、布尔值）在一定条件下，也会自动转为对象，也就是原始类型的“包装对象”（wrapper）。
-    >
-    > 所谓“包装对象”，指的是与数值、字符串、布尔值分别相对应的`Number`、`String`、`Boolean`三个原生对象。这三个原生对象可以把原始类型的值变成（包装成）对象。
+    对象是 JS 语言最主要的数据类型，三种原始类型的值（数值、字符串、布尔值）在一定条件下，也会自动转为对象，也就是原始类型的“包装对象”（wrapper）。
+  
+    所谓“包装对象”，指的是与数值、字符串、布尔值分别相对应的`Number`、`String`、`Boolean`这三个原生对象。这三个原生对象可以把原始类型的值变成（包装成）对象。
   
     ```js
     var v1 = new Number(123);
@@ -1095,11 +1093,11 @@
     v3 === true // false
     ```
   
-    > 上面代码中，基于原始类型的值，生成了三个对应的包装对象。可以看到，`v1`、`v2`、`v3`都是对象，且与对应的简单类型值不相等。
-    >
-    > 包装对象的设计目的，首先是使得“对象”这种类型可以覆盖 JS 所有的值，整门语言有一个通用的数据模型，其次是使得原始类型的值也有办法调用自己的方法。
-    >
-    > `Number`、`String`和`Boolean`这三个原生对象，如果不作为构造函数调用（即调用时不加`new`），而是作为普通函数调用，常常用于将任意类型的值转为数值、字符串和布尔值。
+    上面代码中，基于原始类型的值，生成了三个对应的包装对象。可以看到，`v1`、`v2`、`v3`都是对象，且与对应的简单类型值不相等。
+  
+    包装对象的设计目的，首先是使得“对象”这种类型可以覆盖 JS 所有的值，整门语言有一个通用的数据模型，其次是使得原始类型的值也有办法调用自己的方法。
+  
+    `Number`、`String`和`Boolean`这三个原生对象，如果不作为构造函数调用（即调用时不加`new`），而是作为普通函数调用，常常用于将任意类型的值转为数值、字符串和布尔值。
   
     ```js
     // 字符串转为数值
@@ -1112,197 +1110,177 @@
     Boolean(123) // true
     ```
   
-    > 上面这种数据类型的转换，详见《数据类型转换》一节。
-    >
-    > 总结一下，这三个对象作为构造函数使用（带有`new`）时，可以将原始类型的值包装为对象；作为普通函数使用时（不带有`new`），可以将任意类型的值，转为原始类型的值。
+    上面这种数据类型的转换，详见《数据类型转换》一节。
   
-    > 注意：
-    >
-    > 1. 在 JS 中，`Symbol` 和 `BigInt` 作为原始类型，也有其对应的包装对象。它们的包装对象主要用于在特定场景下提供方法调用。
-    >
-    > 2. 不同于 `Number`、`String` 等包装类，`Symbol` 和 `BigInt` 不是构造函数，不能直接通过 `new` 关键字创建它俩的包装对象。只能是将值作为参数传到`Object()`函数中来创建对应的包装对象实例：
-    >
-    >    ```js
-    >    Object(123n)
-    >    Object(Symbol())
-    >    ```
+    总结一下，这三个对象作为构造函数使用（带有`new`）时，可以创建原始类型值对应的包装对象；作为普通函数使用时（不带有`new`），可以将任意类型的值，转为原始类型的值。
+  
+    **注意：**
+  
+    1. 在 JS 中，`Symbol` 和 `BigInt` 作为原始类型，也有其对应的包装对象。它们的包装对象主要用于在特定场景下提供方法调用。
+  
+    2. 不同于 `Number`、`String` 等包装类，`Symbol` 和 `BigInt` 不是构造函数，不能直接通过 `new` 关键字创建它俩的包装对象。只能是将值作为参数传到`Object()`函数中来创建对应的包装对象实例：
+  
+       ```js
+       Object(123n)
+       Object(Symbol())
+       ```
   
     三种包装对象各自提供了许多实例方法，详见后文。这里介绍两种它们共同具有、从`Object`对象继承的2个实例方法：
   
     - `valueOf()`：`valueOf()`方法返回包装对象实例对应的原始类型的值。
   
-      > 在编程中，*valueOf* 方法用于返回对象的原始值。不同编程语言中，*valueOf* 方法的实现和用途有所不同。
+      **Tips：**
       
-       >
-        > 在 Java 中，*valueOf* 方法是一个静态方法，用于将给定参数转换为相应的包装类对象。该方法可以接收基本数据类型或字符串作为参数，并返回相应的包装类对象。
-        >
-        > ```java
-        > Integer x = Integer.valueOf(9);
-        > ```
-        >
-        > 而在 JS 中，*valueOf* 方法用于返回包装对象实例对应的原始类型的值。
-        >
-        > ```js
-        > new Number(123).valueOf()  // 123
-        > new String('abc').valueOf() // "abc"
-        > new Boolean(true).valueOf() // true
-        > ```
+      在编程中，*valueOf* 方法用于返回对象的原始值。不同编程语言中，*valueOf* 方法的实现和用途有所不同：
       
-    - `toString()`：`toString()`方法返回对应的字符串形式。
+      在 Java 中，*valueOf* 方法是一个静态方法，用于将给定参数转换为相应的包装类对象。该方法可以接收基本数据类型或字符串作为参数，并返回相应的包装类对象。
+      
+      ```java
+      Integer x = Integer.valueOf(9);
+      ```
+      
+      而在 JS 中，*valueOf* 方法用于返回包装对象实例对应的原始类型的值。
+      
+      ```js
+      new Number(123).valueOf()  // 123
+      new String('abc').valueOf() // "abc"
+      new Boolean(true).valueOf() // true
+      ```
+      
+    - `toString()`：`toString()`方法返回包装对象对应的原始值，它的字符串形式。
   
       ```js
-       new Number(123).toString() // "123"
+      new Number(123).toString() // "123"
       new String('abc').toString() // "abc"
-       new Boolean(true).toString() // "true"
+      new Boolean(true).toString() // "true"
       ```
-    ###### 原始类型与实例对象的自动转换：
+    ##### 原始类型与实例对象的自动转换：
   
-    > 某些场合，原始类型的值会自动当作包装对象调用，即调用包装对象的属性和方法。这时，JS 引擎会自动将原始类型的值转为包装对象实例（临时的），并在**使用后立刻销毁该实例**。
-    >
-    > 比如，字符串可以调用`length`属性，返回字符串的长度。
-    >
-    > ```js
-    >'abc'.length // 3
-    > ```
-    > 
-    > 上面代码中，`abc`是一个字符串，本身不是对象，不能调用`length`属性。JS 引擎自动将其转为包装对象，在这个对象上调用`length`属性。调用结束后，这个临时对象就会被销毁。这就叫原始类型与实例对象的自动转换。
-    > 
-    > ```js
-    > var str = 'abc';
-    > str.length // 3
-    > 
-    > // 等同于
-    > var strObj = new String(str)
-    > // String {
-    > //   0: "a", 1: "b", 2: "c", length: 3, [[PrimitiveValue]]: "abc"
-    > // }
-    >strObj.length // 3
-    > ```
-    >
-    > 上面代码中，字符串`abc`的包装对象提供了多个属性，`length`只是其中之一。
-    >
-    > **自动转换生成的包装对象是只读的，无法修改**。所以，字符串无法添加新属性。
-    >
-    > ```js
-    > var s = 'Hello World';
-    > s.x = 123;
-    > s.x // undefined
-    > ```
-    > 
-    > 上面代码为字符串`s`添加了一个`x`属性，结果无效，总是返回`undefined`。
-    > 
-    > 另一方面，调用结束后，包装对象实例会自动销毁。这意味着，下一次调用字符串的属性时，实际是调用一个重新生成的新对象，而不是上一次调用时生成的那个对象，所以取不到赋值在上一个对象的属性。如果要为字符串添加属性，只有在它的原型对象`String.prototype`上定义（参见《面向对象编程》章节）。
+    某些场合，原始类型的值会自动当作包装对象调用，即调用包装对象的属性和方法。这时，JS 引擎会自动将原始类型的值转为包装对象实例（临时的），并在**使用后立刻销毁该实例**。
   
-  - ### Boolean 对象
+    比如，字符串可以调用`length`属性，返回字符串的长度。
   
-    > `Boolean`对象是 JS 的三个包装对象之一。作为构造函数，它主要用于生成布尔值的包装对象实例。
-    >
-    > ```js
-    >var b = new Boolean(true);
-    > 
-    > typeof b // "object"
-    > b.valueOf() // true
-    > ```
-    > 
-    > 上面代码的变量`b`是一个`Boolean`对象的实例，它的类型是对象，值为布尔值`true`。
-    >
-    > 注意，`false`对应的包装对象实例，布尔运算结果也是`true`。
-    >
-    > ```js
-    >if (new Boolean(false)) {
-    > 	console.log('true');
-    > } // true
-    >   
-    > if (new Boolean(false).valueOf()) {
-    > 	console.log('true');
-    > } // 无输出
-    >   ```
-    > 
-    > 上面代码的第一个例子之所以得到`true`，是因为`false`对应的包装对象实例是一个对象，进行逻辑运算时，被自动转化成布尔值`true`（因为所有对象对应的布尔值都是`true`）。而实例的`valueOf`方法，则返回实例对应的原始值，本例为`false`。
+    ```js
+    'abc'.length // 3
+    ```
   
-    ##### Boolean 函数的类型转换作用：
+    上面代码中，`abc`是一个字符串，本身不是对象，不能调用`length`属性。JS 引擎自动将其转为包装对象，在这个对象上调用`length`属性。调用结束后，这个临时对象就会被销毁。这就叫原始类型与实例对象的自动转换。
   
-    > `Boolean`对象除了可以作为构造函数，还可以单独使用，将任意值强转为布尔值。这时`Boolean`就是一个单纯的工具方法。
-    >
-    > ```js
-    >Boolean(undefined) // false
-    > Boolean(null) // false
-    > Boolean(0) // false
-    > Boolean('') // false
-    > Boolean(NaN) // false
-    > 
-    > Boolean(1) // true
-    >Boolean('false') // true
-    > Boolean([]) // true
-    >Boolean({}) // true
-    > Boolean(function () {}) // true
-    >Boolean(/foo/) // true
-    > ```
-    > 
-    >   上面代码中几种得到`true`的情况，都值得认真记住。
-    > 
-    > 顺便提一下，连续进行2次的否运算（`!!`）也可以将任意值转为对应的布尔值。
-    > 
-    >   ```js
-    > !!undefined // false
-    > !!null // false
-    >!!0 // false
-    > !!'' // false
-    >!!NaN // false
-    > 
-    >!!1 // true
-    > !!'false' // true
-    >!![] // true
-    > !!{} // true
-    > !!function(){} // true
-    > !!/foo/ // true
-    > ```
-    > 
-    > 最后，对于一些特殊值，`Boolean`对象前面加不加`new`，会得到完全相反的结果，必须小心。
-    > 
-    > ```js
-    > if (Boolean(false)) {
-    > 	console.log('true');
-    > } // 无输出
-    > 
-    > if (new Boolean(false)) {
-    > 	console.log('true');
-    >} // true
-    > 
-    >if (Boolean(null)) {
-    > 	console.log('true');
-    >} // 无输出
-    > 
-    > if (new Boolean(null)) {
-    > 	console.log('true');
-    > } // true
-    > ```
+    ```js
+    var str = 'abc';
+    str.length // 3
+    
+    // 等同于
+    var strObj = new String(str)
+    // String {
+    //   0: "a", 1: "b", 2: "c", length: 3, [[PrimitiveValue]]: "abc"
+    // }
+    strObj.length // 3
+    ```
   
-  - ### Number 对象
+    上面代码中，字符串`abc`的包装对象提供了多个属性，`length`只是其中之一。
   
-    > `Number`对象是数值对应的包装对象，可以作为构造函数使用，也可以作为工具函数使用。
-    >
-    > 作为构造函数时，它用于生成值为`number`类型的包装对象。
-    >
-    > ```js
-    >var n = new Number(1);
-    > typeof n // "object"
-    > ```
-    > 
-    > 上面代码中，`Number`对象作为构造函数使用，返回一个值为`1`的对象。
-    >
-    > 作为工具函数时，它可以将任何类型的值转为数值。
-    >
-    > ```js
-    >Number(true) // 1
-    > ```
-    > 
-    > 上面代码将布尔值`true`转为数值`1`。`Number`作为工具函数的用法，详见《数据类型转换》一章。
-    >
+    **自动转换生成的包装对象是只读的**。所以，字符串无法添加新属性。
   
-    - #### 静态属性
+    ```js
+    var s = 'Hello World';
+    s.x = 123;
+    s.x // undefined
+    ```
   
-      `Number`对象拥有以下一些静态属性（即直接定义在`Number`对象上的属性，而不是定义在实例上的属性）。
+    上面代码为字符串`s`添加了一个`x`属性，结果无效，总是返回`undefined`。
+  
+    另一方面，调用结束后，包装对象实例会自动销毁。这意味着，下一次调用字符串的属性时，实际是调用一个重新生成的新对象，而不是上一次调用时生成的那个对象，所以取不到赋值在上一个对象的属性。如果要为字符串添加属性，只有在它的原型对象`String.prototype`上定义（参见《面向对象编程》章节）。
+  
+  - #### Boolean 对象
+  
+    `Boolean`对象是 JS 的三大包装对象之一。它的构造函数主要用于生成布尔值的包装对象实例。
+    
+    ```js
+    var b = new Boolean(true);
+    
+    typeof b // "object"
+    b.valueOf() // true
+    ```
+    
+    上面代码的变量`b`是一个`Boolean`对象的实例，它的类型是对象，值为布尔值`true`。
+    
+    注意，`false`对应的包装对象实例，布尔运算结果也是`true`。
+    
+    ```js
+    if (new Boolean(false)) {
+      console.log('true');
+    } // true
+    
+    if (new Boolean(false).valueOf()) {
+      console.log('true');
+    } // 无输出
+    ```
+    
+    上面代码的第一个例子之所以得到`true`，是因为`false`对应的包装对象实例是一个对象，进行逻辑运算时，被自动转化成布尔值`true`（因为所有对象对应的布尔值都是`true`）。而实例的`valueOf`方法，则返回实例对应的原始值，本例为`false`。
+  
+    ##### Boolean() 函数的类型转换作用：
+  
+    `Boolean()`当作工具函数，可以将任意值强转为布尔值。这时`Boolean`就是一个单纯的工具方法。
+    
+    ```js
+    Boolean(undefined) // false
+    Boolean(null) // false
+    Boolean(0) // false
+    Boolean('') // false
+    Boolean(NaN) // false
+    
+    Boolean(1) // true
+    Boolean('false') // true
+    Boolean([]) // true
+    Boolean({}) // true
+    Boolean(function () {}) // true
+    Boolean(/foo/) // true
+    ```
+    
+    上面代码中几种得到`true`的情况，都值得认真记住。
+    
+    顺便提一下，连续进行2次的否运算（`!!`）也可以将任意值转为对应的布尔值。
+    
+    ```js
+    !!undefined // false
+    !!null // false
+    !!0 // false
+    !!'' // false
+    !!NaN // false
+    
+    !!1 // true
+    !!'false' // true
+    !![] // true
+    !!{} // true
+    !!function(){} // true
+    !!/foo/ // true
+    ```
+    
+  - #### Number 对象
+  
+    `Number`对象是数值对应的包装对象，可以作为构造函数使用，也可以作为工具函数使用。
+  
+    作为构造函数时，它用于生成值为`number`类型的包装对象。
+  
+    ```js
+    var n = new Number(1);
+    typeof n // "object"
+    ```
+  
+    上面代码中，`Number`对象作为构造函数使用，返回一个值为`1`的对象。
+  
+    作为工具函数时，它可以将任何类型的值转为数值。
+  
+    ```js
+    Number(true) // 1
+    ```
+  
+    上面代码将布尔值`true`转为数值`1`。`Number`作为工具函数的用法，详见《数据类型转换》一章。
+  
+    - ##### 静态属性
+  
+      `Number` 对象拥有以下一些静态属性（即直接定义在`Number`对象上的属性，而不是定义在实例上的属性）。
   
       - `Number.POSITIVE_INFINITY`：正的无限，指向`Infinity`。
       - `Number.NEGATIVE_INFINITY`：负的无限，指向`-Infinity`。
@@ -1310,9 +1288,9 @@
       - `Number.MAX_VALUE/Number.MIN_VALUE`：`number`类型可表示的最大和最小值。
       - `Number.MAX_SAFE_INTEGER/Number.MIN_SAFE_INTEGER`：`number`类型可精确表示的、最大和最小的整数，即`+/-9007199254740991`。
   
-    - #### 实例方法
+    - ##### 实例方法
   
-      > `Number`对象有4个实例方法，都跟将数值转换成指定格式有关。
+      `Number`对象有4个实例方法，可以将数值转换成指定的格式。
   
       - `Number.prototype.toString()`：`Number`对象部署了自己的`toString`方法，用来将一个数值转为字符串形式。
   
@@ -1363,7 +1341,7 @@
   
         `toString`方法只能将十进制的数，转为其他进制的字符串。如果要将其他进制的数，转回十进制，需要使用`parseInt`方法。
   
-      - `Number.prototype.toLocaleString()`：`Number.prototype.toLocaleString()`方法接受一个地区码作为参数，返回一个字符串，表示当前数字在该地区的当地书写形式。
+      - `Number.prototype.toLocaleString()`：该方法接受一个地区码作为参数，返回一个字符串，表示当前数字在该地区的当地书写形式。
   
         ```js
         (123).toLocaleString('zh-Hans-CN-u-nu-hanidec')  // "一二三"
@@ -1394,7 +1372,7 @@
         (123).toLocaleString('123') // 出错
         ```
   
-      - `Number.prototype.toFixed()`：`toFixed()`方法先将一个数转为指定位数的小数，然后返回这个小数对应的字符串。
+      - `Number.prototype.toFixed()`：先将一个数转为指定位数的小数，然后返回这个小数对应的字符串。
   
         ```js
         (10).toFixed(2) // "10.00"
@@ -1403,9 +1381,9 @@
   
         上面代码中，`10`和`10.005`先转成2位小数，然后转成字符串。其中`10`必须放在括号里，否则后面的点会被处理成小数点。
   
-        JS 的 `toFixed()` 方法在处理小数部分的舍入时，**并不完全遵循标准的四舍五入规则**，而是采用了一种称为 **"银行家舍入法"（Banker's Rounding）** 的规则，即 **四舍六入五取偶**（IEEE 754 标准）。
-  
         `toFixed()`方法的参数为小数位数，有效范围为0到100，超出这个范围将抛出 RangeError 错误。
+  
+        JS 的 `toFixed()` 方法在处理小数部分的舍入时，**并不完全遵循标准的四舍五入规则**，而是采用了一种称为 **"银行家舍入法"（Banker's Rounding）** 的规则，即 **四舍六入五取偶**（IEEE 754 标准）。
   
         由于浮点数的原因，小数`5`的四舍五入是不确定的，使用的时候必须小心。
   
@@ -1449,98 +1427,46 @@
         (12.45).toPrecision(3) // "12.4"
         ```
   
-    - #### 自定义方法
+  - #### String 对象
   
-      与其他对象一样，`Number.prototype`对象上面可以自定义方法，被`Number`的实例继承。
+    `String`对象是 JS 原生提供的三个包装对象之一，用来生成字符串对应的包装对象。
   
-      ```js
-      Number.prototype.add = function (x) {
-        return this + x;
-      };
-      
-      8['add'](2) // 10
-      ```
+    ```js
+    var s1 = 'abc';
+    var s2 = new String('abc');
+    
+    typeof s1 // "string"
+    typeof s2 // "object"
+    
+    s2.valueOf() // "abc"
+    ```
   
-      上面代码为`Number`对象实例定义了一个`add`方法。在数值上调用某个方法，数值会自动转为`Number`的实例对象，所以就可以调用`add`方法了。由于`add`方法返回的还是数值，所以可以链式运算。
+    上面代码中，变量`s1`是字符串，`s2`是对象。由于`s2`是字符串对象，`s2.valueOf`方法返回的就是它所对应的原始字符串。
   
-      ```js
-      Number.prototype.subtract = function (x) {
-        return this - x;
-      };
-      
-      (8).add(2).subtract(4)
-      // 6
-      ```
+    字符串的包装对象是一个类似数组的对象（即**伪数组**）。
   
-      上面代码在`Number`对象的实例上部署了`subtract`方法，它可以与`add`方法链式调用。
+    ```js
+    new String('abc')
+    // String {0: "a", 1: "b", 2: "c", length: 3}
+    
+    (new String('abc'))[1] // "b"
+    'abc'[1]  // 其实也是创建了一个临时的包装对象然后再取值的
+    ```
   
-      我们还可以部署更复杂的方法。
+    上面代码中，字符串`abc`对应的字符串对象，有数值键（`0`、`1`、`2`）和`length`属性，所以可以像数组那样取值。
   
-      ```js
-      Number.prototype.iterate = function () {
-        var result = [];
-        for (var i = 0; i <= this; i++) {
-          result.push(i);
-        }
-        return result;
-      };
-      
-      (8).iterate()
-      // [0, 1, 2, 3, 4, 5, 6, 7, 8]
-      ```
+    除了用作构造函数，`String`对象还可以当作工具方法使用，将任意类型的值转为字符串。
   
-      上面代码在`Number`对象的原型上部署了`iterate`方法，将一个数值自动遍历为一个数组。
+    ```js
+    String(true) // "true"
+    String(5) // "5"
+    ```
   
-      注意，数值的自定义方法，只能定义在它的原型对象`Number.prototype`上面，数值本身是无法自定义属性的。
+    上面代码将布尔值`true`和数值`5`，分别转换为字符串。
   
-      ```js
-      var n = 1;
-      n.x = 1;
-      n.x // undefined
-      ```
+    ##### 静态方法：
   
-      上面代码中，`n`是一个原始类型的数值。直接在它上面新增一个属性`x`，不会报错，但毫无作用，总是返回`undefined`。这是因为一旦被调用属性，`n`就自动转为`Number`的实例对象，调用结束后，该对象自动销毁。所以，下一次调用`n`的属性时，实际取到的是另一个对象，属性`x`当然就读不出来。
-  
-  - ### String 对象
-  
-    > `String`对象是 JS 原生提供的三个包装对象之一，用来生成字符串对应的包装对象。
-    >
-    > ```js
-    > var s1 = 'abc';
-    > var s2 = new String('abc');
-    > 
-    > typeof s1 // "string"
-    > typeof s2 // "object"
-    > 
-    > s2.valueOf() // "abc"
-    > ```
-    >
-    > 上面代码中，变量`s1`是字符串，`s2`是对象。由于`s2`是字符串对象，`s2.valueOf`方法返回的就是它所对应的原始字符串。
-    >
-    > 字符串的包装对象是一个类似数组的对象（即**伪数组**）。
-    >
-    > ```js
-    > new String('abc')
-    > // String {0: "a", 1: "b", 2: "c", length: 3}
-    > 
-    > (new String('abc'))[1] // "b"
-    > 'abc'[1]  // 其实也是创建了一个临时的包装对象然后再取值的
-    > ```
-    >
-    > 上面代码中，字符串`abc`对应的字符串对象，有数值键（`0`、`1`、`2`）和`length`属性，所以可以像数组那样取值。
-    >
-    > 除了用作构造函数，`String`对象还可以当作工具方法使用，将任意类型的值转为字符串。
-    >
-    > ```js
-    > String(true) // "true"
-    > String(5) // "5"
-    > ```
-    >
-    > 上面代码将布尔值`true`和数值`5`，分别转换为字符串。
-  
-    ###### 静态方法：
-  
-    - `String.fromCharCode()`：该方法的参数是一个或多个数值，代表 Unicode 码点，返回值是这些码点组成的字符串。
+    - `String.fromCharCode()`：该方法返回由指定的 UTF-16 码元序列创建的字符串。
   
       ```js
       String.fromCharCode() // ""
@@ -1549,26 +1475,86 @@
       // "hello"
       ```
   
-      > 上面代码中，`String.fromCharCode`方法的参数为空，就返回空字符串；否则，返回参数对应的 Unicode 字符串。
-      >
-      > 注意，**该方法不支持 Unicode 码点大于`0xFFFF`的字符，即传入的参数不能大于`0xFFFF`（即十进制的 65535）**。
-      >
-      > ```js
-      > String.fromCharCode(0x20BB7)  // "ஷ"
-      > String.fromCharCode(0x20BB7) === String.fromCharCode(0x0BB7)  // true
-      > ```
-      >
-      > 上面代码中，`String.fromCharCode`参数`0x20BB7`大于`0xFFFF`，导致返回结果出错。`0x20BB7`对应的字符是汉字`𠮷`，但是返回结果却是另一个字符（码点`0x0BB7`）。这是因为`String.fromCharCode`发现参数值大于`0xFFFF`，就会忽略多出的位（即忽略`0x20BB7`最高位的`2`）。
-      >
-      > 这种现象的根本原因在于，码点大于`0xFFFF`的字符占用四个字节，而 JS 默认只支持两个字节的字符（ES5）。这种情况下，必须把`0x20BB7`拆成两个字符的UTF-16编码表示：
-      >
-      > ```js
-      > String.fromCharCode(0xD842, 0xDFB7)  // "𠮷"
-      > ```
-      >
-      > 上面代码中，`0x20BB7`拆成两个字符`0xD842`和`0xDFB7`（即两个两字节字符，合成一个四字节字符），就能得到正确的结果。码点大于`0xFFFF`的字符的四字节表示法，由 UTF-16 编码方法决定。
+      上面代码中，`String.fromCharCode`方法的参数为空，就返回空字符串；否则，返回参数对应的 Unicode 字符串。
+      
+      注意，**该方法不支持码元大于`0xFFFF`的字符，即传入的参数不能大于`0xFFFF`（即十进制的 65535）**。
+      
+      ```js
+      String.fromCharCode(0x20BB7)  // "ஷ"
+      String.fromCharCode(0x20BB7) === String.fromCharCode(0x0BB7)  // true
+      ```
+      
+      上面代码中，`String.fromCharCode`参数`0x20BB7`大于`0xFFFF`，导致返回结果出错。`0x20BB7`对应的字符是汉字`𠮷`，但是返回结果却是另一个字符（码点`0x0BB7`）。这是因为`String.fromCharCode`发现参数值大于`0xFFFF`，大于 `0xFFFF` 的数字会被截断为最后的 16 位。（即忽略`0x20BB7`最高位的`2`）。
+      
+      这种现象的根本原因在于，码点大于`0xFFFF`的字符占用四个字节，而 JS 默认只支持两个字节的字符（ES5）。这种情况下，必须把`0x20BB7`拆成两个字符的UTF-16编码表示：
+      
+      ```js
+      String.fromCharCode(0xD842, 0xDFB7)  // "𠮷"
+      ```
+      
+      上面代码中，`0x20BB7`拆成两个字符`0xD842`和`0xDFB7`（即两个两字节字符，合成一个四字节字符），就能得到正确的结果。码点大于`0xFFFF`的字符的四字节表示法，由 UTF-16 编码方法决定。
   
-    ###### 实例方法：
+    ##### 实例方法：
+  
+    - `String.prototype.charCodeAt()`：返回一个十进制整数，表示给定索引处的 UTF-16 码元，其值介于 `0` 和 `65535` 之间。相当于`String.fromCharCode()`的逆操作。
+  
+      ```js
+      'abc'.charCodeAt(1) // 98
+      ```
+  
+      上面代码中，`abc`的`1`号位置的字符是`b`，它的 UTF-16 码元是`98`。
+  
+      如果没有任何参数，`charCodeAt`返回首字符的 UTF-16 码元。
+  
+      ```js
+      'abc'.charCodeAt() // 97
+      ```
+  
+      如果参数为负数，或大于等于字符串的长度，`charCodeAt`返回`NaN`。
+  
+      ```js
+      'abc'.charCodeAt(-1) // NaN
+      'abc'.charCodeAt(4) // NaN
+      ```
+  
+      注意，`charCodeAt`方法返回的 UTF-16 码元不会大于65536（0xFFFF），也就是说，只返回两个字节的字符的码元。如果遇到码元大于 65536 的字符（四个字节的字符），必须连续使用两次`charCodeAt`，不仅读入`charCodeAt(i)`，还要读入`charCodeAt(i+1)`，将两个值放在一起、转换后才能得到准确的字符。
+  
+      ```js
+      let str = "𪚥"; // 一个罕见汉字，码点是 U+2A6A5（大于 0xFFFF）
+      console.log(str.length);  // 输出2，不是 1
+      
+      // 手动组合代理对
+      let first = str.charCodeAt(0);   // 0xD869 (高位代理)
+      let second = str.charCodeAt(1);  // 0xDEA5 (低位代理)
+      
+      // 将代理对转换回完整的码点
+      let codePoint = ((first - 0xD800) * 0x400) + (second - 0xDC00) + 0x10000;
+      console.log(codePoint.toString(16));  // 输出: "2a6a5"
+      console.log(codePoint);               // 输出: 173733
+      ```
+  
+      **Tips**：
+  
+      以下是将一对 UTF-16 码元转换为 Unicode 码位的可能算法，改编自 [Unicode 常问问题](https://unicode.org/faq/utf_bom.html#utf16-3)：
+  
+      ```js
+      // 常量
+      const LEAD_OFFSET = 0xd800 - (0x10000 >> 10);
+      const SURROGATE_OFFSET = 0x10000 - (0xd800 << 10) - 0xdc00;
+      
+      function utf16ToUnicode(lead, trail) {
+        return (lead << 10) + trail + SURROGATE_OFFSET;
+      }
+      function unicodeToUTF16(codePoint) {
+        const lead = LEAD_OFFSET + (codePoint >> 10);
+        const trail = 0xdc00 + (codePoint & 0x3ff);
+        return [lead, trail];
+      }
+      
+      const str = "𠮷";
+      console.log(utf16ToUnicode(str.charCodeAt(0), str.charCodeAt(1))); // 134071
+      console.log(str.codePointAt(0)); // 134071
+      ```
   
     - `String.prototype.charAt()`：`charAt`方法返回指定位置的字符，参数是从`0`开始编号的位置。
   
@@ -1579,47 +1565,19 @@
       s.charAt(s.length - 1) // "c"
       ```
   
-      > 这个方法完全可以用数组下标替代。
-      >
-  
-      ```js
-      'abc'.charAt(1) // "b"
-      'abc'[1] // "b"
-      ```
-  
-      > 如果参数为负数，或大于等于字符串的长度，`charAt`返回空字符串。
-      >
+      如果参数为负数，或大于等于字符串的长度，`charAt`返回空字符串。
   
       ```js
       'abc'.charAt(-1) // ""
       'abc'.charAt(3) // ""
       ```
   
-    - `String.prototype.charCodeAt()`：`charCodeAt()`方法返回字符串指定位置的 Unicode 码点（十进制表示），相当于`String.fromCharCode()`的逆操作。
+      这个方法完全可以用数组下标替代。
   
       ```js
-      'abc'.charCodeAt(1) // 98
+      'abc'.charAt(1) // "b"
+      'abc'[1] // "b"
       ```
-  
-      > 上面代码中，`abc`的`1`号位置的字符是`b`，它的 Unicode 码点是`98`。
-      >
-  
-      > 如果没有任何参数，`charCodeAt`返回首字符的 Unicode 码点。
-      >
-  
-      ```js
-      'abc'.charCodeAt() // 97
-      ```
-  
-      > 如果参数为负数，或大于等于字符串的长度，`charCodeAt`返回`NaN`。
-      >
-  
-      ```js
-      'abc'.charCodeAt(-1) // NaN
-      'abc'.charCodeAt(4) // NaN
-      ```
-  
-      > 注意，`charCodeAt`方法返回的 Unicode 码点不会大于65536（0xFFFF），也就是说，只返回两个字节的字符的码点。如果遇到码点大于 65536 的字符（四个字节的字符），必须连续使用两次`charCodeAt`，不仅读入`charCodeAt(i)`，还要读入`charCodeAt(i+1)`，将两个值放在一起，才能得到准确的字符。
   
     - `String.prototype.concat()`：`concat`方法用于连接两个字符串，返回一个新字符串，不改变原字符串。
   
@@ -1631,15 +1589,13 @@
       s1 // "abc"
       ```
   
-      > 该方法可以接受多个参数。
-      >
+      该方法可以接受多个参数。
   
       ```js
       'a'.concat('b', 'c') // "abc"
       ```
   
-      > 如果参数不是字符串，`concat`方法会将其先转为字符串，然后再连接。
-      >
+      如果参数不是字符串，`concat`方法会将其先转为字符串，然后再连接。
   
       ```js
       var one = 1;
@@ -1650,23 +1606,23 @@
       one + two + three // "33"
       ```
   
-      > 上面代码中，`concat`方法将参数先转成字符串再连接，所以返回的是一个三个字符的字符串。作为对比，加号运算符在两个运算数都是数值时，不会转换类型，所以返回的是一个两个字符的字符串。
+      上面代码中，`concat`方法将参数先转成字符串再连接，所以返回的是一个三个字符的字符串。
   
-    - `String.prototype.slice()`：`slice()`方法（切片）用于从原字符串取出子字符串并返回，不改变原字符串。它的第一个参数是子字符串的开始位置，第二个参数是子字符串的结束位置（不含该位置）。
+      作为对比，加号运算符在两个运算数都是数值时，不会转换类型，所以返回的是一个两个字符的字符串。
+  
+    - `String.prototype.slice()`：`slice`（切片）方法用于从原字符串取出子字符串并返回，不改变原字符串。它的第一个参数是子字符串的开始位置，第二个参数是子字符串的结束位置（不含该位置）。
   
       ```js
       'JavaScript'.slice(0, 4) // "Java"
       ```
   
-      > 如果省略第二个参数，则表示子字符串一直到原字符串结束。
-      >
+      如果省略第二个参数，则表示子字符串一直到原字符串结束。
   
       ```js
       'JavaScript'.slice(4) // "Script"
       ```
   
-      > 如果参数是负值，表示从结尾开始倒数计算的位置，即该负值加上字符串长度。
-      >
+      如果参数是负值，表示从结尾开始倒数计算的位置，即该负值加上字符串长度。
   
       ```js
       'JavaScript'.slice(-6) // "Script"
@@ -1674,75 +1630,69 @@
       'JavaScript'.slice(-2, -1) // "p"
       ```
   
-      > 如果第一个参数大于第二个参数（正数情况下），`slice()`方法返回一个空字符串。
-      >
+      如果第一个参数大于第二个参数（正数情况下），`slice()`方法返回一个空字符串。
   
       ```js
       'JavaScript'.slice(2, 1) // ""
       ```
   
-    - `String.prototype.substring()`：`substring`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`方法很相像。它的第一个参数表示子字符串的开始位置，第二个位置表示结束位置（返回结果不含该位置）。
+    - ~~（不推荐、慎用）`String.prototype.substring()`~~：`substring`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`方法很相像。它的第一个参数表示子字符串的开始位置，第二个位置表示结束位置（返回结果不含该位置）。
   
       ```js
       'JavaScript'.substring(0, 4) // "Java"
       ```
   
-      > 如果省略第二个参数，则表示子字符串一直到原字符串的结束。
-      >
+      如果省略第二个参数，则表示子字符串一直到原字符串的结束。
   
       ```js
       'JavaScript'.substring(4) // "Script"
       ```
   
-      > 如果第一个参数大于第二个参数，`substring`方法会自动更换两个参数的位置。
-      >
+      相较于`slice`方法，该方法有2个坑：
   
-      ```js
-      'JavaScript'.substring(10, 4) // "Script"
-      // 等同于
-      'JavaScript'.substring(4, 10) // "Script"
-      ```
+      1. 如果第一个参数大于第二个参数，`substring`方法会自动更换两个参数的位置。
   
-      > 上面代码中，调换`substring`方法的两个参数，都得到同样的结果。
-      >
+         ```js
+         'JavaScript'.substring(10, 4) // "Script"
+         // 等同于
+         'JavaScript'.substring(4, 10) // "Script"
+         ```
   
-      > 如果参数是负数，`substring`方法会自动将负数转为0。
-      >
+         上面代码中，调换`substring`方法的两个参数，都得到同样的结果。
   
-      ```js
-      'JavaScript'.substring(-3) // "JavaScript"
-      'JavaScript'.substring(4, -3) // "Java"
-      ```
+      2. 如果参数是负数，`substring`方法会自动将负数转为0。
   
-      > 上面代码中，第二个例子的参数`-3`会自动变成`0`，等同于`'JavaScript'.substring(4, 0)`。由于第二个参数小于第一个参数，会自动互换位置，所以返回`Java`。
-      >
+         ```js
+         'JavaScript'.substring(-3) // "JavaScript"
+         'JavaScript'.substring(4, -3) // "Java"
+         ```
   
-      > 由于这些规则违反直觉，因此不建议使用`substring`方法，应该优先使用`slice`。
+         上面代码中，第二个例子的参数`-3`会自动变成`0`，等同于`'JavaScript'.substring(4, 0)`。由于第二个参数小于第一个参数，会自动互换位置，所以返回`Java`。
   
-    - `String.prototype.substr()`：`substr`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`和`substring`方法的作用相同。
+      由于这些规则违反直觉，因此不建议使用`substring`方法，应该**优先使用`slice`**。
   
-      > `substr`方法的第一个参数是子字符串的开始位置（从0开始计算），第二个参数是子字符串的长度。
+    - ~~（已废弃，不推荐使用）`String.prototype.substr()`：`substr`方法用于从原字符串取出子字符串并返回，不改变原字符串，跟`slice`和`substring`方法的作用相同。~~
+  
+      `substr`方法的第一个参数是子字符串的开始位置（从0开始计算），第二个参数是子字符串的长度。
   
       ```js
       'JavaScript'.substr(4, 6) // "Script"
       ```
   
-      > 如果省略第二个参数，则表示子字符串一直到原字符串的结束。
-      >
+      如果省略第二个参数，则表示子字符串一直到原字符串的结束。
   
       ```js
       'JavaScript'.substr(4) // "Script"
       ```
   
-      > 如果第一个参数是负数，表示倒数计算的字符位置。如果第二个参数是负数，将被自动转为0，因此会返回空字符串。
-      >
+      如果第一个参数是负数，表示倒数计算的字符位置。如果第二个参数是负数，将被自动转为0，因此会返回空字符串。
   
       ```js
       'JavaScript'.substr(-6) // "Script"
       'JavaScript'.substr(4, -1) // ""
       ```
   
-      > 上面代码中，第二个例子的参数`-1`自动转为`0`，表示子字符串长度为`0`，所以返回空字符串。
+      上面代码中，第二个例子的参数`-1`自动转为`0`，表示子字符串长度为`0`，所以返回空字符串。
   
     - `String.prototype.indexOf()`，`String.prototype.lastIndexOf()`：`indexOf`方法用于确定一个字符串在另一个字符串中第一次出现的位置，返回结果是匹配开始的位置。如果返回`-1`，就表示不匹配。
   
@@ -1751,20 +1701,19 @@
       'JavaScript'.indexOf('script') // -1
       ```
   
-      > `indexOf`方法还可以接受第二个参数，表示从该位置开始向后匹配。
+      `indexOf`方法还可以接受第二个参数，表示从该位置开始向后匹配。
   
       ```js
       'hello world'.indexOf('o', 6) // 7
       ```
   
-      > `lastIndexOf`方法的用法跟`indexOf`方法一致，主要的区别是`lastIndexOf`从尾部开始匹配，`indexOf`则是从头部开始匹配。
+      `lastIndexOf`方法的用法跟`indexOf`方法一致，主要的区别是`lastIndexOf`从尾部开始匹配，`indexOf`则是从头部开始匹配。
   
       ```js
       'hello world'.lastIndexOf('o') // 7
       ```
   
-      > 另外，`lastIndexOf`的第二个参数表示从该位置起向前匹配。
-      >
+      另外，`lastIndexOf`的第二个参数表示从该位置起向前匹配。
   
       ```js
       'hello world'.lastIndexOf('o', 6) // 4
@@ -1777,8 +1726,7 @@
       // "hello world"
       ```
   
-      > 该方法去除的不仅是空格，还包括制表符（`\t`、`\v`）、换行符（`\n`）和回车符（`\r`）。
-      >
+      该方法去除的不仅是空格，还包括制表符（`\t`、`\v`）、换行符（`\n`）和回车符（`\r`）。
   
       ```js
       '\r\nabc \t'.trim() // 'abc'
@@ -1798,32 +1746,31 @@
       'cat, bat, sat, fat'.match('xt') // null
       ```
   
-      > 返回的数组还有`index`属性和`input`属性，分别表示匹配字符串开始的位置和原始字符串。
-      >
+      返回的数组还有`index`属性和`input`属性，分别表示匹配字符串开始的位置和原始字符串。
   
-      ```
+      ```js
       var matches = 'cat, bat, sat, fat'.match('at');
       matches.index // 1
       matches.input // "cat, bat, sat, fat"
       ```
   
-      > `match`方法还可以使用正则表达式作为参数，详见《正则表达式》一章。
+      `match`方法还可以使用正则表达式作为参数，详见《正则表达式》一章。
   
-    - `String.prototype.search()`，`String.prototype.replace()`：`search`方法的用法基本等同于`match`，但是返回值为匹配的第一个位置。如果没有找到匹配，则返回`-1`。
+    - `String.prototype.search()`：`search`方法的用法基本等同于`match`，但是返回值为匹配的第一个位置。如果没有找到匹配，则返回`-1`。
   
-      ```
+      ```js
       'cat, bat, sat, fat'.search('at') // 1
       ```
   
-      > `search`方法也可以使用正则表达式作为参数，详见《正则表达式》一节。
+      `search`方法也可以使用正则表达式作为参数，详见《正则表达式》一节。
   
-      > `replace`方法用于替换匹配的子字符串，一般情况下只替换第一个匹配（除非使用带有`g`修饰符的正则表达式）。
+    - `String.prototype.replace()`：`replace`方法用于替换匹配的子字符串，一般情况下只替换第一个匹配（除非使用带有`g`修饰符的正则表达式）。
   
-      ```
+      ```js
       'aaa'.replace('a', 'b') // "baa"
       ```
   
-      > `replace`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
+      `replace`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
   
     - `String.prototype.split()`：`split`方法按照给定规则分割字符串，返回一个由分割出来的子字符串组成的数组。
   
@@ -1831,36 +1778,32 @@
       'a|b|c'.split('|') // ["a", "b", "c"]
       ```
   
-      > 如果分割规则为空字符串，则返回数组的成员是原字符串的每一个字符。
-      >
+      如果分割规则为空字符串，则返回数组的成员是原字符串的每一个字符。
   
       ```js
       'a|b|c'.split('') // ["a", "|", "b", "|", "c"]
       ```
   
-      > 如果省略参数，则返回数组的唯一成员就是原字符串。
-      >
+      如果省略参数，则返回数组的唯一成员就是原字符串。
   
       ```js
       'a|b|c'.split() // ["a|b|c"]
       ```
   
-      > 如果满足分割规则的两个部分紧邻着（即两个分割符中间没有其他字符），则返回数组之中会有一个空字符串。
-      >
+      如果满足分割规则的两个部分紧邻着（即两个分割符中间没有其他字符），则返回数组之中会有一个空字符串。
   
       ```js
       'a||c'.split('|') // ['a', '', 'c']
       ```
   
-      > 如果满足分割规则的部分处于字符串的开头或结尾（即它的前面或后面没有其他字符），则返回数组的第一个或最后一个成员是一个空字符串。
-      >
+      如果满足分割规则的部分处于字符串的开头或结尾（即它的前面或后面没有其他字符），则返回数组的第一个或最后一个成员是一个空字符串。
   
       ```js
       '|b|c'.split('|') // ["", "b", "c"]
       'a|b|'.split('|') // ["a", "b", ""]
       ```
   
-      > `split`方法还可以接受第二个参数，限定返回数组的最大成员数。
+      `split`方法还可以接受第二个参数，限定返回数组的最大成员数。
   
       ```js
       'a|b|c'.split('|', 0) // []
@@ -1870,9 +1813,9 @@
       'a|b|c'.split('|', 4) // ["a", "b", "c"]
       ```
   
-      > 上面代码中，`split`方法的第二个参数，决定了返回数组的成员数。
-      >
-      > `split`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
+      上面代码中，`split`方法的第二个参数，决定了返回数组的成员数。
+  
+      `split`方法还可以使用正则表达式作为参数，详见《正则表达式》一节。
   
     - `String.prototype.localeCompare()`：`localeCompare`方法用于比较两个字符串。它返回一个整数，如果小于0，表示第一个字符串小于第二个字符串；如果等于0，表示两者相等；如果大于0，表示第一个字符串大于第二个字符串。
   
@@ -1881,42 +1824,38 @@
       'apple'.localeCompare('apple') // 0
       ```
   
-      > 该方法的最大特点，就是会考虑自然语言的顺序。举例来说，正常情况下，大写的英文字母小于小写字母。
-      >
+      该方法的最大特点，就是会考虑自然语言的顺序。举例来说，正常情况下，大写的英文字母小于小写字母。
   
       ```js
-      'B' > 'a' // false
+      'B' < 'a' // true
       ```
   
-      > 上面代码中，字母`B`小于字母`a`。因为 JS 采用的是 Unicode 码点比较，`B`的码点是66，而`a`的码点是97。
-      >
+      上面代码中，字母`B`小于字母`a`。因为 JS 采用的是 Unicode 码点比较，`B`的码点是66，而`a`的码点是97。
   
-      > 但是，`localeCompare`方法会考虑自然语言的排序情况，将`B`排在`a`的前面。
-      >
+      但是，`localeCompare`方法会考虑自然语言的排序情况，将`B`排在`a`的前面。
   
       ```js
       'B'.localeCompare('a') // 1
       ```
   
-      > 上面代码中，`localeCompare`方法返回整数1，表示`B`较大。
-      >
+      上面代码中，`localeCompare`方法返回整数1，表示`B`较大。
   
-      > `localeCompare`还可以有第二个参数，指定所使用的语言（默认是英语），然后根据该语言的规则进行比较。
+      `localeCompare`还可以有第二个参数，指定所使用的语言（默认是英语），然后根据该语言的规则进行比较。
   
       ```js
       'ä'.localeCompare('z', 'de') // -1
       'ä'.localeCompare('z', 'sv') // 1
       ```
   
-      > 上面代码中，`de`表示德语，`sv`表示瑞典语。德语中，`ä`小于`z`，所以返回`-1`；瑞典语中，`ä`大于`z`，所以返回`1`。
+      上面代码中，`de`表示德语，`sv`表示瑞典语。德语中，`ä`小于`z`，所以返回`-1`；瑞典语中，`ä`大于`z`，所以返回`1`。
   
-  - ### Math 对象
+  - #### Math 对象
   
-    > `Math`是 JS 的原生对象，提供各种数学功能。该对象不是构造函数，不能生成实例，所有的属性和方法都必须在`Math`对象上调用。
+    `Math`是 JS 中原生的工具函数，提供各种数学功能。该对象不是构造函数，不能生成实例，所有的属性和方法都必须在`Math`对象上调用。
   
-    - #### 静态属性
+    - ##### 静态属性
   
-      > `Math`对象的静态属性，提供以下一些数学常数。这些属性都是**只读的**，不能修改。
+      `Math`对象的静态属性，提供以下一些数学常数。这些属性都是**只读的**，不能修改。
   
       - `Math.E`：常数`e`。
       - `Math.LN2`：2 的自然对数。
@@ -1927,9 +1866,9 @@
       - `Math.SQRT1_2`：0.5 的平方根。
       - `Math.SQRT2`：2 的平方根。
   
-    - #### 静态方法
+    - ##### 静态方法
   
-      > `Math`对象提供以下一些静态方法。
+      `Math`对象提供以下一些静态方法。
   
       - `Math.abs()`：绝对值
   
@@ -1950,12 +1889,12 @@
         Math.log(10) // 2.302585092994046
         ```
   
-        > 如果要计算以10为底的对数，可以先用`Math.log`求出自然对数，然后除以`Math.LN10`；求以2为底的对数，可以除以`Math.LN2`。
-        >
-        > ```js
-        > Math.log(100)/Math.LN10 // 2
-        > Math.log(8)/Math.LN2 // 3
-        > ```
+        如果要计算以10为底的对数，可以先用`Math.log`求出自然对数，然后除以`Math.LN10`；求以2为底的对数，可以除以`Math.LN2`。
+  
+        ```js
+        Math.log(100)/Math.LN10 // 2
+        Math.log(8)/Math.LN2 // 3
+        ```
   
       - `Math.exp()`：`Math.exp`方法返回常数`e`的参数次方。
   
@@ -1973,10 +1912,9 @@
         Math.round(-1.6) // -2
         ```
   
-      - `Math.random()`：`Math.random()`返回0到1之间的一个伪随机数，可能等于0，但是一定小于1。
+      - `Math.random()`：`Math.random()`返回`[0,1)`之间的一个伪随机数，可能等于0，但是一定小于1。
   
-        > 任意范围的随机数生成函数如下。
-        >
+        任意范围的随机数生成函数如下。
   
         ```js
         function getRandomArbitrary(min, max) {
@@ -1987,8 +1925,7 @@
         // 2.4942810038223864
         ```
   
-        > 任意范围的随机整数生成函数如下。
-        >
+        任意范围的随机整数生成函数如下。
   
         ```js
         function getRandomInt(min, max) {
@@ -1998,8 +1935,7 @@
         getRandomInt(1, 6) // 5
         ```
   
-        > 返回随机字符的例子如下。
-        >
+        返回随机字符的例子如下。
   
         ```js
         function random_str(length) {
@@ -2017,9 +1953,11 @@
         random_str(6) // "NdQKOr"
         ```
   
-        > 上面的`random_str`函数接受一个整数作为参数，返回变量`ALPHABET`内的随机字符所组成的指定长度的字符串。
+        上面的`random_str`函数接受一个整数作为参数，返回变量`ALPHABET`内的随机字符所组成的指定长度的字符串。
   
-      > `Math`对象还提供一系列三角函数方法。
+    - ##### 三角函数方法
+  
+      `Math`对象还提供一系列三角函数方法：
   
       - `Math.sin()`：返回参数的正弦（参数为弧度值）
       - `Math.cos()`：返回参数的余弦（参数为弧度值）
@@ -2028,11 +1966,23 @@
       - `Math.acos()`：返回参数的反余弦（返回值为弧度值）
       - `Math.atan()`：返回参数的反正切（返回值为弧度值）
   
-  - ### Date 对象
+      ```js
+      Math.sin(0) // 0
+      Math.cos(0) // 1
+      Math.tan(0) // 0
+      
+      Math.sin(Math.PI / 2) // 1
+      
+      Math.asin(1) // 1.5707963267948966
+      Math.acos(1) // 0
+      Math.atan(1) // 0.7853981633974483
+      ```
   
-    > `Date`对象是 JS 原生的时间库。它以国际标准时间（UTC）1970年1月1日00:00:00作为时间的零点，可以表示的时间范围是前后各1亿天（单位为毫秒）。
+  - #### Date 对象
   
-    - #### 普通函数的用法
+    `Date`对象是 JS 原生的时间对象，它以国际标准时间（UTC）1970年1月1日00:00:00作为时间的零点，可以表示的时间范围是前后各1亿天（单位是毫秒`ms`）。
+  
+    - ##### 普通函数的用法
   
       `Date`对象可以作为普通函数直接调用，返回一个代表当前时间的字符串。
   
@@ -2040,7 +1990,7 @@
       Date()  // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
       ```
   
-      注意，即使带有参数，`Date`作为普通函数使用时，返回的还是当前时间。
+      **注意，即使带有参数，`Date`作为普通函数使用时，返回的还是当前时间**。
   
       ```js
       Date(2000, 1, 1)  // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
@@ -2048,7 +1998,7 @@
   
       上面代码说明，无论有没有参数，直接调用`Date`总是返回当前时间。
   
-    - #### 构造函数的用法
+    - ##### 构造函数的用法
   
       `Date`还可以当作构造函数使用。对它使用`new`命令，会返回一个`Date`对象的实例。如果不加参数，实例代表的就是当前时间。
   
@@ -2056,19 +2006,17 @@
       var today = new Date();
       ```
   
-      `Date`实例有一个独特的地方。其他对象求值的时候，都是默认调用`.valueOf()`方法，但是`Date`实例求值的时候，默认调用的是`toString()`方法。这导致对`Date`实例求值，返回的是一个字符串，代表该实例对应的时间。
+      `Date`实例有一个独特的地方。其他对象求值的时候，都是默认调用`.valueOf()`方法，但是`Date`实例求值的时候，默认调用的是`toString()`方法（自动类型转换走的`string`路线）。这导致对`Date`实例求值，返回的是一个字符串，代表该实例对应的时间。
   
       ```js
       var today = new Date();
       
-      today
-      // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
+      today // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
       
       // 等同于
-      today.toString()
-      // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
+      today.toString() // "Tue Dec 01 2015 09:34:43 GMT+0800 (CST)"
       ```
-  
+      
       上面代码中，`today`是`Date`的实例，直接求值等同于调用`toString`方法。
   
       作为构造函数时，`Date`对象可以接受多种格式的参数，返回一个该参数对应的时间实例。
@@ -2087,7 +2035,7 @@
       new Date(2013, 0, 1, 0, 0, 0, 0)
       // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
       ```
-  
+      
       关于`Date`构造函数的参数，有几点说明：
   
       1. 参数可以是负整数，代表1970年元旦之前的时间。
@@ -2095,7 +2043,7 @@
          ```js
          new Date(-1378218728000)  // Fri Apr 30 1926 17:27:52 GMT+0800 (CST)
          ```
-  
+      
       2. 只要是能被`Date.parse()`方法解析的字符串，都可以当作参数。
   
          ```js
@@ -2111,16 +2059,16 @@
          new Date('15, February, 2013')
          // Fri Feb 15 2013 00:00:00 GMT+0800 (CST)
          ```
-  
-         > 上面多种日期字符串的写法，返回的都是同一个时间。
+      
+         上面多种日期字符串的写法，返回的都是同一个时间。
   
       3. 参数为年、月、日等多个整数时，年和月是不能省略的，其他参数都可以省略的。也就是说，这时至少需要两个参数，因为如果只使用“年”这一个参数，`Date`会将其解释为毫秒数。
   
          ```js
          new Date(2013)  // Thu Jan 01 1970 08:00:02 GMT+0800 (CST)
          ```
-  
-         > 上面代码中，2013被解释为毫秒数，而不是年份。
+      
+         上面代码中，2013被解释为毫秒数，而不是年份。
   
          ```js
          new Date(2013, 0)
@@ -2132,8 +2080,8 @@
          new Date(2013, 0, 1, 0, 0, 0, 0)
          // Tue Jan 01 2013 00:00:00 GMT+0800 (CST)
          ```
-  
-         > 上面代码中，不管有几个参数，返回的都是2013年1月1日零点。
+      
+         上面代码中，不管有几个参数，返回的都是2013年1月1日零点。
   
       4. 各个参数的取值范围如下。
   
@@ -2144,32 +2092,32 @@
          - 分钟：`0`到`59`。
          - 秒：`0`到`59`
          - 毫秒：`0`到`999`。
-  
-         > 注意，月份从`0`开始计算，但是，天数从`1`开始计算。另外，除了日期的默认值为`1`，小时、分钟、秒钟和毫秒的默认值都是`0`。
-         >
-         > 这些参数如果超出了正常范围，会被自动折算。比如，如果月设为`15`，就折算为下一年的4月。
-         >
-         > ```js
-         > new Date(2013, 15)
-         > // Tue Apr 01 2014 00:00:00 GMT+0800 (CST)
-         > new Date(2013, 0, 0)
-         > // Mon Dec 31 2012 00:00:00 GMT+0800 (CST)
-         > ```
-         >
-         > 上面代码的第二个例子，日期设为`0`，就代表上个月的最后一天。
-         >
-         > 参数还可以使用负数，表示扣去的时间。
-         >
-         > ```js
-         > new Date(2013, -1)
-         > // Sat Dec 01 2012 00:00:00 GMT+0800 (CST)
-         > new Date(2013, 0, -1)
-         > // Sun Dec 30 2012 00:00:00 GMT+0800 (CST)
-         > ```
-         >
-         > 上面代码中，分别对月和日使用了负数，表示从基准日扣去相应的时间。
-  
-    - #### 日期的运算
+      
+         注意，**月份从`0`开始计算**，但是，天数从`1`开始计算。另外，除了日期的默认值为`1`，小时、分钟、秒钟和毫秒的默认值都是`0`。
+         
+         **这些参数如果超出了正常范围，会被自动折算**。比如，如果月设为`15`，就折算为下一年的4月。
+         
+         ```js
+         new Date(2013, 15)
+         // Tue Apr 01 2014 00:00:00 GMT+0800 (CST)
+         new Date(2013, 0, 0)
+         // Mon Dec 31 2012 00:00:00 GMT+0800 (CST)
+         ```
+         
+         上面代码的第二个例子，日期设为`0`，就代表上个月的最后一天。
+         
+         参数还可以使用负数，表示扣去的时间。
+         
+         ```js
+         new Date(2013, -1)
+         // Sat Dec 01 2012 00:00:00 GMT+0800 (CST)
+         new Date(2013, 0, -1)
+         // Sun Dec 30 2012 00:00:00 GMT+0800 (CST)
+         ```
+         
+         上面代码中，分别对月和日使用了负数，表示从基准日扣去相应的时间。
+      
+    - ##### 日期的运算
   
       类型自动转换时，`Date`实例如果转为数值，则等于对应的毫秒数；如果转为字符串，则等于对应的日期字符串。所以，**两个日期实例对象进行减法运算时，返回的是它们间隔的毫秒数；进行加法运算时，返回的是两个字符串连接而成的新字符串。**
   
@@ -2183,9 +2131,13 @@
       // "Sat Apr 01 2000 00:00:00 GMT+0800 (CST)Wed Mar 01 2000 00:00:00 GMT+0800 (CST)"
       ```
   
-    - #### 静态方法
+    - ##### 静态方法
   
-      - `Date.now()`：返回时间戳（单位毫秒ms）。
+      - `Date.now()`：返回当前时间距离时间零点（1970年1月1日 00:00:00 UTC）的毫秒数，相当于 Unix 时间戳乘以1000。
+  
+        ```js
+        Date.now() // 1364026285194
+        ```
   
       - `Date.parse()`：该方法用来解析日期字符串，返回该时间距离时间零点（1970年1月1日 00:00:00）的毫秒数（`number`类型）。如果解析失败，返回`NaN`。
   
@@ -2200,9 +2152,11 @@
         Date.parse('2011-10-10T14:48:00')
         ```
   
+        上面的日期字符串都可以解析。
+  
       - `Date.UTC()`：该方法接受年、月、日等变量作为参数，返回该时间距离时间零点（1970年1月1日 00:00:00 UTC）的毫秒数。
   
-        ```
+        ```js
         // 格式
         Date.UTC(year, month[, date[, hrs[, min[, sec[, ms]]]]])
         
@@ -2211,9 +2165,9 @@
         // 1293847384567
         ```
   
-        该方法的参数的用法与`Date`构造函数完全一致，比如月从`0`开始计算，日期从`1`开始计算。区别在于`Date.UTC`方法的参数，会被解释为 UTC 时间（世界标准时间），`Date`构造函数的参数会被解释为当前时区的时间。
+        该方法的参数的用法与`Date`构造函数完全一致，比如月从`0`开始计算，日期从`1`开始计算。区别在于`Date.UTC`方法的参数，会被解释为 UTC 时间（世界标准时间），**`Date`构造函数的参数会被解释为当前时区的时间**。
   
-    - #### 实例方法
+    - ##### 实例方法
   
       - `valueOf()`：返回实例对象距离时间零点（1970年1月1日00:00:00 UTC）对应的毫秒数（`number`类型），该方法等同于`getTime`方法。
   
@@ -2233,13 +2187,13 @@
         var elapsed = end - start;
         ```
   
-      - ##### to 类方法
+      - ###### to 类方法
   
-        > 从`Date`对象返回一个日期和时间字符串。
+        从`Date`对象返回一个日期和时间字符串。
   
         - `Date.prototype.toString()`：`toString`方法返回一个完整的日期字符串。
   
-          ```
+          ```js
           var d = new Date(2013, 0, 1);
           
           d.toString()
@@ -2250,67 +2204,64 @@
   
           因为`toString`是默认的调用方法，所以如果直接读取`Date`实例，就相当于调用这个方法。
   
-        - `Date.prototype.toUTCString()`：
+        - `Date.prototype.toUTCString()`：返回对应的 UTC 时间，也就是比北京时间晚8个小时。
   
-          `toUTCString`方法返回对应的 UTC 时间，也就是比北京时间晚8个小时。
-  
-          ```
+          ```js
           var d = new Date(2013, 0, 1);
           
           d.toUTCString()
           // "Mon, 31 Dec 2012 16:00:00 GMT"
           ```
+          
+        - `Date.prototype.toISOString()`：返回对应时间的 ISO8601 写法。
   
-        - `Date.prototype.toISOString()`
-  
-          `toISOString`方法返回对应时间的 ISO8601 写法。
-  
-          ```
-          var d = new Date(2013, 0, 1);
+          ```js
+        var d = new Date(2013, 0, 1);
           
           d.toISOString()
           // "2012-12-31T16:00:00.000Z"
           ```
-  
+          
           注意，`toISOString`方法返回的总是 UTC 时区的时间。
+      
+        - `Date.prototype.toJSON()`：返回一个符合 JSON 格式的 ISO 日期字符串，与`toISOString`方法的返回结果完全相同。
   
-        - `Date.prototype.toJSON()`
-  
-          `toJSON`方法返回一个符合 JSON 格式的 ISO 日期字符串，与`toISOString`方法的返回结果完全相同。
-  
-          ```
+          ```js
           var d = new Date(2013, 0, 1);
           
           d.toJSON()
           // "2012-12-31T16:00:00.000Z"
           ```
-  
-        - `Date.prototype.toDateString()`
-  
-          `toDateString`方法返回日期字符串（不含小时、分和秒）。
-  
-          ```
+      
+          大部分时候，`toJSON()`和`toISOString()`是完全相同的，只是它们对非法日期的处理略有不同。
+      
+          并且严格来说，它们的设计目的和底层行为存在关键区别：
+      
+          - `toISOString()`：专门用于**生成 ISO 8601 格式字符串**，是核心功能。
+          - `toJSON()`：专门用于 **JSON 序列化**，是接口实现。它内部“借用”了 `toISOString()` 来实现。
+      
+        - `Date.prototype.toDateString()`：返回日期字符串（不含小时、分和秒）。
+      
+          ```js
           var d = new Date(2013, 0, 1);
           d.toDateString() // "Tue Jan 01 2013"
           ```
-  
-        - `Date.prototype.toTimeString()`
-  
-          `toTimeString`方法返回时间字符串（不含年月日）。
-  
-          ```
+          
+        - `Date.prototype.toTimeString()`：返回时间字符串（不含年月日）。
+      
+          ```js
           var d = new Date(2013, 0, 1);
           d.toTimeString() // "00:00:00 GMT+0800 (CST)"
           ```
-  
+          
         - **本地时间**：以下3个方法，可以将 Date 实例转为表示本地时间的字符串。
-  
+      
           - `Date.prototype.toLocaleString()`：完整的本地时间。
           - `Date.prototype.toLocaleDateString()`：本地日期（不含小时、分和秒）。
           - `Date.prototype.toLocaleTimeString()`：本地时间（不含年月日）。
-  
+      
           下面是用法实例。
-  
+      
           ```js
           var d = new Date(2013, 0, 1);
           
@@ -2326,17 +2277,17 @@
           // 中文版浏览器为"00:00:00"
           // 英文版浏览器为"12:00:00 AM"
           ```
-  
+      
           这三个方法都有两个可选的参数。
-  
+      
           ```js
           dateObj.toLocaleString([locales[, options]])
           dateObj.toLocaleDateString([locales[, options]])
           dateObj.toLocaleTimeString([locales[, options]])
           ```
-  
+      
           这两个参数中，`locales`是一个指定所用语言的字符串，`options`是一个配置对象。下面是`locales`的例子，分别采用`en-US`和`zh-CN`语言设定。
-  
+      
           ```js
           var d = new Date(2013, 0, 1);
           
@@ -2349,9 +2300,9 @@
           d.toLocaleTimeString('en-US') // "12:00:00 AM"
           d.toLocaleTimeString('zh-CN') // "00:00:00"
           ```
-  
+      
           `options`配置对象有以下属性。
-  
+      
           - `dateStyle`：可能的值为`full`、`long`、`medium`、`short`。
           - `timeStyle`：可能的值为`full`、`long`、`medium`、`short`。
           - `month`：可能的值为`numeric`、`2-digit`、`long`、`short`、`narrow`。
@@ -2361,9 +2312,9 @@
           - `timeZone`：可能的值为 IANA 的时区数据库。
           - `timeZoneName`：可能的值为`long`、`short`。
           - `hour12`：24小时周期还是12小时周期，可能的值为`true`、`false`。
-  
+      
           下面是用法实例。
-  
+      
           ```js
           var d = new Date(2013, 0, 1);
           
@@ -2404,11 +2355,11 @@
           })
           // "12:00:00 AM"
           ```
-  
-      - ##### get 类方法
-  
-        > `Date`对象提供了一系列`get*`方法，用来获取`Date`对象的日期和时间。
-  
+      
+      - ###### get 类方法
+      
+        `Date`对象提供了一系列`get*`方法，用来获取`Date`对象的日期和时间。
+      
         - `getTime()`：返回实例距离1970年1月1日00:00:00的毫秒数，等同于`valueOf`方法。
         - `getDate()`：返回实例对象对应每个月的几号（从1开始）。
         - `getDay()`：返回星期几，星期日为0，星期一为1，以此类推。
@@ -2419,15 +2370,15 @@
         - `getMinutes()`：返回分钟（0-59）。
         - `getSeconds()`：返回秒（0-59）。
         - `getTimezoneOffset()`：返回当前时间与 UTC 的时区差异，以分钟表示，返回结果考虑到了夏令时因素。
-  
+      
         所有这些`get*`方法返回的都是整数，不同方法返回值的范围不一样。
-  
+      
         - 分钟和秒：0 到 59
         - 小时：0 到 23
         - 星期：0（星期天）到 6（星期六）
         - 日期：1 到 31
         - 月份：0（一月）到 11（十二月）
-  
+      
         ```js
         var d = new Date('January 6, 2013');
         
@@ -2436,11 +2387,11 @@
         d.getFullYear() // 2013
         d.getTimezoneOffset() // -480
         ```
-  
+      
         上面代码中，最后一行返回`-480`，即 UTC 时间减去当前时间，单位是分钟。`-480`表示 UTC 比当前时间少480分钟，即当前时区比 UTC 早8个小时。
-  
+      
         下面是一个例子，计算本年度还剩下多少天。
-  
+      
         ```js
         function leftDays() {
           var today = new Date();
@@ -2449,9 +2400,9 @@
           return Math.round((endYear.getTime() - today.getTime()) / msPerDay);
         }
         ```
-  
+      
         上面这些`get*`方法返回的都是当前时区的时间，`Date`对象还提供了这些方法对应的 UTC 版本，用来返回 UTC 时间。
-  
+      
         - `getUTCDate()`
         - `getUTCFullYear()`
         - `getUTCMonth()`
@@ -2460,20 +2411,20 @@
         - `getUTCMinutes()`
         - `getUTCSeconds()`
         - `getUTCMilliseconds()`
-  
+      
         ```js
         var d = new Date('January 6, 2013');
         
         d.getDate() // 6
         d.getUTCDate() // 5
         ```
-  
+      
         上面代码中，实例对象`d`表示当前时区（东八时区）的1月6日0点0分0秒，这个时间对于当前时区来说是1月6日，所以`getDate`方法返回6，对于 UTC 时区来说是1月5日，所以`getUTCDate`方法返回5。
-  
-      - ##### set 类方法
-  
+      
+      - ###### set 类方法
+      
         > `Date`对象提供了一系列`set*`方法，用来设置`Date`对象的日期和时间。
-  
+      
         - `setDate(date)`：设置实例对象对应的每个月的几号（1-31），返回改变后毫秒时间戳。
         - `setFullYear(year [, month, date])`：设置四位年份。
         - `setHours(hour [, min, sec, ms])`：设置小时（0-23）。
@@ -2482,9 +2433,9 @@
         - `setMonth(month [, date])`：设置月份（0-11）。
         - `setSeconds(sec [, ms])`：设置秒（0-59）。
         - `setTime(milliseconds)`：设置毫秒时间戳。
-  
+      
         这些方法基本是跟`get*`方法一一对应的，但是没有`setDay`方法，因为星期几是计算出来的，而不是设置的。另外，需要注意的是，凡是涉及到设置月份，都是从0开始算的，即`0`是1月，`11`是12月。
-  
+      
         ```js
         var d = new Date ('January 6, 2013');
         
@@ -2492,9 +2443,9 @@
         d.setDate(9) // 1357660800000
         d // Wed Jan 09 2013 00:00:00 GMT+0800 (CST)
         ```
-  
+      
         `set*`方法的参数都会自动折算。以`setDate()`为例，如果参数超过当月的最大天数，则向下一个月顺延，如果参数是负数，表示从上个月的最后一天开始减去的天数。
-  
+      
         ```js
         var d1 = new Date('January 6, 2013');
         
@@ -2506,11 +2457,11 @@
         d2.setDate(-1) // 1356796800000
         d2 // Sun Dec 30 2012 00:00:00 GMT+0800 (CST)
         ```
-  
+      
         上面代码中，`d1.setDate(32)`将日期设为1月份的32号，因为1月份只有31号，所以自动折算为2月1日。`d2.setDate(-1)`表示设为上个月的倒数第二天，即12月30日。
-  
+      
         `set`类方法和`get`类方法，可以结合使用，得到相对时间。
-  
+      
         ```js
         var d = new Date();
         
@@ -2521,9 +2472,9 @@
         // 将年份设为去年
         d.setFullYear(d.getFullYear() - 1);
         ```
-  
+      
         `set*`系列方法除了`setTime()`，都有对应的 UTC 版本，即设置 UTC 时区的时间。
-  
+      
         - `setUTCDate()`
         - `setUTCFullYear()`
         - `setUTCHours()`
@@ -2531,19 +2482,19 @@
         - `setUTCMinutes()`
         - `setUTCMonth()`
         - `setUTCSeconds()`
-  
+      
         ```js
         var d = new Date('January 6, 2013');
         d.getUTCHours() // 16
         d.setUTCHours(22) // 1357423200000
         d // Sun Jan 06 2013 06:00:00 GMT+0800 (CST)
         ```
-  
+      
         上面代码中，本地时区（东八时区）的1月6日0点0分，是 UTC 时区的前一天下午16点。设为 UTC 时区的22点以后，就变为本地时区的上午6点。
   
-  - ### JSON 对象
+  - #### JSON 对象
   
-    - #### JSON 格式
+    - ##### JSON 格式
   
       JSON 格式（JavaScript Object Notation 的缩写）是一种标准的、轻量级的“数据交换格式”（就是文本/字符串的规范），2001年由 Douglas Crockford 提出，目的是取代繁琐笨重的 XML 格式。JSON 主要用于做数据的交换，目前非常流行，90%以上的系统数据，交换数据用的就是JSON。JSON的特点：体积小、易解析。
     
@@ -2598,15 +2549,15 @@
     
       注意，`null`、空数组和空对象都是合法的 JSON 值。
     
-    - #### JSON 对象
+    - ##### JSON 对象
     
       从数据格式上来看，`JSON`对象仍是合法的 JS 对象。但由于 JSON 只是一个普通的字符串，因此 JS 提供了两个静态方法`JSON.stringify()`和`JSON.parse()`，专门用来处理 JSON 格式的数据。JSON 字符串和 JS 对象可以用这两个方法来进行互相转换。
       
       注意：与大多数全局对象不同，`JSON` 不是一个构造函数。不能将它与 `new` 运算符 一起使用，也不能将 `JSON` 对象作为函数调用。JSON的所有属性和方法都是静态的（就像`Math`一样）。
     
-    - #### `JSON.stringify()`
+    - ##### `JSON.stringify()`
     
-      - ##### 基本用法
+      - ###### 基本用法
     
         `JSON.stringify()`方法用于将一个值转为 JSON 字符串。该字符串符合 JSON 格式，并且可以被`JSON.parse()`方法还原。
         
@@ -2688,7 +2639,7 @@
         
         上面代码中，`bar`是`obj`对象的不可遍历属性，`JSON.stringify`方法会忽略这个属性。
         
-      - ##### 第二个参数
+      - ###### 第二个参数
     
         `JSON.stringify()`方法还可以接受一个数组作为第二个参数，指定参数对象的哪些属性需要转成字符串。
         
@@ -2781,7 +2732,7 @@
         
         上面代码中，`a`属性经过处理后，返回`undefined`，于是该属性被忽略了。
         
-      - ##### 第三个参数
+      - ###### 第三个参数
       
         `JSON.stringify()`还可以接受第三个参数，用于增加返回的 JSON 字符串的可读性。
         
@@ -2816,7 +2767,7 @@
         */
         ```
         
-      - ##### 参数对象的 `toJSON()` 方法
+      - ###### 参数对象的 `toJSON()` 方法
       
         如果参数对象自定义了一个名为`toJSON`的方法，那么`JSON.stringify()`会使用这个方法的返回值作为参数，而忽略原对象的其他属性。该方法用来给那些不能被转换为 JSON 的类型（如`Date`），指定转换后的 JSON 值。
         
@@ -2886,7 +2837,7 @@
         
         上面代码在正则对象的原型上面部署了`toJSON()`方法，将其指向`toString()`方法，因此转换成 JSON 格式时，正则对象就先调用`toJSON()`方法转为字符串，然后再被`JSON.stringify()`方法处理。
       
-    - #### `JSON.parse()`
+    - ##### `JSON.parse()`
     
       `JSON.parse()`可以将 JSON 字符串转换成 JS 对象。
       
