@@ -685,9 +685,9 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
       '\u007A' === 'z' // true
       ```
   
-      > `\`后可以跟3位八进制数、2位十六进制数、4位十六进制数，对应该字符的 Unicode 码点。前两种表示法只能输出256种字符，因此不常用。
+      > `\`后可以跟3位八进制数、2位十六进制数、4位十六进制数，对应该字符的 UTF16 码元。前两种表示法只能输出256种字符，因此不常用。
       >
-      > 注意：使用十进制 Unicode 码点来表示字符，只能通过 `String.fromCodePoint()` （ES6）或 `String.fromCharCode()`。
+      > 注意：使用十进制 Unicode 码点来表示字符，只能通过 `String.fromCodePoint()` （ES6）；十进制的 UTF16 码元要用 `String.fromCharCode()`。
   
     - `String`类型常用的实例属性和方法：
   
@@ -716,10 +716,10 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
   
       ```js
       function b64Encode(str) {
-          return btoa(encodeURIComponent(str));
+        return btoa(encodeURIComponent(str));
       }
       function b64Decode(str) {
-          return decodeURIComponent(atob(str));
+        return decodeURIComponent(atob(str));
       }
       b64Encode('你好') // "JUU0JUJEJUEwJUU1JUE1JUJE"
       b64Decode('JUU0JUJEJUEwJUU1JUE1JUJE') // "你好"
@@ -739,7 +739,7 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
   
       - UTF16的代理对机制：
   
-        > UTF-16 使用**代理对**（Surrogate Pair）机制来表示码点大于 `U+FFFF` 的字符（即补充平面字符），而将 `0xD800` 到 `0xDFFF` 之间的范围专门保留用于这一目的。具体来说：（代理(Surrogate)是专属于UTF-16编码方式的一种机制，UTF-8和UTF-32不用代理对）
+        > UTF-16 使用**代理对**（Surrogate Pair）机制来表示码点大于 `U+FFFF` 的字符（即补充平面字符），而将 `0xD800` 到 `0xDFFF` 之间的范围专门保留用于这一目的。具体来说：（代理对是专属于 UTF-16 编码方式的一种机制，UTF-8和UTF-32不用代理对）
         >
         > 1. UTF-16 是一种变长编码：
         >
