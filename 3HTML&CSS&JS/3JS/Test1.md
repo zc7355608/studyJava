@@ -1189,7 +1189,7 @@ JavaScript 语言有多个版本。本书的内容主要基于 ECMAScript 5.1 �
     
       - `length`属性：函数的`length`属性返回函数形参的个数。`length`属性提供了一种机制，判断定义时和调用时参数的差异，以便实现面向对象编程的“方法重载”（overload）。
     
-      - `toString()`方法：函数的`toString()`方法返回一个字符串，内容是函数的源码，包括换行符和注释。
+      - `toString()`方法：函数的`toString()`方法返回一个字符串，内容是函数的源码，（ES6要求）包括换行符和注释。
     
         ```js
         function f() {
