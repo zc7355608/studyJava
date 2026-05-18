@@ -19,9 +19,7 @@
     });
     ```
 
-    上面代码对一个空对象（目标对象）架设了一层拦截，返回了空对象的代理对象。之后再对该空对象的访问和修改，都通过这个代理对象来做。这样代理对象对目标对象进行访问和修改时，就可以进行一些额外的操作。
-
-    这里暂时先不解释具体的语法，只看运行结果。对设置了拦截行为的对象`obj`，去读写它的属性，就会得到下面的结果。
+    上面代码对一个空对象（目标对象）架设了一层拦截，返回了空对象的代理对象。之后再对该空对象的访问和修改，都通过这个代理对象来做。这样代理对象对目标对象进行访问和修改时，就可以进行一些额外的操作。这里暂时先不解释具体的语法，只看运行结果。对设置了拦截行为的对象`obj`，去读写它的属性，就会得到下面的结果。
 
     ```js
     obj.count = 1
@@ -60,7 +58,7 @@
 
     注意，要使得`Proxy`起作用，必须针对`Proxy`实例（上例是`proxy`对象）进行操作，而不是针对目标对象（上例是空对象）进行操作。
 
-    如果`handler`没有设置任何拦截，那就等同于直接通向原对象。
+    如果`handler`中没有设置任何拦截，那就等同于直接通向原对象。
 
     ```js
     var target = {};
@@ -121,10 +119,12 @@
         return 'Hello, ' + name;
       },
     
+      // 当作普通函数调用时
       apply: function(target, thisBinding, args) {
         return args[0];
       },
     
+      // 当作构造器调用时
       construct: function(target, args) {
         return {value: args[1]};
       }
@@ -140,29 +140,45 @@
     fproxy.foo === "Hello, foo" // true
     ```
 
-    对于可以设置、但没有设置拦截的操作，则直接落在目标对象上，按照原先的方式产生结果。
+    **对于可以设置、但没有设置拦截的操作，则直接落在目标对象上，按照原先的方式产生结果**。
 
     下面是 Proxy 支持的拦截操作一览，一共 13 种：
 
-    - **get(target, propKey, receiver)**：拦截对象属性的读取，比如`proxy.foo`和`proxy['foo']`。
-    - **set(target, propKey, value, receiver)**：拦截对象属性的设置，比如`proxy.foo = v`或`proxy['foo'] = v`，返回一个布尔值。
-    - **has(target, propKey)**：拦截`propKey in proxy`的操作，返回一个布尔值。
-    - **deleteProperty(target, propKey)**：拦截`delete proxy[propKey]`的操作，返回一个布尔值。
-    - **ownKeys(target)**：拦截`Object.getOwnPropertyNames(proxy)`、`Object.getOwnPropertySymbols(proxy)`、`Object.keys(proxy)`、`for...in`循环，返回一个数组。该方法返回目标对象所有自身的属性的属性名，而`Object.keys()`的返回结果仅包括目标对象自身的可遍历属性。
-    - **getOwnPropertyDescriptor(target, propKey)**：拦截`Object.getOwnPropertyDescriptor(proxy, propKey)`，返回属性的描述对象。
-    - **defineProperty(target, propKey, propDesc)**：拦截`Object.defineProperty(proxy, propKey, propDesc）`、`Object.defineProperties(proxy, propDescs)`，返回一个布尔值。
-    - **preventExtensions(target)**：拦截`Object.preventExtensions(proxy)`，返回一个布尔值。
-    - **getPrototypeOf(target)**：拦截`Object.getPrototypeOf(proxy)`，返回一个对象。
-    - **isExtensible(target)**：拦截`Object.isExtensible(proxy)`，返回一个布尔值。
-    - **setPrototypeOf(target, proto)**：拦截`Object.setPrototypeOf(proxy, proto)`，返回一个布尔值。如果目标对象是函数，那么还有两种额外操作可以拦截。
-    - **apply(target, object, args)**：拦截 Proxy 实例作为函数调用的操作，比如`proxy(...args)`、`proxy.call(object, ...args)`、`proxy.apply(...)`。
-    - **construct(target, args)**：拦截 Proxy 实例作为构造函数调用的操作，比如`new proxy(...args)`。
+    - `get(target, propKey, receiver)`：拦截对象属性的读取，比如`proxy.foo`和`proxy['foo']`。
+
+    - `set(target, propKey, value, receiver)`：拦截对象属性的设置，比如`proxy.foo = v`或`proxy['foo'] = v`，返回一个布尔值。
+
+    - `apply(target, object, args)`：拦截 Proxy 实例作为函数调用的操作，比如`proxy(...args)`、`proxy.call(object, ...args)`、`proxy.apply(...)`。
+
+    - `construct(target, args)`：拦截 Proxy 实例作为构造函数调用的操作，比如`new proxy(...args)`。
+
+    - `has(target, propKey)`：拦截`HasProperty`操作，即判断对象是否具有某个属性（包括原型链）。它返回一个布尔值，表示是否包含。
+
+    - `deleteProperty(target, propKey)`：拦截`delete`操作符（`delete proxy[propKey]`）的操作，返回一个布尔值。
+
+    - `getPrototypeOf(target)`：拦截`Object.getPrototypeOf(proxy)`，返回一个对象。
+
+    - `setPrototypeOf(target, proto)`：拦截`Object.setPrototypeOf(proxy, proto)`，返回一个布尔值。如果目标对象是函数，那么还有两种额外操作可以拦截。
+
+    - `defineProperty(target, propKey, propDesc)`：拦截`Object.defineProperty(proxy, propKey, propDesc）`、`Object.defineProperties(proxy, propDescs)`，返回一个布尔值。
+
+    - `ownKeys(target)`：拦截`Object.getOwnPropertyNames(proxy)`、`Object.getOwnPropertySymbols(proxy)`、`Object.keys(proxy)`、`for...in`循环，返回一个数组。该方法返回目标对象自身所有的属性名，而`Object.keys()`的返回结果仅包括目标对象自身的可遍历属性。
+
+    - `getOwnPropertyDescriptor(target, propKey)`：拦截`Object.getOwnPropertyDescriptor(proxy, propKey)`，返回属性的描述对象。
+
+    - `preventExtensions(target)`：拦截`Object.preventExtensions(proxy)`，返回一个布尔值。
+
+    - `isExtensible(target)`：拦截`Object.isExtensible(proxy)`，返回一个布尔值。
+
+      > 为什么 `seal/freeze` 不能被拦截？
+      >
+      > 核心原因在于 **`Object.seal()` 和 `Object.freeze()` 在规范层面被定义为“组合操作”**，它们内部会先调用 `preventExtensions`，然后再设置属性的 `configurable` 和 `writable` 特性。（seal是设置 configurable 为 false，freeze是将 configurable 和 writable 都设为 false）
 
   - #### `Proxy` 的拦截方法
 
-    > 下面是上面这些拦截方法的详细介绍。
+    下面是上面这些拦截方法的详细介绍。
 
-    - `get()`：`get`方法用于拦截某个属性的读取操作，可以接受三个参数，依次为目标对象、属性名和 proxy 实例本身（严格地说，是操作行为所针对的对象），其中最后一个参数可选。
+    - `get(target, propKey, receiver)`：`get`方法用于拦截某个属性的读取操作，可以接受三个参数，依次为目标对象、属性名和 proxy 实例本身（严格地说，是操作行为所针对的对象），其中最后一个参数可选。
 
       `get`方法的用法，上文已经有一个例子，下面是另一个拦截读取操作的例子。
 
@@ -318,7 +334,7 @@
 
       上面代码中，`d`对象本身没有`a`属性，所以读取`d.a`的时候，会去`d`的原型`proxy`对象找。这时，`receiver`就指向`d`，代表原始的读操作所在的那个对象。
 
-      如果一个属性不可配置（configurable）且不可写（writable），则 Proxy 不能修改该属性，否则通过 Proxy 对象访问该属性会报错。
+      **如果目标对象的属性是不可写（writable）且不可配置（configurable）的，那么 `get` 代理后返回的值必须与该属性的原始值严格相等**。否则通过 Proxy 对象访问该属性会报错。
 
       ```js
       const target = Object.defineProperties({}, {
@@ -341,7 +357,7 @@
       // TypeError: Invariant check failed
       ```
 
-    - `set()`：`set`方法用来拦截某个属性的赋值操作，可以接受四个参数，依次为目标对象、属性名、属性值和 Proxy 实例本身，其中最后一个参数可选。
+    - `set(target, propKey, value, receiver)`：`set`方法用来拦截某个属性的赋值操作，可以接受四个参数，依次为目标对象、属性名、属性值和 Proxy 实例本身，其中最后一个参数可选。
 
       假定`Person`对象有一个`age`属性，该属性应该是一个不大于 200 的整数，那么可以使用`Proxy`保证`age`的属性值符合要求。
 
@@ -421,8 +437,8 @@
 
       ```js
       const handler = {
-        set: function(obj, prop, value, receiver) {
-          obj[prop] = receiver;
+        set: function(target, prop, value, receiver) {
+          target[prop] = receiver;
           return true;
         }
       };
@@ -436,7 +452,7 @@
 
       上面代码中，设置`myObj.foo`属性的值时，`myObj`并没有`foo`属性，因此引擎会到`myObj`的原型链去找`foo`属性。`myObj`的原型对象`proxy`是一个 Proxy 实例，设置它的`foo`属性会触发`set`方法。这时，第四个参数`receiver`就指向原始赋值行为所在的对象`myObj`。
 
-      注意，如果目标对象自身的某个属性不可写，那么`set`方法将不起作用。
+      注意，**如果目标对象自身的某个属性不可写，那么`set`方法将不起作用**。
 
       ```js
       const obj = {};
@@ -447,7 +463,7 @@
       
       const handler = {
         set: function(obj, prop, value, receiver) {
-          obj[prop] = 'baz';
+          obj[prop] = value;
           return true;
         }
       };
@@ -459,7 +475,7 @@
 
       上面代码中，`obj.foo`属性不可写，Proxy 对这个属性的`set`代理将不会生效。
 
-      注意，`set`代理应当返回一个布尔值。严格模式下，`set`代理如果没有返回`true`，就会报错。
+      注意，`set`代理应当返回一个布尔值。**严格模式下，`set`代理如果没有返回`true`，就会报错**。
 
       ```js
       'use strict';
@@ -477,7 +493,7 @@
 
       上面代码中，严格模式下，`set`代理返回`false`或者`undefined`，都会报错。
 
-    - `apply()`：`apply`方法拦截函数的调用、`call`和`apply`操作。
+    - `apply(target, object, args)`：`apply`方法拦截函数的调用、`call`和`apply`操作。
 
       `apply`方法可以接受三个参数，分别是目标对象、目标对象的上下文对象（`this`）和目标对象的参数数组。
 
@@ -532,14 +548,83 @@
       Reflect.apply(proxy, null, [9, 10]) // 38
       ```
 
-    - `has()`：`has()`方法用来拦截`HasProperty`操作，即判断对象是否具有某个属性时，这个方法会生效。典型的操作就是`in`运算符。
+    - `construct(target, args)`：`construct()`方法用于拦截`new`命令，下面是拦截对象的写法。
 
-      `has()`方法可以接受两个参数，分别是目标对象、需查询的属性名。
+      ```js
+      const handler = {
+        construct (target, args, newTarget) {
+          return new target(...args);
+        }
+      };
+      ```
+      
+      `construct()`方法可以接受三个参数。
+      
+      - `target`：目标对象。
+      - `args`：构造函数的参数数组。
+      - `newTarget`：创造实例对象时，`new`命令作用的构造函数（下面例子的`p`）。
+      
+      ```js
+      const p = new Proxy(function () {}, {
+        construct: function(target, args) {
+          console.log('called: ' + args.join(', '));
+          return { value: args[0] * 10 };
+        }
+      });
+      
+      (new p(1)).value
+      // "called: 1"
+      // 10
+      ```
+      
+      **`construct()`方法返回的必须是一个对象，否则会报错**。
+      
+      ```js
+      const p = new Proxy(function() {}, {
+        construct: function(target, argumentsList) {
+          return 1;
+        }
+      });
+      
+      new p() // 报错
+      // Uncaught TypeError: 'construct' on proxy: trap returned non-object ('1')
+      ```
+      
+      另外，由于**`construct()`拦截的是构造函数，所以它的目标对象必须是函数**，否则就会报错。
+      
+      ```js
+      const p = new Proxy({}, {
+        construct: function(target, argumentsList) {
+          return {};
+        }
+      });
+      
+      new p() // 报错
+      // Uncaught TypeError: p is not a constructor
+      ```
+      
+      上面例子中，拦截的目标对象不是一个函数，而是一个对象（`new Proxy()`的第一个参数），导致报错。
+      
+      注意，**`construct()`方法中的`this`指向的是`handler`**，而不是实例对象。
+      
+      ```js
+      const handler = {
+        construct: function(target, args) {
+          console.log(this === handler);
+          return new target(...args);
+        }
+      }
+      
+      let p = new Proxy(function () {}, handler);
+      new p() // true
+      ```
+      
+    - `has(target, propKey)`：`has()`方法用来拦截`HasProperty`操作，即判断对象是否具有某个属性时（包括原型链），这个方法会生效。典型的操作就是`in`运算符。`has()`方法可以接受两个参数，分别是目标对象、需查询的属性名。
 
       下面的例子使用`has()`方法隐藏某些属性，不被`in`运算符发现。
 
       ```js
-      var handler = {
+    var handler = {
         has (target, key) {
           if (key[0] === '_') {
             return false;
@@ -551,13 +636,13 @@
       var proxy = new Proxy(target, handler);
       '_prop' in proxy // false
       ```
-
+      
       上面代码中，如果原对象的属性名的第一个字符是下划线，`proxy.has()`就会返回`false`，从而不会被`in`运算符发现。
 
-      如果原对象不可配置或者禁止扩展，这时`has()`拦截会报错。
+      **如果原对象不可配置或者禁止扩展，这时`has()`拦截会报错**。
 
       ```js
-      var obj = { a: 10 };
+    var obj = { a: 10 };
       Object.preventExtensions(obj);
       
       var p = new Proxy(obj, {
@@ -568,15 +653,15 @@
       
       'a' in p // TypeError is thrown
       ```
-
+      
       上面代码中，`obj`对象禁止扩展，结果使用`has`拦截就会报错。也就是说，如果某个属性不可配置（或者目标对象不可扩展），则`has()`方法就不得“隐藏”（即返回`false`）目标对象的该属性。
 
       值得注意的是，`has()`方法拦截的是`HasProperty`操作，而不是`HasOwnProperty`操作，即`has()`方法不判断一个属性是对象自身的属性，还是继承的属性。
 
-      另外，虽然`for...in`循环也用到了`in`运算符，但是`has()`拦截对`for...in`循环不生效。
+      另外，虽然`for...in`循环用到了`in`运算符，但是`has()`拦截对`for...in`循环不生效。
 
       ```js
-      let stu1 = {name: '张三', score: 59};
+    let stu1 = {name: '张三', score: 59};
       let stu2 = {name: '李四', score: 99};
       
       let handler = {
@@ -611,81 +696,10 @@
       // 李四
       // 99
       ```
-
+      
       上面代码中，`has()`拦截只对`in`运算符生效，对`for...in`循环不生效，导致不符合要求的属性没有被`for...in`循环所排除。
 
-    - `construct()`：`construct()`方法用于拦截`new`命令，下面是拦截对象的写法。
-
-      ```js
-      const handler = {
-        construct (target, args, newTarget) {
-          return new target(...args);
-        }
-      };
-      ```
-
-      `construct()`方法可以接受三个参数。
-
-      - `target`：目标对象。
-      - `args`：构造函数的参数数组。
-      - `newTarget`：创造实例对象时，`new`命令作用的构造函数（下面例子的`p`）。
-
-      ```js
-      const p = new Proxy(function () {}, {
-        construct: function(target, args) {
-          console.log('called: ' + args.join(', '));
-          return { value: args[0] * 10 };
-        }
-      });
-      
-      (new p(1)).value
-      // "called: 1"
-      // 10
-      ```
-
-      `construct()`方法返回的必须是一个对象，否则会报错。
-
-      ```js
-      const p = new Proxy(function() {}, {
-        construct: function(target, argumentsList) {
-          return 1;
-        }
-      });
-      
-      new p() // 报错
-      // Uncaught TypeError: 'construct' on proxy: trap returned non-object ('1')
-      ```
-
-      另外，由于`construct()`拦截的是构造函数，所以它的目标对象必须是函数，否则就会报错。
-
-      ```js
-      const p = new Proxy({}, {
-        construct: function(target, argumentsList) {
-          return {};
-        }
-      });
-      
-      new p() // 报错
-      // Uncaught TypeError: p is not a constructor
-      ```
-
-      上面例子中，拦截的目标对象不是一个函数，而是一个对象（`new Proxy()`的第一个参数），导致报错。
-
-      注意，`construct()`方法中的`this`指向的是`handler`，而不是实例对象。
-
-      ```js
-      const handler = {
-        construct: function(target, args) {
-          console.log(this === handler);
-          return new target(...args);
-        }
-      }
-      
-      let p = new Proxy(function () {}, handler);
-      new p() // true
-      ```
-
-    - `deleteProperty()`：`deleteProperty`方法用于拦截`delete`操作，如果这个方法抛出错误或者返回`false`，当前属性就无法被`delete`命令删除。
+    - `deleteProperty(target, propKey)`：`deleteProperty`方法用于拦截`delete`操作，如果这个方法抛出错误或者返回`false`，当前属性就无法被`delete`命令删除。
 
       ```js
       var handler = {
@@ -711,49 +725,7 @@
 
       注意，目标对象自身的不可配置（configurable）的属性，不能被`deleteProperty`方法删除，否则报错。
 
-    - `defineProperty()`：
-
-      `defineProperty()`方法拦截了`Object.defineProperty()`操作。
-
-      ```js
-      var handler = {
-        defineProperty (target, key, descriptor) {
-          return false;
-        }
-      };
-      var target = {};
-      var proxy = new Proxy(target, handler);
-      proxy.foo = 'bar' // 不会生效
-      ```
-
-      上面代码中，`defineProperty()`方法内部没有任何操作，只返回`false`，导致添加新属性总是无效。注意，这里的`false`只是用来提示操作失败，本身并不能阻止添加新属性。
-
-      注意，如果目标对象不可扩展（non-extensible），则`defineProperty()`不能增加目标对象上不存在的属性，否则会报错。另外，如果目标对象的某个属性不可写（writable）或不可配置（configurable），则`defineProperty()`方法不得改变这两个设置。
-
-    - `getOwnPropertyDescriptor()`：`getOwnPropertyDescriptor()`方法拦截`Object.getOwnPropertyDescriptor()`，返回一个属性描述对象或者`undefined`。
-
-      ```js
-      var handler = {
-        getOwnPropertyDescriptor (target, key) {
-          if (key[0] === '_') {
-            return;
-          }
-          return Object.getOwnPropertyDescriptor(target, key);
-        }
-      };
-      var target = { _foo: 'bar', baz: 'tar' };
-      var proxy = new Proxy(target, handler);
-      Object.getOwnPropertyDescriptor(proxy, 'wat')
-      // undefined
-      Object.getOwnPropertyDescriptor(proxy, '_foo')
-      // undefined
-      Object.getOwnPropertyDescriptor(proxy, 'baz')
-      // { value: 'tar', writable: true, enumerable: true, configurable: true }
-      ```
-
-      上面代码中，`handler.getOwnPropertyDescriptor()`方法对于第一个字符为下划线的属性名会返回`undefined`。
-
-    - `getPrototypeOf()`：`getPrototypeOf()`方法主要用来拦截获取对象原型。具体来说，拦截下面这些操作。
+    - `getPrototypeOf(target)`：`getPrototypeOf()`方法主要用来拦截获取对象原型。具体来说，拦截下面这些操作。
 
       - `Object.prototype.__proto__`
       - `Object.prototype.isPrototypeOf()`
@@ -775,47 +747,56 @@
 
       上面代码中，`getPrototypeOf()`方法拦截`Object.getPrototypeOf()`，返回`proto`对象。
 
-      注意，`getPrototypeOf()`方法的返回值必须是对象或者`null`，否则报错。另外，如果目标对象不可扩展（non-extensible）， `getPrototypeOf()`方法必须返回目标对象的原型对象。
+      注意：
 
-    - `isExtensible()`：`isExtensible()`方法拦截`Object.isExtensible()`操作。
+      1. `getPrototypeOf()`方法的返回值必须是对象或者`null`，否则报错。
+      2. 如果目标对象不可扩展（non-extensible）， `getPrototypeOf()`方法必须返回目标对象的原型对象。
 
-      ```js
-      var p = new Proxy({}, {
-        isExtensible: function(target) {
-          console.log("called");
-          return true;
-        }
-      });
-      
-      Object.isExtensible(p)
-      // "called"
-      // true
-      ```
-
-      上面代码设置了`isExtensible()`方法，在调用`Object.isExtensible`时会输出`called`。
-
-      注意，该方法只能返回布尔值，否则返回值会被自动转为布尔值。
-
-      这个方法有一个强限制，它的返回值必须与目标对象的`isExtensible`属性保持一致，否则就会抛出错误。
-
-      ```js
-      Object.isExtensible(proxy) === Object.isExtensible(target)
-      ```
+    - `setPrototypeOf(target, proto)`：`setPrototypeOf()`方法主要用来拦截`Object.setPrototypeOf()`方法。
 
       下面是一个例子。
 
       ```js
-      var p = new Proxy({}, {
-        isExtensible: function(target) {
-          return false;
+      var handler = {
+        setPrototypeOf (target, proto) {
+          throw new Error('Changing the prototype is forbidden');
         }
-      });
-      
-      Object.isExtensible(p)
-      // Uncaught TypeError: 'isExtensible' on proxy: trap result does not reflect extensibility of proxy target (which is 'true')
+      };
+      var proto = {};
+      var target = function () {};
+      var proxy = new Proxy(target, handler);
+      Object.setPrototypeOf(proxy, proto);
+      // Error: Changing the prototype is forbidden
       ```
 
-    - `ownKeys()`：`ownKeys()`方法用来拦截对象自身属性的读取操作。具体来说，拦截以下操作。
+      上面代码中，只要修改`target`的原型对象，就会报错。
+
+      注意：
+
+      1. 该方法只能返回布尔值，否则会被自动转为布尔值。
+      2. 如果目标对象不可扩展（non-extensible），`setPrototypeOf()`方法不得改变目标对象的原型。
+
+    - `defineProperty(target, propKey, propDesc)`：该方法拦截了`Object.defineProperty()`操作。
+
+      ```js
+      var handler = {
+        defineProperty (target, key, descriptor) {
+          return false;
+        }
+      };
+      var target = {};
+      var proxy = new Proxy(target, handler);
+      proxy.foo = 'bar' // 不会生效
+      ```
+
+      上面代码中，`defineProperty()`方法内部没有任何操作，只返回`false`，导致添加新属性总是无效。
+
+      注意：
+
+      1. 如果目标对象不可扩展（non-extensible），则`defineProperty()`不能增加目标对象上不存在的属性，否则会报错。
+      2. 如果目标对象的某个属性不可写（writable）或不可配置（configurable），则`defineProperty()`方法不得改变这两个设置。
+
+    - `ownKeys(target)`：`ownKeys()`方法用来拦截对象自身属性的读取操作。具体来说，拦截以下操作。
 
       - `Object.getOwnPropertyNames()`
       - `Object.getOwnPropertySymbols()`
@@ -992,10 +973,33 @@
 
       上面代码中，`obj`对象是不可扩展的，这时`ownKeys()`方法返回的数组之中，包含了`obj`对象的多余属性`b`，所以导致了报错。
 
-    - `preventExtensions()`：`preventExtensions()`方法拦截`Object.preventExtensions()`。该方法必须返回一个布尔值，否则会被自动转为布尔值。
+    - `getOwnPropertyDescriptor(target, propKey)`：拦截`Object.getOwnPropertyDescriptor()`，返回一个属性描述对象或者`undefined`。
+
+      ```js
+      var handler = {
+        getOwnPropertyDescriptor (target, key) {
+          if (key[0] === '_') {
+            return;
+          }
+          return Object.getOwnPropertyDescriptor(target, key);
+        }
+      };
+      var target = { _foo: 'bar', baz: 'tar' };
+      var proxy = new Proxy(target, handler);
+      Object.getOwnPropertyDescriptor(proxy, 'wat')
+      // undefined
+      Object.getOwnPropertyDescriptor(proxy, '_foo')
+      // undefined
+      Object.getOwnPropertyDescriptor(proxy, 'baz')
+      // { value: 'tar', writable: true, enumerable: true, configurable: true }
+      ```
+
+      上面代码中，`handler.getOwnPropertyDescriptor()`方法对于第一个字符为下划线的属性名会返回`undefined`。
+
+    - `preventExtensions()`：`preventExtensions()`方法拦截`Object.preventExtensions()`。**该方法必须返回一个布尔值，否则会被自动转为布尔值**。
 
       这个方法有一个限制，只有目标对象不可扩展时（即`Object.isExtensible(proxy)`为`false`），`proxy.preventExtensions`才能返回`true`，否则会报错。
-
+      
       ```js
       var proxy = new Proxy({}, {
         preventExtensions: function(target) {
@@ -1024,31 +1028,48 @@
       // "called"
       // Proxy {}
       ```
+      
+    - `isExtensible()`：`isExtensible()`方法拦截`Object.isExtensible()`操作。
 
-    - `setPrototypeOf()`：`setPrototypeOf()`方法主要用来拦截`Object.setPrototypeOf()`方法。
+      ```js
+      var p = new Proxy({}, {
+        isExtensible: function(target) {
+          console.log("called");
+          return true;
+        }
+      });
+      
+      Object.isExtensible(p)
+      // "called"
+      // true
+      ```
+
+      上面代码设置了`isExtensible()`方法，在调用`Object.isExtensible`时会输出`called`。
+
+      注意，该方法只能返回布尔值，否则返回值会被自动转为布尔值。
+
+      这个方法有一个强限制，它的返回值必须与目标对象的`isExtensible`属性保持一致，否则就会抛出错误。
+
+      ```js
+      Object.isExtensible(proxy) === Object.isExtensible(target)
+      ```
 
       下面是一个例子。
 
       ```js
-      var handler = {
-        setPrototypeOf (target, proto) {
-          throw new Error('Changing the prototype is forbidden');
+      var p = new Proxy({}, {
+        isExtensible: function(target) {
+          return false;
         }
-      };
-      var proto = {};
-      var target = function () {};
-      var proxy = new Proxy(target, handler);
-      Object.setPrototypeOf(proxy, proto);
-      // Error: Changing the prototype is forbidden
+      });
+      
+      Object.isExtensible(p)
+      // Uncaught TypeError: 'isExtensible' on proxy: trap result does not reflect extensibility of proxy target (which is 'true')
       ```
-
-      上面代码中，只要修改`target`的原型对象，就会报错。
-
-      注意，该方法只能返回布尔值，否则会被自动转为布尔值。另外，如果目标对象不可扩展（non-extensible），`setPrototypeOf()`方法不得改变目标对象的原型。
 
   - #### `Proxy.revocable()`
 
-    `Proxy.revocable()`方法返回一个可取消的 Proxy 实例。
+    `Proxy.revocable()`方法返回一个可取消的 Proxy 实例。`Proxy.revocable()`方法返回一个对象，该对象的`proxy`属性是`Proxy`实例，`revoke`属性是一个函数，可以取消`Proxy`实例。
 
     ```js
     let target = {};
@@ -1063,13 +1084,13 @@
     proxy.foo // TypeError: Revoked
     ```
 
-    `Proxy.revocable()`方法返回一个对象，该对象的`proxy`属性是`Proxy`实例，`revoke`属性是一个函数，可以取消`Proxy`实例。上面代码中，当执行`revoke`函数之后，再访问`Proxy`实例，就会抛出一个错误。此时只能通过`target`来访问目标对象，代理对象和目标对象之间的关联被彻底切断。
+    上面代码中，当执行`revoke()`之后，再访问`Proxy`实例，就会抛出一个错误。此时只能通过`target`来访问目标对象，代理对象和目标对象之间的关联被彻底切断。
 
     `Proxy.revocable()`的一个使用场景是，目标对象不允许直接访问，必须通过代理访问，一旦访问结束，就收回代理权，不允许再次访问。
 
   - #### `this` 问题
 
-    虽然 Proxy 可以代理针对目标对象的访问，但**它不是目标对象的透明代理，即不做任何拦截的情况下，也无法保证与目标对象的行为一致**。主要原因就是**在 Proxy 代理的情况下，目标对象内部的`this`关键字会指向 Proxy 代理。**
+    虽然 Proxy 可以代理针对目标对象的访问，但它不是目标对象的透明代理。即**不做任何拦截的情况下，也无法保证与目标对象的行为一致**。主要原因就是**在 Proxy 代理的情况下，目标对象内部的`this`关键字会指向 Proxy 代理**。
 
     ```js
     const target = {
@@ -1165,21 +1186,34 @@
 
     上面例子中，`get()`和`set()`拦截函数内部的`this`，指向的都是`handler`对象。
 
-  - #### 实例：Web 服务的客户端（即网页向服务器请求数据，如fetch、XMLHttpRequest）
+  - #### Proxy的应用——将属性访问自动映射为 HTTP 请求
 
-    Proxy 对象可以拦截目标对象的任意属性，这使得它很合适用来写 Web 服务的客户端。
+    传统的做法：每增加一个 API 接口，就需要手动写一个方法。
 
     ```js
-    const service = createWebService('http://example.com/data');
+    // 传统方式：手动为每个 API 写方法
+    const service = {
+      employees() {
+        return httpGet('http://example.com/data/employees');
+      },
+      products() {
+        return httpGet('http://example.com/data/products');
+      },
+      orders() {
+        return httpGet('http://example.com/data/orders');
+      }
+      // 每增加一个 API 都要手动添加...
+    };
     
+    // 调用接口请求数据
     service.employees().then(json => {
       const employees = JSON.parse(json);
       // ···
     });
     ```
-
-    上面代码新建了一个 Web 服务的接口，这个接口返回各种数据。Proxy 可以拦截这个对象的任意属性，所以不用为每一种数据写一个适配方法，只要写一个 Proxy 拦截就可以了。
-
+    
+    Proxy 的做法：用一个 Proxy 自动处理所有属性。
+    
     ```js
     function createWebService(baseUrl) {
       return new Proxy({}, {
@@ -1188,9 +1222,37 @@
         }
       });
     }
+    
+    // 调用接口请求数据
+    const service = createWebService('http://example.com/data');
+    // 不需要预先定义任何方法，直接用就行
+    service.employees();  // 自动变成请求 employees 接口
+    service.products();   // 自动变成请求 products 接口
+    service.orders();     // 自动变成请求 orders 接口
     ```
-
+    
+    上面代码新建了一个 Web 服务的接口`createWebService`，Proxy 拦截这个对象的任意属性，所以不用为每一种数据写一个适配方法。
+    
     同理，Proxy 也可以用来实现数据库的 ORM 层。
+    
+    ```js
+    function createORM(tableName) {
+      return new Proxy({}, {
+        get(target, propKey) {
+          // findById, findAll, where 等操作
+          return (params) => {
+            return db.query(`SELECT * FROM ${tableName} WHERE ${propKey} = ?`, params);
+          };
+        }
+      });
+    }
+    
+    const users = createORM('users');
+    users.findById(1);      // SELECT * FROM users WHERE findById = 1
+    users.findByName('张三'); // SELECT * FROM users WHERE findByName = '张三'
+    ```
+    
+    这就是 Proxy 的"元编程"能力——**让你在运行时动态地改变语言默认行为**，用极少的代码实现强大的功能。
 
 - ## Reflect
 
@@ -1198,9 +1260,9 @@
 
     `Reflect`对象与`Proxy`对象一样，也是 ES6 为了操作对象而提供的新 API。`Reflect`对象的设计目的有这样几个：
 
-    1. 将`Object`对象的一些明显属于语言内部的方法（比如`Object.defineProperty`），放到`Reflect`对象上。现阶段，某些方法同时在`Object`和`Reflect`对象上部署，未来的新方法将只部署在`Reflect`对象上。也就是说，从`Reflect`对象上可以拿到语言内部的方法。
+    - 将`Object`对象的一些明显属于语言内部的方法（比如`Object.defineProperty`），放到`Reflect`对象上。现阶段，某些方法同时在`Object`和`Reflect`对象上部署，未来的新方法将只部署在`Reflect`对象上。也就是说，从`Reflect`对象上可以拿到语言内部的方法。
 
-    2. 修改某些`Object`方法的返回结果，让其变得更合理。比如，`Object.defineProperty(obj, name, desc)`在无法定义属性时，会抛出一个错误，而`Reflect.defineProperty(obj, name, desc)`则会返回`false`。
+    - 修改某些`Object`方法的返回结果，让其变得更合理。比如，`Object.defineProperty(obj, name, desc)`在无法定义属性时，会抛出一个错误，而`Reflect.defineProperty(obj, name, desc)`则会返回`false`。
 
        ```js
        // 老写法
@@ -1219,7 +1281,7 @@
        }
        ```
 
-    3. 让`Object`操作都变成函数行为。某些`Object`操作是命令式，比如`name in obj`和`delete obj[name]`，而`Reflect.has(obj, name)`和`Reflect.deleteProperty(obj, name)`让它们变成了函数行为。
+    - 让`Object`操作都变成函数行为。某些`Object`操作是命令式，比如`name in obj`和`delete obj[name]`，而`Reflect.has(obj, name)`和`Reflect.deleteProperty(obj, name)`让它们变成了函数行为。
 
        ```js
        // 老写法（函数也是对象，因此in运算符后还可以跟构造函数）
@@ -1229,7 +1291,7 @@
        Reflect.has(Object, 'assign') // true
        ```
 
-    4. **`Reflect`对象的方法与`Proxy`对象的方法一一对应，只要是`Proxy`对象的方法，就能在`Reflect`对象上找到对应的方法**。这就让`Proxy`对象可以方便地调用对应的`Reflect`方法，完成默认行为，作为修改行为的基础。也就是说，不管`Proxy`怎么修改默认行为，你总可以在`Reflect`上获取默认行为。
+    - **`Reflect`对象的方法与`Proxy`对象的方法一一对应，只要是`Proxy`对象的方法，就能在`Reflect`对象上找到对应的方法**。这就让`Proxy`对象可以方便地调用对应的`Reflect`方法来完成默认行为，而 Reflect 则作为 Proxy 修改行为的基础。也就是说，不管`Proxy`怎么修改默认行为，你总可以在`Reflect`上获取默认行为。
 
        ```js
        Proxy(target, {
@@ -1278,7 +1340,7 @@
 
   - #### 静态方法
 
-    > `Reflect`对象一共有 13 个静态方法。这些方法的作用，大部分与`Object`对象的同名方法的作用都是相同的，而且它与`Proxy`对象的方法是一一对应的。下面是对它们的解释。
+    `Reflect`对象一共有 13 个静态方法。这些方法的作用，大部分与`Object`对象的同名方法的作用都是相同的，而且它与`Proxy`对象的方法是一一对应的。下面是对它们的解释。
 
     - `Reflect.get(target, name, receiver)`：`Reflect.get`方法查找并返回`target`对象的`name`属性，如果没有该属性，则返回`undefined`。
 
@@ -1296,7 +1358,7 @@
       Reflect.get(myObject, 'baz') // 3
       ```
 
-      如果`name`属性部署了读取函数（getter），则读取函数的`this`绑定`receiver`。
+      如果`name`属性部署了读取函数（getter），则读取函数的`this`绑定为第三个参数`receiver`。
 
       ```js
       var myObject = {
@@ -1341,7 +1403,7 @@
       myObject.foo // 3
       ```
 
-      如果`name`属性设置了赋值函数，则赋值函数的`this`绑定`receiver`。
+      如果`name`属性设置了赋值函数，则赋值函数的`this`绑定为第三个参数`receiver`。
 
       ```js
       var myObject = {
@@ -1360,7 +1422,7 @@
       myReceiverObject.foo // 1
       ```
 
-      注意，如果 `Proxy`对象和 `Reflect`对象联合使用，前者拦截赋值操作，后者完成赋值的默认行为，而且传入了`receiver`，那么`Reflect.set`会触发`Proxy.defineProperty`拦截。
+      注意，**如果 `Proxy`对象和 `Reflect`对象联合使用，前者拦截赋值操作，后者完成赋值的默认行为，而且传入了`receiver`，那么`Reflect.set`会触发`Proxy.defineProperty`拦截**。
 
       ```js
       let p = {
@@ -1732,7 +1794,7 @@
     **注意：`for...of`循环不会遍历`done`属性值为`true`的信息对象。**
 
     下面是一个模拟`next`方法返回值的例子。
-  
+
     ```js
     var it = makeIterator(['a', 'b']);
     
@@ -1761,7 +1823,7 @@
     总之，调用迭代器对象的`next`方法，就可以遍历事先给定的数据结构。
 
     **对于迭代器的信息对象来说，`done`和`value`属性都是可以省略的**。`done`默认是`false`，`value`默认是`undefined`。因此上面的`makeIterator`函数可以简写成下面的形式。
-  
+
     ```js
     function makeIterator(array) {
       var nextIndex = 0;
@@ -1776,7 +1838,7 @@
     ```
 
     由于 Iterator 只是把接口规格加到数据结构之上，所以，迭代器与它所遍历的那个数据结构，实际上是分开的，完全可以写出没有对应数据结构的迭代器对象，或者说用迭代器对象模拟出数据结构。下面是一个无限运行的迭代器对象的例子。
-  
+
     ```js
     var it = idMaker();
     
@@ -1799,7 +1861,7 @@
     上面的例子中，迭代器生成函数`idMaker`，返回一个迭代器对象。但是并没有对应的数据结构，或者说，迭代器对象自己描述了一个数据结构出来。
 
     如果使用 TS 的写法，迭代器接口（Iterable）、迭代器对象（Iterator）和`next`方法返回值的规格可以描述如下。
-  
+
     ```ts
     interface Iterable {
       [Symbol.iterator]() : Iterator,
@@ -1822,7 +1884,7 @@
     一种数据结构只要部署了 Iterator 接口，我们就称这种数据结构是“可遍历的”（iterable）。
 
     ES6 规定，**默认的 Iterator 接口部署在数据结构的`Symbol.iterator`属性，或者说，一个数据结构只要具有`Symbol.iterator`属性，就可以认为是“可遍历的”（iterable）**。`Symbol.iterator`属性本身是一个函数，就是当前数据结构默认的**迭代器生成函数**。执行这个函数，会返回一个迭代器对象。
-  
+
     ```js
     const obj = {
       [Symbol.iterator] : function () {
@@ -1843,7 +1905,7 @@
     ES6 的有些数据结构原生具备 Iterator 接口（即`Symbol.iterator`属性），即不用任何处理，就可以被`for...of`循环遍历（比如数组）。原因在于，这些数据结构原生部署了`Symbol.iterator`属性（详见下文），另外一些数据结构没有（比如对象）。凡是部署了`Symbol.iterator`属性的数据结构，就称为部署了迭代器接口。调用这个接口，就会返回一个迭代器对象。
 
     原生具备 Iterator 接口的数据结构如下。
-  
+
     - Array
     - Map
     - Set
@@ -1853,7 +1915,7 @@
     - NodeList 对象
 
     下面的例子是数组的`Symbol.iterator`属性。
-  
+
     ```js
     let arr = ['a', 'b', 'c'];
     let iter = arr[Symbol.iterator]();
@@ -1871,7 +1933,7 @@
     对象（Object）之所以没有默认部署 Iterator 接口，是因为对象的哪个属性先遍历，哪个属性后遍历是不确定的，需要开发者手动指定。**本质上，迭代器是一种线性处理，对于任何非线性的数据结构，部署迭代器接口，就等于部署一种线性转换。**不过，严格地说，对象部署迭代器接口并不是很必要，因为这时对象实际上被当作 Map 结构使用，ES5 没有 Map 结构，而 ES6 原生提供了。
 
     一个对象如果要具备可被`for...of`循环调用的 Iterator 接口，就必须在`Symbol.iterator`的属性上部署迭代器生成方法（原型链上的对象具有该方法也可）。所谓迭代器生成方法，就是用于生成迭代器对象的方法。
-  
+
     ```js
     class RangeIterator {
       constructor(start, stop) {
@@ -1903,7 +1965,7 @@
     上面代码是一个类部署 Iterator 接口的写法。`Symbol.iterator`属性对应一个迭代器生成函数，执行后返回了当前对象。由于当前对象的原型上具有`next()`方法，因此当前对象也是一个迭代器对象。
 
     下面是通过迭代器实现“链表”结构的例子。
-  
+
     ```js
     function Obj(value) {
       this.value = value;
@@ -1941,7 +2003,7 @@
     上面代码首先在构造函数的原型链上部署`Symbol.iterator`方法，调用该方法会返回迭代器对象`iterator`，调用该对象的`next`方法，在返回一个值的同时，自动将内部指针移到下一个实例。
 
     下面是另一个为对象添加 Iterator 接口的例子。
-  
+
     ```js
     let obj = {
       data: [ 'hello', 'world' ],
@@ -1964,7 +2026,7 @@
     ```
 
     对于伪数组对象（存在数值键名和`length`属性），有一个简便的方法可以为其部署 Iterator 接口，就是`Symbol.iterator`方法直接引用数组的 Iterator 接口。
-  
+
     ```js
     NodeList.prototype[Symbol.iterator] = Array.prototype[Symbol.iterator];
     // 或者
@@ -1976,7 +2038,7 @@
     NodeList 对象是类似数组的对象，本来就具有遍历接口，可以直接遍历。上面代码中，我们将它的遍历接口改成数组的`Symbol.iterator`属性，可以看到没有任何影响。
 
     下面是另一个类似数组的对象调用数组的`Symbol.iterator`方法的例子。
-  
+
     ```js
     let iterable = {
       0: 'a',
@@ -1991,7 +2053,7 @@
     ```
 
     注意，普通对象部署数组的`Symbol.iterator`方法，并无效果。
-  
+
     ```js
     let iterable = {
       a: 'a',
@@ -2006,7 +2068,7 @@
     ```
 
     **如果`Symbol.iterator`方法对应的不是迭代器生成函数（即会返回一个迭代器对象），解释引擎将会报错。**
-  
+
     ```js
     var obj = {};
     
@@ -2018,7 +2080,7 @@
     上面代码中，变量`obj`的`Symbol.iterator`方法对应的不是迭代器生成函数，因此报错。
 
     **有了迭代器接口，数据结构就可以用`for...of`循环遍历（详见下文），也可以使用`while`循环遍历。**
-  
+
     ```js
     var $iterator = ITERABLE[Symbol.iterator]();
     var $result = $iterator.next();
@@ -2038,7 +2100,7 @@
     1. **解构赋值**
 
        对数组和 Set 结构等可迭代的结构进行解构赋值时，会默认调用`Symbol.iterator`方法。
-  
+
        ```js
        let set = new Set().add('a').add('b').add('c');
        
@@ -2052,7 +2114,7 @@
     2. **扩展运算符（用于可迭代结构时）**
 
        扩展运算符（...）也会调用默认的 Iterator 接口。
-  
+
        ```js
        // 例一
        var str = 'hello';
@@ -2067,7 +2129,7 @@
        上面代码的扩展运算符内部就调用 Iterator 接口。
 
        实际上，这提供了一种简便机制，可以将任何部署了 Iterator 接口的数据结构，转为数组。也就是说，只要某个数据结构部署了 Iterator 接口，就可以对它使用扩展运算符，将其转为数组。
-  
+
        ```js
        let arr = [...iterable];
        ```
@@ -2075,7 +2137,7 @@
     3. **yield\***(TODO)
 
        `yield*`后面跟的是一个可遍历的结构，它会调用该结构的迭代器接口。
-  
+
        ```js
        let generator = function* () {
          yield 1;
@@ -2094,7 +2156,7 @@
        ```
 
     4. **其他场合**
-  
+
        > 在 JS 中，许多内置方法和语法结构（如 `for...of`、`Array.from` 等）在处理数组时，本质上是通过调用数组的迭代器接口（即 `Symbol.iterator` 方法）来逐个获取数组元素的。下面是一些例子：
        >
        > - `for...of`
@@ -2108,7 +2170,7 @@
   - #### 字符串的 Iterator 接口
 
     字符串是一个类似数组的对象，也原生具有 Iterator 接口。
-  
+
     ```js
     var someString = "hi";
     typeof someString[Symbol.iterator]
@@ -2124,7 +2186,7 @@
     上面代码中，调用`Symbol.iterator`方法返回一个迭代器对象，在这个迭代器上可以调用 next 方法，实现对于字符串的遍历。
 
     可以覆盖原生的`Symbol.iterator`方法，达到修改迭代器行为的目的。
-  
+
     ```js
     var str = new String("hi");
     
@@ -2153,7 +2215,7 @@
   - #### Iterator 接口与 Generator 函数(TODO)
 
     `Symbol.iterator()`方法的最简单实现，还是使用下一章要介绍的 Generator 函数。
-  
+
     ```js
     let myIterable = {
       [Symbol.iterator]: function* () {
@@ -2187,7 +2249,7 @@
     **迭代器对象除了具有`next()`方法，还可以具有`return()`方法和`throw()`方法**。如果你自己写迭代器对象生成函数，那么`next()`方法是必须部署的，`return()`方法和`throw()`方法是否部署是可选的。
 
     **`return()`方法的使用场合是，如果`for...of`循环提前退出（通常是因为出错，或者有`break`语句），就会调用`return()`方法。**如果一个对象在完成遍历前，需要清理或释放资源，就可以部署`return()`方法。
-  
+
     ```js
     function readLinesSync(file) {
       return {
@@ -2207,7 +2269,7 @@
     ```
 
     上面代码中，函数`readLinesSync`接受一个文件对象作为参数，返回一个迭代器对象，其中除了`next()`方法，还部署了`return()`方法。下面的两种情况，都会触发执行`return()`方法。
-  
+
     ```js
     // 情况一
     for (let line of readLinesSync(fileName)) {
@@ -2229,7 +2291,7 @@
     **`throw()`方法主要是配合 Generator 函数使用，一般的迭代器对象用不到这个方法**。请参阅《Generator 函数》一章。
 
   - #### for...of 循环
-  
+
     > ES6 借鉴 C++、Java、C# 和 Python 语言，**引入了`for...of`循环，作为遍历所有数据结构的统一的方法**。
     >
     > **一个数据结构只要部署了`Symbol.iterator`属性，就被视为具有 iterator 接口，就可以用`for...of`循环遍历它的成员**。也就是说，`for...of`循环内部调用的是数据结构的`Symbol.iterator`方法。
@@ -2239,7 +2301,7 @@
     - ##### 数组
 
       数组原生具备`iterator`接口（即默认部署了`Symbol.iterator`属性），`for...of`循环本质上就是调用这个接口产生的迭代器，可以用下面的代码证明。
-  
+
       ```js
       const arr = ['red', 'green', 'blue'];
       
@@ -2258,7 +2320,7 @@
       上面代码中，空对象`obj`部署了数组`arr`的`Symbol.iterator`属性，结果`obj`的`for...of`循环，产生了与`arr`完全一样的结果。
 
       `for...of`循环可以代替数组实例的`forEach`方法。
-  
+
       ```js
       const arr = ['red', 'green', 'blue'];
       
@@ -2269,7 +2331,7 @@
       ```
 
       JS 原有的`for...in`循环，只能获得对象的键名，不能直接获取键值。ES6 提供`for...of`循环，允许遍历获得键值。
-  
+
       ```js
       var arr = ['a', 'b', 'c', 'd'];
       
@@ -2285,7 +2347,7 @@
       上面代码表明，`for...in`循环读取键名，`for...of`循环读取键值。如果要通过`for...of`循环，获取数组的索引，可以借助数组实例的`entries`方法和`keys`方法（参见《数组的扩展》一章）。
 
       `for...of`循环调用迭代器接口，数组的迭代器接口只返回具有数字索引的属性。这一点跟`for...in`循环也不一样。
-  
+
       ```js
       let arr = [3, 5, 7];
       arr.foo = 'hello';
@@ -2306,7 +2368,7 @@
     - ##### Set 和 Map 结构
 
       Set 和 Map 结构也原生具有 Iterator 接口，可以直接使用`for...of`循环。
-  
+
       ```js
       var engines = new Set(["Gecko", "Trident", "Webkit", "Webkit"]);
       for (var e of engines) {
@@ -2329,7 +2391,7 @@
       ```
 
       上面代码演示了如何遍历 Set 结构和 Map 结构。值得注意的地方有两个，首先，遍历的顺序是按照各个成员被添加进数据结构的顺序。其次，Set 结构遍历时，返回的是一个值，而 Map 结构遍历时，返回的是一个数组，该数组的两个成员分别为当前 Map 成员的键名和键值。
-  
+
       ```js
       let map = new Map().set('a', 1).set('b', 2);
       for (let pair of map) {
@@ -2348,13 +2410,13 @@
     - ##### 计算生成的数据结构
 
       有些数据结构是在现有数据结构的基础上，计算生成的。比如，ES6 的数组、Set、Map 都部署了以下三个方法，调用后都返回迭代器对象。
-  
+
       - `entries()` 返回一个迭代器对象，用来遍历`[键名, 键值]`组成的数组。对于数组，键名就是索引值；对于 Set，键名与键值相同。Map 结构的 Iterator 接口，默认就是调用`entries`方法。
       - `keys()` 返回一个迭代器对象，用来遍历所有的键名。
       - `values()` 返回一个迭代器对象，用来遍历所有的键值。
 
       这三个方法调用后生成的迭代器对象，所遍历的都是计算生成的数据结构。
-  
+
       ```js
       let arr = ['a', 'b', 'c'];
       for (let pair of arr.entries()) {
@@ -2368,7 +2430,7 @@
     - ##### 类似数组的对象
 
       类似数组的对象包括好几类。下面是`for...of`循环用于字符串、DOM NodeList 对象、`arguments`对象的例子。
-  
+
       ```js
       // 字符串
       let str = "hello";
@@ -2396,7 +2458,7 @@
       ```
 
       对于字符串来说，`for...of`循环还有一个特点，就是会正确识别 32 位 UTF-16 字符。
-  
+
       ```js
       for (let x of 'a\uD83D\uDC0A') {
         console.log(x);
@@ -2406,7 +2468,7 @@
       ```
 
       并不是所有类似数组的对象都具有 Iterator 接口，一个简便的解决方法，就是使用`Array.from`方法将其转为数组。
-  
+
       ```js
       let arrayLike = { length: 2, 0: 'a', 1: 'b' };
       
@@ -2424,7 +2486,7 @@
     - ##### 对象
 
       对于普通的对象，`for...of`结构不能直接使用，会报错，必须部署了 Iterator 接口后才能使用。但是，这样情况下，`for...in`循环依然可以用来遍历键名。
-  
+
       ```js
       let es6 = {
         edition: 6,
@@ -2448,7 +2510,7 @@
       上面代码表示，对于普通的对象，`for...in`循环可以遍历键名，`for...of`循环会报错。
 
       一种解决方法是，使用`Object.keys`方法将对象的键名生成一个数组，然后遍历这个数组。
-  
+
       ```js
       for (var key of Object.keys(someObject)) {
         console.log(key + ': ' + someObject[key]);
@@ -2456,7 +2518,7 @@
       ```
 
       另一个方法是使用 Generator 函数将对象重新包装一下。
-  
+
       ```js
       const obj = { a: 1, b: 2, c: 3 }
       
@@ -2477,7 +2539,7 @@
     - ##### 与其他遍历语法的比较
 
       以数组为例，JS 提供多种遍历语法。最原始的写法就是`for`循环。
-  
+
       ```js
       for (var index = 0; index < myArray.length; index++) {
         console.log(myArray[index]);
@@ -2485,7 +2547,7 @@
       ```
 
       这种写法比较麻烦，因此数组提供内置的`forEach`方法。
-  
+
       ```js
       myArray.forEach(function (value) {
         console.log(value);
@@ -2495,7 +2557,7 @@
       这种写法的问题在于，`forEach()`无法中途跳出循环，`break`命令或`return`命令都不能奏效。
 
       > `forEach(callback)`中回调函数`return`的返回值无任何意义，仅仅只是提前退出当前回调的执行（类似`continue`），但不会终止整个循环。
-  
+
       `for...in`循环可以遍历数组的键名。
       
       ```js
@@ -2503,7 +2565,7 @@
         console.log(myArray[index]);
       }
       ```
-  
+
       `for...in`循环有几个缺点。
       
       - 数组的键名是数字，但是`for...in`循环是以字符串作为键名“0”、“1”、“2”等等。
@@ -2511,7 +2573,7 @@
       - 某些情况下，`for...in`循环会以任意顺序遍历键名。
 
       总之，**`for...in`循环主要是为遍历对象而设计的，不适用于遍历数组。**
-  
+
       `for...of`循环相比上面几种做法，有一些显著的优点。
       
       ```js
@@ -2523,7 +2585,7 @@
       - 有着同`for...in`一样的简洁语法，但是没有`for...in`那些缺点。
       - 不同于`forEach`方法，`for...of`循环可以与`break`、`continue`和`return`配合使用。
       - 提供了遍历所有数据结构的统一操作接口。
-  
+
       下面是一个使用 break 语句，跳出`for...of`循环的例子。
       
       ```js
@@ -2535,4 +2597,6 @@
       ```
       
       上面的例子，会输出斐波纳契数列小于等于 1000 的项。如果当前项大于 1000，就会使用`break`语句跳出`for...of`循环。
+
+------
 
