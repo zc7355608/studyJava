@@ -1422,7 +1422,7 @@
       myReceiverObject.foo // 1
       ```
 
-      注意，**如果 `Proxy`对象和 `Reflect`对象联合使用，前者拦截赋值操作，后者完成赋值的默认行为，而且传入了`receiver`，那么`Reflect.set`会触发`Proxy.defineProperty`拦截**。
+      注意，**如果 `Proxy`对象和 `Reflect`对象联合使用，前者拦截赋值操作，后者完成赋值的默认行为，而且传入了`receiver`，那么`Reflect.set`会触发`Proxy.defineProperty`拦截方法**。
 
       ```js
       let p = {
@@ -1469,6 +1469,10 @@
       // set
       ```
 
+      之所以会这样，背后的原理是：
+
+      当 `receiver !== target` 时，为了保持属性赋值的正确语义（属性应该设置在 `receiver` 上，而不是 `target` 上），规范强制要求调用 `receiver.[[DefineOwnProperty]]`，而这恰好会触发 Proxy 的 `defineProperty`。
+
       如果第一个参数不是对象，`Reflect.set`会报错。
 
       ```js
@@ -1507,6 +1511,24 @@
       该方法返回一个布尔值。如果删除成功，或者被删除的属性不存在，返回`true`；删除失败，被删除的属性依然存在，返回`false`。
 
       如果`Reflect.deleteProperty()`方法的第一个参数不是对象，会报错。
+
+    - `Reflect.apply(func, thisArg, args)`：`Reflect.apply`方法等同于`Function.prototype.apply.call(func, thisArg, args)`，用于绑定`this`对象后执行给定函数。
+
+      一般来说，如果要绑定一个函数的`this`对象，可以这样写`fn.apply(obj, args)`，但是如果函数定义了自己的`apply`方法，就只能写成`Function.prototype.apply.call(fn, obj, args)`，采用`Reflect`对象可以简化这种操作。
+
+      ```js
+      const ages = [11, 33, 12, 54, 18, 96];
+      
+      // 旧写法
+      const youngest = Math.min.apply(Math, ages);
+      const oldest = Math.max.apply(Math, ages);
+      const type = Object.prototype.toString.call(youngest);
+      
+      // 新写法
+      const youngest = Reflect.apply(Math.min, Math, ages);
+      const oldest = Reflect.apply(Math.max, Math, ages);
+      const type = Reflect.apply(Object.prototype.toString, youngest, []);
+      ```
 
     - `Reflect.construct(target, args)`：`Reflect.construct`方法等同于`new target(...args)`，这提供了一种不使用`new`，来调用构造函数的方法。
 
@@ -1584,25 +1606,7 @@
       // TypeError: Reflect.setPrototypeOf called on non-object
       ```
 
-    - `Reflect.apply(func, thisArg, args)`：`Reflect.apply`方法等同于`Function.prototype.apply.call(func, thisArg, args)`，用于绑定`this`对象后执行给定函数。
-
-      一般来说，如果要绑定一个函数的`this`对象，可以这样写`fn.apply(obj, args)`，但是如果函数定义了自己的`apply`方法，就只能写成`Function.prototype.apply.call(fn, obj, args)`，采用`Reflect`对象可以简化这种操作。
-
-      ```js
-      const ages = [11, 33, 12, 54, 18, 96];
-      
-      // 旧写法
-      const youngest = Math.min.apply(Math, ages);
-      const oldest = Math.max.apply(Math, ages);
-      const type = Object.prototype.toString.call(youngest);
-      
-      // 新写法
-      const youngest = Reflect.apply(Math.min, Math, ages);
-      const oldest = Reflect.apply(Math.max, Math, ages);
-      const type = Reflect.apply(Object.prototype.toString, youngest, []);
-      ```
-
-    - `Reflect.defineProperty(target, propertyKey, attributes)`：`Reflect.defineProperty`方法基本等同于`Object.defineProperty`，用来为对象定义属性。未来，后者会被逐渐废除，请从现在开始就使用`Reflect.defineProperty`代替它。
+    - `Reflect.defineProperty(target, propertyKey, attributes)`：`Reflect.defineProperty()`方法基本等同于`Object.defineProperty()`，用来为对象定义属性。未来，后者会被逐渐废除，请从现在开始就使用`Reflect.defineProperty`代替它。
 
       ```js
       function MyDate() {
@@ -1640,7 +1644,7 @@
 
       上面代码中，`Proxy.defineProperty`对属性赋值设置了拦截，然后使用`Reflect.defineProperty`完成了赋值。
 
-    - `Reflect.getOwnPropertyDescriptor(target, propertyKey)`：`Reflect.getOwnPropertyDescriptor`基本等同于`Object.getOwnPropertyDescriptor`，用于得到指定属性的描述对象，将来会替代掉后者。
+    - `Reflect.getOwnPropertyDescriptor(target, propertyKey)`：`Reflect.getOwnPropertyDescriptor()`基本等同于`Object.getOwnPropertyDescriptor()`，用于得到指定属性的描述对象，将来会替代掉后者。
 
       ```js
       var myObject = {};
@@ -1658,7 +1662,7 @@
 
       `Reflect.getOwnPropertyDescriptor`和`Object.getOwnPropertyDescriptor`的一个区别是，如果第一个参数不是对象，`Object.getOwnPropertyDescriptor(1, 'foo')`不报错，返回`undefined`，而`Reflect.getOwnPropertyDescriptor(1, 'foo')`会抛出错误，表示参数非法。
 
-    - `Reflect.isExtensible (target)`：`Reflect.isExtensible`方法对应`Object.isExtensible`，返回一个布尔值，表示当前对象是否可扩展。
+    - `Reflect.isExtensible(target)`：`Reflect.isExtensible()`对应`Object.isExtensible()`，返回一个布尔值，表示当前对象是否可扩展。
 
       ```js
       const myObject = {};
@@ -1677,7 +1681,7 @@
       Reflect.isExtensible(1) // 报错
       ```
 
-    - `Reflect.preventExtensions(target)`：`Reflect.preventExtensions`对应`Object.preventExtensions`方法，用于让一个对象变为不可扩展。它返回一个布尔值，表示是否操作成功。
+    - `Reflect.preventExtensions(target)`：`Reflect.preventExtensions()`对应`Object.preventExtensions()`方法，用于让一个对象变为不可扩展。它返回一个布尔值，表示是否操作成功。
 
       ```js
       var myObject = {};
@@ -1702,7 +1706,7 @@
       Reflect.preventExtensions(1) // 报错
       ```
 
-    - `Reflect.ownKeys (target)`：`Reflect.ownKeys`方法用于返回对象的所有属性，基本等同于`Object.getOwnPropertyNames`与`Object.getOwnPropertySymbols`之和。
+    - `Reflect.ownKeys(target)`：`Reflect.ownKeys`方法用于返回对象的所有属性，基本等同于`Object.getOwnPropertyNames`与`Object.getOwnPropertySymbols`之和。
 
       ```js
       var myObject = {
