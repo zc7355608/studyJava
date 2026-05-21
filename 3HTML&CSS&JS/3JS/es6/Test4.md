@@ -431,7 +431,7 @@
 
     上面例子中，取值函数`get`在扩展`a`对象时会自动执行，导致报错。
 
-  - #### `AggregateError` 错误对象(TODO)
+  - #### `AggregateError` 错误对象
 
     ES2021 标准之中，为了配合新增的`Promise.any()`方法（参见《Promise 对象》一章），还引入一个新的错误对象`AggregateError`，也放在这一章介绍。
 

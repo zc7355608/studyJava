@@ -2138,7 +2138,7 @@
        let arr = [...iterable];
        ```
 
-    3. **yield\***(TODO)
+    3. **yield\***
 
        `yield*`后面跟的是一个可遍历的结构，它会调用该结构的迭代器接口。
 
@@ -2216,7 +2216,7 @@
 
     上面代码中，字符串 str 的`Symbol.iterator`方法被修改了，所以扩展运算符（`...`）返回的值变成了`bye`，而字符串本身还是`hi`。
 
-  - #### Iterator 接口与 Generator 函数(TODO)
+  - #### Iterator 接口与 Generator 函数
 
     `Symbol.iterator()`方法的最简单实现，还是使用下一章要介绍的 Generator 函数。
 

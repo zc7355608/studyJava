@@ -4,9 +4,7 @@
 
      - ##### 基本概念：
 
-        Generator 函数是 ES6 提供的一种异步编程解决方案，语法行为与传统函数完全不同。本章详细介绍 Generator 函数的语法和 API，它的异步编程应用请看《Generator 函数的异步应用》一章。
-
-        Generator 函数有多种理解角度。语法上，首先可以把它理解成，Generator 函数是一个状态机，封装了多个内部状态。
+        Generator 函数是 ES6 提供的一种异步编程解决方案，语法行为与传统函数完全不同，可以把 Generator 函数理解成一个状态机，封装了多个内部状态。
 
         **执行 Generator 函数会返回一个迭代器对象**，也就是说，Generator 函数除了状态机，还是一个**迭代器对象生成函数**。它返回的迭代器对象，可以依次遍历 Generator 函数内部的每一个状态。因此 Generator 生成器函数还可以作为`Symbol.iterator`的值，简化了迭代器生成函数的写法。
 
@@ -14,10 +12,10 @@
 
         1. `function`关键字与函数名之间有一个星号`*`；
 
-        2. Generator 函数体内部能够使用`yield`表达式，定义不同的内部状态（`yield`在英语里的意思就是“产出”）。
+        2. Generator 函数体内部能够用`yield`表达式，定义不同的内部状态（`yield`在英语里的意思就是“产出”）。
 
            ```js
-           function* helloWorldGenerator() {
+        function* helloWorldGenerator() {
              yield 'hello';
              yield 'world';
              return 'ending';
@@ -25,15 +23,15 @@
            
            var hw = helloWorldGenerator();
            ```
-
+        
            上面代码定义了一个 Generator 函数`helloWorldGenerator`，它内部有两个**`yield`表达式**（`hello`和`world`），即该函数有三个状态：hello，world 和 return 语句（结束状态）。
 
-        Generator 函数的调用方法与普通函数一样，也是在函数名后面加上一对圆括号。不同的是，调用 Generator 函数后，该函数并不执行，返回的也不是函数运行结果，而是一个指向内部状态的**迭代器对象**（Iterator Object）。
+        Generator 函数的调用方法与普通函数一样，也是在函数名后面加上一对圆括号。不同的是，调用 Generator 函数后，该函数并不执行，返回的也不是函数运行结果，而是一个指向内部状态的**迭代器对象**。
 
         下一步，必须调用迭代器对象的`next`方法，使得指针移向下一个状态。也就是说，每次调用`next`方法，内部指针就从函数头部或上一次停下来的地方开始执行，直到遇到下一个`yield`表达式或`return`语句为止。换言之，Generator 函数是分段执行的，`yield`表达式是暂停执行的标记，而`next`方法可以恢复执行。
 
         ```js
-        hw.next()
+  hw.next()
         // { value: 'hello', done: false }
         
         hw.next()
@@ -45,7 +43,7 @@
         hw.next()
         // { value: undefined, done: true }
         ```
-
+        
         上面代码一共调用了四次`next`方法。
 
         第一次调用，Generator 函数开始执行，直到遇到第一个`yield`表达式为止。`next`方法返回一个**信息对象**，它的`value`属性就是当前`yield`关键字后的表达式的值`hello`，`done`属性的值`false`，表示遍历还没有结束（后面还有`yield`或`return`）。
@@ -61,12 +59,12 @@
         ES6 没有规定，`function`关键字与函数名之间的星号，写在哪个位置。这导致下面的写法都能通过。
 
         ```js
-        function * foo(x, y) { ··· }
+  function * foo(x, y) { ··· }
         function *foo(x, y) { ··· }
         function* foo(x, y) { ··· }
         function*foo(x, y) { ··· }
         ```
-
+        
         由于 Generator 函数仍然是普通函数，所以一般的写法是上面的第三种，即星号紧跟在`function`关键字后面。本书也采用这种写法。
 
      - ##### yield 表达式：
@@ -86,11 +84,11 @@
         需要注意的是，**`yield`关键字后面的表达式，只有当调用`next`方法、内部指针指向该语句时才会执行**，因此等于为 JS 提供了手动的“惰性求值”（Lazy Evaluation）的语法功能。
 
         ```js
-        function* gen() {
+     function* gen() {
           yield  123 + 456;
         }
         ```
-
+     
         上面代码中，`yield`后面的表达式`123 + 456`，不会立即求值，只会在`next`方法将指针移到这一句时，才会求值。
 
         `yield`表达式与`return`语句既有相似之处，也有区别。相似之处在于，都能返回紧跟在语句后面的那个表达式的值。区别在于每次遇到`yield`，函数暂停执行，下一次再从该位置继续向后执行，而`return`语句不具备位置记忆的功能。一个函数里面，只能执行一次（或者说一个）`return`语句，但是可以执行多次（或者说多个）`yield`表达式。正常函数只能返回一个值，因为只能执行一次`return`；Generator 函数可以返回一系列的值，因为可以有任意多个`yield`。从另一个角度看，也可以说 Generator 生成了一系列的值，这也就是它的名称的来历（英语中，generator 这个词是“生成器”的意思）。
@@ -98,7 +96,7 @@
         Generator 函数内部也可以不写`yield`表达式，这时它就变成了一个单纯的暂缓执行函数。
 
         ```js
-        function* f() {
+     function* f() {
           console.log('执行了！')
         }
         
@@ -108,24 +106,24 @@
           generator.next()
         }, 2000);
         ```
-
+     
         上面代码中，函数`f`如果是普通函数，在为变量`generator`赋值时就会执行。但是，函数`f`是一个 Generator 函数，就变成只有调用`next`方法时，函数`f`才会执行。
 
         另外需要注意，**`yield`表达式只能用在 Generator 函数里面，用在其他地方都会报错**。
 
         ```js
-        (function (){
+     (function (){
           yield 1;
         })()
         // SyntaxError: Unexpected number
         ```
-
+     
         上面代码在一个普通函数中使用`yield`表达式，结果产生一个句法错误。
 
         下面是另外一个例子。
 
         ```js
-        var arr = [1, [[2, 3], 4], [5, 6]];
+     var arr = [1, [[2, 3], 4], [5, 6]];
         
         var flat = function* (a) {
           a.forEach(function (item) {
@@ -141,11 +139,11 @@
           console.log(f);
         }
         ```
-
+     
         上面代码也会产生句法错误，因为`forEach`方法的参数是一个普通函数，但是在里面使用了`yield`表达式（这个函数里面还使用了`yield*`表达式，详细介绍见后文）。一种修改方法是改用`for`循环。
 
         ```js
-        var arr = [1, [[2, 3], 4], [5, 6]];
+     var arr = [1, [[2, 3], 4], [5, 6]];
         
         var flat = function* (a) {
           var length = a.length;
@@ -164,11 +162,11 @@
         }
         // 1, 2, 3, 4, 5, 6
         ```
-
+     
         另外，**`yield`表达式如果放在另一个表达式中，就必须放在圆括号内**。
 
         ```js
-        function* demo() {
+     function* demo() {
           console.log('Hello' + yield); // SyntaxError
           console.log('Hello' + yield 123); // SyntaxError
         
@@ -176,16 +174,16 @@
           console.log('Hello' + (yield 123)); // OK
         }
         ```
-
+     
         `yield`表达式用作函数参数或放在赋值语句的右边，可以不加括号。
 
         ```js
-        function* demo() {
+     function* demo() {
           foo(yield 'a', yield 'b'); // OK
           let input = yield; // OK
         }
         ```
-
+     
      - ##### 与 Iterator 接口的关系：
 
         上一章说过，任意一个对象的`Symbol.iterator`方法，等于该对象的迭代器对象生成函数，调用该函数会返回该对象的一个迭代器对象。
@@ -202,10 +200,10 @@
         
         [...myIterable] // [1, 2, 3]
         ```
-
+     
         上面代码中，Generator 函数赋值给`Symbol.iterator`属性，从而使得`myIterable`对象具有了 Iterator 接口，可以被`...`运算符遍历了。
 
-        Generator 函数执行后，返回一个迭代器对象。该对象本身也具有`Symbol.iterator`属性，执行后返回自身。
+        Generator 函数执行后，返回的这个迭代器对象，它本身也具有`Symbol.iterator`属性，执行后返回自身。
 
         ```js
         function* gen(){
@@ -217,12 +215,12 @@
         g[Symbol.iterator]() === g
         // true
         ```
-
+     
         上面代码中，`gen`是一个 Generator 函数，调用它会生成一个迭代器对象`g`。它的`Symbol.iterator`属性，也是一个迭代器对象生成函数，执行后返回它自己。
 
   - #### next 方法的参数
 
-     `yield`表达式本身没有返回值，或者说总是返回`undefined`。`next`方法可以带一个参数，该参数就会被当作上一个`yield`表达式的返回值。
+     `yield`表达式本身没有返回值，或者说总是返回`undefined`。`next()`方法调用时可以带一个参数，该参数就会被当作上一个`yield`表达式的返回值。
 
      ```js
      function* f() {
@@ -353,7 +351,7 @@
 
      从上面代码可见，使用`for...of`语句时不需要使用`next`方法。
 
-     利用`for...of`循环，可以写出遍历任意对象（object）的方法。原生的 JS 对象没有遍历接口，无法使用`for...of`循环，通过 Generator 函数为它加上这个接口，就可以用了。
+     利用`for...of`循环，可以写出遍历任意对象的方法。原生的 JS 对象没有遍历接口，无法使用`for...of`循环，通过 Generator 函数为它加上这个接口，就可以用了。
 
      ```js
      function* objectEntries(obj) {
@@ -426,7 +424,7 @@
 
   - #### `Generator.prototype.throw()`
 
-     Generator 函数返回的迭代器对象有一个`throw`方法，调用后会中断 Generator 函数的执行，相当于往生成器函数内部注入 `throw` 语句。即：**`throw()`方法的执行，可以在生成器函数的里面抛出错误**。**如果该错误被正确捕获处理了，那么会程序还会向后执行到下一个`yield`语句，相当于执行了一次`next()`**。
+     Generator 函数返回的迭代器对象有一个`throw`方法，调用后会中断 Generator 函数的执行，相当于往生成器函数内部注入 `throw` 语句。即：**`throw()`方法的执行，可以在生成器函数的里面抛出错误**。**如果该错误被捕获处理了，那么会程序还会向后执行到下一个`yield`语句，相当于执行了一次`next()`**。
 
      ```js
      var g = function* () {
@@ -577,7 +575,7 @@
 
      上面代码中，`g.throw`方法被内部捕获以后，等同于执行了一次`next`方法，所以返回`{ value:2, done:false }`。另外，也可以看到，只要 Generator 函数内部部署了`try...catch`代码块，那么迭代器的`throw`方法抛出的错误，不影响下一次遍历。
 
-     另外，**`throw`命令与`g.throw()`方法是无关的，两者互不影响**。
+     另外，**`throw`命令与`throw()`方法是无关的，两者互不影响**。
 
      ```js
      var gen = function* gen(){
@@ -601,7 +599,7 @@
 
      这种函数体内捕获错误的机制，大大方便了对错误的处理。多个`yield`表达式，可以只用一个`try...catch`代码块来捕获错误。如果使用回调函数的写法，想要捕获多个错误，就不得不为每个函数内部写一个错误处理语句，现在只在 Generator 函数内部写一次`catch`语句就可以了。
 
-     **Generator 函数体外抛出的错误，可以在 Generator 函数体内捕获；反过来，Generator 函数体内抛出的错误，也可以被 Generator 函数体外的`catch`块捕获**。
+     **Generator 函数体外抛出的错误，可以在函数体内捕获；反过来，Generator 函数体内抛出的错误，也可以被函数体外的`catch`块捕获**。
 
      ```js
      function* foo() {
@@ -671,7 +669,7 @@
 
   - #### `Generator.prototype.return()`
 
-     Generator 函数返回的迭代器对象，还有一个**`return()`方法，可以返回给定的值，并且将 Generator 函数终止掉**。
+     Generator 函数返回的迭代器对象，还有一个**`return()`方法，可以返回给定的值，并且将 Generator 函数终止掉**。相当于注入了一个`return`语句并执行到这个`return`处。它的返回值和`next()`方法一样，是一个信息对象（具有`done`和`value`属性）。
 
      ```js
      function* gen() {
@@ -704,7 +702,7 @@
      g.return() // { value: undefined, done: true }
      ```
 
-     **如果 Generator 函数内部有`try...finally`代码块，且正在执行`try`代码块，那么`return()`方法会导致立刻进入`finally`代码块，执行完以后，整个函数才会结束。**
+     **如果 Generator 函数内部有`try...finally`代码块，且正在执行`try`代码块，那么`return()`方法会导致立刻进入`finally`代码块，执行完以后，整个函数才会结束**。因为`finally`在`return`之后执行。
 
      ```js
      function* numbers () {
@@ -728,7 +726,7 @@
 
      上面代码中，调用`return()`方法后，就开始执行`finally`代码块，不执行`try`里面剩下的代码了，然后等到`finally`代码块执行完，再返回`return()`方法指定的返回值。
 
-  - #### next()、throw()、return() 的共同点
+  - #### `next()`、`throw()`、`return()` 的共同点
 
      `next()`、`throw()`、`return()`这三个方法本质上是同一件事，可以放在一起理解。它们的作用都是让 Generator 函数恢复执行，并且使用不同的语句替换`yield`表达式。
 
@@ -776,7 +774,7 @@
        yield 'b';
      }
      
-     function* bar() {
+     function* bar() { // 执行两次next()即可结束
        yield 'x';
        // 手动遍历 foo()
        for (let i of foo()) {
@@ -794,11 +792,16 @@
      // y
      ```
 
-     上面代码中，`foo`和`bar`都是 Generator 函数，在`bar`里面调用`foo`，就需要手动遍历`foo`。如果有多个 Generator 函数嵌套，写起来就非常麻烦。
+     上面代码中，`foo`和`bar`都是 Generator 函数，在`bar`里面调用`foo`，就需要手动写`for of`遍历`foo`函数。如果有多个 Generator 函数嵌套，写起来就非常麻烦。
 
-     作为解决办法，**ES6 提供了`yield*`表达式，用来在一个 Generator 函数里面执行另一个 Generator 函数**。
+     作为解决办法，**ES6 提供了`yield*`表达式，用来在一个 Generator 函数里面执行另一个 Generator 函数**。相当于用`yield*`将一个 Generator 函数返回的所有状态进行了展开，展开为了多个`yield`语句。
 
      ```js
+     function* foo() {
+       yield 'a';
+       yield 'b';
+     }
+     
      function* bar() {
        yield 'x';
        yield* foo();
@@ -908,7 +911,37 @@
      }
      ```
 
-     上面代码说明，`yield*`后面的 Generator 函数（里面没有`return`语句时），不过是`for...of`的一种简写形式，完全可以用后者替代前者。反之，**在有`return`语句时，则需要用`var value = yield* iterator`的形式获取`return`语句的值**。
+     上面代码说明，`yield*`后面的 Generator 函数（里面没有`return`语句时），不过是`for...of`的一种简写形式，完全可以用后者替代前者。
+
+     在有`return`语句时，**`return` 的值作为 `yield*` 表达式的返回值**，可以用`var value = yield* genFunc()`的形式获取 Generator 函数中`return`语句的值。
+
+     ```js
+     function* foo() {
+       yield 'a';
+       yield 'b';
+       return 'foo';
+     }
+     
+     function* bar() {
+       yield 'x';
+       console.log(yield* foo());
+       yield 'y';
+     }
+     
+     const b = bar();
+     console.log(b.next());
+     console.log(b.next());
+     console.log(b.next());
+     console.log(b.next());
+     
+     /*
+     { value: 'x', done: false }
+     { value: 'a', done: false }
+     { value: 'b', done: false }
+     foo
+     { value: 'y', done: false }
+     */
+     ```
 
      如果`yield*`后面跟着一个数组，由于数组原生支持迭代器，因此就会遍历数组成员。
 
@@ -989,7 +1022,7 @@
 
      上面代码中，存在两次遍历。第一次是扩展运算符遍历函数`logReturned`返回的迭代器对象，第二次是`yield*`语句遍历函数`genFuncWithReturn`返回的迭代器对象。这两次遍历的效果是叠加的，最终表现为扩展运算符遍历函数`genFuncWithReturn`返回的迭代器对象。所以，最后的数据表达式得到的值等于`[ 'a', 'b' ]`。但是，函数`genFuncWithReturn`的`return`语句的返回值`The result`，会返回给函数`logReturned`内部的`result`变量，因此会有终端输出。
 
-     `yield*`命令可以很方便地取出嵌套数组的所有成员。
+     **`yield*`命令可以很方便地取出嵌套数组的所有成员**。
 
      ```js
      function* iterTree(tree) {
@@ -1066,7 +1099,7 @@
 
      ```js
      let obj = {
-       * myGeneratorMethod() {
+       * myGeneratorMethod() { // 也可以：*myGeneratorMethod，但是不推荐
          ···
        }
      };
@@ -1084,7 +1117,7 @@
      };
      ```
 
-  - #### Generator 函数的this
+  - #### Generator 函数的`this`
 
      **Generator 函数总是返回一个迭代器对象，ES6 规定这个迭代器对象是 Generator 函数的实例，也继承了 Generator 函数的`prototype`对象上的方法**。
 
@@ -1103,7 +1136,7 @@
 
      上面代码表明，Generator 函数`g`返回的迭代器`obj`，是`g`的实例，而且继承了`g.prototype`。
 
-     但是，**Generator 函数不能当作普通的构造函数**，因为 **Generator 函数回的总是迭代器对象，而不是返回`this`指的对象**。
+     但是，**Generator 函数不能当作普通的构造函数**，因为 Generator 函数回的总是迭代器对象，而不是返回`this`指的对象。
 
      ```js
      function* g() {
@@ -1131,7 +1164,9 @@
 
      上面代码中，`new`命令跟构造函数`F`一起使用，结果报错，因为`F`不是构造函数。
 
-     那么，有没有办法让 Generator 函数返回一个正常的对象实例，既可以用`next`方法，又可以获得正常的`this`？
+     并且生成器函数内部的 `this` 和普通函数一样，取决于**调用时的上下文**（谁调用的）。
+
+     有没有办法让 Generator 函数返回一个正常的对象实例，既可以用`next`方法，又可以获得正常的`this`？
 
      下面是一个变通方法。首先，生成一个空对象，使用`call`方法绑定 Generator 函数内部的`this`。这样，构造函数调用以后，这个空对象就是 Generator 函数的实例对象了。
 
@@ -1278,7 +1313,7 @@
 
   - #### 应用
 
-    > Generator 可以暂停函数执行，返回任意表达式的值。这种特点使得 Generator 有多种应用场景。
+    Generator 可以暂停函数执行，返回任意表达式的值。这种特点使得 Generator 有多种应用场景。
 
     - ##### 异步操作的同步化表达
 
@@ -1306,7 +1341,7 @@
       function* main() {
         var result = yield request("http://some.url");
         var resp = JSON.parse(result);
-          console.log(resp.value);
+        console.log(resp.value);
       }
       
       function request(url) {
@@ -1534,7 +1569,7 @@
 
 - ## Generator 生成器函数的异步应用
 
-  > 异步编程对 JS 语言太重要。JS 语言的执行环境是“单线程”的，如果没有异步编程，根本没法用，非卡死不可。本章主要介绍 Generator 函数如何完成异步操作。
+  异步编程对 JS 语言太重要。JS 语言的执行环境是“单线程”的，如果没有异步编程，根本没法用，非卡死不可。本章主要介绍 Generator 函数如何完成异步操作。
 
   1. #### 传统方法
 
@@ -1572,9 +1607,9 @@
 
        上面代码中，`readFile`函数的第三个参数，就是回调函数，也就是任务的第二段。等到操作系统返回了`/etc/passwd`这个文件以后，回调函数才会执行。
 
-       一个有趣的问题是，为什么 Node 约定，回调函数的第一个参数，必须是错误对象`err`（如果没有错误，该参数就是`null`）？
+       一个有趣的问题是，为什么 Node 约定，回调函数的第一个参数，必须是错误对象`err`？（没有错误的话该参数是`null`）
 
-       原因是执行分成两段，第一段执行完以后，任务所在的上下文环境就已经结束了。在这以后抛出的错误，原来的上下文环境已经无法捕捉，只能当作参数，传入第二段。
+       原因是：回调函数的执行分成两段，第一段执行完以后，任务所在的上下文环境就已经结束了。在这以后抛出的错误，原来的上下文环境已经无法捕捉，只能当作参数，传入第二段。
 
      - ##### Promise
 
@@ -1596,25 +1631,25 @@
        var readFile = require('fs-readfile-promise');
        
        readFile(fileA)
-       .then(function (data) {
-         console.log(data.toString());
-       })
-       .then(function () {
-         return readFile(fileB);
-       })
-       .then(function (data) {
-         console.log(data.toString());
-       })
-       .catch(function (err) {
-         console.log(err);
-       });
+         .then(function (data) {
+           console.log(data.toString());
+         })
+         .then(function () {
+           return readFile(fileB);
+         })
+         .then(function (data) {
+           console.log(data.toString());
+         })
+         .catch(function (err) {
+           console.log(err);
+         });
        ```
 
        上面代码中，我使用了`fs-readfile-promise`模块，它的作用就是返回一个 Promise 版本的`readFile`函数。Promise 提供`then`方法加载回调函数，`catch`方法捕捉执行过程中抛出的错误。
 
-       可以看到，**Promise 的写法只是回调函数的改进，使用`then`方法以后，异步任务的两段执行看得更清楚了，除此以外，并无新意**。
+       可以看到，Promise 的写法只是回调函数的改进，使用`then`方法以后，异步任务的两段执行看得更清楚了，除此以外，并无新意。
 
-       **Promise 的最大问题是代码冗余，原来的任务被 Promise 包装了一下，不管什么操作，一眼看去都是一堆`then`，原来的语义变得很不清楚。**
+       Promise 的最大问题是代码冗余，原来的任务被 Promise 包装了一下，不管什么操作，一眼看去都是一堆`then`，原来的语义变得很不清楚。
 
        那么，有没有更好的写法呢？
 
@@ -1651,7 +1686,7 @@
 
        Generator 函数是协程在 ES6 的实现，最大特点就是可以交出函数的执行权（即暂停执行）。
 
-       整个 Generator 函数就是一个封装的异步任务，或者说是异步任务的容器。异步操作需要暂停的地方，都用`yield`语句注明。Generator 函数的执行方法如下。
+       整个 **Generator 函数就是一个封装的异步任务，或者说是异步任务的容器**。异步操作需要暂停的地方，都用`yield`语句注明。Generator 函数的执行方法如下。
 
        ```js
        function* gen(x) {
@@ -1742,7 +1777,7 @@
 
   4. #### Thunk 函数
 
-     > Thunk 函数是自动执行 Generator 函数的一种方法。
+     Thunk 函数是自动执行 Generator 函数的一种方法。
 
      - ##### 参数的求值策略
 
