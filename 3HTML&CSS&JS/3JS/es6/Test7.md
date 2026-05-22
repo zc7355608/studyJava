@@ -896,9 +896,9 @@
   
          > 而`new Promise(resolve => resolve(x))`中参数x如果是一个 Promise 实例，那么最终该 Promise 实例的状态及结果，和参数 Promise 的状态及结果保持一致。
   
-      2. **参数是一个具有`then`方法的普通对象**：
+      2. **参数是一个具有`then`方法的普通对象（`thenable` 对象）**：
   
-         如果参数对象具有`then`方法，比如下面这个对象（`thenable` 对象）。
+         如果参数对象具有`then`方法，比如下面这个对象。
   
          ```js
          let thenable = {
@@ -908,7 +908,9 @@
          };
          ```
   
-         `Promise.resolve()`方法会将这个对象转为 Promise 对象：即立即执行该对象的`then()`方法，根据`then()`方法的返回值情况来决定`Promise.resolve()`方法返回的 Promise 对象的状态和结果。
+         `Promise.resolve()`方法会立即创建一个新的 `pedding` 状态的 Promise 对象并返回，然后通过 `thenable` 对象的 `then` 方法来驱动这个 Promise 的状态变化。
+  
+         并且 `thenable` 对象的 `then` 方法是在当前同步代码执行完毕后，作为微任务（microtask）被调用执行的，即当前循环的末尾执行的。根据`then()`方法的返回值来决定`Promise.resolve()`方法返回的 Promise 对象的状态和结果。
   
          ```js
          let thenable = {
@@ -1132,7 +1134,7 @@
       };
       ```
   
-    - ##### Generator 函数与 Promise 的结合（TODO）
+    - ##### Generator 函数与 Promise 的结合
   
       使用 Generator 函数管理流程，遇到异步操作的时候，通常返回一个`Promise`对象。
   

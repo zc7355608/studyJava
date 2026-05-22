@@ -2,16 +2,16 @@
 
   - #### 类的由来
 
-    JS 语言中，生成实例对象的传统方法是通过构造函数。下面是一个例子。
+    JS 中，生成实例对象的传统方法是通过构造函数。下面是一个例子。
     
     ```js
     function Point(x, y) {
-        this.x = x;
-        this.y = y;
+      this.x = x;
+      this.y = y;
     }
     
     Point.prototype.toString = function () {
-    	return '(' + this.x + ', ' + this.y + ')';
+      return '(' + this.x + ', ' + this.y + ')';
     };
     
     var p = new Point(1, 2);
@@ -21,18 +21,18 @@
     
     ES6 提供了更接近传统语言的写法，引入了 Class（类）这个概念，作为对象的模板。通过`class`关键字，可以定义类。
     
-    基本上，ES6 的`class`可以看作只是一个语法糖，它的绝大部分功能，ES5 都可以做到，新的`class`写法只是让对象原型的写法更加清晰、更像面向对象编程的语法而已。上面的代码用 ES6 的`class`改写，就是下面这样。
+    基本上，**ES6 的`class`可以看作只是一个语法糖**，它的绝大部分功能，ES5 都可以做到，新的`class`写法只是让对象原型的写法更加清晰、更像面向对象编程的语法而已。上面的代码用 ES6 的`class`改写，就是下面这样。
     
     ```js
     class Point {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-        }
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+      }
     
-        toString() {
-        	return '(' + this.x + ', ' + this.y + ')';
-        }
+      toString() {
+        return '(' + this.x + ', ' + this.y + ')';
+      }
     }
     ```
     
@@ -44,7 +44,7 @@
     
     ```js
     class Point {
-    	// ...
+      // ...
     }
     
     typeof Point // "function"
@@ -57,38 +57,38 @@
     
     ```js
     class Bar {
-        doStuff() {
-        	console.log('stuff');
-        }
+      doStuff() {
+        console.log('stuff');
+      }
     }
     
     const b = new Bar();
     b.doStuff() // "stuff"
     ```
     
-    构造函数的`prototype`属性，在 ES6 的“类”上面继续存在。事实上，类的所有方法都定义在类的`prototype`属性上面。
+    构造函数的`prototype`属性，在 ES6 的“类”上面继续存在。事实上，**类的所有方法都定义在类的`prototype`属性上面**。
     
     ```js
     class Point {
-        constructor() {
-        	// ...
-        }
+      constructor() {
+        // ...
+      }
     
-        toString() {
-        	// ...
-        }
+      toString() {
+        // ...
+      }
     
-        toValue() {
-        	// ...
-        }
+      toValue() {
+        // ...
+      }
     }
     
     // 等同于
     
     Point.prototype = {
-        constructor() {},
-        toString() {},
-        toValue() {},
+      constructor() {},
+      toString() {},
+      toValue() {},
     };
     ```
     
@@ -109,14 +109,14 @@
     
     ```js
     class Point {
-        constructor(){
-        	// ...
-        }
+      constructor(){
+        // ...
+      }
     }
     
     Object.assign(Point.prototype, {
-        toString(){},
-        toValue(){}
+      toString(){},
+      toValue(){}
     });
     ```
     
@@ -126,17 +126,17 @@
     Point.prototype.constructor === Point // true
     ```
     
-    另外，**类的内部所有定义的方法，都是不可枚举的（non-enumerable）**。这一点与 ES5 的行为不一致。
+    另外，**类的内部定义的所有方法，都是不可枚举的（non-enumerable）**。这一点与 ES5 的行为不一致。
     
     ```js
     class Point {
-        constructor(x, y) {
-        	// ...
-        }
+      constructor(x, y) {
+        // ...
+      }
     
-        toString() {
-        	// ...
-        }
+      toString() {
+        // ...
+      }
     }
     
     Object.keys(Point.prototype)
@@ -149,11 +149,11 @@
     
     ```js
     var Point = function (x, y) {
-    	// ...
+      // ...
     };
     
     Point.prototype.toString = function () {
-    	// ...
+      // ...
     };
     
     Object.keys(Point.prototype)

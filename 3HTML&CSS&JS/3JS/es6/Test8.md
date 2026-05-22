@@ -1571,7 +1571,7 @@
 
   异步编程对 JS 语言太重要。JS 语言的执行环境是“单线程”的，如果没有异步编程，根本没法用，非卡死不可。本章主要介绍 Generator 函数如何完成异步操作。
 
-  1. #### 传统方法
+  - #### 传统方法
 
      ES6 诞生以前，异步编程的方法，大概有下面四种。
 
@@ -1582,7 +1582,7 @@
 
      Generator 生成器函数将 JS 异步编程带入了一个全新的阶段。
 
-  2. #### 基本概念
+  - #### 基本概念
 
      - ##### 异步
 
@@ -1653,7 +1653,7 @@
 
        那么，有没有更好的写法呢？
 
-  3. #### Generator 函数
+  - #### Generator 函数
 
      - ##### 协程
 
@@ -1775,9 +1775,9 @@
 
        可以看到，**虽然 Generator 函数将异步操作表示得很简洁，但是流程管理却不方便**（即何时执行第一阶段、何时执行第二阶段）。
 
-  4. #### Thunk 函数
+  - #### Thunk 函数
 
-     Thunk 函数是自动执行 Generator 函数的一种方法。
+     Thunk 函数是自动执行 Generator 函数的一种方法。我们之前写的自动执行 Generator 函数的方法，里面不能有异步操作。而现在通过 Thunk 函数可以做到。
 
      - ##### 参数的求值策略
 
@@ -1829,7 +1829,7 @@
 
      - ##### Thunk 函数的含义
 
-       编译器的“传名调用”实现，往往是将参数放到一个临时函数之中，再将这个临时函数传入函数体。这个临时函数就叫做 Thunk 函数。
+       编译器的“传名调用”的实现，是将参数放到一个临时函数之中，再将这个临时函数传入函数体。这个临时函数就叫做 Thunk 函数。
 
        ```js
        function f(m) {
@@ -1855,7 +1855,7 @@
 
      - ##### JS 语言的 Thunk 函数
 
-       JS 语言是传值调用，它的 Thunk 函数含义有所不同。在 JS 语言中，Thunk 函数替换的不是表达式，而是多参数函数，将其替换成一个只接受回调函数作为参数的单参数函数。
+       JS 语言也是传值调用，它的 Thunk 函数含义有所不同。在 JS 语言中，Thunk 函数替换的不是表达式，而是多参数函数，将其替换成一个只接受回调函数作为参数的单参数函数。
 
        ```js
        // 正常版本的readFile（多参数版本）
@@ -1923,7 +1923,7 @@
        首先是安装。
 
        ```bash
-       $ npm install thunkify
+       npm install thunkify
        ```
 
        使用方式如下。
@@ -2071,24 +2071,26 @@
 
        上面代码的`run`函数，就是一个 Generator 函数的自动执行器。内部的`next`函数就是 Thunk 的回调函数。`next`函数先将指针移到 Generator 函数的下一步（`gen.next`方法），然后判断 Generator 函数是否结束（`result.done`属性），如果没结束，就将`next`函数再传入 Thunk 函数（`result.value`属性），否则就直接退出。
 
-       有了这个执行器，执行 Generator 函数方便多了。不管内部有多少个异步操作，直接把 Generator 函数传入`run`函数即可。当然，前提是每一个异步操作，都要是 Thunk 函数，也就是说，跟在`yield`命令后面的必须是 Thunk 函数。
+       有了这个执行器，执行 Generator 函数方便多了。不管内部有多少个异步操作，直接把 Generator 函数传入`run`函数即可。当然，前提是**每一个异步操作，都要是 Thunk 函数**，也就是说，跟在`yield`命令后面的必须是 Thunk 函数。
 
+       
+       
        ```js
-       var g = function* (){
+       function* g() {
          var f1 = yield readFileThunk('fileA');
          var f2 = yield readFileThunk('fileB');
          // ...
          var fn = yield readFileThunk('fileN');
        };
        
-       run(g);
+     run(g);
        ```
 
        上面代码中，函数`g`封装了`n`个异步的读取文件操作，只要执行`run`函数，这些操作就会自动完成。这样一来，异步操作不仅可以写得像同步操作，而且一行代码就可以执行。
-
+       
        Thunk 函数并不是 Generator 函数自动执行的唯一方案。因为自动执行的关键是，必须有一种机制，自动控制 Generator 函数的流程，接收和交还程序的执行权。回调函数可以做到这一点，Promise 对象也可以做到这一点。
 
-  5. #### co 模块
+  - #### co 模块
 
      - ##### 基本用法
 
@@ -2136,7 +2138,7 @@
 
        （2）Promise 对象。将异步操作包装成 Promise 对象，用`then`方法交回执行权。
 
-       co 模块其实就是将两种自动执行器（Thunk 函数和 Promise 对象），包装成一个模块。使用 co 的前提条件是，Generator 函数的`yield`命令后面，只能是 Thunk 函数或 Promise 对象。如果数组或对象的成员，全部都是 Promise 对象，也可以使用 co，详见后文的例子。
+       co 模块其实就是将两种自动执行器（Thunk 函数和 Promise 对象），包装成一个模块。**使用 co 的前提条件是，Generator 函数的`yield`命令后面，只能是 Thunk 函数或 Promise 对象**。如果数组或对象的成员，全部都是 Promise 对象，也可以使用 co，详见后文的例子。
 
        上一节已经介绍了基于 Thunk 函数的自动执行器。下面来看，基于 Promise 对象的自动执行器。这是理解 co 模块必须的。
 
@@ -2322,7 +2324,7 @@
 
      - ##### 实例：处理 Stream
 
-       Node 提供 Stream 模式读写数据，特点是一次只处理数据的一部分，数据分成一块块依次处理，就好像“数据流”一样。这对于处理大规模数据非常有利。Stream 模式使用 EventEmitter API，会释放三个事件。
+       Node 提供了基于 Stream 模式的读写数据API，特点是一次只处理数据的一部分，数据分成一块块依次处理，就好像“数据流”一样。这对于处理大规模数据非常有利。Stream 模式使用 EventEmitter API，会释放三个事件。
 
        - `data`事件：下一块数据块已经准备好了。
        - `end`事件：整个“数据流”处理完了。
@@ -2364,7 +2366,7 @@
 
     ES2017 标准引入了 async 函数，使得异步操作变得更加方便。
 
-    **async 函数是什么？一句话，它就是 Generator 函数的语法糖**。
+    一句话，**async 函数就是 Generator 函数的语法糖**。
 
     前文有一个 Generator 函数，依次读取两个文件。
 
@@ -2399,33 +2401,33 @@
     };
     ```
 
-    一比较就会发现，**`async`函数就是将 Generator 函数的星号（`*`）替换成`async`，将`yield`替换成`await`，仅此而已**。
+    一比较就会发现，**`async`函数就是将 Generator 函数的星号（`*`）替换成`async`，将`yield`替换成`await`**，仅此而已。
 
-    `async`函数对 Generator 函数的改进，体现在以下四点。
+    `async`函数对 Generator 函数的改进，体现在以下四点：
 
-    （1）内置执行器。
+    1. 内置执行器。
 
-    Generator 函数的执行必须靠执行器，所以才有了`co`模块，而`async`函数自带执行器。也就是说，`async`函数的执行，与普通函数一模一样，只要一行。
+       Generator 函数的执行必须靠执行器，所以才有了`co`模块，而`async`函数自带执行器。也就是说，`async`函数的执行，与普通函数一模一样，只要一行。
 
-    ```js
-    asyncReadFile();
-    ```
+       ```js
+       asyncReadFile();
+       ```
 
-    上面的代码调用了`asyncReadFile`函数，然后它就会自动执行，输出最后结果。这完全不像 Generator 函数，需要调用`next`方法，或者用`co`模块，才能真正执行，得到最后结果。
+       上面的代码调用了`asyncReadFile`函数，然后它就会自动执行，输出最后结果。这完全不像 Generator 函数，需要调用`next`方法，或者用`co`模块，才能真正执行，得到最后结果。
 
-    （2）更好的语义。
+    2. 更好的语义。
 
-    `async`和`await`，比起星号和`yield`，语义更清楚了。`async`表示函数里有异步操作，`await`表示紧跟在后面的表达式需要等待结果。
+       `async`和`await`，比起星号和`yield`，语义更清楚了。`async`表示函数里有异步操作，`await`表示紧跟在后面的表达式需要等待结果。
 
-    （3）更广的适用性。
+    3. 更广的适用性。
 
-    `co`模块约定，`yield`命令后面只能是 Thunk 函数或 Promise 对象，而**`async`函数的`await`命令后面，可以是 Promise 对象和原始类型的值。如果是非 Promise 对象（即原始类型值），此时会自动通过 `Promise.resolved` 转成 Promise 对象）。**
+       **`co`模块约定，`yield`命令后面只能是 Thunk 函数或 Promise 对象**，而**`async`函数的`await`命令后面，可以是 Promise 对象和原始类型的值。如果不是 Promise 对象（即原始类型值）的话，会自动通过 `Promise.resolved` 转成 Promise 对象**。
 
-    （4）返回值是 Promise。
+    4. 返回值是 Promise。
 
-    **`async`函数的返回值是 Promise 对象，如果不是则会自动调用 `Promise.resolved` 将return的值转成 Promise 对象并返回**。这比 Generator 函数的返回值是 Iterator 对象方便多了。你可以用`then`方法指定下一步的操作。
+       **`async`函数的返回值是 Promise 对象（如果不是则会自动通过 `Promise.resolved` 将返回值转成 Promise 对象）**。这比 Generator 函数的返回值是 Iterator 对象方便多了。直接就可以用`then`方法指定下一步的操作。
 
-    进一步说，`async`函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而`await`命令就是内部`then`命令的语法糖。
+       进一步说，`async`函数完全可以看作多个异步操作，包装成的一个 Promise 对象，而`await`命令就是内部`then`命令的语法糖。
 
   - #### 基本用法
 
@@ -2517,13 +2519,13 @@
 
   - #### 语法
 
-    > `async`函数的语法规则总体上比较简单，难点是错误处理机制。
+    `async`函数的语法规则总体上比较简单，难点是错误处理机制。
 
     - ##### 返回 Promise 对象
 
       `async`函数返回一个 Promise 对象。
 
-      **`async`函数内部`return`语句返回的值，会成为`then`方法回调函数的参数**。
+      `async`函数内部`return`语句返回的值，会成为`then`方法回调函数的参数。
 
       ```js
       async function f() {
@@ -2534,9 +2536,9 @@
       // "hello world"
       ```
 
-      上面代码中，函数`f`内部`return`命令返回的值，会被`then`方法回调函数接收到。这是因为return返回的值会被 `Promise.resolve()` 解析为 Promise 对象并再返回。
+      上面代码中，函数`f`内部`return`命令返回的值，会被`then`方法回调函数接收到。这是因为`return`返回的值会被 `Promise.resolve()` 解析为 Promise 对象并返回。
 
-      **`async`函数内部抛出错误，会导致返回的 Promise 对象变为`reject`状态**。抛出的错误对象会被`catch`方法回调函数接收到。
+      **`async`函数内部抛出错误，会导致返回的 Promise 对象变为`reject`状态**。抛出的错误对象会被`catch()`方法指定的回调函数接收到。
 
       ```js
       async function f() {
@@ -2570,8 +2572,10 @@
 
     - ##### await 命令
 
-      正常情况下，`await`命令后面是一个 Promise 对象，`await`表达式会等待并返回该 Promise 对象成功状态的结果值。如果`await`命令后面不是 Promise 对象，此时会自动通过 `Promise.resolved` 转成 Promise 对象。
+      通常情况下，`await`关键字后面是一个 Promise 对象，**`await`关键字会等待并尝试取该 Promise 对象成功状态的结果值，如果是失败的 Promise 则会`throw`抛出其中的结果值**。
 
+      如果`await`命令后面不是 Promise 对象，此时会自动通过 `Promise.resolved()` 转成 Promise 对象。
+  
       ```js
       async function f() {
         // 等同于：return 123;
@@ -2580,11 +2584,11 @@
       
       f().then(v => console.log(v))  // 123
       ```
-      
-      上面代码中，`await`命令的参数是数值`123`，这时等同于`return 123`。
-      
+  
+      上面代码中，`await`命令的参数是数值`123`，这时等同于`return 123`。因为`f`是一个`async`函数，它的返回值会被`Promise.resolve()`包装后返回。
+  
       另一种情况是，`await`命令后面是一个`thenable`对象（即定义了`then`方法的对象），那么`await`会将其等同于 Promise 对象。
-      
+  
       ```js
       class Sleep {
         constructor(timeout) {
@@ -2605,11 +2609,11 @@
       })();
       // 1000
       ```
-      
+  
       上面代码中，`await`命令后面是一个`Sleep`对象的实例。这个实例不是 Promise 对象，但是因为定义了`then`方法，`await`会将其视为`Promise`处理。
-      
+  
       这个例子还演示了如何实现休眠效果。JS 一直没有休眠的语法，但是借助`await`命令就可以让程序停顿指定的时间。下面给出了一个简化的`sleep`实现。
-      
+  
       ```js
       function sleep(interval) {
         return new Promise(resolve => {
@@ -2627,35 +2631,35 @@
       
       one2FiveInAsync();
       ```
-      
-        `await`命令后面的 Promise 对象如果变为`reject`状态，则`reject`的参数会被`catch`方法的回调函数接收到。
-      
+  
+      上面代码中，`await`命令后面的 Promise 对象如果变为`reject`状态，则`reject`的参数会被`catch`方法的回调函数接收到。
+  
       ```js
       async function f() {
         await Promise.reject('出错了');
       }
       
       f()
-      .then(v => console.log(v))
-      .catch(e => console.log(e))
+        .then(v => console.log(v))
+        .catch(e => console.log(e))
       // 出错了
       ```
-      
-      注意，上面代码中，`await`语句前面没有`return`，但是`reject`方法的参数依然传入了`catch`方法的回调函数。这里如果在`await`前面加上`return`，效果是一样的。
-      
+  
+      注意，上面代码中，`await`后面是一个失败的 Promise，值为传入的字符串。由于`await`会尝试取成功状态 Promise 的结果值，取不到因此这里会`throw '出错了'`，导致`f()`函数返回一个失败的Promise，值为`'出错了'`。（这里`await`前面加不加`return`效果是一样的）
+  
       **任何一个`await`语句后面的 Promise 对象变为`reject`状态，那么整个`async`函数都会中断执行**。
-      
+  
       ```js
       async function f() {
         await Promise.reject('出错了');
         await Promise.resolve('hello world'); // 不会执行
       }
       ```
-      
+  
       上面代码中，第二个`await`语句是不会执行的，因为第一个`await`语句状态变成了`reject`。
-      
+  
       有时，我们希望即使前一个异步操作失败，也不要中断后面的异步操作。这时**可以将第一个`await`放在`try...catch`结构里面**，这样不管这个异步操作是否成功，第二个`await`都会执行。
-      
+  
       ```js
       async function f() {
         try {
@@ -2669,9 +2673,9 @@
       .then(v => console.log(v))
       // hello world
       ```
-      
+  
       **另一种方法是`await`后面的 Promise 对象再跟一个`catch`方法，处理前面可能出现的错误。**
-      
+  
       ```js
       async function f() {
         await Promise.reject('出错了')
@@ -2697,8 +2701,8 @@
       }
       
       f()
-      .then(v => console.log(v))
-      .catch(e => console.log(e))
+        .then(v => console.log(v))
+        .catch(e => console.log(e))
       // Error：出错了
       ```
   
@@ -2757,151 +2761,151 @@
   
       上面代码中，如果`await`操作成功，就会使用`break`语句退出循环；如果失败，会被`catch`语句捕捉，然后进入下一轮循环。
   
-    - ##### 使用注意点
+    - ##### 使用注意点：
   
-      第一点，前面已经说过，**`await`命令后面的`Promise`对象，运行结果可能是`rejected`，所以最好把`await`命令放在`try...catch`代码块中**。
+      1. 前面已经说过，**`await`命令后面的`Promise`对象，运行结果可能是`rejected`，所以最好把`await`命令放在`try...catch`代码块中**。
   
-      ```js
-      async function myFunction() {
-        try {
-          await somethingThatReturnsAPromise();
-        } catch (err) {
-          console.log(err);
+        ```js
+        async function myFunction() {
+          try {
+            await somethingThatReturnsAPromise();
+          } catch (err) {
+            console.log(err);
+          }
         }
-      }
-      
-      // 另一种写法
-      
-      async function myFunction() {
-        await somethingThatReturnsAPromise()
-        .catch(function (err) {
-          console.log(err);
-        });
-      }
-      ```
-  
-      第二点，多个`await`命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
-  
-      ```js
-      let foo = await getFoo();
-      let bar = await getBar();
-      ```
-  
-      上面代码中，`getFoo`和`getBar`是两个独立的异步操作（即互不依赖），被写成继发关系。这样比较耗时，因为只有`getFoo`完成以后，才会执行`getBar`，完全可以让它们同时触发。
-  
-      ```js
-      // 写法一
-      let [foo, bar] = await Promise.all([getFoo(), getBar()]);
-      
-      // 写法二
-      let fooPromise = getFoo();
-      let barPromise = getBar();
-      let foo = await fooPromise;
-      let bar = await barPromise;
-      ```
-  
-      上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。
-  
-      第三点，**`await`命令只能用在`async`函数之中，如果用在普通函数，就会报错**。
-  
-      ```js
-      async function dbFuc(db) {
-        let docs = [{}, {}, {}];
-      
-        // 报错
-        docs.forEach(function (doc) {
-          await db.post(doc);
-        });
-      }
-      ```
-  
-      上面代码会报错，因为`await`用在普通函数之中了。但是，如果将`forEach`方法的参数改成`async`函数，也有问题。
-  
-      ```js
-      function dbFuc(db) { //这里不需要 async
-        let docs = [{}, {}, {}];
-      
-        // 可能得到错误结果
-        docs.forEach(async function (doc) {
-          await db.post(doc);
-        });
-      }
-      ```
-  
-      上面代码可能不会正常工作，原因是这时三个`db.post()`操作将是并发执行，也就是同时执行，而不是继发执行。正确的写法是采用`for`循环。
-  
-      ```js
-      async function dbFuc(db) {
-        let docs = [{}, {}, {}];
-      
-        for (let doc of docs) {
-          await db.post(doc);
+        
+        // 另一种写法
+        
+        async function myFunction() {
+          await somethingThatReturnsAPromise()
+          .catch(function (err) {
+            console.log(err);
+          });
         }
-      }
-      ```
+        ```
   
-      另一种方法是使用数组的`reduce()`方法。
+      2. 多个`await`命令后面的异步操作，如果不存在继发关系，最好让它们同时触发。
   
-      ```js
-      async function dbFuc(db) {
-        let docs = [{}, {}, {}];
-      
-        await docs.reduce(async (_, doc) => {
-          await _;
-          await db.post(doc);
-        }, undefined);
-      }
-      ```
+        ```js
+        let foo = await getFoo();
+        let bar = await getBar();
+        ```
   
-      上面例子中，`reduce()`方法的第一个参数是`async`函数，导致该函数的第一个参数是前一步操作返回的 Promise 对象，所以必须使用`await`等待它操作结束。另外，`reduce()`方法返回的是`docs`数组最后一个成员的`async`函数的执行结果，也是一个 Promise 对象，导致在它前面也必须加上`await`。
+        上面代码中，`getFoo`和`getBar`是两个独立的异步操作（即互不依赖），被写成继发关系。这样比较耗时，因为只有`getFoo`完成以后，才会执行`getBar`，完全可以让它们同时触发。
   
-      上面的`reduce()`的参数函数里面没有`return`语句，原因是这个函数的主要目的是`db.post()`操作，不是返回值。而且`async`函数不管有没有`return`语句，总是返回一个 Promise 对象，所以这里的`return`是不必要的。
+        ```js
+        // 写法一
+        let [foo, bar] = await Promise.all([getFoo(), getBar()]);
+        
+        // 写法二
+        let fooPromise = getFoo();
+        let barPromise = getBar();
+        let foo = await fooPromise;
+        let bar = await barPromise;
+        ```
   
-      **如果确实希望多个请求并发执行，可以使用`Promise.all`方法**。当三个请求都会`resolved`时，下面两种写法效果相同。
+        上面两种写法，`getFoo`和`getBar`都是同时触发，这样就会缩短程序的执行时间。
   
-      ```js
-      async function dbFuc(db) {
-        let docs = [{}, {}, {}];
-        let promises = docs.map((doc) => db.post(doc));
-      
-        let results = await Promise.all(promises);
-        console.log(results);
-      }
-      
-      // 或者使用下面的写法
-      
-      async function dbFuc(db) {
-        let docs = [{}, {}, {}];
-        let promises = docs.map((doc) => db.post(doc));
-      
-        let results = [];
-        for (let promise of promises) {
-          results.push(await promise);
+      3. **`await`命令只能用在`async`函数中**。如果用在普通函数，就会报错。
+  
+        ```js
+        async function dbFuc(db) {
+          let docs = [{}, {}, {}];
+        
+          // 报错
+          docs.forEach(function (doc) {
+            await db.post(doc);
+          });
         }
-        console.log(results);
-      }
-      ```
+        ```
   
-      第四点，**async 函数可以保留运行堆栈**。
+        上面代码会报错，因为`await`用在普通函数之中了。但是，如果将`forEach`方法的参数改成`async`函数，也有问题。
   
-      ```js
-      const a = () => {
-        b().then(() => c());
-      };
-      ```
+        ```js
+        function dbFuc(db) { //这里不需要 async
+          let docs = [{}, {}, {}];
+        
+          // 可能得到错误结果
+          docs.forEach(async function (doc) {
+            await db.post(doc);
+          });
+        }
+        ```
   
-      上面代码中，函数`a`内部运行了一个异步任务`b()`。当`b()`运行的时候，函数`a()`不会中断，而是继续执行。等到`b()`运行结束，可能`a()`早就运行结束了，`b()`所在的上下文环境已经消失了。如果`b()`或`c()`报错，错误堆栈将不包括`a()`。
+        上面代码可能不会正常工作，原因是这时三个`db.post()`操作将是并发执行，也就是同时执行，而不是继发执行。正确的写法是采用`for of`循环。
   
-      现在将这个例子改成`async`函数。
+        ```js
+        async function dbFuc(db) {
+          let docs = [{}, {}, {}];
+        
+          for (let doc of docs) {
+            await db.post(doc);
+          }
+        }
+        ```
   
-      ```js
-      const a = async () => {
-        await b();
-        c();
-      };
-      ```
+        另一种方法是使用数组的`reduce()`方法。
   
-      上面代码中，`b()`运行的时候，`a()`是暂停执行，上下文环境都保存着。一旦`b()`或`c()`报错，错误堆栈将包括`a()`。
+        ```js
+        async function dbFuc(db) {
+          let docs = [{}, {}, {}];
+        
+          await docs.reduce(async (_, doc) => {
+            await _;
+            await db.post(doc);
+          }, undefined);
+        }
+        ```
+  
+        上面例子中，`reduce()`方法的第一个参数是`async`函数，导致该函数的第一个参数是前一步操作返回的 Promise 对象，所以必须使用`await`等待它操作结束。另外，`reduce()`方法返回的是`docs`数组最后一个成员的`async`函数的执行结果，也是一个 Promise 对象，导致在它前面也必须加上`await`。
+  
+        上面的`reduce()`的参数函数里面没有`return`语句，原因是这个函数的主要目的是`db.post()`操作，不是返回值。而且`async`函数不管有没有`return`语句，总是返回一个 Promise 对象，所以这里的`return`是不必要的。
+  
+        **如果确实希望多个请求并发执行，可以使用`Promise.all`方法**。当三个请求都会`resolved`时，下面两种写法效果相同。
+  
+        ```js
+        async function dbFuc(db) {
+          let docs = [{}, {}, {}];
+          let promises = docs.map((doc) => db.post(doc));
+        
+          let results = await Promise.all(promises);
+          console.log(results);
+        }
+        
+        // 或者使用下面的写法
+        
+        async function dbFuc(db) {
+          let docs = [{}, {}, {}];
+          let promises = docs.map((doc) => db.post(doc));
+        
+          let results = [];
+          for (let promise of promises) {
+            results.push(await promise);
+          }
+          console.log(results);
+        }
+        ```
+  
+      4. **async 函数可以保留运行堆栈**。这点和 Generator 生成器函数是一样的。
+  
+         ```js
+         const a = () => {
+           b().then(() => c());
+         };
+         ```
+  
+         上面代码中，函数`a`内部运行了一个异步任务`b()`。当`b()`运行的时候，函数`a()`不会中断，而是继续执行。等到`b()`运行结束，可能`a()`早就运行结束了，`b()`所在的上下文环境已经消失了。如果`b()`或`c()`报错，错误堆栈将不包括`a()`。
+  
+         现在将这个例子改成`async`函数。
+  
+         ```js
+         const a = async () => {
+           await b();
+           c();
+         };
+         ```
+  
+         上面代码中，`b()`运行的时候，`a()`是暂停执行，上下文环境都保存着。一旦`b()`或`c()`报错，错误堆栈将包括`a()`。
   
   - #### async 函数的实现原理
   
@@ -2913,19 +2917,18 @@
     }
     
     // 等同于
-    
     function fn(args) {
       return spawn(function* () {
         // ...
       });
     }
     ```
-  
-    所有的`async`函数都可以写成上面的第二种形式，其中的`spawn`函数就是自动执行器。
-  
-    下面给出`spawn`函数的实现，基本就是前文自动执行器的翻版。
-  
-    ```js
+    
+  所有的`async`函数都可以写成上面的第二种形式，其中的`spawn`函数就是自动执行器。
+    
+  下面给出`spawn`函数的实现，基本就是前文自动执行器的翻版。
+    
+  ```js
     function spawn(genF) {
       return new Promise(function(resolve, reject) {
         const gen = genF();
@@ -2949,7 +2952,7 @@
       });
     }
     ```
-  
+    
   - #### 与其他异步处理方法的比较
   
     我们通过一个例子，来看 async 函数与 Promise、Generator 函数的比较。
@@ -3082,7 +3085,7 @@
   
   - #### 顶层 await
   
-    早期的语法规定是，`await`命令只能出现在 async 函数内部，否则都会报错。
+    早期的语法规定是，`await`命令只能出现在 `async` 函数内部，否则都会报错。
   
     ```js
     // 报错
@@ -3091,7 +3094,7 @@
   
     上面代码中，`await`命令独立使用，没有放在 async 函数里面，就会报错。
   
-    **从 [ES2022](https://github.com/tc39/proposal-top-level-await) 开始，允许在模块的顶层独立使用`await`命令**，使得上面那行代码不会报错了。它的主要目的是使用`await`解决模块异步加载的问题。
+    从 [ES2022](https://github.com/tc39/proposal-top-level-await) 开始，**允许在模块的顶层独立使用`await`命令**，使得上面那行代码不会报错了。它的主要目的是使用`await`解决模块异步加载的问题。
   
     ```js
     // awaiting.js
@@ -3105,7 +3108,7 @@
     export { output };
     ```
   
-    上面代码中，模块`awaiting.js`的输出值`output`，取决于异步操作。我们把异步操作包装在一个 async 函数里面，然后调用这个函数，只有等里面的异步操作都执行，变量`output`才会有值，否则就返回`undefined`。
+    上面代码中，模块`awaiting.js`的输出值`output`，取决于异步操作。我们把异步操作包装在一个 `async` 函数里面，然后调用这个函数，只有等里面的异步操作都执行，变量`output`才会有值，否则就返回`undefined`。
   
     下面是加载这个模块的写法。
   
@@ -3134,7 +3137,7 @@
     export { output };
     ```
   
-    上面代码中，`awaiting.js`除了输出`output`，还默认输出一个 Promise 对象（async 函数立即执行后，返回一个 Promise 对象），从这个对象判断异步操作是否结束。
+    上面代码中，`awaiting.js`除了输出`output`，还默认输出一个 Promise 对象（`async` 函数立即执行后，返回一个 Promise 对象），从这个对象判断异步操作是否结束。
   
     下面是加载这个模块的新的写法。
   
@@ -3180,7 +3183,7 @@
   
     这时，模块的加载会等待依赖模块（上例是`awaiting.js`）的异步操作完成，才执行后面的代码，有点像暂停在那里。所以，它总是会得到正确的`output`，不会因为加载时机的不同，而得到不一样的值。
   
-    注意，**顶层`await`只能用在 ES6 模块，不能用在 CommonJS 模块。这是因为 CommonJS 模块的`require()`是同步加载，如果有顶层`await`，就没法处理加载了**。
+    注意，**顶层`await`只能用在 ES6 模块，不能用在 CommonJS 模块**。这是因为 CommonJS 模块的`require()`是同步加载，如果有顶层`await`，就没法处理加载了。
   
     下面是顶层`await`的一些使用场景。
   
@@ -3200,7 +3203,7 @@
     }
     ```
   
-    注意，如果加载多个包含顶层`await`命令的模块，加载命令是同步执行的。
+    注意，如果**加载多个包含顶层`await`命令的模块，加载命令是同步执行的**。
   
     ```js
     // x.js
@@ -3215,10 +3218,14 @@
     import "./x.js";
     import "./y.js";
     console.log("Z");
+    // X1
+  // Y
+    // X2
+  // Z
     ```
-  
+    
     上面代码有三个模块，最后的`z.js`加载`x.js`和`y.js`，打印结果是`X1`、`Y`、`X2`、`Z`。这说明，`z.js`并没有等待`x.js`加载完成，再去加载`y.js`。
-  
+    
     **顶层的`await`命令有点像，交出代码的执行权给其他的模块加载，等异步操作完成后，再拿回执行权，继续向下执行**。
 
 ------
