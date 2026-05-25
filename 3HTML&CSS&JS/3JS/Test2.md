@@ -996,9 +996,9 @@
       var actor = _new(Person, '张三', 28);
       ```
 
-    - ##### 函数中的`new.target`属性：
+    - ##### （ES6）函数中的`new.target`：
 
-      所有函数/方法内部可以都有`new.target`属性（除了箭头函数），如果当前函数是`new`命令调用，`new.target`指向当前函数，否则为`undefined`。
+      所有函数/方法内部都有`new.target`属性（除了箭头函数），如果当前函数是`new`命令调用，`new.target`指向当前函数，否则为`undefined`。`new.target` 提供了一种可靠的方式来检测函数或构造函数是否通过 `new` 被调用。
   
   - #### `this` 关键字
   
