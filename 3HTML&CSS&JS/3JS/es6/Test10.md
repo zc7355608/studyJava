@@ -1458,20 +1458,20 @@
   
        ES6 模块的加载路径必须给出脚本的完整路径，不能省略脚本的后缀名。`import`命令和`package.json`文件的`main`字段如果省略脚本的后缀名，会报错。
   
-       ```
+       ```js
        // ES6 模块中将报错
        import { something } from './index';
        ```
   
        为了与浏览器的`import`加载规则相同，Node.js 的`.mjs`文件支持 URL 路径。
   
-       ```
+       ```js
        import './foo.mjs?query=1'; // 加载 ./foo 传入参数 ?query=1
        ```
   
        上面代码中，脚本路径带有参数`?query=1`，Node 会按 URL 规则解读。同一个脚本只要参数不同，就会被加载多次，并且保存成不同的缓存。由于这个原因，只要文件名中含有`:`、`%`、`#`、`?`等特殊字符，最好对这些字符进行转义。
   
-       目前，Node.js 的`import`命令只支持加载本地模块（`file:`协议）和`data:`协议，不支持加载远程模块。另外，脚本路径只支持相对路径，不支持绝对路径（即以`/`或`//`开头的路径）。
+       目前，Node.js 的`import`命令只支持加载本地模块（`file:`协议）、`data:`协议、`node:`协议（内置模块），不支持加载远程模块。
   
     - ##### 内部变量：
   
@@ -1492,7 +1492,7 @@
   
     循环加载”（circular dependency）指的是，`a`脚本的执行依赖`b`脚本，而`b`脚本的执行又依赖`a`脚本。
     
-    ```
+    ```js
     // a.js
     var b = require('b');
     
@@ -1506,18 +1506,18 @@
     
     对于 JS 语言来说，目前最常见的两种模块格式 CommonJS 和 ES6，处理“循环加载”的方法是不一样的，返回的结果也不一样。
   
-    - ##### CommonJS 模块的加载原理
+    - ##### CommonJS 模块的加载原理：
   
       介绍 ES6 如何处理“循环加载”之前，先介绍目前最流行的 CommonJS 模块格式的加载原理。
       
       CommonJS 的一个模块，就是一个脚本文件。`require`命令第一次加载该脚本，就会执行整个脚本，然后在内存生成一个对象。
       
-      ```
+      ```js
       {
-      id: '...',
-      exports: { ... },
-      loaded: true,
-      ...
+        id: '...',
+        exports: { ... },
+        loaded: true,
+        ...
       }
       ```
       
@@ -1525,13 +1525,13 @@
       
       以后需要用到这个模块的时候，就会到`exports`属性上面取值。即使再次执行`require`命令，也不会再次执行该模块，而是到缓存之中取值。也就是说，CommonJS 模块无论加载多少次，都只会在第一次加载时运行一次，以后再加载，就返回第一次运行的结果，除非手动清除系统缓存。
   
-    - ##### CommonJS 模块的循环加载
+    - ##### CommonJS 模块的循环加载：
   
       CommonJS 模块的重要特性是加载时执行，即脚本代码在`require`的时候，就会全部执行。一旦出现某个模块被"循环加载"，就只输出已经执行的部分，还未执行的部分不会输出。
       
       让我们来看，Node [官方文档](https://nodejs.org/api/modules.html#modules_cycles)里面的例子。脚本文件`a.js`代码如下。
       
-      ```
+      ```js
       exports.done = false;
       var b = require('./b.js');
       console.log('在 a.js 之中，b.done = %j', b.done);
@@ -1543,7 +1543,7 @@
       
       再看`b.js`的代码。
       
-      ```
+      ```js
       exports.done = false;
       var a = require('./a.js');
       console.log('在 b.js 之中，a.done = %j', a.done);
@@ -1555,7 +1555,7 @@
       
       `a.js`已经执行的部分，只有一行。
       
-      ```
+      ```js
       exports.done = false;
       ```
       
@@ -1563,7 +1563,7 @@
       
       然后，`b.js`接着往下执行，等到全部执行完毕，再把执行权交还给`a.js`。于是，`a.js`接着往下执行，直到执行完毕。我们写一个脚本`main.js`，验证这个过程。
       
-      ```
+      ```js
       var a = require('./a.js');
       var b = require('./b.js');
       console.log('在 main.js 之中, a.done=%j, b.done=%j', a.done, b.done);
@@ -1571,19 +1571,19 @@
       
       执行`main.js`，运行结果如下。
       
-      ```
-      $ node main.js
-      
+      ```bash
+      node main.js
+      // 输出
       在 b.js 之中，a.done = false
       b.js 执行完毕
-      在 a.js 之中，b.done = true
+      在 a.js 之中，b.done = truebash
       a.js 执行完毕
       在 main.js 之中, a.done=true, b.done=true
       ```
       
       上面的代码证明了两件事。一是，在`b.js`之中，`a.js`没有执行完毕，只执行了第一行。二是，`main.js`执行到第二行时，不会再次执行`b.js`，而是输出缓存的`b.js`的执行结果，即它的第四行。
       
-      ```
+      ```js
       exports.done = true;
       ```
       
@@ -1591,28 +1591,28 @@
       
       另外，由于 CommonJS 模块遇到循环加载时，返回的是当前已经执行的部分的值，而不是代码全部执行后的值，两者可能会有差异。所以，输入变量的时候，必须非常小心。
       
-      ```
+      ```js
       var a = require('a'); // 安全的写法
       var foo = require('a').foo; // 危险的写法
       
       exports.good = function (arg) {
-      return a.foo('good', arg); // 使用的是 a.foo 的最新值
+        return a.foo('good', arg); // 使用的是 a.foo 的最新值
       };
       
       exports.bad = function (arg) {
-      return foo('bad', arg); // 使用的是一个部分加载时的值
+        return foo('bad', arg); // 使用的是一个部分加载时的值
       };
       ```
       
       上面代码中，如果发生循环加载，`require('a').foo`的值很可能后面会被改写，改用`require('a')`会更保险一点。
   
-    - ##### ES6 模块的循环加载
+    - ##### ES6 模块的循环加载：
   
       ES6 处理“循环加载”与 CommonJS 有本质的不同。ES6 模块是动态引用，如果使用`import`从一个模块加载变量（即`import foo from 'foo'`），那些变量不会被缓存，而是成为一个指向被加载模块的引用，需要开发者自己保证，真正取值的时候能够取到值。
       
       请看下面这个例子。
       
-      ```
+      ```js
       // a.mjs
       import {bar} from './b';
       console.log('a.mjs');
@@ -1628,8 +1628,8 @@
       
       上面代码中，`a.mjs`加载`b.mjs`，`b.mjs`又加载`a.mjs`，构成循环加载。执行`a.mjs`，结果如下。
       
-      ```
-      $ node --experimental-modules a.mjs
+      ```bash
+      node --experimental-modules a.mjs
       b.mjs
       ReferenceError: foo is not defined
       ```
@@ -1640,7 +1640,7 @@
       
       解决这个问题的方法，就是让`b.mjs`运行的时候，`foo`已经有定义了。这可以通过将`foo`写成函数来解决。
       
-      ```
+      ```js
       // a.mjs
       import {bar} from './b';
       console.log('a.mjs');
@@ -1658,8 +1658,8 @@
       
       这时再执行`a.mjs`就可以得到预期结果。
       
-      ```
-      $ node --experimental-modules a.mjs
+      ```bash
+      node --experimental-modules a.mjs
       b.mjs
       foo
       a.mjs
@@ -1668,7 +1668,7 @@
       
       这是因为函数具有提升作用，在执行`import {bar} from './b'`时，函数`foo`就已经有定义了，所以`b.mjs`加载的时候不会报错。这也意味着，如果把函数`foo`改写成函数表达式，也会报错。
       
-      ```
+      ```js
       // a.mjs
       import {bar} from './b';
       console.log('a.mjs');
@@ -1681,19 +1681,19 @@
       
       我们再来看 ES6 模块加载器[SystemJS](https://github.com/ModuleLoader/es6-module-loader/blob/master/docs/circular-references-bindings.md)给出的一个例子。
       
-      ```
+      ```js
       // even.js
       import { odd } from './odd'
       export var counter = 0;
       export function even(n) {
-      counter++;
-      return n === 0 || odd(n - 1);
+        counter++;
+        return n === 0 || odd(n - 1);
       }
       
       // odd.js
       import { even } from './even';
       export function odd(n) {
-      return n !== 0 && even(n - 1);
+        return n !== 0 && even(n - 1);
       }
       ```
       
@@ -1701,7 +1701,7 @@
       
       运行上面这段代码，结果如下。
       
-      ```
+      ```bash
       $ babel-node
       > import * as m from './even.js';
       > m.even(10);
@@ -1718,7 +1718,7 @@
       
       这个例子要是改写成 CommonJS，就根本无法执行，会报错。
       
-      ```
+      ```js
       // even.js
       var odd = require('./odd');
       var counter = 0;
@@ -1737,7 +1737,7 @@
       
       上面代码中，`even.js`加载`odd.js`，而`odd.js`又去加载`even.js`，形成“循环加载”。这时，执行引擎就会输出`even.js`已经执行的部分（不存在任何结果），所以在`odd.js`之中，变量`even`等于`undefined`，等到后面调用`even(n - 1)`就会报错。
       
-      ```js
+      ```bash
       $ node
       > var m = require('./even');
       > m.even(10)

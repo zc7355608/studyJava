@@ -1,951 +1,1349 @@
-- ## 编程风格
+- ## 类的装饰器（ES2025）（todo）
 
-  > 本章探讨如何将 ES6 的新语法，运用到编码实践之中，与传统的 JS 语法结合在一起，写出合理的、易于阅读和维护的代码。
-  >
-  > 多家公司和组织已经公开了它们的风格规范，下面的内容主要参考了 [Airbnb](https://github.com/airbnb/javascript) 公司的 JS 风格规范。
+  > Decorator  提案经历了重大的语法变化，目前处于第三阶段，定案之前不知道是否还有变化。本章现在属于草稿阶段，凡是标注“新语法”的章节，都是基于当前的语法，不过没有详细整理，只是一些原始材料；未标注“新语法”的章节基于以前的语法，是过去遗留的稿子。之所以保留以前的内容，有两个原因，一是 TypeScript  装饰器会用到这些语法，二是里面包含不少有价值的内容。等到标准完全定案，本章将彻底重写：删去过时内容，补充材料，增加解释。（2022年6月）
 
-  - #### 块级作用域
+  - #### 简介（新语法）
 
-    > **（1）let 取代 var**
-    >
-    > ES6 提出了两个新的声明变量的命令：`let`和`const`。其中，`let`完全可以取代`var`，因为两者语义相同，而且`let`没有副作用。
-    >
-    > ```
-    > 'use strict';
-    > 
-    > if (true) {
-    >   let x = 'hello';
-    > }
-    > 
-    > for (let i = 0; i < 10; i++) {
-    >   console.log(i);
-    > }
-    > ```
-    >
-    > 上面代码如果用`var`替代`let`，实际上就声明了两个全局变量，这显然不是本意。变量应该只在其声明的代码块内有效，`var`命令做不到这一点。
-    >
-    > `var`命令存在变量提升效用，`let`命令没有这个问题。
-    >
-    > ```
-    > 'use strict';
-    > 
-    > if (true) {
-    >   console.log(x); // ReferenceError
-    >   let x = 'hello';
-    > }
-    > ```
-    >
-    > 上面代码如果使用`var`替代`let`，`console.log`那一行就不会报错，而是会输出`undefined`，因为变量声明提升到代码块的头部。这违反了变量先声明后使用的原则。
-    >
-    > 所以，建议不再使用`var`命令，而是使用`let`命令取代。
-    >
-    > **（2）全局常量和线程安全**
-    >
-    > 在`let`和`const`之间，建议优先使用`const`，尤其是在全局环境，不应该设置变量，只应设置常量。
-    >
-    > `const`优于`let`有几个原因。一个是`const`可以提醒阅读程序的人，这个变量不应该改变；另一个是`const`比较符合函数式编程思想，运算不改变值，只是新建值，而且这样也有利于将来的分布式运算；最后一个原因是 JS 编译器会对`const`进行优化，所以多使用`const`，有利于提高程序的运行效率，也就是说`let`和`const`的本质区别，其实是编译器内部的处理不同。
-    >
-    > ```
-    > // bad
-    > var a = 1, b = 2, c = 3;
-    > 
-    > // good
-    > const a = 1;
-    > const b = 2;
-    > const c = 3;
-    > 
-    > // best
-    > const [a, b, c] = [1, 2, 3];
-    > ```
-    >
-    > `const`声明常量还有两个好处，一是阅读代码的人立刻会意识到不应该修改这个值，二是防止了无意间修改变量值所导致的错误。
-    >
-    > 所有的函数都应该设置为常量。
-    >
-    > 长远来看，JS 可能会有多线程的实现（比如 Intel 公司的 River Trail 那一类的项目），这时`let`表示的变量，只应出现在单线程运行的代码中，不能是多线程共享的，这样有利于保证线程安全。
+    装饰器（Decorator）用来增强 JS 类（class）的功能，许多面向对象的语言都有这种语法，目前有一个[提案](https://github.com/tc39/proposal-decorators)将其引入了 ECMAScript。
+    
+    装饰器是一种函数，写成`@ + 函数名`，可以用来装饰四种类型的值。
+    
+    - 类
+    - 类的属性
+    - 类的方法
+    - 属性存取器（accessor）
+    
+    下面的例子是装饰器放在类名和类方法名之前，大家可以感受一下写法。
+    
+    ```js
+    @frozen class Foo {
+      @configurable(false)
+      @enumerable(true)
+      method() {}
+    
+      @throttle(500)
+      expensiveMethod() {}
+    }
+    ```
+    
+    上面代码一共使用了四个装饰器，一个用在类本身（@frozen），另外三个用在类方法（@configurable()、@enumerable()、@throttle()）。它们不仅增加了代码的可读性，清晰地表达了意图，而且提供一种方便的手段，增加或修改类的功能。
 
-  - #### 字符串
+  - #### 装饰器 API（新语法）
 
-    > 静态字符串一律使用单引号或反引号，不使用双引号。动态字符串使用反引号。
-    >
-    > ```js
-    > // bad
-    > const a = "foobar";
-    > const b = 'foo' + a + 'bar';
-    > 
-    > // acceptable
-    > const c = `foobar`;
-    > 
-    > // good
-    > const a = 'foobar';
-    > const b = `foo${a}bar`;
-    > ```
+    装饰器是一个函数，API 的类型描述如下（TypeScript 写法）。
+    
+    ```js
+    type Decorator = (value: Input, context: {
+      kind: string;
+      name: string | symbol;
+      access: {
+        get?(): unknown;
+        set?(value: unknown): void;
+      };
+      private?: boolean;
+      static?: boolean;
+      addInitializer?(initializer: () => void): void;
+    }) => Output | void;
+    ```
+    
+    装饰器函数有两个参数。运行时，JS 引擎会提供这两个参数。
+    
+    - `value`：所要装饰的值，某些情况下可能是`undefined`（装饰属性时）。
+    - `context`：上下文信息对象。
+    
+    装饰器函数的返回值，是一个新版本的装饰对象，但也可以不返回任何值（void）。
+    
+    `context`对象有很多属性，其中`kind`属性表示属于哪一种装饰，其他属性的含义如下。
+    
+    - `kind`：字符串，表示装饰类型，可能的取值有`class`、`method`、`getter`、`setter`、`field`、`accessor`。
+    - `name`：被装饰的值的名称: The name of the value, or in the case of private elements the description of it (e.g. the readable name).
+    - `access`：对象，包含访问这个值的方法，即存值器和取值器。
+    - `static`: 布尔值，该值是否为静态元素。
+    - `private`：布尔值，该值是否为私有元素。
+    - `addInitializer`：函数，允许用户增加初始化逻辑。
+    
+    装饰器的执行步骤如下。
+    
+    1. 计算各个装饰器的值，按照从左到右，从上到下的顺序。
+    2. 调用方法装饰器。
+    3. 调用类装饰器。
 
-  - #### 解构赋值
+  - #### 类的装饰
 
-    > 使用数组成员对变量赋值时，优先使用解构赋值。
-    >
-    > ```
-    > const arr = [1, 2, 3, 4];
-    > 
-    > // bad
-    > const first = arr[0];
-    > const second = arr[1];
-    > 
-    > // good
-    > const [first, second] = arr;
-    > ```
-    >
-    > 函数的参数如果是对象的成员，优先使用解构赋值。
-    >
-    > ```
-    > // bad
-    > function getFullName(user) {
-    >   const firstName = user.firstName;
-    >   const lastName = user.lastName;
-    > }
-    > 
-    > // good
-    > function getFullName(obj) {
-    >   const { firstName, lastName } = obj;
-    > }
-    > 
-    > // best
-    > function getFullName({ firstName, lastName }) {
-    > }
-    > ```
-    >
-    > 如果函数返回多个值，优先使用对象的解构赋值，而不是数组的解构赋值。这样便于以后添加返回值，以及更改返回值的顺序。
-    >
-    > ```js
-    > // bad
-    > function processInput(input) {
-    >   return [left, right, top, bottom];
-    > }
-    > 
-    > // good
-    > function processInput(input) {
-    >   return { left, right, top, bottom };
-    > }
-    > 
-    > const { left, right } = processInput(input);
-    > ```
+    装饰器可以用来装饰整个类。
+    
+    ```js
+    @testable
+    class MyTestableClass {
+      // ...
+    }
+    
+    function testable(target) {
+      target.isTestable = true;
+    }
+    
+    MyTestableClass.isTestable // true
+    ```
+    
+    上面代码中，`@testable`就是一个装饰器。它修改了`MyTestableClass`这个类的行为，为它加上了静态属性`isTestable`。`testable`函数的参数`target`是`MyTestableClass`类本身。
+    
+    基本上，装饰器的行为就是下面这样。
+    
+    ```js
+    @decorator
+    class A {}
+    
+    // 等同于
+    
+    class A {}
+    A = decorator(A) || A;
+    ```
+    
+    也就是说，装饰器是一个对类进行处理的函数。装饰器函数的第一个参数，就是所要装饰的目标类。
+    
+    ```js
+    function testable(target) {
+      // ...
+    }
+    ```
+    
+    上面代码中，`testable`函数的参数`target`，就是会被装饰的类。
+    
+    如果觉得一个参数不够用，可以在装饰器外面再封装一层函数。
+    
+    ```js
+    function testable(isTestable) {
+      return function(target) {
+        target.isTestable = isTestable;
+      }
+    }
+    
+    @testable(true)
+    class MyTestableClass {}
+    MyTestableClass.isTestable // true
+    
+    @testable(false)
+    class MyClass {}
+    MyClass.isTestable // false
+    ```
+    
+    上面代码中，装饰器`testable`可以接受参数，这就等于可以修改装饰器的行为。
+    
+    注意，装饰器对类的行为的改变，是代码编译时发生的，而不是在运行时。这意味着，装饰器能在编译阶段运行代码。也就是说，装饰器本质就是编译时执行的函数。
+    
+    前面的例子是为类添加一个静态属性，如果想添加实例属性，可以通过目标类的`prototype`对象操作。
+    
+    ```js
+    function testable(target) {
+      target.prototype.isTestable = true;
+    }
+    
+    @testable
+    class MyTestableClass {}
+    
+    let obj = new MyTestableClass();
+    obj.isTestable // true
+    ```
+    
+    上面代码中，装饰器函数`testable`是在目标类的`prototype`对象上添加属性，因此就可以在实例上调用。
+    
+    下面是另外一个例子。
+    
+    ```js
+    // mixins.js
+    export function mixins(...list) {
+      return function (target) {
+        Object.assign(target.prototype, ...list)
+      }
+    }
+    
+    // main.js
+    import { mixins } from './mixins.js'
+    
+    const Foo = {
+      foo() { console.log('foo') }
+    };
+    
+    @mixins(Foo)
+    class MyClass {}
+    
+    let obj = new MyClass();
+    obj.foo() // 'foo'
+    ```
+    
+    上面代码通过装饰器`mixins`，把`Foo`对象的方法添加到了`MyClass`的实例上面。可以用`Object.assign()`模拟这个功能。
+    
+    ```js
+    const Foo = {
+      foo() { console.log('foo') }
+    };
+    
+    class MyClass {}
+    
+    Object.assign(MyClass.prototype, Foo);
+    
+    let obj = new MyClass();
+    obj.foo() // 'foo'
+    ```
+    
+    实际开发中，React 与 Redux 库结合使用时，常常需要写成下面这样。
+    
+    ```js
+    class MyReactComponent extends React.Component {}
+    
+    export default connect(mapStateToProps, mapDispatchToProps)(MyReactComponent);
+    ```
+    
+    有了装饰器，就可以改写上面的代码。
+    
+    ```js
+    @connect(mapStateToProps, mapDispatchToProps)
+    export default class MyReactComponent extends React.Component {}
+    ```
+    
+    相对来说，后一种写法看上去更容易理解。
 
-  - #### 对象
+  - #### 类装饰器（新语法）
 
-    > 单行定义的对象，最后一个成员不以逗号结尾。多行定义的对象，最后一个成员以逗号结尾。
-    >
-    > ```
-    > // bad
-    > const a = { k1: v1, k2: v2, };
-    > const b = {
-    >   k1: v1,
-    >   k2: v2
-    > };
-    > 
-    > // good
-    > const a = { k1: v1, k2: v2 };
-    > const b = {
-    >   k1: v1,
-    >   k2: v2,
-    > };
-    > ```
-    >
-    > 对象尽量静态化，一旦定义，就不得随意添加新的属性。如果添加属性不可避免，要使用`Object.assign`方法。
-    >
-    > ```
-    > // bad
-    > const a = {};
-    > a.x = 3;
-    > 
-    > // if reshape unavoidable
-    > const a = {};
-    > Object.assign(a, { x: 3 });
-    > 
-    > // good
-    > const a = { x: null };
-    > a.x = 3;
-    > ```
-    >
-    > 如果对象的属性名是动态的，可以在创造对象的时候，使用属性表达式定义。
-    >
-    > ```
-    > // bad
-    > const obj = {
-    >   id: 5,
-    >   name: 'San Francisco',
-    > };
-    > obj[getKey('enabled')] = true;
-    > 
-    > // good
-    > const obj = {
-    >   id: 5,
-    >   name: 'San Francisco',
-    >   [getKey('enabled')]: true,
-    > };
-    > ```
-    >
-    > 上面代码中，对象`obj`的最后一个属性名，需要计算得到。这时最好采用属性表达式，在新建`obj`的时候，将该属性与其他属性定义在一起。这样一来，所有属性就在一个地方定义了。
-    >
-    > 另外，对象的属性和方法，尽量采用简洁表达法，这样易于描述和书写。
-    >
-    > ```js
-    > var ref = 'some value';
-    > 
-    > // bad
-    > const atom = {
-    >   ref: ref,
-    > 
-    >   value: 1,
-    > 
-    >   addValue: function (value) {
-    >     return atom.value + value;
-    >   },
-    > };
-    > 
-    > // good
-    > const atom = {
-    >   ref,
-    > 
-    >   value: 1,
-    > 
-    >   addValue(value) {
-    >     return atom.value + value;
-    >   },
-    > };
-    > ```
+    类装饰器的类型描述如下。
+    
+    ```js
+    type ClassDecorator = (value: Function, context: {
+      kind: "class";
+      name: string | undefined;
+      addInitializer(initializer: () => void): void;
+    }) => Function | void;
+    ```
+    
+    类装饰器的第一个参数，就是被装饰的类。第二个参数是上下文对象，如果被装饰的类是一个匿名类，`name`属性就为`undefined`。
+    
+    类装饰器可以返回一个新的类，取代原来的类，也可以不返回任何值。如果返回的不是构造函数，就会报错。
+    
+    下面是一个例子。
+    
+    ```js
+    function logged(value, { kind, name }) {
+      if (kind === "class") {
+        return class extends value {
+          constructor(...args) {
+            super(...args);
+            console.log(`constructing an instance of ${name} with arguments ${args.join(", ")}`);
+          }
+        }
+      }
+    
+      // ...
+    }
+    
+    @logged
+    class C {}
+    
+    new C(1);
+    // constructing an instance of C with arguments 1
+    ```
+    
+    如果不使用装饰器，类装饰器实际上执行的是下面的语法。
+    
+    ```js
+    class C {}
+    
+    C = logged(C, {
+      kind: "class",
+      name: "C",
+    }) ?? C;
+    
+    new C(1);
+    ```
 
-  - #### 数组
+  - #### 方法装饰器（新语法）
 
-    > 使用扩展运算符（...）拷贝数组。
-    >
-    > ```
-    > // bad
-    > const len = items.length;
-    > const itemsCopy = [];
-    > let i;
-    > 
-    > for (i = 0; i < len; i++) {
-    >   itemsCopy[i] = items[i];
-    > }
-    > 
-    > // good
-    > const itemsCopy = [...items];
-    > ```
-    >
-    > 使用 Array.from 方法，将类似数组的对象转为数组。
-    >
-    > ```js
-    > const foo = document.querySelectorAll('.foo');
-    > const nodes = Array.from(foo);
-    > ```
+    方法装饰器会修改类的方法。
+    
+    ```js
+    class C {
+      @trace
+      toString() {
+        return 'C';
+      }
+    }
+    
+    // 相当于
+    C.prototype.toString = trace(C.prototype.toString);
+    ```
+    
+    上面示例中，`@trace`装饰`toString()`方法，就相当于修改了该方法。
+    
+    方法装饰器使用 TypeScript 描述类型如下。
+    
+    ```ts
+    type ClassMethodDecorator = (value: Function, context: {
+      kind: "method";
+      name: string | symbol;
+      access: { get(): unknown };
+      static: boolean;
+      private: boolean;
+      addInitializer(initializer: () => void): void;
+    }) => Function | void;
+    ```
+    
+    方法装饰器的第一个参数`value`，就是所要装饰的方法。
+    
+    方法装饰器可以返回一个新函数，取代原来的方法，也可以不返回值，表示依然使用原来的方法。如果返回其他类型的值，就会报错。下面是一个例子。
+    
+    ```js
+    function replaceMethod() {
+      return function () {
+        return `How are you, ${this.name}?`;
+      }
+    }
+    
+    class Person {
+      constructor(name) {
+        this.name = name;
+      }
+      @replaceMethod
+      hello() {
+        return `Hi ${this.name}!`;
+      }
+    }
+    
+    const robin = new Person('Robin');
+    
+    robin.hello(), 'How are you, Robin?'
+    ```
+    
+    上面示例中，`@replaceMethod`返回了一个新函数，取代了原来的`hello()`方法。
+    
+    ```js
+    function logged(value, { kind, name }) {
+      if (kind === "method") {
+        return function (...args) {
+          console.log(`starting ${name} with arguments ${args.join(", ")}`);
+          const ret = value.call(this, ...args);
+          console.log(`ending ${name}`);
+          return ret;
+        };
+      }
+    }
+    
+    class C {
+      @logged
+      m(arg) {}
+    }
+    
+    new C().m(1);
+    // starting m with arguments 1
+    // ending m
+    ```
+    
+    上面示例中，装饰器`@logged`返回一个函数，代替原来的`m()`方法。
+    
+    这里的装饰器实际上是一个语法糖，真正的操作是像下面这样，改掉原型链上面`m()`方法。
+    
+    ```js
+    class C {
+      m(arg) {}
+    }
+    
+    C.prototype.m = logged(C.prototype.m, {
+      kind: "method",
+      name: "m",
+      static: false,
+      private: false,
+    }) ?? C.prototype.m;
+    ```
 
-  - #### 函数
+  - #### 方法的装饰
 
-    > 立即执行函数可以写成箭头函数的形式。
-    >
-    > ```
-    > (() => {
-    >   console.log('Welcome to the Internet.');
-    > })();
-    > ```
-    >
-    > 那些使用匿名函数当作参数的场合，尽量用箭头函数代替。因为这样更简洁，而且绑定了 this。
-    >
-    > ```
-    > // bad
-    > [1, 2, 3].map(function (x) {
-    >   return x * x;
-    > });
-    > 
-    > // good
-    > [1, 2, 3].map((x) => {
-    >   return x * x;
-    > });
-    > 
-    > // best
-    > [1, 2, 3].map(x => x * x);
-    > ```
-    >
-    > 箭头函数取代`Function.prototype.bind`，不应再用 self/_this/that 绑定 this。
-    >
-    > ```
-    > // bad
-    > const self = this;
-    > const boundMethod = function(...params) {
-    >   return method.apply(self, params);
-    > }
-    > 
-    > // acceptable
-    > const boundMethod = method.bind(this);
-    > 
-    > // best
-    > const boundMethod = (...params) => method.apply(this, params);
-    > ```
-    >
-    > 简单的、单行的、不会复用的函数，建议采用箭头函数。如果函数体较为复杂，行数较多，还是应该采用传统的函数写法。
-    >
-    > 所有配置项都应该集中在一个对象，放在最后一个参数，布尔值最好不要直接作为参数，因为代码语义会很差，也不利于将来增加其他配置项。
-    >
-    > ```
-    > // bad
-    > function divide(a, b, option = false ) {
-    > }
-    > 
-    > // good
-    > function divide(a, b, { option = false } = {}) {
-    > }
-    > ```
-    >
-    > 不要在函数体内使用 arguments 变量，使用 rest 运算符（...）代替。因为 rest 运算符显式表明你想要获取参数，而且 arguments 是一个类似数组的对象，而 rest 运算符可以提供一个真正的数组。
-    >
-    > ```
-    > // bad
-    > function concatenateAll() {
-    >   const args = Array.prototype.slice.call(arguments);
-    >   return args.join('');
-    > }
-    > 
-    > // good
-    > function concatenateAll(...args) {
-    >   return args.join('');
-    > }
-    > ```
-    >
-    > 使用默认值语法设置函数参数的默认值。
-    >
-    > ```js
-    > // bad
-    > function handleThings(opts) {
-    >   opts = opts || {};
-    > }
-    > 
-    > // good
-    > function handleThings(opts = {}) {
-    >   // ...
-    > }
-    > ```
+    装饰器不仅可以装饰类，还可以装饰类的属性。
+    
+    ```js
+    class Person {
+      @readonly
+      name() { return `${this.first} ${this.last}` }
+    }
+    ```
+    
+    上面代码中，装饰器`readonly`用来装饰“类”的`name`方法。
+    
+    装饰器函数`readonly`一共可以接受三个参数。
+    
+    ```js
+    function readonly(target, name, descriptor){
+      // descriptor对象原来的值如下
+      // {
+      //   value: specifiedFunction,
+      //   enumerable: false,
+      //   configurable: true,
+      //   writable: true
+      // };
+      descriptor.writable = false;
+      return descriptor;
+    }
+    
+    readonly(Person.prototype, 'name', descriptor);
+    // 类似于
+    Object.defineProperty(Person.prototype, 'name', descriptor);
+    ```
+    
+    装饰器第一个参数是类的原型对象，上例是`Person.prototype`，装饰器的本意是要“装饰”类的实例，但是这个时候实例还没生成，所以只能去装饰原型（这不同于类的装饰，那种情况时`target`参数指的是类本身）；第二个参数是所要装饰的属性名，第三个参数是该属性的描述对象。
+    
+    另外，上面代码说明，装饰器（readonly）会修改属性的描述对象（descriptor），然后被修改的描述对象再用来定义属性。
+    
+    下面是另一个例子，修改属性描述对象的`enumerable`属性，使得该属性不可遍历。
+    
+    ```js
+    class Person {
+      @nonenumerable
+      get kidCount() { return this.children.length; }
+    }
+    
+    function nonenumerable(target, name, descriptor) {
+      descriptor.enumerable = false;
+      return descriptor;
+    }
+    ```
+    
+    下面的`@log`装饰器，可以起到输出日志的作用。
+    
+    ```js
+    class Math {
+      @log
+      add(a, b) {
+        return a + b;
+      }
+    }
+    
+    function log(target, name, descriptor) {
+      var oldValue = descriptor.value;
+    
+      descriptor.value = function() {
+        console.log(`Calling ${name} with`, arguments);
+        return oldValue.apply(this, arguments);
+      };
+    
+      return descriptor;
+    }
+    
+    const math = new Math();
+    
+    // passed parameters should get logged now
+    math.add(2, 4);
+    ```
+    
+    上面代码中，`@log`装饰器的作用就是在执行原始的操作之前，执行一次`console.log`，从而达到输出日志的目的。
+    
+    装饰器有注释的作用。
+    
+    ```js
+    @testable
+    class Person {
+      @readonly
+      @nonenumerable
+      name() { return `${this.first} ${this.last}` }
+    }
+    ```
+    
+    从上面代码中，我们一眼就能看出，`Person`类是可测试的，而`name`方法是只读和不可枚举的。
+    
+    下面是使用 Decorator 写法的[组件](https://github.com/ionic-team/stencil)，看上去一目了然。
+    
+    ```js
+    @Component({
+      tag: 'my-component',
+      styleUrl: 'my-component.scss'
+    })
+    export class MyComponent {
+      @Prop() first: string;
+      @Prop() last: string;
+      @State() isVisible: boolean = true;
+    
+      render() {
+        return (
+          <p>Hello, my name is {this.first} {this.last}</p>
+        );
+      }
+    }
+    ```
+    
+    如果同一个方法有多个装饰器，会像剥洋葱一样，先从外到内进入，然后由内向外执行。
+    
+    ```js
+    function dec(id){
+      console.log('evaluated', id);
+      return (target, property, descriptor) => console.log('executed', id);
+    }
+    
+    class Example {
+        @dec(1)
+        @dec(2)
+        method(){}
+    }
+    // evaluated 1
+    // evaluated 2
+    // executed 2
+    // executed 1
+    ```
+    
+    上面代码中，外层装饰器`@dec(1)`先进入，但是内层装饰器`@dec(2)`先执行。
+    
+    除了注释，装饰器还能用来类型检查。所以，对于类来说，这项功能相当有用。从长期来看，它将是 JS 代码静态分析的重要工具。
 
-  - #### Map 结构
+  - #### 为什么装饰器不能用于函数？
 
-    > 注意区分 Object 和 Map，只有模拟现实世界的实体对象时，才使用 Object。如果只是需要`key: value`的数据结构，使用 Map 结构。因为 Map 有内建的遍历机制。
-    >
-    > ```js
-    > let map = new Map(arr);
-    > 
-    > for (let key of map.keys()) {
-    >   console.log(key);
-    > }
-    > 
-    > for (let value of map.values()) {
-    >   console.log(value);
-    > }
-    > 
-    > for (let item of map.entries()) {
-    >   console.log(item[0], item[1]);
-    > }
-    > ```
+    装饰器只能用于类和类的方法，不能用于函数，因为存在函数提升。
+    
+    ```js
+    var counter = 0;
+    
+    var add = function () {
+      counter++;
+    };
+    
+    @add
+    function foo() {}
+    ```
+    
+    上面的代码，意图是执行后`counter`等于 1，但是实际上结果是`counter`等于 0。因为函数提升，使得实际执行的代码是下面这样。
+    
+    ```js
+    var counter;
+    var add;
+    
+    @add
+    function foo() {}
+    
+    counter = 0;
+    
+    add = function () {
+      counter++;
+    };
+    ```
+    
+    下面是另一个例子。
+    
+    ```js
+    var readOnly = require("some-decorator");
+    
+    @readOnly
+    function foo() {}
+    ```
+    
+    上面代码也有问题，因为实际执行是下面这样。
+    
+    ```js
+    var readOnly;
+    
+    @readOnly
+    function foo() {}
+    
+    readOnly = require("some-decorator");
+    ```
+    
+    总之，由于存在函数提升，使得装饰器不能用于函数。类是不会提升的，所以就没有这方面的问题。
+    
+    另一方面，如果一定要装饰函数，可以采用高阶函数的形式直接执行。
+    
+    ```js
+    function doSomething(name) {
+      console.log('Hello, ' + name);
+    }
+    
+    function loggingDecorator(wrapped) {
+      return function() {
+        console.log('Starting');
+        const result = wrapped.apply(this, arguments);
+        console.log('Finished');
+        return result;
+      }
+    }
+    
+    const wrapped = loggingDecorator(doSomething);
+    ```
+    
+  - #### 存取器装饰器（新语法）
+  
+    存取器装饰器使用 TypeScript 描述的类型如下。
+  
+    ```js
+  type ClassGetterDecorator = (value: Function, context: {
+      kind: "getter";
+      name: string | symbol;
+      access: { get(): unknown };
+      static: boolean;
+      private: boolean;
+      addInitializer(initializer: () => void): void;
+    }) => Function | void;
+    
+    type ClassSetterDecorator = (value: Function, context: {
+      kind: "setter";
+      name: string | symbol;
+      access: { set(value: unknown): void };
+      static: boolean;
+      private: boolean;
+      addInitializer(initializer: () => void): void;
+    }) => Function | void;
+    ```
+    
+    存取器装饰器的第一个参数就是原始的存值器（setter）和取值器（getter）。
+    
+    存取器装饰器的返回值如果是一个函数，就会取代原来的存取器。本质上，就像方法装饰器一样，修改发生在类的原型对象上。它也可以不返回任何值，继续使用原来的存取器。如果返回其他类型的值，就会报错。
+    
+    存取器装饰器对存值器（setter）和取值器（getter）是分开作用的。下面的例子里面，`@foo`只装饰`get x()`，不装饰`set x()`。
+    
+    ```js
+    class C {
+      @foo
+      get x() {
+        // ...
+      }
+    
+      set x(val) {
+        // ...
+      }
+    }
+    ```
+    
+    上一节的`@logged`装饰器稍加修改，就可以用在存取装饰器。
+    
+    ```js
+    function logged(value, { kind, name }) {
+      if (kind === "method" || kind === "getter" || kind === "setter") {
+        return function (...args) {
+          console.log(`starting ${name} with arguments ${args.join(", ")}`);
+          const ret = value.call(this, ...args);
+          console.log(`ending ${name}`);
+          return ret;
+        };
+      }
+    }
+    
+    class C {
+      @logged
+      set x(arg) {}
+    }
+    
+    new C().x = 1
+    // starting x with arguments 1
+    // ending x
+    ```
+    
+    如果去掉语法糖，使用传统语法来写，就是改掉了类的原型链。
+    
+    ```js
+    class C {
+      set x(arg) {}
+    }
+    
+    let { set } = Object.getOwnPropertyDescriptor(C.prototype, "x");
+    set = logged(set, {
+      kind: "setter",
+      name: "x",
+      static: false,
+      private: false,
+    }) ?? set;
+    
+    Object.defineProperty(C.prototype, "x", { set });
+    ```
+  
+  - #### 属性装饰器（新语法）
+  
+    属性装饰器的类型描述如下。
+  
+    ```js
+  type ClassFieldDecorator = (value: undefined, context: {
+      kind: "field";
+      name: string | symbol;
+      access: { get(): unknown, set(value: unknown): void };
+      static: boolean;
+      private: boolean;
+    }) => (initialValue: unknown) => unknown | void;
+    ```
+    
+    属性装饰器的第一个参数是`undefined`，即不输入值。用户可以选择让装饰器返回一个初始化函数，当该属性被赋值时，这个初始化函数会自动运行，它会收到属性的初始值，然后返回一个新的初始值。属性装饰器也可以不返回任何值。除了这两种情况，返回其他类型的值都会报错。
+    
+    下面是一个例子。
+    
+    ```js
+    function logged(value, { kind, name }) {
+      if (kind === "field") {
+        return function (initialValue) {
+          console.log(`initializing ${name} with value ${initialValue}`);
+          return initialValue;
+        };
+      }
+    
+      // ...
+    }
+    
+    class C {
+      @logged x = 1;
+    }
+    
+    new C();
+    // initializing x with value 1
+    ```
+    
+    如果不使用装饰器语法，属性装饰器的实际作用如下。
+    
+    ```js
+    let initializeX = logged(undefined, {
+      kind: "field",
+      name: "x",
+      static: false,
+      private: false,
+    }) ?? (initialValue) => initialValue;
+    
+    class C {
+      x = initializeX.call(this, 1);
+    }
+    ```
+  
+  - #### `accessor` 命令（新语法）
+  
+    类装饰器引入了一个新命令`accessor`，用来属性的前缀。
+  
+    ```js
+  class C {
+      accessor x = 1;
+    }
+    ```
+    
+    它是一种简写形式，相当于声明属性`x`是私有属性`#x`的存取接口。上面的代码等同于下面的代码。
+    
+    ```js
+    class C {
+      #x = 1;
+    
+      get x() {
+        return this.#x;
+      }
+    
+      set x(val) {
+        this.#x = val;
+      }
+    }
+    ```
+    
+    `accessor`命令前面，还可以加上`static`命令和`private`命令。
+    
+    ```js
+    class C {
+      static accessor x = 1;
+      accessor #y = 2;
+    }
+    ```
+    
+    `accessor`命令前面还可以接受属性装饰器。
+    
+    ```js
+    function logged(value, { kind, name }) {
+      if (kind === "accessor") {
+        let { get, set } = value;
+    
+        return {
+          get() {
+            console.log(`getting ${name}`);
+    
+            return get.call(this);
+          },
+    
+          set(val) {
+            console.log(`setting ${name} to ${val}`);
+    
+            return set.call(this, val);
+          },
+    
+          init(initialValue) {
+            console.log(`initializing ${name} with value ${initialValue}`);
+            return initialValue;
+          }
+        };
+      }
+    
+      // ...
+    }
+    
+    class C {
+      @logged accessor x = 1;
+    }
+    
+    let c = new C();
+    // initializing x with value 1
+    c.x;
+    // getting x
+    c.x = 123;
+    // setting x to 123
+    ```
+    
+    上面的示例等同于使用`@logged`装饰器，改写`accessor`属性的 getter 和 setter 方法。
+    
+    用于`accessor`的属性装饰器的类型描述如下。
+    
+    ```js
+    type ClassAutoAccessorDecorator = (
+      value: {
+        get: () => unknown;
+        set(value: unknown) => void;
+      },
+      context: {
+        kind: "accessor";
+        name: string | symbol;
+        access: { get(): unknown, set(value: unknown): void };
+        static: boolean;
+        private: boolean;
+        addInitializer(initializer: () => void): void;
+      }
+    ) => {
+      get?: () => unknown;
+      set?: (value: unknown) => void;
+      initialize?: (initialValue: unknown) => unknown;
+    } | void;
+    ```
+    
+    `accessor`命令的第一个参数接收到的是一个对象，包含了`accessor`命令定义的属性的存取器 get 和 set。属性装饰器可以返回一个新对象，其中包含了新的存取器，用来取代原来的，即相当于拦截了原来的存取器。此外，返回的对象还可以包括一个`initialize`函数，用来改变私有属性的初始值。装饰器也可以不返回值，如果返回的是其他类型的值，或者包含其他属性的对象，就会报错。
+  
+  - #### `addInitializer()` 方法（新语法）
+  
+    除了属性装饰器，其他装饰器的上下文对象还包括一个`addInitializer()`方法，用来完成初始化操作。
+  
+    它的运行时间如下。
+  
+    - 类装饰器：在类被完全定义之后。
+    - 方法装饰器：在类构造期间运行，在属性初始化之前。
+    - 静态方法装饰器：在类定义期间运行，早于静态属性定义，但晚于类方法的定义。
+    
+    下面是一个例子。
+    
+    ```js
+    function customElement(name) {
+      return (value, { addInitializer }) => {
+        addInitializer(function() {
+          customElements.define(name, this);
+        });
+      }
+    }
+    
+    @customElement('my-element')
+    class MyElement extends HTMLElement {
+      static get observedAttributes() {
+        return ['some', 'attrs'];
+      }
+    }
+    ```
+    
+    上面的代码等同于下面不使用装饰器的代码。
+    
+    ```js
+    class MyElement {
+      static get observedAttributes() {
+        return ['some', 'attrs'];
+      }
+    }
+    
+    let initializersForMyElement = [];
+    
+    MyElement = customElement('my-element')(MyElement, {
+      kind: "class",
+      name: "MyElement",
+      addInitializer(fn) {
+        initializersForMyElement.push(fn);
+      },
+    }) ?? MyElement;
+    
+    for (let initializer of initializersForMyElement) {
+      initializer.call(MyElement);
+    }
+    ```
+    
+    下面是方法装饰器的例子。
+    
+    ```js
+    function bound(value, { name, addInitializer }) {
+      addInitializer(function () {
+        this[name] = this[name].bind(this);
+      });
+    }
+    
+    class C {
+      message = "hello!";
+    
+      @bound
+      m() {
+        console.log(this.message);
+      }
+    }
+    
+    let { m } = new C();
+    
+    m(); // hello!
+    ```
+    
+    上面的代码等同于下面不使用装饰器的代码。
+    
+    ```js
+    class C {
+      constructor() {
+        for (let initializer of initializersForM) {
+          initializer.call(this);
+        }
+    
+        this.message = "hello!";
+      }
+    
+      m() {}
+    }
+    
+    let initializersForM = []
+    
+    C.prototype.m = bound(
+      C.prototype.m,
+      {
+        kind: "method",
+        name: "m",
+        static: false,
+        private: false,
+        addInitializer(fn) {
+          initializersForM.push(fn);
+        },
+      }
+    ) ?? C.prototype.m;
+    ```
+  
+  - #### `core-decorators.js`
+  
+    [core-decorators.js](https://github.com/jayphelps/core-decorators.js)是一个第三方模块，提供了几个常见的装饰器，通过它可以更好地理解装饰器。
+  
+    **（1）@autobind**
+  
+    `autobind`装饰器使得方法中的`this`对象，绑定原始对象。
+    
+    ```js
+    import { autobind } from 'core-decorators';
+    
+    class Person {
+      @autobind
+      getPerson() {
+        return this;
+      }
+    }
+    
+    let person = new Person();
+    let getPerson = person.getPerson;
+    
+    getPerson() === person; // true
+    ```
+    
+    **（2）@readonly**
+    
+    `readonly`装饰器使得属性或方法不可写。
+    
+    ```js
+    import { readonly } from 'core-decorators';
+    
+    class Meal {
+      @readonly
+      entree = 'steak';
+    }
+    
+    var dinner = new Meal();
+    dinner.entree = 'salmon';
+    // Cannot assign to read only property 'entree' of [object Object]
+    ```
+    
+    **（3）@override**
+    
+    `override`装饰器检查子类的方法，是否正确覆盖了父类的同名方法，如果不正确会报错。
+    
+    ```js
+    import { override } from 'core-decorators';
+    
+    class Parent {
+      speak(first, second) {}
+    }
+    
+    class Child extends Parent {
+      @override
+      speak() {}
+      // SyntaxError: Child#speak() does not properly override Parent#speak(first, second)
+    }
+    
+    // or
+    
+    class Child extends Parent {
+      @override
+      speaks() {}
+      // SyntaxError: No descriptor matching Child#speaks() was found on the prototype chain.
+      //
+      //   Did you mean "speak"?
+    }
+    ```
+    
+    **（4）@deprecate (别名@deprecated)**
+    
+    `deprecate`或`deprecated`装饰器在控制台显示一条警告，表示该方法将废除。
+    
+    ```js
+    import { deprecate } from 'core-decorators';
+    
+    class Person {
+      @deprecate
+      facepalm() {}
+    
+      @deprecate('We stopped facepalming')
+      facepalmHard() {}
+    
+      @deprecate('We stopped facepalming', { url: 'http://knowyourmeme.com/memes/facepalm' })
+      facepalmHarder() {}
+    }
+    
+    let person = new Person();
+    
+    person.facepalm();
+    // DEPRECATION Person#facepalm: This function will be removed in future versions.
+    
+    person.facepalmHard();
+    // DEPRECATION Person#facepalmHard: We stopped facepalming
+    
+    person.facepalmHarder();
+    // DEPRECATION Person#facepalmHarder: We stopped facepalming
+    //
+    //     See http://knowyourmeme.com/memes/facepalm for more details.
+    //
+    ```
+    
+    **（5）@suppressWarnings**
+    
+    `suppressWarnings`装饰器抑制`deprecated`装饰器导致的`console.warn()`调用。但是，异步代码发出的调用除外。
+    
+    ```js
+    import { suppressWarnings } from 'core-decorators';
+    
+    class Person {
+      @deprecated
+      facepalm() {}
+    
+      @suppressWarnings
+      facepalmWithoutWarning() {
+        this.facepalm();
+      }
+    }
+    
+    let person = new Person();
+    
+    person.facepalmWithoutWarning();
+    // no warning is logged
+    ```
+    
+  - #### 使用装饰器实现自动发布事件
+  
+    我们可以使用装饰器，使得对象的方法被调用时，自动发出一个事件。
+    
+  ```js
+    const postal = require("postal/lib/postal.lodash");
+  
+    export default function publish(topic, channel) {
+      const channelName = channel || '/';
+      const msgChannel = postal.channel(channelName);
+      msgChannel.subscribe(topic, v => {
+        console.log('频道: ', channelName);
+        console.log('事件: ', topic);
+        console.log('数据: ', v);
+      });
+    
+      return function(target, name, descriptor) {
+        const fn = descriptor.value;
+    
+        descriptor.value = function() {
+          let value = fn.apply(this, arguments);
+          msgChannel.publish(topic, value);
+        };
+      };
+    }
+    ```
+    
+    上面代码定义了一个名为`publish`的装饰器，它通过改写`descriptor.value`，使得原方法被调用时，会自动发出一个事件。它使用的事件“发布/订阅”库是[Postal.js](https://github.com/postaljs/postal.js)。
+    
+    它的用法如下。
+    
+    ```js
+    // index.js
+    import publish from './publish';
+    
+    class FooComponent {
+      @publish('foo.some.message', 'component')
+      someMethod() {
+        return { my: 'data' };
+      }
+      @publish('foo.some.other')
+      anotherMethod() {
+        // ...
+      }
+    }
+    
+    let foo = new FooComponent();
+    
+    foo.someMethod();
+    foo.anotherMethod();
+    ```
+    
+    以后，只要调用`someMethod`或者`anotherMethod`，就会自动发出一个事件。
+    
+    ```bash
+    $ bash-node index.js
+    频道:  component
+    事件:  foo.some.message
+    数据:  { my: 'data' }
+    
+    频道:  /
+    事件:  foo.some.other
+    数据:  undefined
+    ```
+  
+  - #### `Mixin`
+  
+    在装饰器的基础上，可以实现`Mixin`模式。所谓`Mixin`模式，就是对象继承的一种替代方案，中文译为“混入”（mix in），意为在一个对象之中混入另外一个对象的方法。
+    
+  请看下面的例子。
+    
+  ```js
+    const Foo = {
+      foo() { console.log('foo') }
+    };
+    
+    class MyClass {}
+    
+    Object.assign(MyClass.prototype, Foo);
+    
+    let obj = new MyClass();
+    obj.foo() // 'foo'
+    ```
+    
+    上面代码之中，对象`Foo`有一个`foo`方法，通过`Object.assign`方法，可以将`foo`方法“混入”`MyClass`类，导致`MyClass`的实例`obj`对象都具有`foo`方法。这就是“混入”模式的一个简单实现。
+    
+    下面，我们部署一个通用脚本`mixins.js`，将 Mixin 写成一个装饰器。
+    
+    ```js
+    export function mixins(...list) {
+      return function (target) {
+        Object.assign(target.prototype, ...list);
+      };
+    }
+    ```
+    
+    然后，就可以使用上面这个装饰器，为类“混入”各种方法。
+    
+    ```js
+    import { mixins } from './mixins.js';
+    
+    const Foo = {
+      foo() { console.log('foo') }
+    };
+    
+    @mixins(Foo)
+    class MyClass {}
+    
+    let obj = new MyClass();
+    obj.foo() // "foo"
+    ```
+    
+    通过`mixins`这个装饰器，实现了在`MyClass`类上面“混入”`Foo`对象的`foo`方法。
+    
+    不过，上面的方法会改写`MyClass`类的`prototype`对象，如果不喜欢这一点，也可以通过类的继承实现 Mixin。
+    
+    ```js
+    class MyClass extends MyBaseClass {
+      /* ... */
+    }
+    ```
+    
+    上面代码中，`MyClass`继承了`MyBaseClass`。如果我们想在`MyClass`里面“混入”一个`foo`方法，一个办法是在`MyClass`和`MyBaseClass`之间插入一个混入类，这个类具有`foo`方法，并且继承了`MyBaseClass`的所有方法，然后`MyClass`再继承这个类。
+    
+    ```js
+    let MyMixin = (superclass) => class extends superclass {
+      foo() {
+        console.log('foo from MyMixin');
+      }
+    };
+    ```
+    
+    上面代码中，`MyMixin`是一个混入类生成器，接受`superclass`作为参数，然后返回一个继承`superclass`的子类，该子类包含一个`foo`方法。
+    
+    接着，目标类再去继承这个混入类，就达到了“混入”`foo`方法的目的。
+    
+    ```js
+    class MyClass extends MyMixin(MyBaseClass) {
+      /* ... */
+    }
+    
+    let c = new MyClass();
+    c.foo(); // "foo from MyMixin"
+    ```
+    
+    如果需要“混入”多个方法，就生成多个混入类。
+    
+    ```js
+    class MyClass extends Mixin1(Mixin2(MyBaseClass)) {
+      /* ... */
+    }
+    ```
+    
+    这种写法的一个好处，是可以调用`super`，因此可以避免在“混入”过程中覆盖父类的同名方法。
+    
+    ```js
+    let Mixin1 = (superclass) => class extends superclass {
+      foo() {
+        console.log('foo from Mixin1');
+        if (super.foo) super.foo();
+      }
+    };
+    
+    let Mixin2 = (superclass) => class extends superclass {
+      foo() {
+        console.log('foo from Mixin2');
+        if (super.foo) super.foo();
+      }
+    };
+    
+    class S {
+      foo() {
+        console.log('foo from S');
+      }
+    }
+    
+    class C extends Mixin1(Mixin2(S)) {
+      foo() {
+        console.log('foo from C');
+        super.foo();
+      }
+    }
+    ```
+    
+    上面代码中，每一次`混入`发生时，都调用了父类的`super.foo`方法，导致父类的同名方法没有被覆盖，行为被保留了下来。
+    
+    ```js
+    new C().foo()
+    // foo from C
+    // foo from Mixin1
+    // foo from Mixin2
+    // foo from S
+    ```
+  
+  - #### `Trait`
+  
+    Trait 也是一种装饰器，效果与 Mixin 类似，但是提供更多功能，比如防止同名方法的冲突、排除混入某些方法、为混入的方法起别名等等。
+    
+  下面采用[traits-decorator](https://github.com/CocktailJS/traits-decorator)这个第三方模块作为例子。这个模块提供的`traits`装饰器，不仅可以接受对象，还可以接受 ES6 类作为参数。
+    
+  ```js
+    import { traits } from 'traits-decorator';
+    
+    class TFoo {
+      foo() { console.log('foo') }
+    }
+    
+    const TBar = {
+      bar() { console.log('bar') }
+    };
+    
+    @traits(TFoo, TBar)
+    class MyClass { }
+    
+    let obj = new MyClass();
+    obj.foo() // foo
+    obj.bar() // bar
+    ```
+    
+    上面代码中，通过`traits`装饰器，在`MyClass`类上面“混入”了`TFoo`类的`foo`方法和`TBar`对象的`bar`方法。
+    
+    Trait 不允许“混入”同名方法。
+    
+    ```js
+    import { traits } from 'traits-decorator';
+    
+    class TFoo {
+      foo() { console.log('foo') }
+    }
+    
+    const TBar = {
+      bar() { console.log('bar') },
+      foo() { console.log('foo') }
+    };
+    
+    @traits(TFoo, TBar)
+    class MyClass { }
+    // 报错
+    // throw new Error('Method named: ' + methodName + ' is defined twice.');
+    //        ^
+    // Error: Method named: foo is defined twice.
+    ```
+    
+    上面代码中，`TFoo`和`TBar`都有`foo`方法，结果`traits`装饰器报错。
+    
+    一种解决方法是排除`TBar`的`foo`方法。
+    
+    ```js
+    import { traits, excludes } from 'traits-decorator';
+    
+    class TFoo {
+      foo() { console.log('foo') }
+    }
+    
+    const TBar = {
+      bar() { console.log('bar') },
+      foo() { console.log('foo') }
+    };
+    
+    @traits(TFoo, TBar::excludes('foo'))
+    class MyClass { }
+    
+    let obj = new MyClass();
+    obj.foo() // foo
+    obj.bar() // bar
+    ```
+    
+    上面代码使用绑定运算符（::）在`TBar`上排除`foo`方法，混入时就不会报错了。
+    
+    另一种方法是为`TBar`的`foo`方法起一个别名。
+    
+    ```js
+    import { traits, alias } from 'traits-decorator';
+    
+    class TFoo {
+      foo() { console.log('foo') }
+    }
+    
+    const TBar = {
+      bar() { console.log('bar') },
+      foo() { console.log('foo') }
+    };
+    
+    @traits(TFoo, TBar::alias({foo: 'aliasFoo'}))
+    class MyClass { }
+    
+    let obj = new MyClass();
+    obj.foo() // foo
+    obj.aliasFoo() // foo
+    obj.bar() // bar
+    ```
+    
+    上面代码为`TBar`的`foo`方法起了别名`aliasFoo`，于是`MyClass`也可以混入`TBar`的`foo`方法了。
+    
+    `alias`和`excludes`方法，可以结合起来使用。
+    
+    ```js
+    @traits(TExample::excludes('foo','bar')::alias({baz:'exampleBaz'}))
+    class MyClass {}
+    ```
+    
+    上面代码排除了`TExample`的`foo`方法和`bar`方法，为`baz`方法起了别名`exampleBaz`。
+    
+    `as`方法则为上面的代码提供了另一种写法。
+    
+    ```js
+    @traits(TExample::as({excludes:['foo', 'bar'], alias: {baz: 'exampleBaz'}}))
+    class MyClass {}
+    ```
 
-  - #### Class
-
-    > 总是用 Class，取代需要 prototype 的操作。因为 Class 的写法更简洁，更易于理解。
-    >
-    > ```
-    > // bad
-    > function Queue(contents = []) {
-    >   this._queue = [...contents];
-    > }
-    > Queue.prototype.pop = function() {
-    >   const value = this._queue[0];
-    >   this._queue.splice(0, 1);
-    >   return value;
-    > }
-    > 
-    > // good
-    > class Queue {
-    >   constructor(contents = []) {
-    >     this._queue = [...contents];
-    >   }
-    >   pop() {
-    >     const value = this._queue[0];
-    >     this._queue.splice(0, 1);
-    >     return value;
-    >   }
-    > }
-    > ```
-    >
-    > 使用`extends`实现继承，因为这样更简单，不会有破坏`instanceof`运算的危险。
-    >
-    > ```js
-    > // bad
-    > const inherits = require('inherits');
-    > function PeekableQueue(contents) {
-    >   Queue.apply(this, contents);
-    > }
-    > inherits(PeekableQueue, Queue);
-    > PeekableQueue.prototype.peek = function() {
-    >   return this._queue[0];
-    > }
-    > 
-    > // good
-    > class PeekableQueue extends Queue {
-    >   peek() {
-    >     return this._queue[0];
-    >   }
-    > }
-    > ```
-
-  - #### 模块
-
-    > ES6 模块语法是 JS 模块的标准写法，坚持使用这种写法，取代 Node.js 的 CommonJS 语法。
-    >
-    > 首先，使用`import`取代`require()`。
-    >
-    > ```
-    > // CommonJS 的写法
-    > const moduleA = require('moduleA');
-    > const func1 = moduleA.func1;
-    > const func2 = moduleA.func2;
-    > 
-    > // ES6 的写法
-    > import { func1, func2 } from 'moduleA';
-    > ```
-    >
-    > 其次，使用`export`取代`module.exports`。
-    >
-    > ```
-    > // commonJS 的写法
-    > var React = require('react');
-    > 
-    > var Breadcrumbs = React.createClass({
-    >   render() {
-    >     return <nav />;
-    >   }
-    > });
-    > 
-    > module.exports = Breadcrumbs;
-    > 
-    > // ES6 的写法
-    > import React from 'react';
-    > 
-    > class Breadcrumbs extends React.Component {
-    >   render() {
-    >     return <nav />;
-    >   }
-    > };
-    > 
-    > export default Breadcrumbs;
-    > ```
-    >
-    > 如果模块只有一个输出值，就使用`export default`，如果模块有多个输出值，除非其中某个输出值特别重要，否则建议不要使用`export default`，即多个输出值如果是平等关系，`export default`与普通的`export`就不要同时使用。
-    >
-    > 如果模块默认输出一个函数，函数名的首字母应该小写，表示这是一个工具方法。
-    >
-    > ```
-    > function makeStyleGuide() {
-    > }
-    > 
-    > export default makeStyleGuide;
-    > ```
-    >
-    > 如果模块默认输出一个对象，对象名的首字母应该大写，表示这是一个配置值对象。
-    >
-    > ```js
-    > const StyleGuide = {
-    >   es6: {
-    >   }
-    > };
-    > 
-    > export default StyleGuide;
-    > ```
-
-  - #### ESLint 的使用
-
-    > ESLint 是一个语法规则和代码风格的检查工具，可以用来保证写出语法正确、风格统一的代码。
-    >
-    > 首先，在项目的根目录安装 ESLint。
-    >
-    > ```
-    > $ npm install --save-dev eslint
-    > ```
-    >
-    > 然后，安装 Airbnb 语法规则，以及 import、a11y、react 插件。
-    >
-    > ```
-    > $ npm install --save-dev eslint-config-airbnb
-    > $ npm install --save-dev eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react
-    > ```
-    >
-    > 最后，在项目的根目录下新建一个`.eslintrc`文件，配置 ESLint。
-    >
-    > ```
-    > {
-    >   "extends": "eslint-config-airbnb"
-    > }
-    > ```
-    >
-    > 现在就可以检查，当前项目的代码是否符合预设的规则。
-    >
-    > `index.js`文件的代码如下。
-    >
-    > ```
-    > var unused = 'I have no purpose!';
-    > 
-    > function greet() {
-    >     var message = 'Hello, World!';
-    >     console.log(message);
-    > }
-    > 
-    > greet();
-    > ```
-    >
-    > 使用 ESLint 检查这个文件，就会报出错误。
-    >
-    > ```
-    > $ npx eslint index.js
-    > index.js
-    >   1:1  error  Unexpected var, use let or const instead          no-var
-    >   1:5  error  unused is defined but never used                 no-unused-vars
-    >   4:5  error  Expected indentation of 2 characters but found 4  indent
-    >   4:5  error  Unexpected var, use let or const instead          no-var
-    >   5:5  error  Expected indentation of 2 characters but found 4  indent
-    > 
-    > ✖ 5 problems (5 errors, 0 warnings)
-    > ```
-    >
-    > 上面代码说明，原文件有五个错误，其中两个是不应该使用`var`命令，而要使用`let`或`const`；一个是定义了变量，却没有使用；另外两个是行首缩进为 4 个空格，而不是规定的 2 个空格。
-
-- ## 读懂 ECMAScript 规格
-
-  - #### 概述
-
-    > 规格文件是计算机语言的官方标准，详细描述语法规则和实现方法。
-    >
-    > 一般来说，没有必要阅读规格，除非你要写编译器。因为规格写得非常抽象和精炼，又缺乏实例，不容易理解，而且对于解决实际的应用问题，帮助不大。但是，如果你遇到疑难的语法问题，实在找不到答案，这时可以去查看规格文件，了解语言标准是怎么说的。规格是解决问题的“最后一招”。
-    >
-    > 这对 JS 语言很有必要。因为它的使用场景复杂，语法规则不统一，例外很多，各种运行环境的行为不一致，导致奇怪的语法问题层出不穷，任何语法书都不可能囊括所有情况。查看规格，不失为一种解决语法问题的最可靠、最权威的终极方法。
-    >
-    > 本章介绍如何读懂 ECMAScript 6 的规格文件。
-    >
-    > ECMAScript 6 的规格，可以在 ECMA 国际标准组织的官方网站（[www.ecma-international.org/ecma-262/6.0/](http://www.ecma-international.org/ecma-262/6.0/)）免费下载和在线阅读。
-    >
-    > 这个规格文件相当庞大，一共有 26 章，A4 打印的话，足足有 545 页。它的特点就是规定得非常细致，每一个语法行为、每一个函数的实现都做了详尽的清晰的描述。基本上，编译器作者只要把每一步翻译成代码就可以了。这很大程度上，保证了所有 ES6 实现都有一致的行为。
-    >
-    > ECMAScript 6 规格的 26 章之中，第 1 章到第 3 章是对文件本身的介绍，与语言关系不大。第 4 章是对这门语言总体设计的描述，有兴趣的读者可以读一下。第 5 章到第 8 章是语言宏观层面的描述。第 5 章是规格的名词解释和写法的介绍，第 6 章介绍数据类型，第 7 章介绍语言内部用到的抽象操作，第 8 章介绍代码如何运行。第 9 章到第 26 章介绍具体的语法。
-    >
-    > 对于一般用户来说，除了第 4 章，其他章节都涉及某一方面的细节，不用通读，只要在用到的时候，查阅相关章节即可。
-
-  - #### 术语
-
-    > ES6 规格使用了一些专门的术语，了解这些术语，可以帮助你读懂规格。本节介绍其中的几个。
-
-    1. ##### 抽象操作
-
-       > 所谓“抽象操作”（abstract operations）就是引擎的一些内部方法，外部不能调用。规格定义了一系列的抽象操作，规定了它们的行为，留给各种引擎自己去实现。
-       >
-       > 举例来说，`Boolean(value)`的算法，第一步是这样的。
-       >
-       > > 1. Let `b` be `ToBoolean(value)`.
-       >
-       > 这里的`ToBoolean`就是一个抽象操作，是引擎内部求出布尔值的算法。
-       >
-       > 许多函数的算法都会多次用到同样的步骤，所以 ES6 规格将它们抽出来，定义成“抽象操作”，方便描述。
-
-    2. ##### Record 和 field
-
-       > ES6 规格将键值对（key-value map）的数据结构称为 Record，其中的每一组键值对称为 field。这就是说，一个 Record 由多个 field 组成，而每个 field 都包含一个键名（key）和一个键值（value）。
-
-    3. ##### [[Notation]]
-
-       > ES6 规格大量使用`[[Notation]]`这种书写法，比如`[[Value]]`、`[[Writable]]`、`[[Get]]`、`[[Set]]`等等。它用来指代 field 的键名。
-       >
-       > 举例来说，`obj`是一个 Record，它有一个`Prototype`属性。ES6 规格不会写`obj.Prototype`，而是写`obj.[[Prototype]]`。一般来说，使用`[[Notation]]`这种书写法的属性，都是对象的内部属性。
-       >
-       > 所有的 JS 函数都有一个内部属性`[[Call]]`，用来运行该函数。
-       >
-       > ```
-       > F.[[Call]](V, argumentsList)
-       > ```
-       >
-       > 上面代码中，`F`是一个函数对象，`[[Call]]`是它的内部方法，`F.[[call]]()`表示运行该函数，`V`表示`[[Call]]`运行时`this`的值，`argumentsList`则是调用时传入函数的参数。
-
-    4. ##### Completion Record
-
-       > 每一个语句都会返回一个 Completion Record，表示运行结果。每个 Completion Record 有一个`[[Type]]`属性，表示运行结果的类型。
-       >
-       > `[[Type]]`属性有五种可能的值。
-       >
-       > - normal
-       > - return
-       > - throw
-       > - break
-       > - continue
-       >
-       > 如果`[[Type]]`的值是`normal`，就称为 normal completion，表示运行正常。其他的值，都称为 abrupt completion。其中，开发者只需要关注`[[Type]]`为`throw`的情况，即运行出错；`break`、`continue`、`return`这三个值都只出现在特定场景，可以不用考虑。
-
-  - #### 抽象操作的标准流程
-
-    > 抽象操作的运行流程，一般是下面这样。
-    >
-    > > 1. Let `result` be `AbstractOp()`.
-    > > 2. If `result` is an abrupt completion, return `result`.
-    > > 3. Set `result` to `result.[[Value]]`.
-    > > 4. return `result`.
-    >
-    > 上面的第一步调用了抽象操作`AbstractOp()`，得到`result`，这是一个 Completion Record。第二步，如果`result`属于 abrupt completion，就直接返回。如果此处没有返回，表示`result`属于 normal completion。第三步，将`result`的值设置为`resultCompletionRecord.[[Value]]`。第四步，返回`result`。
-    >
-    > ES6 规格将这个标准流程，使用简写的方式表达。
-    >
-    > > 1. Let `result` be `AbstractOp()`.
-    > > 2. `ReturnIfAbrupt(result)`.
-    > > 3. return `result`.
-    >
-    > 这个简写方式里面的`ReturnIfAbrupt(result)`，就代表了上面的第二步和第三步，即如果有报错，就返回错误，否则取出值。
-    >
-    > 甚至还有进一步的简写格式。
-    >
-    > > 1. Let `result` be `? AbstractOp()`.
-    > > 2. return `result`.
-    >
-    > 上面流程的`?`，就代表`AbstractOp()`可能会报错。一旦报错，就返回错误，否则取出值。
-    >
-    > 除了`?`，ES 6 规格还使用另一个简写符号`!`。
-    >
-    > > 1. Let `result` be `! AbstractOp()`.
-    > > 2. return `result`.
-    >
-    > 上面流程的`!`，代表`AbstractOp()`不会报错，返回的一定是 normal completion，总是可以取出值。
-
-  - #### 相等运算符
-
-    > 下面通过一些例子，介绍如何使用这份规格。
-    >
-    > 相等运算符（`==`）是一个很让人头痛的运算符，它的语法行为多变，不符合直觉。这个小节就看看规格怎么规定它的行为。
-    >
-    > 请看下面这个表达式，请问它的值是多少。
-    >
-    > ```
-    > 0 == null
-    > ```
-    >
-    > 如果你不确定答案，或者想知道语言内部怎么处理，就可以去查看规格，[7.2.12 小节](http://www.ecma-international.org/ecma-262/6.0/#sec-abstract-equality-comparison)是对相等运算符（`==`）的描述。
-    >
-    > 规格对每一种语法行为的描述，都分成两部分：先是总体的行为描述，然后是实现的算法细节。相等运算符的总体描述，只有一句话。
-    >
-    > > “The comparison `x == y`, where `x` and `y` are values, produces `true` or `false`.”
-    >
-    > 上面这句话的意思是，相等运算符用于比较两个值，返回`true`或`false`。
-    >
-    > 下面是算法细节。
-    >
-    > > 1. ReturnIfAbrupt(x).
-    > >
-    > > 2. ReturnIfAbrupt(y).
-    > >
-    > > 3. If
-    > >
-    > >     
-    > >
-    > >    ```
-    > >    Type(x)
-    > >    ```
-    > >
-    > >     
-    > >
-    > >    is the same as
-    > >
-    > >     
-    > >
-    > >    ```
-    > >    Type(y)
-    > >    ```
-    > >
-    > >    , then
-    > >
-    > >    1. Return the result of performing Strict Equality Comparison `x === y`.
-    > >
-    > > 4. If `x` is `null` and `y` is `undefined`, return `true`.
-    > >
-    > > 5. If `x` is `undefined` and `y` is `null`, return `true`.
-    > >
-    > > 6. If `Type(x)` is Number and `Type(y)` is String,
-    > >    return the result of the comparison `x == ToNumber(y)`.
-    > >
-    > > 7. If `Type(x)` is String and `Type(y)` is Number,
-    > >    return the result of the comparison `ToNumber(x) == y`.
-    > >
-    > > 8. If `Type(x)` is Boolean, return the result of the comparison `ToNumber(x) == y`.
-    > >
-    > > 9. If `Type(y)` is Boolean, return the result of the comparison `x == ToNumber(y)`.
-    > >
-    > > 10. If `Type(x)` is either String, Number, or Symbol and `Type(y)` is Object, then
-    > >     return the result of the comparison `x == ToPrimitive(y)`.
-    > >
-    > > 11. If `Type(x)` is Object and `Type(y)` is either String, Number, or Symbol, then
-    > >     return the result of the comparison `ToPrimitive(x) == y`.
-    > >
-    > > 12. Return `false`.
-    >
-    > 上面这段算法，一共有 12 步，翻译如下。
-    >
-    > > 1. 如果`x`不是正常值（比如抛出一个错误），中断执行。
-    > > 2. 如果`y`不是正常值，中断执行。
-    > > 3. 如果`Type(x)`与`Type(y)`相同，执行严格相等运算`x === y`。
-    > > 4. 如果`x`是`null`，`y`是`undefined`，返回`true`。
-    > > 5. 如果`x`是`undefined`，`y`是`null`，返回`true`。
-    > > 6. 如果`Type(x)`是数值，`Type(y)`是字符串，返回`x == ToNumber(y)`的结果。
-    > > 7. 如果`Type(x)`是字符串，`Type(y)`是数值，返回`ToNumber(x) == y`的结果。
-    > > 8. 如果`Type(x)`是布尔值，返回`ToNumber(x) == y`的结果。
-    > > 9. 如果`Type(y)`是布尔值，返回`x == ToNumber(y)`的结果。
-    > > 10. 如果`Type(x)`是字符串或数值或`Symbol`值，`Type(y)`是对象，返回`x == ToPrimitive(y)`的结果。
-    > > 11. 如果`Type(x)`是对象，`Type(y)`是字符串或数值或`Symbol`值，返回`ToPrimitive(x) == y`的结果。
-    > > 12. 返回`false`。
-    >
-    > 由于`0`的类型是数值，`null`的类型是 Null（这是规格[4.3.13 小节](http://www.ecma-international.org/ecma-262/6.0/#sec-terms-and-definitions-null-type)的规定，是内部 Type 运算的结果，跟`typeof`运算符无关）。因此上面的前 11 步都得不到结果，要到第 12 步才能得到`false`。
-    >
-    > ```js
-    > 0 == null // false
-    > ```
-
-  - #### 数组的空位
-
-    > 下面再看另一个例子。
-    >
-    > ```
-    > const a1 = [undefined, undefined, undefined];
-    > const a2 = [, , ,];
-    > 
-    > a1.length // 3
-    > a2.length // 3
-    > 
-    > a1[0] // undefined
-    > a2[0] // undefined
-    > 
-    > a1[0] === a2[0] // true
-    > ```
-    >
-    > 上面代码中，数组`a1`的成员是三个`undefined`，数组`a2`的成员是三个空位。这两个数组很相似，长度都是 3，每个位置的成员读取出来都是`undefined`。
-    >
-    > 但是，它们实际上存在重大差异。
-    >
-    > ```
-    > 0 in a1 // true
-    > 0 in a2 // false
-    > 
-    > a1.hasOwnProperty(0) // true
-    > a2.hasOwnProperty(0) // false
-    > 
-    > Object.keys(a1) // ["0", "1", "2"]
-    > Object.keys(a2) // []
-    > 
-    > a1.map(n => 1) // [1, 1, 1]
-    > a2.map(n => 1) // [, , ,]
-    > ```
-    >
-    > 上面代码一共列出了四种运算，数组`a1`和`a2`的结果都不一样。前三种运算（`in`运算符、数组的`hasOwnProperty`方法、`Object.keys`方法）都说明，数组`a2`取不到属性名。最后一种运算（数组的`map`方法）说明，数组`a2`没有发生遍历。
-    >
-    > 为什么`a1`与`a2`成员的行为不一致？数组的成员是`undefined`或空位，到底有什么不同？
-    >
-    > 规格的[12.2.5 小节《数组的初始化》](http://www.ecma-international.org/ecma-262/6.0/#sec-array-initializer)给出了答案。
-    >
-    > > “Array elements may be elided at the beginning, middle or end of the element list. Whenever a comma in the element list is not preceded by an AssignmentExpression (i.e., a comma at the beginning or after another comma), the missing array element contributes to the length of the Array and increases the index of subsequent elements. Elided array elements are not defined. If an element is elided at the end of an array, that element does not contribute to the length of the Array.”
-    >
-    > 翻译如下。
-    >
-    > > "数组成员可以省略。只要逗号前面没有任何表达式，数组的`length`属性就会加 1，并且相应增加其后成员的位置索引。被省略的成员不会被定义。如果被省略的成员是数组最后一个成员，则不会导致数组`length`属性增加。”
-    >
-    > 上面的规格说得很清楚，数组的空位会反映在`length`属性，也就是说空位有自己的位置，但是这个位置的值是未定义，即这个值是不存在的。如果一定要读取，结果就是`undefined`（因为`undefined`在 JS 语言中表示不存在）。
-    >
-    > 这就解释了为什么`in`运算符、数组的`hasOwnProperty`方法、`Object.keys`方法，都取不到空位的属性名。因为这个属性名根本就不存在，规格里面没说要为空位分配属性名(位置索引），只说要为下一个元素的位置索引加 1。
-    >
-    > 至于为什么数组的`map`方法会跳过空位，请看下一节。
-
-  - #### 数组的 map 方法
-
-    > 规格的[22.1.3.15 小节](http://www.ecma-international.org/ecma-262/6.0/#sec-array.prototype.map)定义了数组的`map`方法。该小节先是总体描述`map`方法的行为，里面没有提到数组空位。
-    >
-    > 后面的算法描述是这样的。
-    >
-    > > 1. Let `O` be `ToObject(this value)`.
-    > >
-    > > 2. `ReturnIfAbrupt(O)`.
-    > >
-    > > 3. Let `len` be `ToLength(Get(O, "length"))`.
-    > >
-    > > 4. `ReturnIfAbrupt(len)`.
-    > >
-    > > 5. If `IsCallable(callbackfn)` is `false`, throw a TypeError exception.
-    > >
-    > > 6. If `thisArg` was supplied, let `T` be `thisArg`; else let `T` be `undefined`.
-    > >
-    > > 7. Let `A` be `ArraySpeciesCreate(O, len)`.
-    > >
-    > > 8. `ReturnIfAbrupt(A)`.
-    > >
-    > > 9. Let `k` be 0.
-    > >
-    > > 10. Repeat, while
-    > >
-    > >      
-    > >
-    > >     ```
-    > >     k
-    > >     ```
-    > >
-    > >      
-    > >
-    > >     <
-    > >
-    > >      
-    > >
-    > >     ```
-    > >     len
-    > >     ```
-    > >    
-    > >     1. Let `Pk` be `ToString(k)`.
-    > >    
-    > >     2. Let `kPresent` be `HasProperty(O, Pk)`.
-    > >    
-    > >     3. `ReturnIfAbrupt(kPresent)`.
-    > >    
-    > >     4. If
-    > >
-    > >         
-    > >
-    > >        ```
-    > >        kPresent
-    > >        ```
-    > >
-    > >         
-    > >
-    > >        is
-    > >
-    > >         
-    > >
-    > >        ```
-    > >        true
-    > >        ```
-    > >    
-    > >        , then
-    > >    
-    > >        1. Let `kValue` be `Get(O, Pk)`.
-    > >        2. `ReturnIfAbrupt(kValue)`.
-    > >        3. Let `mappedValue` be `Call(callbackfn, T, «kValue, k, O»)`.
-    > >        4. `ReturnIfAbrupt(mappedValue)`.
-    > >        5. Let `status` be `CreateDataPropertyOrThrow (A, Pk, mappedValue)`.
-    > >        6. `ReturnIfAbrupt(status)`.
-    > >    
-    > >     5. Increase `k` by 1.
-    > >
-    > > 11. Return `A`.
-    >
-    > 翻译如下。
-    >
-    > > 1. 得到当前数组的`this`对象
-    > >
-    > > 2. 如果报错就返回
-    > >
-    > > 3. 求出当前数组的`length`属性
-    > >
-    > > 4. 如果报错就返回
-    > >
-    > > 5. 如果 map 方法的参数`callbackfn`不可执行，就报错
-    > >
-    > > 6. 如果 map 方法的参数之中，指定了`this`，就让`T`等于该参数，否则`T`为`undefined`
-    > >
-    > > 7. 生成一个新的数组`A`，跟当前数组的`length`属性保持一致
-    > >
-    > > 8. 如果报错就返回
-    > >
-    > > 9. 设定`k`等于 0
-    > >
-    > > 10. 只要
-    > >
-    > >     ```
-    > >     k
-    > >     ```
-    > >
-    > >     小于当前数组的
-    > >
-    > >     ```
-    > >     length
-    > >     ```
-    > >
-    > >     属性，就重复下面步骤
-    > >
-    > >     1. 设定`Pk`等于`ToString(k)`，即将`K`转为字符串
-    > >
-    > >     2. 设定`kPresent`等于`HasProperty(O, Pk)`，即求当前数组有没有指定属性
-    > >
-    > >     3. 如果报错就返回
-    > >
-    > >     4. 如果
-    > >
-    > >        ```
-    > >        kPresent
-    > >        ```
-    > >
-    > >        等于
-    > >
-    > >        ```
-    > >        true
-    > >        ```
-    > >
-    > >        ，则进行下面步骤
-    > >
-    > >        1. 设定`kValue`等于`Get(O, Pk)`，取出当前数组的指定属性
-    > >        2. 如果报错就返回
-    > >        3. 设定`mappedValue`等于`Call(callbackfn, T, «kValue, k, O»)`，即执行回调函数
-    > >        4. 如果报错就返回
-    > >        5. 设定`status`等于`CreateDataPropertyOrThrow (A, Pk, mappedValue)`，即将回调函数的值放入`A`数组的指定位置
-    > >        6. 如果报错就返回
-    > >
-    > >     5. `k`增加 1
-    > >
-    > > 11. 返回`A`
-    >
-    > 仔细查看上面的算法，可以发现，当处理一个全是空位的数组时，前面步骤都没有问题。进入第 10 步中第 2 步时，`kPresent`会报错，因为空位对应的属性名，对于数组来说是不存在的，因此就会返回，不会进行后面的步骤。
-    >
-    > ```
-    > const arr = [, , ,];
-    > arr.map(n => {
-    >   console.log(n);
-    >   return 1;
-    > }) // [, , ,]
-    > ```
-    >
-    > 上面代码中，`arr`是一个全是空位的数组，`map`方法遍历成员时，发现是空位，就直接跳过，不会进入回调函数。因此，回调函数里面的`console.log`语句根本不会执行，整个`map`方法返回一个全是空位的新数组。
-    >
-    > V8 引擎对`map`方法的[实现](https://github.com/v8/v8/blob/44c44521ae11859478b42004f57ea93df52526ee/src/js/array.js#L1347)如下，可以看到跟规格的算法描述完全一致。
-    >
-    > ```js
-    > function ArrayMap(f, receiver) {
-    >   CHECK_OBJECT_COERCIBLE(this, "Array.prototype.map");
-    > 
-    >   // Pull out the length so that modifications to the length in the
-    >   // loop will not affect the looping and side effects are visible.
-    >   var array = TO_OBJECT(this);
-    >   var length = TO_LENGTH_OR_UINT32(array.length);
-    >   return InnerArrayMap(f, receiver, array, length);
-    > }
-    > 
-    > function InnerArrayMap(f, receiver, array, length) {
-    >   if (!IS_CALLABLE(f)) throw MakeTypeError(kCalledNonCallable, f);
-    > 
-    >   var accumulator = new InternalArray(length);
-    >   var is_array = IS_ARRAY(array);
-    >   var stepping = DEBUG_IS_STEPPING(f);
-    >   for (var i = 0; i < length; i++) {
-    >     if (HAS_INDEX(array, i, is_array)) {
-    >       var element = array[i];
-    >       // Prepare break slots for debugger step in.
-    >       if (stepping) %DebugPrepareStepInIfStepping(f);
-    >       accumulator[i] = %_Call(f, receiver, element, i, array);
-    >     }
-    >   }
-    >   var result = new GlobalArray();
-    >   %MoveArrayContents(accumulator, result);
-    >   return result;
-    > }
-    > ```
+------
 
