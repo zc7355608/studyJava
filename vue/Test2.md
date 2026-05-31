@@ -113,13 +113,13 @@
     > import { getCurrentInstance, onMounted } from 'vue'
     > 
     > export default {
-    >   setup() {
-    >     const instance = getCurrentInstance()
+    >     setup() {
+    >        const instance = getCurrentInstance()
     > 
-    >     onMounted(() => {
-    >       console.log(instance.parent)
-    >     })
-    >   }
+    >        onMounted(() => {
+    >          console.log(instance.parent)
+    >        })
+    >     }
     > }
     > ```
 
@@ -128,44 +128,44 @@
 - ### 单文件组件（主流方式）
 
   单文件组件就是，每个组件分别单独定义到了一个`.vue`文件中。
-  
+
   ##### 首先要知道：
-  
+
   单文件组件的这种`.vue`文件，浏览器是不能识别的，也就是不能直接在浏览器环境中运行`.vue`文件。我们需要先把`.vue`文件经过Webpack/Vite等工具编译为`.js`文件，然后才可以引入到HTML中使用。2种方式：
-  
+
   1. 我们可以选择手动用Webpack搭建工作流，对`.vue`文件进行处理。但这种方式麻烦，且处理的结果（工作流）不一定是最好的。
   2. （推荐）通常我们会使用Vue官方提供的脚手架工具**Vue Cli**，它是一个Vue团队用Webpack给Vue2工程搭建的开发工作流。
-  
+
   ##### 单文件组件的使用：
-  
+
   1. **定义组件**。先新建一个`.vue`文件，文件名遵循上面的组件名规范，一般用大驼峰格式：
-  
+
      > `School.vue`：（VS Code安装可以安装Vue 2的插件：Vetur，作者Pine Wu）
-  
+
      ```vue
      <template>
-         <!-- 组件的结构，也就是Vue模板。这里的template标签就相当于template配置项 -->
-         <div class="demo">
-             <h2>学校:{{name}}</h2>
-             <h2>地址:{{address}}</h2>
-             <button @click="showName()">弹出名字</button>
-         </div>
+       <!-- 组件的结构，也就是Vue模板。这里的template标签就相当于template配置项 -->
+       <div class="demo">
+         <h2>学校:{{name}}</h2>
+         <h2>地址:{{address}}</h2>
+         <button @click="showName()">弹出名字</button>
+       </div>
      </template>
      <script>
      // 组件中的JS代码（逻辑）。注意最后一定要默认导出一下该组件对象，因为其他组件要用该组件就需要导入，默认导入的就是这个对象
      export default { // 这里省略Vue.extend()，用简写的形式，否则还需要导入Vue构造函数
-         name: 'School', // 组件名最好和文件名保持一致
-         data(){
-             return {
-                 name: '蓝翔技校',
-                 address: '学校地址是xxx'
-             }
-         },
-         methods: {
-             showName(){
-                 alert(this.name)
-             }
+       name: 'School', // 组件名最好和文件名保持一致
+       data(){
+         return {
+           name: '蓝翔技校',
+           address: '学校地址是xxx'
          }
+       },
+       methods: {
+         showName(){
+         	alert(this.name)
+         }
+       }
      }
      </script>
      <!--
@@ -177,69 +177,68 @@
          5、style标签还可以加lang属性，值可以是css、less、stylus，表示里面用是哪种css语法。此时需要Vue脚手架中安装对应的开发依赖（如：
          less-loader）来对这种语法进行处理。
      -->
-  <style scoped>
+     <style scoped>
      .demo {
-         background-color: orange;
-  }
+     	background-color: orange;
+     }
      </style>
      ```
      
      - 之前说过，一个Vue组件中包含了HTML、CSS、JS，也就分别对应了单文件组件中的3个标签`<template>`、`<style>`、`<script>`，最终这个`.vue`文件还是会被编译成一个`.js`文件。
      - 注意最后一定要默认导出一下该组件对象，因为其他组件要用该组件就需要导入，默认导入的就是这个对象。
      
-     > 再写一个App组件，它管理其他所有的组件，是最外层的根组件。
-     >
+     再写一个App组件，它管理其他所有的组件，是最外层的根组件。
+     
      > `App.vue`：
-     
-     ```vue
-     <template>
-         <div id="app">
-         	<!-- 使用组件 -->
-         	<School/>
-         </div>
-     </template>
-     <script>
-     // 引入其他文件中的子组件的配置对象
-     import School from './School.vue'
-     export default {
-         name: 'App',
-         // 注册组件
-         components: { School }
-     }
-     </script>
-     ```
-     
+     >
+     > ```vue
+     > <template>
+     >   <div id="app">
+     >     <!-- 使用组件 -->
+     >     <School/>
+     >   </div>
+     > </template>
+     > <script>
+     > // 引入其他文件中的子组件的配置对象
+     > import School from './School.vue'
+     > export default {
+     >   name: 'App',
+     >   // 注册组件
+     >   components: { School }
+     > }
+     > </script>
+     > ```
+
   2. 项目的入口文件`main.js`中，将根组件App注册到vue实例对象上，让Vue实例对象管理起来App根组件：
-  
+
      ```js
      import App from './App.vue'
      new Vue({
-         el: '#root',
-         template: `<App></App>`,
-         components: { App }
+       el: '#root',
+       template: `<App></App>`,
+       components: { App }
      })
      ```
      
   3. `index.html`中引入该`main.js`入口文件即可：
-  
+
      ```html
      <!DOCTYPE html>
      <html lang="en">
      <head>
-         <meta charset="UTF-8">
-         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-         <title>主页</title>
-         <!-- 引入vue -->
-         <script src="./js/vue.js"></script>
+       <meta charset="UTF-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       <title>主页</title>
+       <!-- 引入vue -->
+       <script src="./js/vue.js"></script>
      </head>
      <body>
-         <div id="root"></div>
-         <!-- 引入入口文件main.js，注意顺序 -->
-         <script src="./main.js"></script>
+       <div id="root"></div>
+       <!-- 引入入口文件main.js，注意顺序 -->
+       <script src="./main.js"></script>
      </body>
      </html>
      ```
-  
 
 - ### 使用Vue脚手架
 
@@ -282,9 +281,9 @@
       Vue.config.productionTip = false
       // 创建vue实例
       new Vue({
-          el: '#app',
-          // 这行代码将App组件（虚拟DOM）渲染为了真实DOM并替换掉了index.html中id为app的div
-          render: h => h(App),
+        el: '#app',
+        // 这行代码将App组件（虚拟DOM）渲染为了真实DOM并替换掉了index.html中id为app的div
+        render: h => h(App),
       })
       ```
 
@@ -292,19 +291,19 @@
 
       ```vue
       <template>
-          <div id="app">
-          	<img alt="Vue logo" src="./assets/logo.png">
-          	<School></School>
-          </div>
+        <div id="app">
+          <img alt="Vue logo" src="./assets/logo.png">
+          <School></School>
+        </div>
       </template>
       <script>
-          // 导入其他子组件
-          import School from './components/School.vue'
-          export default {
-              name: 'App',
-              // 注册其他子组件
-              components: { School }
-          }
+      // 导入其他子组件
+      import School from './components/School.vue'
+      export default {
+        name: 'App',
+        // 注册其他子组件
+        components: { School }
+      }
       </script>
       <style></style>
       ```
@@ -475,31 +474,33 @@
 
 - ### 自定义事件
 
-  自定义事件是一种组件间通信的方式，适用于**子组件给父组件**传递数据。（子给父传递数据也可以通过父给子传函数props来完成，目前还无法做到兄弟组件之间传递数据）
+  自定义事件是一种组件间通信的方式，适用于**子组件给父组件**传递数据。
 
-  - **自定义事件是给组件用的**（一般是组件用，其实vm对象也能用）。如：`<Student @atguigu='demo'/>`，该指令写在了组件标签上，表示给该组件实例对象vc绑定了一个自定义事件atguigu。当事件触发时调用demo函数（需要在`methods`中定义该demo函数）。
+  > 子给父传递数据也可以通过父给子传函数`props`来完成，目前还无法做到兄弟组件之间传递数据。
+
+  - **自定义事件是给组件用的**（一般是组件用，其实vue实例对象也能用）。如：`<Student @atguigu='demo'/>`，该指令写在了组件标签上，表示给该组件实例对象vc绑定了一个自定义事件atguigu。当事件触发时调用demo函数（需要在`methods`中定义该demo函数）。
 
     > **注意：自定义事件名必须全小写**，否则触发不了。多个单词使用短横线分割。
 
-  - 给谁绑定的事件，就找谁去触发该事件。所以触发atguigu事件就得通过该组件实例对象vc的API：`vc.$emit('atguigu')`。并且触发事件时还可以传递数据：`vc.$emit('atguigu',a,b..)`，此时需要在demo函数定义时，给该函数声明实参进行接收：`demo(a,b..)`。不过一般不这样写太麻烦，可以这样：`demo(a,...params)`。
+  - 给谁绑定的事件，就找谁去触发该事件。所以触发atguigu事件就得通过该组件实例对象vc上的API：`vc.$emit('atguigu')`。并且触发事件时还可以传递数据：`vc.$emit('atguigu',a,b..)`，此时需要在demo函数定义时，给该函数声明实参进行接收：`demo(a,b..)`。不过一般不这样写太麻烦，可以这样：`demo(a,...params)`。
 
-  - *（Vue3移除了）另一种绑定自定义事件的方式：通过`vc.$on('atguigu', demo)`给vc实例组件绑定自定义事件。这种方式更灵活。*
+  - （Vue3移除了）另一种绑定自定义事件的方式：通过~~vc.$on('atguigu', demo)~~给vc实例组件绑定自定义事件。这种方式更灵活。
 
-    > *（Vue3移除了）注意：*
+    > （Vue3移除了）注意：
     >
-    > - *$on()的第2个参数位置上如果直接放一个回调函数的话，那么给哪个组件绑定的自定义事件，该回调中的this就是谁。因为该回调是在绑定自定义事件的组件中触发调用的。*
-    > - *此时该回调函数最好用箭头函数的写法，这样回调中的this仍然是当前上下文的组件实例：`vc.$on('atguigu',()=>{})`*
-    > - *对于自定义事件来说，`$event`占位符是$emit()的第2个参数。*
+    > - ~~$on()~~的第2个参数位置上如果直接放一个回调函数的话，那么给哪个组件绑定的自定义事件，该回调中的this就是谁。因为该回调是在绑定自定义事件的组件中触发调用的。
+    > - 此时该回调函数最好用箭头函数的写法，这样回调中的this仍然是当前上下文的组件实例：~~vc.$on('atguigu',()=>{})~~
+    > - 对于自定义事件来说，`$event`占位符是$emit()的第2个参数。
 
-  - *（Vue3移除了）事件只触发一次：`<Student @atguigu.once='demo'/>`或`vc.$once('atguigu', demo)`。*
+  - （Vue3移除了）事件只触发一次：`<Student @atguigu.once='demo'/>`或~~vc.$once('atguigu', demo)~~。
 
-  - *（Vue3移除了）解绑事件：`vc.$off('atguigu')`，解绑多个：`vc.$off(['atguigu','other'])`，解绑所有：`vc.$off()`。销毁组件实例后自定义事件就用不了了，`$emit()`不起作用了。*
+  - （Vue3移除了）解绑事件：~~vc.$off('atguigu')~~，解绑多个：~~vc.$off(['atguigu','other'])~~，解绑所有：~~vc.$off()~~。销毁组件实例后自定义事件就用不了了，`$emit()`不起作用了。
 
-    > *`$emit()、$on()、$off()`这些API其实是Vue原型上的，所以其实也可以给vm对象绑定自定义事件。*
+    > $emit()、~~$on()、$off()~~这些API其实是Vue原型上的，所以其实也可以给vm对象绑定自定义事件。
 
-  - *（Vue3中移除了）组件上也可以用原生的JS事件，需要给事件加`native`修饰符，这样Vue才不会将其当做自定义事件，而是将该事件绑定到组件最外层的HTML容器上。*
+  - ~~（Vue3中移除了）组件上也可以用原生的JS事件，需要给事件加`native`修饰符，这样Vue才不会将其当做自定义事件，而是将该事件绑定到组件最外层的HTML容器上。~~
 
-- ### ~~（Vue3中有新工具mitt来代替它了，所以了解即可）全局事件总线（Global Event Bus）~~
+- ### ~~（Vue3中有新工具`mitt`来代替它了，所以了解即可）全局事件总线（Global Event Bus）~~
 
   全局事件总线可以实现**任意组件之间的通信**。
 
@@ -604,11 +605,11 @@
 - ### Vue封装的过渡与动画
 
   Vue中对C3的过渡和动画做了封装：当我们往页面中插入、更新或删除DOM时，Vue会在合适的时候给元素加上一些类名。如下图：
-  
+
   ![transition](./assets/transition.png)
-  
+
   在进入/离开的过渡中，会有6个类名进行切换：
-  
+
   1. `v-enter`：定义进入过渡的开始状态。在元素被插入之前生效，在元素被插入之后的下一帧移除。
   2. `v-enter-active`：定义进入过渡生效时的状态。在整个进入过渡的阶段中应用，在元素被插入之前生效，在过渡/动画完成之后移除。这个类可以被用来定义进入过渡的过程时间，延迟和曲线函数。
   3. `v-enter-to`：**2.1.8 版及以上**定义进入过渡的结束状态。在元素被插入之后下一帧生效 (与此同时 `v-enter` 被移除)，在过渡/动画完成之后移除。
@@ -620,36 +621,36 @@
 
   1. **用`<transition>`标签（不影响结构）包起来要发生过渡/动画的元素**：
 
-     > 想让哪个元素发生动画或过渡，就用`<transition>`标签将其包裹起来。当该元素DOM被插入、更新或删除时，Vue就会动态的给该元素加上某些类名，以此完成动画或过渡的效果。（外层的过渡标签不会显示）
+     想让哪个元素发生动画或过渡，就用`<transition>`标签将其包裹起来。当该元素DOM被插入、更新或删除时，Vue就会动态的给该元素加上某些类名，以此完成动画或过渡的效果。（外层的过渡标签不会显示）
 
   2. **准备样式**：
 
-     > 当该元素被插入时，Vue就会给该元素加上`v-enter-active`类名；当该元素被删除时，则加上`v-leave-active`（还加了其他的类名如上所示）。类名的持续时间是根据过渡或动画的时间来决定的，也可以自定义类名的持续时间。
+     当该元素被插入时，Vue就会给该元素加上`v-enter-active`类名；当该元素被删除时，则加上`v-leave-active`（还加了其他的类名如上所示）。类名的持续时间是根据过渡或动画的时间来决定的，也可以自定义类名的持续时间。
 
   ##### 说明：
 
-  > - `<transition>`标签如果加了`appear`属性（没有值），那么当元素初始化时就会发生过渡效果。
-  >
-  > - 如果页面上多个元素要不同的过渡效果，此时不同的过渡标签`<transition>`通过加`name='zs'`属性来区分。这样不同的过渡标签就去找各自对应的类名`zs-enter-active`，完成不同的过渡效果。
-  >
-  > - `<transition>`标签**只能包裹一个元素**。如果多个元素要实现同样的过渡效果，得用`<transition-group>`包起来，并且**里面每一个元素都要加唯一的`key`属性**。
-  >
-  > - 我们可以通过给`<transition>`标签设置以下属性来自定义过渡时要加的类名：
-  >
-  >   - `enter-class`
-  >   - `enter-active-class`
-  >   - `enter-to-class` (2.1.8+)
-  >   - `leave-class`
-  >   - `leave-active-class`
-  >   - `leave-to-class` (2.1.8+)
-  >
-  >   （它们的优先级高于普通的类名，这对于Vue的过渡和第三方的CSS动画库，如 [Animate.css](https://daneden.github.io/animate.css/) 结合使用十分有用）
+  - `<transition>`标签如果加了`appear`属性（没有值），那么当元素初始化时就会发生过渡效果。
 
-  ###### 同一个效果，如果用过渡来写，那么需要分别在`v-enter`和`v-enter-to`中定义过渡开始和结束（进入的起点是离开的终点、进入的终点是离开的起点），最后在`v-enter-active`中设置过渡的持续时间。
+  - 如果页面上多个元素要不同的过渡效果，此时不同的过渡标签`<transition>`通过加`name='zs'`属性来区分。这样不同的过渡标签就去找各自对应的类名`zs-enter-active`，完成不同的过渡效果。
 
-  ###### 如果用动画来写，那么只需要定义好动画，然后在`v-enter-active`中设置动画的持续时间即可。
+  - `<transition>`标签**只能包裹一个元素**。如果多个元素要实现同样的过渡效果，得用`<transition-group>`包起来，并且**里面每一个元素都要加唯一的`key`属性**。
 
-- ### 集成第三方的动画库`Animate.css`：
+  - 我们可以通过给`<transition>`标签设置以下属性来自定义过渡时要加的类名：
+
+    - `enter-class`
+    - `enter-active-class`
+    - `enter-to-class` (2.1.8+)
+    - `leave-class`
+    - `leave-active-class`
+    - `leave-to-class` (2.1.8+)
+
+    （它们的优先级高于普通的类名，这对于Vue的过渡和第三方的CSS动画库，如 [Animate.css](https://daneden.github.io/animate.css/) 结合使用十分有用）
+
+  同一个效果，如果用过渡来写，那么需要分别在`v-enter`和`v-enter-to`中定义过渡开始和结束（进入的起点是离开的终点、进入的终点是离开的起点），最后在`v-enter-active`中设置过渡的持续时间。
+
+  如果用动画来写，那么只需要定义好动画，然后在`v-enter-active`中设置动画的持续时间即可。
+
+- ### 集成第三方的动画库`Animate.css`
 
   我们不用自己准备CSS样式了，直接使用第三方的动画库。用法：
   
@@ -661,38 +662,38 @@
 
   在Vue脚手架项目中，前端通过AJAX向另一台服务器请求数据，数据返回时会被客户端浏览器的CORS同源策略阻止，因为跨域了。而通常解决跨域的方案有：
   
-  1. 服务器端设置响应头允许跨域。
+  1. 服务器后端设置响应头来允许跨域。
   2. JSONP。但是这种方式用的很少，且只能解决get请求跨域。
   3. 通过**代理服务器**。
   
-  而Vue脚手架就是Node写的一个项目，它就可以作为代理服务器。这样前端只需要找本机的代理服务器要数据就行，让该代理服务器（Node服务器程序）去和后端程序进行交互。（底层用的是`http-proxy-middleware`）
+  Vue脚手架就是Node写的一个项目，它就可以作为代理服务器。这样前端只需要找本机的代理服务器要数据就行，让该代理服务器（Node服务器程序）去和后端程序进行交互。（底层用的是`http-proxy-middleware`这个中间件）
   
-  ###### 使用：
+  ##### 使用：
   
   要将Vue脚手架程序作为我们的代理服务器，那么就需要通过`vue.config.js`文件对Vue脚手架进行配置：（开启内置的代理服务器）
   
   ```json
   devServer: {
-  	// 代理服务器所代理的，目标服务器的地址
-  	proxy: 'http://localhost:5000'
+    // 代理服务器所代理的，目标服务器的地址
+    proxy: 'http://localhost:5000'
   }
   ```
   
-  这样前端AJAX就请求本地的这个代理服务器即可。代理服务器上（public目录下）没有的资源就会去请求目标服务器，得到后再给前端。
+  这样前端AJAX就请求本地的这个代理服务器即可。代理服务器上（public目录下）没有的资源就会去请求目标服务器，得到后转发给前端。
   
-  ###### 以上是简单配置，只能代理一个目标服务器，且不能灵活的配置走不走代理。可以将`proxy`的值写成一个对象：
+  以上是简单配置，只能代理一个目标服务器，且不能灵活的配置走不走代理。可以将`proxy`的值写成一个对象：
   
   ```json
   devServer: {
-      proxy: {
-          // 配置url的请求前缀
-          '/api': {
-          	target: '目标服务器的url地址',
-          	ws: true, // 默认true
-          	changeOrigin: true // 默认true
-          },
-          // 可以配置多个请求前缀...
-      }
+    proxy: {
+      // 配置url的请求前缀
+      '/api': {
+        target: '目标服务器的url地址',
+        ws: true, // 默认true
+        changeOrigin: true // 默认true
+      },
+      // 可以配置多个请求前缀...
+    }
   }
   ```
   
@@ -700,12 +701,12 @@
   > - `target`是目标服务器地址和端口号。
   > - `ws`用于支持`websocket`。
   > - `changeOrigin: false`是否骗目标服务器。目标服务器问本次请求来自于哪个地址，true则请求的Host字段为目标服务器本机。
-  > - 如果想在请求目标服务器时去掉请求前缀，target下可以加这样一个配置项：`pathRewrite: {'^/api': ''}`，表示以`/api`开头的uri的开头替换为空串后，再去请求目标服务器。相当于路径重写了。
-  > - **注意：**开发时在脚手架中配置的代理，不会包含在最后打包的代码中。（但是打包前需要改代码中的请求路径，地址和端口号要改成目标服务器的地址）
+  > - 如果想在请求目标服务器时去掉请求前缀，对象中可以加这样一个配置项：`pathRewrite: {'^/api': ''}`，表示以`/api`开头的uri的开头替换为空串后，再去请求目标服务器。相当于路径重写了。
+  > - **注意：**开发时在脚手架中配置的代理，不会包含在最后打包的代码中。但是打包前需要改代码中的请求路径，地址和端口号要改成目标服务器的地址。
 
 - ### 第三方插件`vue-resource`（了解）
 
-  > `vue-resource`**插件**用于发送AJAX请求（和axios类似，都是对xhr的封装）。该库最早是Vue团队维护，后来交给了其他团队来维护，现在用的不多，早期Vue1.0用的较多。使用：
+  `vue-resource`**插件**用于发送AJAX请求（和axios类似，都是对xhr的封装）。该库最早是Vue团队维护，后来交给了其他团队来维护，现在用的不多，早期Vue1.0用的较多。使用：
 
   1. npm局部安装：`npm i vue-resource`
 
@@ -717,13 +718,13 @@
      Vue.use(vueResource)
      ```
 
-     > 此时所有的vm和vc实例上会有一个`$http`对象，对象里面有`ajax、get、post`函数。用法、返回值都和axios一模一样。
+     此时所有的vm和vc实例上会有一个`$http`对象，对象里面有`ajax、get、post`函数。用法、返回值都和axios一模一样。
 
 - ### Vue中的插槽（Vue 2.6.0之后及Vue 3的新用法）
 
   Vue的插槽是受原生Web Component的启发而诞生，同时还做了一些功能拓展，这些拓展的功能我们后面会学习到。插槽的作用是：让父组件可以向子组件指定位置上插入HTML结构。
 
-  我们之前是通过props配置项来给组件中传动态的数据。但有时我们不仅要求数据是动态的，还要求组件的结构是动态的。此时就需要通过组件中的**插槽**来完成。
+  我们之前是通过`props`配置项来给组件中传动态的数据。但有时我们不仅要求数据是动态的，还要求组件的结构是动态的。此时就需要通过组件中的**插槽**来完成。
 
   ##### 使用插槽：
 
