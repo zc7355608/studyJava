@@ -99,9 +99,9 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
   app.mount('#root')  // 不是$mount()方法了
   ```
 
-  > `createApp(App)`函数会通过传入App组件，去创建一个**应用实例对象**（其实就是更轻量的vue实例对象），通过该对象的`mount()`方法将App组件挂载（填充）到id为root的HTML容器中。
-  >
-  > 该对象身上还有`unmount()`可以从HTML容器中卸载App组件。
+  `createApp(App)`函数会通过传入App组件，去创建一个**应用实例对象**（其实就是更轻量的vue实例对象），通过该对象的`mount()`方法将App组件挂载（填充）到id为root的HTML容器中。
+  
+  该对象身上还有`unmount()`可以从HTML容器中卸载App组件。
 
   ##### 注意：原来Vue2的入口文件写法在Vue3中不能用了。
 
@@ -187,13 +187,13 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
 
       > Tips：
       >
-      > 像defineOptions、defineProps()、defineEmits()..这些以`defineXxx`开头、不需要导入就能在`<script setup>`中直接用的函数，叫做**编译器宏（宏函数）**，它们会随着 `<script setup>` 的处理过程一同被编译掉。 
+      > 像`defineOptions`、`defineProps()`、`defineEmits()`..这些以`defineXxx`开头、不需要导入就能在`<script setup>`中直接用的函数，叫做**编译器宏（宏函数）**，它们会随着 `<script setup>` 的处理过程一同被编译掉。 
       >
       > **宏函数的返回值会自动提升到模块作用域，也就是说它们不是`setup`函数内部的局部变量，而是可以在整个组件中访问**。
       >
       > 并且宏函数不能引用`setup()`中的局部变量，但能使用`import`导入的变量，因为它们不是局部作用域。
 
-    - **defineProps()/defineEmits()**：
+    - ##### `defineProps()/defineEmits()`：
 
       Vue3的`<script setup>`中仍然可以声明接受`props`、`emits`，通过宏函数`defineProps()/defineEmits()`，并且可以获得完整的类型推导支持：
 
@@ -202,12 +202,13 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
       const props = defineProps({
       foo: String
       })
-
+      
       const emit = defineEmits(['change', 'delete'])
       // setup 代码
       </script>
       ```
       
+    
     `defineProps` 接收与 `props` 选项相同的值，`defineEmits` 接收与 `emits` 选项相同的值。
 
 
@@ -271,10 +272,10 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
 
       `reactive()`会给对象/数组所有层次的数据做响应式，并且后续往里面添加的数据也是响应式的。其内部是通过ES6的`Proxy`实现的。
 
-      > ###### Vue3的响应式原理：
-  >
+      > Vue3的响应式原理：
+      >
       > Vue3中通过`reactive()`为源对象生成了一个Proxy代理对象。Proxy会为对象创建一个代理，从而拦截对对象的任何操作（增删改查等）。而Proxy中对源对象的增删改查又通过Reflect（反射）来完成。
-
+      
       这种方式实现的响应式，可以捕获到对代理对象属性的增、删、改、查，因此不存在Vue2的问题。模拟Vue3的响应式：
       
       ```js
@@ -295,9 +296,9 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
           	console.log(`有人删除了源对象的${propName}，我要去更新页面了`)
               return Reflect.deleteProperty(target,propName)
           }
-  })
+      })
       ```
-
+      
       注意：**Proxy会自动解包其中的任何ref对象。也就是说，Proxy对象中的ref对象不用再`.value`去取值了（深层次）**。
 
   - ##### computed()：
@@ -364,17 +365,17 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
       }
       ```
 
-      > - watch的第1个参数是监视的数据，可以是**Ref对象**或`reactive()`定义的**`Proxy`对象**。第2个参数是回调函数。第3个参数（可选）是配置对象：`{ immediate: true, deep: true }`。
-      >
-      > - 如果`watch()`的第1个参数是Ref对象，那么监视的是其中所有的属性。它是浅层次的监视，可以通过配置项来开启深度监视。
-      >
-      > - 如果第1个参数是Proxy对象，那么监视的是对象中所有层次的数据。它是强制的，deep配置项不起作用。此时回调中的`niu`和`old`都是该对象的内存地址，无论怎么修改对象内部的数据，`niu`和`old`都指向了同一个对象。
-      >
-      > - watch的第1个参数也可以是Ref或Proxy组成的数组，用来同时监视多个数据源。此时回调的参数`niu`和`old`也是数组。
-      >
-      > - **小技巧：**如果只想监视Proxy对象中的某个数据，那么watch的第1个参数可以放一个函数：`() => person.name`，如果要监视Proxy对象中的多个数据，那么就用函数数组：`[()=>person.name,..]`。也就是说，监视的数据也可以是**返回一个值的函数**。
-      >
-      >   > **特殊情况：**如果监视的Proxy中的数据，类型也是对象，并且层次比较深，那么还需要开启深度监视。
+      - watch的第1个参数是监视的数据，可以是**Ref对象**或`reactive()`定义的**`Proxy`对象**。第2个参数是回调函数。第3个参数（可选）是配置对象：`{ immediate: true, deep: true }`。
+      
+      - 如果`watch()`的第1个参数是Ref对象，那么监视的是其中所有的属性。它是浅层次的监视，可以通过配置项来开启深度监视。
+      
+      - 如果第1个参数是Proxy对象，那么监视的是对象中所有层次的数据。它是强制的，deep配置项不起作用。此时回调中的`niu`和`old`都是该对象的内存地址，无论怎么修改对象内部的数据，`niu`和`old`都指向了同一个对象。
+      
+      - watch的第1个参数也可以是Ref或Proxy组成的数组，用来同时监视多个数据源。此时回调的参数`niu`和`old`也是数组。
+      
+      - **小技巧：**如果只想监视Proxy对象中的某个数据，那么watch的第1个参数可以放一个函数：`() => person.name`，如果要监视Proxy对象中的多个数据，那么就用函数数组：`[()=>person.name,..]`。也就是说，监视的数据也可以是**返回一个值的函数**。
+      
+        **特殊情况：**如果监视的Proxy中的数据，类型也是对象，并且层次比较深，那么还需要开启深度监视。
 
   - ##### watchEffect()：
 
@@ -396,9 +397,9 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
 
   ##### Vue3组件的生命周期和Vue2中的区别：（没有什么太大的改动）
 
-  1. 原来的beforeDestroy()和destroyed()改为了`beforeUnmount()`和`unmounted()`。
+  1. 原来的`beforeDestroy()`和`destroyed()`改为了`beforeUnmount()`和`unmounted()`。
   
-  2. 由原来的`new Vue()`变为了`createApp(App).mount('#root')`，创建vm实例的同时挂载到页面上。并且销毁vm实例的vm.$destroy()变成了`vm.unmount('#root')`。
+  2. 由原来的`new Vue()`变为了`createApp(App)`，创建vue实例对象变为了创建**应用实例对象**。并且销毁vue实例的`vm.$destroy()`变成了`app.unmount('#root')`。
   
   3. 并且这些生命周期钩子（选项式API），Vue3中也提供了对应的组合式API函数：（且组合式API的优先级更高）
   
@@ -414,31 +415,34 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
 
 - ### 自定义Hook
 
-  Hook本质上就是一个函数，里面使用了一些组合式API函数。使用自定义Hook的优势是：复用代码，让setup的逻辑更简单。我们可以在自定义Hook中，封装多个组件共用的功能代码，从而复用组件中的公共功能。使用：
+  Hook本质上就是一个函数，里面使用了一些组合式API函数。使用自定义Hook的优势是：复用代码，让setup的逻辑更简单。我们可以在自定义Hook中，封装多个组件共用的功能代码，从而复用组件中的公共功能。
 
-  在src/hooks/usePoint.js中：（Hook函数的名字一般叫useXxx）
-  
+  Hook函数的名字一般叫`useXxx`，使用：
+
+  > `src/hooks/usePoint.js`：
+
   ```js
   import { reactive, onMounted, onBeforeUnmount } from 'vue'
-  export default () => {  // 获取鼠标点击位置的Hook函数
-      let point = reactive({x:0,y:0})
-      function savePoint(e){
-          point.x = e.pageX
-          point.y = e.pageY
-      }
   
-      onMounted(()=>{
-          window.addEventListener('click',savePoint)
-      })
-      onBeforeUnmount(()=>{
-          window.removeEventListener('click',savePoint)
-      })
-      return point
+  export default () => {  // 获取鼠标点击位置的Hook函数
+    let point = reactive({x:0,y:0})
+    function savePoint(e){
+      point.x = e.pageX
+      point.y = e.pageY
+    }
+  
+    onMounted(()=>{
+      window.addEventListener('click',savePoint)
+    })
+    onBeforeUnmount(()=>{
+      window.removeEventListener('click',savePoint)
+    })
+    return point
   }
   ```
-  
-  在App.vue中：
-  
+
+  > `App.vue`：
+
   ```vue
   <template>
   	<h1>当前鼠标点击的位置是:</h1>
@@ -446,25 +450,29 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
   	<span>y坐标:{{y}}</span>
   </template>
   <script>
-      import { ref } from 'vue'
-      import usePoint from './hooks/usePoint'
-      export default {
-          name: 'App',
-          setup(){
-              let {x,y} = usePoint()
-              return {x,y}
-          }
+    import { ref } from 'vue'
+    import usePoint from './hooks/usePoint'
+    export default {
+      name: 'App',
+      setup(){
+        let {x,y} = usePoint()
+        return {x,y}
       }
+    }
   </script>
   ```
-  
-  ##### 注意：自定义的Hook函数也不一定非得按照上面的格式来写，只要实现了Hook的功能即可。
 
-- ### toRef()/toRefs()
+  注意：自定义的Hook函数也不一定非得按照上面的格式来写，只要实现了Hook的功能即可。
 
-    - 作用：创建一个ref对象，其value值指向另一个对象中的某个属性。语法：`const name = toRef(person,'name')`，返回的name是一个`ObjectRefImpl`对象（ref对象），里面的虚拟属性value其实就是person代理对象的name属性。（toRef()的参数可以是任意类型）
-    - 使用场景：只将响应式对象中的某个属性提供给外部。（如果不用toRef，那么该属性外部只能用不能改，因为外部拿不到Proxy对象只拿到了一个值）
-    - 扩展：toRefs()和toRef()功能类似，它可以批量创建多个ref对象，语法：`const p = toRefs(person)`。此时person中的属性p对象中都有，值都是ref对象。
+- ### `toRef()/toRefs()`
+
+    创建一个Ref对象，其`value`值指向另一个响应式对象中的某个属性。语法：`const name = toRef(person,'name')`
+
+    如果参数是Vue的响应式对象（Ref/Proxy对象），那么生成的Ref对象也和原对象所关联、具有响应式。
+
+    使用场景：只将响应式对象中的某个属性提供给外部。（如果不用toRef，那么该属性外部只能用不能改，因为外部拿不到Proxy对象只拿到了一个值）
+
+    扩展：`toRefs()`和`toRef()`功能类似，它可以批量创建多个`Ref`对象，语法：`const p = toRefs(person)`，此时person中的属性p对象中都有，值都是Ref对象。
 
 - ### 其他的组合式API（不常用）
 
