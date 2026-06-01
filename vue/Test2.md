@@ -6,7 +6,7 @@
 
 组件就是：**实现应用中局部功能代码和资源的集合**。在Vue中，一个组件本质上是一个拥有预定义选项的一个Vue实例。
 
-- ### 非单文件组件
+- ### 非单文件组件（了解）
 
   一个HTML/js文件中，定义了多个Vue的组件，这就属于**非单文件组件**。用法：
 
@@ -40,7 +40,9 @@
        })
        ```
 
-     - **`data`只能用函数式写法**（Vue建议在任何情况下，`data`都用函数式写法）。因为对象式写法多个组件实例会共用这个`data`对象，数据不独立；而函数式写法每次调用会返回一个新的`data`对象，多个组件实例之间的`data`互不影响。
+     - **`data`只能用函数式写法**。因为对象式写法多个组件实例会共用这个`data`对象，数据不独立；而函数式写法每次调用会返回一个新的`data`对象，多个组件实例之间的`data`互不影响。
+
+       > Vue建议在任何情况下，`data`都用函数式写法。
 
   2. **（局部）注册组件**：在使用组件的Vue实例的配置对象中，添加一个全新的配置项`components`，值是一个对象。对象的Key是组件名，value是组件实例对象：
 
@@ -77,7 +79,9 @@
     
   - 组件标签也可以使用单标签，但这需要Vue脚手架环境的支持（后面讲Vue脚手架环境）。
 
-  - 组件定义时可以使用`name:'abc'`配置项，指定组件在Vue开发者工具中呈现的名字。（目前的作用只是在Vue工具中显示，后面路由中还有其他作用）
+  - 组件定义时可以使用`name:'abc'`配置项，指定组件在Vue开发者工具中呈现的名字。
+
+    > 目前的作用只是在Vue工具中显示，后面路由中还有其他作用。
 
   - 定义组件实例时，可以简写：`const school = Vue.extend({})`简写为`const school = {}`，注册组件的时候会自动调用`Vue.extend({})`将这个普通对象封装为组件实例对象。
 
@@ -89,12 +93,12 @@
 
   - `Vue.extend({})`的返回的组件实例对象，本质上是一个：根据不同配置对象、返回的`VueComponent`构造函数。这个构造函数不是程序员定义的，而是由`Vue.extend()`动态生成的。
 
-  - 每次调用`Vue.extend({})`定义一个新的组件时，返回的都是**新的**`VueComponent`构造器。不同组件的`VueComponent`不同，但它们都是`Vue`构造器的子构造器，类似于父类和子类的关系。因此`VueComponent`构造器创建出来的组件实例`vc`，其实是`vue`实例的子实例，vc是能访问到Vue构造器原型上的属性和方法的。
+  - 每次调用`Vue.extend({})`定义一个新的组件时，返回的都是**新的**`VueComponent`构造器。不同组件的`VueComponent`不同，但它们都是`Vue`构造器的子构造器，类似于父类和子类的关系。因此`VueComponent`构造器创建出来的组件实例`vc`，其实是`vue`实例的子实例，`vc`是能访问到Vue构造器原型上的属性和方法的。
 
   - 我们只需要写`<School></School>`标签，Vue解析模板时会根据不同的`VueComponent`，创建对应组件的**组件实例对象（vc）**。即Vue帮我们执行的：`new VueComponent({配置对象})`。
 
   - 关于组件配置项中的`this`：
-    - 在`new Vue({})`的配置项中，`data`、`methods`中的函数、`watch`中的函数、`computed`中的函数，这些被Vue管理的函数，它们的this都是vue实例对象。
+    - 在`new Vue({})`的配置项中，`data`、`methods`中的函数、`watch`中的函数、`computed`中的函数，这些被Vue管理的函数，它们内部的`this`都是vue实例对象。
     - 而在`Vue.extend({})`定义组件的配置中，`data`、`methods`中的函数、`watch`中的函数、`computed`中的函数，这些被Vue管理的函数，它们的`this`都是`VueComponent`构造的**组件实例对象**。
     
   - ~~（Vue3中移除了）组件实例对象（或vue实例对象）上的`$children`是一个`VueComponent`的数组，保存了该模板中使用的所有子组件实例。~~
@@ -108,33 +112,33 @@
   - 组件实例对象（或vue实例对象）上的`$parent`是当前子组件实例的所在的父组件实例。
 
     > Vue3中更推荐这样获取父组件实例：
-    >
-    > ```js
-    > import { getCurrentInstance, onMounted } from 'vue'
-    > 
-    > export default {
-    >     setup() {
-    >        const instance = getCurrentInstance()
-    > 
-    >        onMounted(() => {
-    >          console.log(instance.parent)
-    >        })
-    >     }
-    > }
-    > ```
+
+    ```js
+    import { getCurrentInstance, onMounted } from 'vue'
+    
+    export default {
+     setup() {
+        const instance = getCurrentInstance()
+    
+        onMounted(() => {
+          console.log(instance.parent)
+        })
+     }
+    }
+    ```
 
   - **一个重要的关系：**`VueComponent.prototype.__proto__ === Vue.prototype`，即：`VueComponent`是`Vue`的子类。**为什么要有这个关系？**为了让组件实例对象vc可以访问到 Vue 原型上的属性、方法。
 
-- ### 单文件组件（主流方式）
+- ### 单文件组件（SFC）
 
   单文件组件就是，每个组件分别单独定义到了一个`.vue`文件中。
 
   ##### 首先要知道：
 
-  单文件组件的这种`.vue`文件，浏览器是不能识别的，也就是不能直接在浏览器环境中运行`.vue`文件。我们需要先把`.vue`文件经过Webpack/Vite等工具编译为`.js`文件，然后才可以引入到HTML中使用。2种方式：
+  单文件组件的这种`.vue`文件，浏览器是不能识别的，也就是不能直接在浏览器环境中运行`.vue`文件。我们需要先把`.vue`文件经过Webpack/Vite等工具编译为`.js`文件，然后才可以引入到HTML中使用。具体分为两种方式来做：
 
   1. 我们可以选择手动用Webpack搭建工作流，对`.vue`文件进行处理。但这种方式麻烦，且处理的结果（工作流）不一定是最好的。
-  2. （推荐）通常我们会使用Vue官方提供的脚手架工具**Vue Cli**，它是一个Vue团队用Webpack给Vue2工程搭建的开发工作流。
+  2. （推荐）Vue 2中，通常我们会使用Vue官方提供的脚手架工具**Vue Cli**，它是一个Vue团队用Webpack给Vue 2工程搭建的开发工作流。
 
   ##### 单文件组件的使用：
 
@@ -163,7 +167,7 @@
        },
        methods: {
          showName(){
-         	alert(this.name)
+           alert(this.name)
          }
        }
      }
@@ -179,7 +183,7 @@
      -->
      <style scoped>
      .demo {
-     	background-color: orange;
+       background-color: orange;
      }
      </style>
      ```
@@ -190,24 +194,24 @@
      再写一个App组件，它管理其他所有的组件，是最外层的根组件。
      
      > `App.vue`：
-     >
-     > ```vue
-     > <template>
-     >   <div id="app">
-     >     <!-- 使用组件 -->
-     >     <School/>
-     >   </div>
-     > </template>
-     > <script>
-     > // 引入其他文件中的子组件的配置对象
-     > import School from './School.vue'
-     > export default {
-     >   name: 'App',
-     >   // 注册组件
-     >   components: { School }
-     > }
-     > </script>
-     > ```
+     
+     ```vue
+     <template>
+       <div id="app">
+       <!-- 使用组件 -->
+         <School/>
+       </div>
+     </template>
+     <script>
+     // 引入其他文件中的子组件的配置对象
+     import School from './School.vue'
+     export default {
+       name: 'App',
+       // 注册组件
+       components: { School }
+     }
+     </script>
+     ```
 
   2. 项目的入口文件`main.js`中，将根组件App注册到vue实例对象上，让Vue实例对象管理起来App根组件：
 
@@ -240,7 +244,7 @@
      </html>
      ```
 
-- ### 使用Vue脚手架
+- ### 使用Vue脚手架（Vue Cli）
 
   上面单文件组件如果不用Vue脚手架进行预编译的话，是无法直接在浏览器中运行的。我们看下如何在Vue脚手架中使用单文件组件。
 
@@ -257,6 +261,8 @@
        ![image-20240605134041103](./assets/image-20240605134041103.png)
 
 - ### 脚手架相关文件的相关说明
+
+  - `vue.config.js`：Vue脚手架的配置文件，用于配置Vue脚手架，具体可以看VueCli官网的配置参考。如：配置对象中写`lintOnSave: false`表示关闭语法检查。（最好不要关闭语法检查）
 
   - `package.json`：通过查看其中的`scripts`配置项，我们知道刚才执行的`npm run serve`其实是执行了`vue-cli-service serve`，该命令会编译项目文件并启动一个node项目。`vue-cli-service build`是前端所有代码写完后，将所有源代码打包输出为静态资源文件。`lint`中是通过`eslint`工具进行语法检查（很少用）。
 
@@ -319,7 +325,7 @@
 
   将之前我们写的单文件组件代码，放入该脚手架环境中：
 
-  > 用我们的`App.vue`替换掉脚手架中的，将`Student.vue`放在components目录中即可。
+  > 用我们的`App.vue`替换掉脚手架中的，将`Student.vue`放在`components`目录中即可。
 
   可能我们会有一些疑问：
 
@@ -335,7 +341,7 @@
 
   ![image-20240605170021620](./assets/image-20240605170021620.png)
 
-- ### 关于render配置项（渲染函数）
+- ### 关于`render`配置项（渲染函数）
 
   我们如果将`main.js`中的`render`配置项去掉，还用原来的方式：将`<App>`组件注册，然后通过`template`使用`<App/>`组件。运行会报错：你正在使用的Vue的运行时**模版解析器**不可用（不能用`template`配置项），要么将需要预编译的模版交给`render()`渲染函数，要么引入完整版的Vue。
   
@@ -366,11 +372,7 @@
   1. 模板解析器（Template Compiler）：模板解析器是Vue的核心功能之一，它负责将Vue组件中的（template中的）模板代码解析成虚拟DOM。模板解析器会解析Vue组件模板中的指令、插值表达式、事件绑定等语法，将其转换为虚拟DOM树。最终，模板解析器会生成`render()`渲染函数，用于将虚拟DOM渲染为真实的DOM元素。模板解析器的工作是将模板代码转换为可执行的渲染函数。 
   2. 渲染函数（Render Function）：渲染函数是一个JS函数，用于描述Vue组件的渲染逻辑。通过手动编写渲染函数，您可以更灵活地控制组件的渲染过程。渲染函数接收一个h函数（`createElement`函数）作为参数，通过调用该h函数来创建虚拟DOM节点。在渲染函数中，您可以使用JS的逻辑控制、循环等语法来动态生成虚拟DOM节点。渲染函数的灵活性更高，但编写起来相对复杂。
   
-  模板解析器是将模板代码转换为渲染函数的工具，而渲染函数则是手动编写的描述组件渲染逻辑的函数。
-
-- ### 在`vue.config.js`中配置Vue脚手架
-
-  该文件用于配置Vue脚手架相关的东西，具体可以看VueCli官网的配置参考。如：配置对象中写`lintOnSave: false`表示关闭语法检查。（最好别关）
+  模板解析器是将Vue模板代码转换为渲染函数的工具，而渲染函数则是手动编写的描述组件渲染逻辑的函数。
 
 - ### ~~ref（了解）~~
 
@@ -378,15 +380,15 @@
   
   这种方式和原始JS的`document.getElementById()`的区别是：如果`ref`加在了组件标签`<school>`上，那么`$refs`获取的是vc组件实例对象。原始JS获取的是组件根元素的DOM对象。
 
-- ### 组件中的props配置项
+- ### 组件的`props`配置项
 
   > - 组件中的`props`配置项可以让组件接收外部传过来的数据（属性或函数）。不局限于只用组件内部的数据，它可以让组件的使用者自定义组件，在使用组件标签的同时将自定义的数据传过来，达到自定义组件的目的。
   > - 当组件模版中用到一些数据，`data`中没有配置，这些数据是使用组件标签的地方传进来的，传进来的数据要用`props`配置项接收。
-  
+
   1. 使用组件的地方，通过组件标签的属性可以传递数据：`<School name="李四" age="13"/>`，一般用`:age="13"`来传数据，这样表达式传的是`Number`型数据。（建议属性名全小写，这样符合HTML的属性名规范）
-  
+
   2. 组件中通过props配置项来接收数据：
-  
+
      ```js
      export default {
          name: 'School',
@@ -418,26 +420,28 @@
      	// 注意：这些都是运行时检查，不需要支持TS
      }
      ```
-  
+
   ##### 注意：
-  
-  - props配置项中的数据也会放在vm（或vc）实例上，并且属性也是响应式的。相较于data，props里接收的数据**优先**被放在vc实例上。
-  
-  - **props中的数据是只读的**，不能通过vc去改。
-  
+
+  - `props`配置项中的数据也会放在vm（或vc）实例上，并且属性也是响应式的。相较于`data`，`props`里接收的数据**优先**被放在vc实例上。
+
+  - **`props`中的数据是只读的**。
+
     > 不过Vue监视的是浅层次的修改，深层次的修改虽然不会报错，但不建议这样做。
-  
-  - 如果props传过来的数据在`data`或`methods`中已经定义了，**重名了会报错**。
-  
+
+  - 如果`props`传过来的数据在`data`或`methods`中已经定义了，**重名了会报错**。
+
   - 我们在给标签定义属性时，不要用像`key`、`ref`这些特殊的属性名，因为这些属性Vue内部在维护。
-  
-  - 标签中传props时，属性名建议全小写，因为要遵循HTML标签属性的规范。组件中声明接收时，会**自动将其转为小驼峰形式**，因此接收时可以用小驼峰的形式声明接收。
-  
-  - 如果传过来的数据没有用props声明接收，那么数据会被放在组件实例的`$attrs`对象中。若用props声明接收了，那么`$attrs`拿到的是一个空对象。
+
+  - 标签中传`props`时，属性名建议全小写，因为要遵循HTML标签属性的规范。组件中声明接收时，会**自动将其转为小驼峰形式**，因此接收时可以用小驼峰的形式声明接收。
+
+  - 如果传过来的数据没有用`props`声明接收，那么数据会被放在组件实例的`$attrs`对象中。若用`props`声明接收了，那么`$attrs`拿到的是一个空对象。
+
+    > 和 props 有所不同，透传 `$attrs` 在 JS 中保留了它们原始的大小写，所以像 `foo-bar` 这样的一个 `$attrs` 需要通过 `$attrs['foo-bar']` 来访问。
 
 - ### Mixin 混入
 
-  `mixins`配置项的目的是为了复用配置。我们可以将data、methods、computed等配置，提取出来放到一个公共的对象中。然后通过`mixins`配置项引入这些公共配置项，达到复用配置的目的。
+  `mixins`配置项的目的是为了复用配置。我们可以将`data`、`methods`、`computed`等配置，提取出来放到一个公共的对象中。然后通过`mixins`配置项引入这些公共配置项，达到复用配置的目的。
   
   ##### 用法：
   
@@ -492,11 +496,11 @@
     > - 此时该回调函数最好用箭头函数的写法，这样回调中的this仍然是当前上下文的组件实例：~~vc.$on('atguigu',()=>{})~~
     > - 对于自定义事件来说，`$event`占位符是$emit()的第2个参数。
 
-  - （Vue3移除了）事件只触发一次：`<Student @atguigu.once='demo'/>`或~~vc.$once('atguigu', demo)~~。
+  - （Vue3移除了）事件只触发一次：~~<Student @atguigu.once='demo'/>~~或~~vc.$once('atguigu', demo)~~。
 
   - （Vue3移除了）解绑事件：~~vc.$off('atguigu')~~，解绑多个：~~vc.$off(['atguigu','other'])~~，解绑所有：~~vc.$off()~~。销毁组件实例后自定义事件就用不了了，`$emit()`不起作用了。
 
-    > $emit()、~~$on()、$off()~~这些API其实是Vue原型上的，所以其实也可以给vm对象绑定自定义事件。
+    > `$emit()`、~~$on()、$off()~~这些API其实是Vue原型上的，所以其实也可以给vm对象绑定自定义事件。
 
   - ~~（Vue3中移除了）组件上也可以用原生的JS事件，需要给事件加`native`修饰符，这样Vue才不会将其当做自定义事件，而是将该事件绑定到组件最外层的HTML容器上。~~
 
@@ -517,12 +521,12 @@
 
     ```js
     new Vue({
-        el: '#app',
-        render: h => h(App),
-        // 安装全局事件总线，$bus就是当前的vm实例
-        beforeCreate(){
-    		Vue.prototype.$bus = this
-        }
+      el: '#app',
+      render: h => h(App),
+      // 安装全局事件总线，$bus就是当前的vm实例
+      beforeCreate(){
+        Vue.prototype.$bus = this
+      }
     })
     ```
 
@@ -532,9 +536,9 @@
 
     ```js
     mounted(){
-        this.$bus.$on('hello', (data)=>{
-            console.log(data)
-        })
+      this.$bus.$on('hello', (data)=>{
+        console.log(data)
+      })
     }
     ```
 
@@ -542,7 +546,7 @@
 
     ```js
     beforeDestroy(){
-        this.$bus.$off('hello')
+      this.$bus.$off('hello')
     }
     ```
 
@@ -550,9 +554,9 @@
 
     ```js
     methods: {
-        sendData(){
-            this.$bus.$emit('hello',666)
-        }
+      sendData(){
+        this.$bus.$emit('hello',666)
+      }
     }
     ```
 
@@ -596,10 +600,14 @@
      }
      ```
   
-- ### `vm.$nextTick(callback)`
+- ### `vm.nextTick(callback?: () => void): Promise<void>`
 
   作用：下一次页面上的真实DOM更新之后，再去执行指定的回调。
-  
+
+  当你在 Vue 中更改响应式状态时，最终的 DOM 更新并不是同步生效的，而是由 Vue 将它们缓存在一个队列中，直到下一个“tick”才一起执行。这样是为了确保每个组件无论发生多少状态改变，都仅执行一次更新。
+
+  `nextTick()` 可以在状态改变后立即使用，以等待 DOM 更新完成。你可以传递一个回调函数作为参数，或者 await 返回的 Promise。
+
   什么时候用：当数据改变后，要基于更新后的新DOM进行某些操作时，这些操作就可以放在该回调中。
 
 - ### Vue封装的过渡与动画
@@ -732,11 +740,11 @@
 
      ```html
      <template>
-         <div>
-             <h3>{{title}}</h3>
-             <!-- 组件模板中，定义默认插槽 -->
-             <slot>我是默认值，当使用者没有传递标签时显示</slot>
-     	</div>
+       <div>
+         <h3>{{title}}</h3>
+         <!-- 组件模板中，定义默认插槽 -->
+         <slot>我是默认值，当使用者没有传递标签时显示</slot>
+       </div>
      </template>
      ```
 
@@ -744,52 +752,62 @@
 
      ```html
      <template>
-         <div>
-             <School title="育才学校"><!-- 得用双标签 -->
-                 <!-- 往插槽中放img标签。img标签是在该App组件中完成解析后，再塞到组件的插槽中的 -->
-                 <img src="./a.jpg" alt="">
-             </School>
-     	</div>
+       <div>
+         <School title="育才学校"><!-- 得用双标签 -->
+           <!-- 往插槽中放img标签。img标签是在该App组件中完成解析后，再塞到子组件的插槽中的 -->
+           <img src="./a.jpg" alt="">
+         </School>
+       </div>
      </template>
      ```
-     > - 要往插槽中放的标签结构，它的CSS样式，无论是写在定义插槽的地方、还是使用插槽的地方都行。只是渲染位置不同罢了。（通常在使用插槽的父组件中写CSS样式）
-     >
-     > - **具名插槽**：组件中可以定义多个`<slot>`插槽，通过其`name='s1'`属性来区分不同的插槽。（没有提供 `name`属性的插槽，默认会有一个name属性，值为`default`。
-     >
-     >   - 要为具名插槽传入内容，需要使用一个含`v-slot`指令的`<template>`元素，并将目标插槽的名字传给该指令：`v-slot:插槽名`（简写形式：`#插槽名`）
-     >
-     >   - **动态插槽名**：插槽的名字也可以是动态的，通过在`v-slot`上使用*动态指令参数*：
-     >
-     >     ```vue
-     >     <template v-slot:[变量名]></template>
-     >     <template #[变量名]></template>
-     >     ```
-     >
-     >   - 当一个组件中，同时通过默认插槽和具名插槽传递HTML结构时，所有位于顶级的非`<template>`中的标签节点，都被隐式地视为往默认插槽中传递内容。
-     >
-     > - **作用域插槽**：插槽也可以给使用者传递数据，通过给`<slot>`加`props`属性：`<slot :games="g">`。
-     >
-     >   - 如果是**默认插槽**：使用插槽的地方，给组件加`v-slot="data"`属性：（其中data是对象，对象的key是slot标签的属性名games）
-     >   
-     >     ```vue
-     >     <MyComponent v-slot="data">
-     >       {{ data.games }}
-     >     </MyComponent>
-     >     ```
-     >   
-     >   - 如果是**具名插槽**：则必须在具名插槽的`<template>`标签上加`v-slot:插槽名="data"`来获取。（简写：`#插槽名="data"`）
+     - 要往插槽中放的标签结构，它的CSS样式，无论是写在定义插槽的地方、还是使用插槽的地方都行。只是渲染位置不同罢了。（通常在使用插槽的父组件中写CSS样式）
+     
+     - **具名插槽**：组件中可以定义多个`<slot>`插槽，通过其`name='s1'`属性来区分不同的插槽。（没有提供 `name`属性的插槽，默认会有一个`name`属性，值为`default`。
+     
+       - 要使用具名插槽，需要用一个含`v-slot`指令的`<template>`元素，并将插槽名传给该指令：`v-slot:插槽名`（简写形式：`#插槽名`）
+     
+         ```vue
+         <template v-slot:header><!-- 或 #header -->
+           <!-- header 插槽的内容放这里 -->
+         </template>
+         ```
+     
+       - **动态插槽名**：插槽的名字也可以是动态的，通过在`v-slot`上使用*动态指令参数*：
+     
+         ```vue
+         <template v-slot:[变量名]></template>
+         <template #[变量名]></template>
+         ```
+     
+       - 当一个组件中，同时通过默认插槽和具名插槽传递HTML结构时，所有位于顶级的非`<template>`中的标签节点，都被隐式地视为往默认插槽中传递内容。
+     
+     - **作用域插槽**：插槽也可以给使用者传递数据，通过给`<slot>`加`props`属性：`<slot :games="g">`。
+     
+       - 如果是**默认插槽**：使用插槽的地方，给组件加`v-slot="data"`属性：
+       
+         ```vue
+         <MyComponent v-slot="data">
+           {{ data.games }}
+         </MyComponent>
+         ```
+       
+         > 其中`data`是一个对象，对象的key是`<slot>`的属性名`games`。
+       
+       - 如果是**具名插槽**：则必须在具名插槽的`<template>`标签上加`v-slot:插槽名="data"`来获取。（简写：`#插槽名="data"`）
   
-  ###### 注意：其实通过组件实例的`vc.$slots.插槽名`也可以获取到的传过来的标签结构，值是一个虚拟DOM数组。使用场景：
+  注意：通过组件实例的`vc.$slots.插槽名`也可以获取到的传过来的标签结构，值是一个虚拟DOM数组。使用场景：
   
-  **条件插槽**：有时需要判断是否往插槽中传递了结构，如果传递了再渲染某些内容。
+  **条件插槽**
+  
+  有时需要判断是否往插槽中传递了结构，如果传递了再渲染某些内容。
   
   此时可以使用`$slots`与`v-if`配合来实现：
   
   ```vue
   <template>
-  	<div v-if="$slots.default" class="card-header">
-          <slot />
-      </div>
+    <div v-if="$slots.default" class="card-header">
+      <slot />
+    </div>
   </template>
   ```
 
