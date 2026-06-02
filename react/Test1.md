@@ -1,199 +1,212 @@
 # React
 
-------
+React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维护。React 的核心理念是组件化，通过将界面拆分成独立的组件，可以更方便地管理和维护界面代码。
 
-> React是一个用于构建用户界面的JS库。也就是说它只关注视图（界面），我们只需要准备好数据，由它将数据渲染成视图，不需要我们自己来操作DOM了。即：React是一个将数据渲染为HTML视图的、开源的JS框架。
+##### React 的发展史：
 
-- ##### 发展史：
+1. 起初是由**Facebook**的软件工程师Jordan Walke创建。
 
-  > 1. 起初是由**Facebook**的软件工程师Jordan Walke创建。
-  >
-  > 2. 于2011年部署于Facebook的newsfeed。
-  >
-  > 3. 随后在2012年部署于Instagram。
-  >
-  > 4. 2013年5月宣布开源。
-  >
-  >    ......
-  >
-  >    *近10年“陈酿”React正在被腾讯、阿里等一线大厂广泛使用。*
+2. 于2011年部署于Facebook的newsfeed。
 
-- ##### 为什么要用React？
+3. 随后在2012年部署于Instagram。
 
-  > 1. 原生JS操作DOM繁琐、效率低。因为浏览器会进行大量的重绘重排。
-  > 2. 原生JS没有组件化编码方案，代码复用率很低。
+4. 2013年5月宣布开源。
 
-- ##### React的特点：
+   ......
 
-  > 1. React使用**虚拟DOM** + 优秀的**Diffing算法**，尽量减少与真实DOM的交互。
-  > 2. 采用组件化模式、声明化编码，提高开发效率及组件复用率。
-  > 3. 在**React Native**中可以使用React进行移动端（安卓、IOS）开发。
+*近10年“陈酿”React正在被腾讯、阿里等一线大厂广泛使用。*
 
-- ##### 准备工作：
+##### 为什么要用React？
 
-  - ###### 关于 `@babel/standalone`：
+原生JS操作DOM繁琐、效率低。因为浏览器会进行大量的重绘重排。
 
-    > `@babel/standalone` 是 Babel 的一个特殊版本，专为**浏览器环境**设计，无需 Node.js 环境即可在浏览器中实时编译 ES6+/JSX 代码。
-    >
-    > 它提供了一个独立构建的 Babel，用于直接在浏览器（其他非 Node.js 环境）中解析和转换现代 JavaScript/JSX 代码。
+原生JS没有组件化编码方案，代码复用率很低。
 
-  - ###### 什么时候用 `@babel/standalone`：
+##### React的特点：
 
-    > 如果你在生产环境中使用 Babel，你通常不应该使用 `@babel/standalone`。相反，你应该使用在 Node.js 上运行的构建系统，例如 Webpack、Rollup 或 Parcel，来提前转换你的 JS。
+1. React使用**虚拟DOM** + 优秀的**Diffing算法**，尽量减少与真实DOM的交互。
+2. 采用组件化模式、声明化编码，提高开发效率及组件复用率。
+3. 在**React Native**中可以使用React进行移动端（安卓、IOS）开发。
 
-  - ###### 怎么用？
+##### 关于 `@babel/standalone`：
 
-    > 可以通过包管理器手动安装到本地：`npm i @babel/standalone`，或直接通过 [UNPKG](https://unpkg.com/@babel/standalone/babel.min.js) 在HTML中引入。这是一种将其嵌入网页的简单方法，无需进行任何其他设置：
-    >
-    > ```html
-    > <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    > ```
-    >
-    > 当在浏览器中加载时，`@babel/standalone` 将自动编译并执行所有 `type` 属性值为 `text/babel` 或 `text/jsx` 的 `<script>` 标签：
-    >
-    > ```html
-    > <div id="output"></div>
-    > <!-- 1、引入@babel/standalone -->
-    > <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    > <!-- 2、编写es6或jsx代码 -->
-    > <script type="text/babel">
-    >   const getMessage = () => "Hello World";
-    >   document.getElementById("output").innerHTML = getMessage();
-    > </script>
-    > ```
-    >
-    > 上方代码中，由于 HTML 的 `<script>` 标签不支持 `text/babel` 类型，因此该标签会被浏览器忽略。而Babel会去接管这个 `<script>` 标签，将其中的内容编译后生成新的 `<script>` 标签插入到HTML中。
+`@babel/standalone` 是 Babel 的一个特殊版本，专为**浏览器环境**设计，它可以在浏览器中实时编译并运行 ES6+/JSX 代码。
 
-------
+##### 什么时候用 `@babel/standalone`：
+
+由于这种方式是实时编译的JSX语法，因此效率低。我们学习阶段可以先用它来写React代码。如果你在生产环境中使用 Babel，你通常不应该使用 `@babel/standalone`。相反，你应该使用在 Node.js 上运行的构建系统，例如 Webpack、Rollup 或 Parcel，来提前转换 React 的 JSX 代码。
+
+##### 用法：
+
+可以通过包管理器手动安装到本地：`npm i @babel/standalone`，或直接通过 [UNPKG](https://unpkg.com/@babel/standalone/babel.min.js) 在HTML中引入。这是一种将其嵌入网页的简单方法，无需进行任何其他设置：
+
+```html
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+```
+
+当在浏览器中加载时，`@babel/standalone` 将自动编译并执行所有 `type` 属性值为 `text/babel` 或 `text/jsx` 的 `<script>` 标签：
+
+```html
+<!-- 1、引入@babel/standalone -->
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<!-- 2、编写es6或jsx代码 -->
+<script type="text/babel">
+  const getMessage = () => "Hello World";
+  document.getElementById("output").innerHTML = getMessage();
+</script>
+```
+
+上方代码中，由于 HTML 的 `<script>` 标签不支持 `text/babel` 类型，因此该标签会被浏览器忽略。而Babel会去接管这个 `<script>` 标签，将其中的内容编译后生成新的 `<script>` 标签插入到HTML中。
 
 - ### 第一个React程序
 
-  > 我们先来做一个React程序，这里先用React的旧版本（16）。
+  我们先来做一个React程序，这里先用React的旧版本（16）。目前，我们会用到3个文件：
 
-  ###### 目前，我们会用到3个文件：
+  1. `babel.min.js`：我们之前用babel来将ES6语法（实时）转换为ES5，其实它还有一个功能是：将React的**JSX语法**转换成JS。
 
-  1. `babel.min.js`：我们之前用babel来将ES6语法转换为ES5，其实它还有一个功能是：将React的**JSX语法**转换成JS语法。（类似Vue中的**模板解析器**，将Vue容器中的模板语法解析为JS）
+     > 类似Vue中的**模板解析器**，将Vue容器中的模板语法解析为JS。
+  
   2. `react.development.js`：它是React的核心库。所有React的功能通过它来实现。
+
   3. `react-dom.development.js`：React的扩展库。用于支持React去操作DOM（以及虚拟DOM）。
 
-  ###### 第一个React程序：
+     > `react` 提供了 React 的所有核心功能以及API。而`react-dom` 负责把 React 描述的 UI 渲染到浏览器 DOM。
+     >
+     > 这样的好处是：同一个 React 组件可以渲染到不同平台。比如在移动端使用 react + react-native，react-native 将 React 组件渲染为移动端组件，而不是浏览器中的DOM。
+  
+  ##### 第一个React程序，`index.html`：
+  
+  ```jsx
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <title>React</title>
+    </head>
+  <body>
+    <div id="app">33</div>
+  
+    <!-- 引入@babel/standalone，用于将jsx转为js -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 引入react核心库 -->
+    <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <!-- 引入react-dom，用于支持react操作dom。该文件必须在react核心库之后引入 -->
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+  
+    <!-- type属性写text/babel，表示里面写的是jsx语法（在js的基础上加了xml语法），jsx语法得通过babel来转成js -->
+    <script type="text/babel">
+      // 1、创建虚拟DOM（虚拟DOM其实就是JS对象）
+      const vdom = <h1 id="title">Hello React!</h1>/* JSX中，xml标签能和JS混着写 */
+      // 2、将创建的虚拟DOM渲染到页面中（div内部）
+        //引入上面两个react库之后，全局就多了一个React和ReactDOM对象
+      ReactDOM.render(vdom, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom容器对象
+  </script>
+  </body>
+</html>
+  ```
 
-  > `index.html`：
-  >
-  > ```html
-  > <!DOCTYPE html>
-  > <html lang="en">
-  >        <head>
-  >    		<meta charset="UTF-8">
-  >        	<title>React</title>
-  >        </head>
-  > <body>
-  >       <div id="app">33</div>
-  > 
-  >        <!-- 引入@babel/standalone，用于将jsx转为js -->
-  >        <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  >        <!-- 引入react核心库 -->
-  >        <script src="https://unpkg.com/react@16/umd/react.development.js"></script>
-  >        <!-- 引入react-dom，用于支持react操作dom。该文件必须在react核心库之后引入 -->
-  >        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
-  > 
-  >    <!-- type属性写text/babel，表示里面写的是jsx语法（在js的基础上加了xml语法），jsx语法得通过babel来转成js -->
-  >        <script type="text/babel">
-  >        	// 1、创建虚拟DOM（虚拟DOM其实就是JS对象）
-  >        	const vdom = <h1 id="title">Hello React!</h1>/* JSX中，xml标签能和JS混着写 */
-  >        	// 2、将创建的虚拟DOM渲染到页面中（div内部）
-  >        		//引入上面两个react库之后，全局就多了一个React和ReactDOM对象
-  >        	ReactDOM.render(vdom, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom容器对象
-  >        </script>
-  > </body>
-  > </html>
-  > ```
-
-  ###### 浏览器打开运行：
+  ##### 浏览器中运行`index.html`：
 
   ![image-20240720014134109](./assets/image-20240720014134109.png)
 
-  ###### F12打开控制台，发现控制台上有黄色的提示信息：
-
+  ##### F12打开控制台，发现控制台上有黄色的提示信息：
+  
   `You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/`
-
-  > - 其实浏览器在拿到script标签中的代码后，发现是babel类型，于是它会找babel让它先去翻译，然后再解释JS代码块。这种情况如果代码少还好说，代码量一多则非常影响用户体验，我们目前初学时会使用这种方式，后面就不用了。它这个提示就是说：你这个方式不太对，代码一多可能会有问题。
-  > - 还有一个提示是说：可以用框架提供的**调试工具**来开发React项目。一般框架都会提供它专门的调试工具。所以我们将这个React的Google调试工具插件下载下来，方便后面代码的调试。
   
-  ###### 为什么我们不用原生的JS来创建虚拟DOM，而要使用JSX来创建虚拟DOM呢？
+  上面这个提示就是说：你使用 React 的方式不太对，代码一多可能会有问题。
   
-  > 要说清楚这个问题，首先我们将上面创建虚拟DOM的方式，改为用JS来写：（不用JSX语法了，所以不需要引入 `@babel/standalone` 了）
-  >
-  > ```html
-  > <script>
-  >        // 1、用React对象上的createElement(标签名,标签属性,标签内容)方法来创建虚拟DOM
-  >        const vdom = React.createElement('h1',{id:'title'},'Hello React!')
-  >        // 2、将创建的虚拟DOM渲染到页面上
-  >        ReactDOM.render(vdom, document.getElementById('app'))
-  > </script>
-  > ```
+  其实浏览器拿到`<script>`，发现`type`属性值非法，因此不会执行里面的JS代码。而Babel在浏览器渲染完毕之后，从DOM树中获取了所有`type='text/babel'`的`<script>`标签，将其中的JSX语法代码解析完毕后，重新生成了新的`<script>`并插入到HTML中。
   
-  ###### 这种方式好像也可以，那为什么还要用JSX语法呢？
+  不过由于这种方式是运行时解析，因此效率较低影响用户体验。我们目前先用这种方式学习 React 的语法，后面通过React脚手架来开发就不存在这个问题了。
   
-  > 因为如果要求h1标签中还有个span，span中写“Hello React！”，此时就需要将`createElement()`的第3个参数变为：`React.createElement('span',{}/null,'Hello React!')`
-  >
-  > 如果用JSX的语法来创建虚拟DOM，就简单多了：
-  >
-  > ```jsx
-  > // 加外层的小括号表示里面的虚拟DOM是一个整体，否则会有JS的语法错误
-  > const vdom = (
-  >        <h1 id="title">
-  >        	<span>Hello React!</span>
-  >        </h1>
-  > )
-  > ```
+  下面还有一个提示是说：可以用框架提供的**调试工具**来开发 React 项目（一般框架都会提供它专门的调试工具）。所以我们将这个 React 的 Chrome 调试工具插件下载下来，方便后面代码的调试。
   
-  ###### 这就是为什么React要打造JSX语法的原因。总结：
+  ##### 一个疑问：为什么我们不用 JS 来创建虚拟DOM，而要使用 JSX 来创建虚拟DOM呢？
   
-  > - JSX只为解决一个问题：**原生的JS创建虚拟DOM太麻烦了，用JSX可以让编码人员更加简单的创建虚拟DOM**，写起来更加流畅。
-  > - 其实babel就是将其中第1步的JSX语法翻译为了JS：`React.createElement('h1',{id:'title'},'Hello React!')`
-
-------
+  要说清楚这个问题，首先我们将上面 JSX 创建虚拟DOM的方式，改为用 JS 来写：（由于这里不用 JSX 语法了，因此不需要引入 `@babel/standalone` 了）
+  
+  ```jsx
+  <script>
+    // 1、用React对象上的createElement(标签名,标签属性,标签内容)方法来创建虚拟DOM
+    const vdom = React.createElement('h1',{id:'title'},'Hello React!')
+    // 2、将创建的虚拟DOM渲染到页面上
+    ReactDOM.render(vdom, document.getElementById('app'))
+  </script>
+  ```
+  
+  ##### 这种方式好像也可以，那为什么还要用JSX语法呢？
+  
+  因为这种方式，如果元素简单还好，稍微复杂一点代码就无法再看了。例如：要求h1标签中还有个span，span中写“Hello React！”，此时就需要将`createElement()`的第3个参数变为：`React.createElement('span',{}/null,'Hello React!')`
+  
+  而使用 JSX 语法来创建虚拟DOM（VDOM）就简单多了：
+  
+  ```jsx
+  // 加外层的小括号表示里面的虚拟DOM是一个整体，否则会有JS的语法错误
+  const vdom = (
+    <h1 id="title">
+      <span>Hello React!</span>
+    </h1>
+  )
+  ```
+  
+  > 我们引入的 Babel 就为了将 JSX 翻译为上方的JS：`React.createElement('h1',{id:'title'},'Hello React!')`
+  
+  这就是为什么React要打造JSX语法的原因。总结：
+  
+  JSX 只为解决一个问题：**JS 创建虚拟DOM太麻烦了，用 JSX 可以让编码人员更加简单的创建虚拟DOM，写起来更流畅**。
 
 - ### 虚拟DOM与真实DOM
 
-  > ###### 刚刚我们创建的虚拟DOM（VDOM）到底是个什么东西呢？
+  刚刚我们创建的虚拟DOM（VDOM）到底是个什么东西呢？
+
+  我们在控制台上打印VDOM，发现它其实就是一个普通JS对象。
+
+  和真正的DOM相比，虚拟DOM比较“轻”。因为虚拟DOM只是 React 内部在用，无需真实DOM上的那么多的属性。
+
+  在Web端，虚拟DOM最终会被 ReactDOM 映射为HTML上的真实DOM。
+
+  > **ReactDOM 是 React 官方提供的用于操作 DOM 的库**，主要负责将 React 组件渲染到浏览器 DOM 中，并处理 DOM 更新。
   >
-  > - 我们在控制台上打印VDOM，发现它其实就是一个普通JS对象。也就是说，JSX中的标签（虚拟DOM）最终会被Babel转化为JS对象。
-  > - 其次，虚拟DOM比较“轻”，真实DOM比较重。因为虚拟DOM只是React内部在用，无需真实DOM上的那么多属性。
-  > - 在Web端，虚拟DOM最终会被ReactDOM映射为HTML的真实DOM到页面上。
-  > - **ReactDOM 是 React 官方提供的用于操作 DOM 的库**，主要负责将 React 组件渲染到浏览器 DOM 中，并处理 DOM 更新。**为什么需要分离**：
-  >   - **平台无关性**：React 核心只处理组件逻辑，不涉及具体平台
-  >   - **多平台支持**：有 ReactDOM（Web）、React Native（移动端）、React VR/AR 等
-  >   - **关注点分离**：组件逻辑与渲染逻辑分离
+  > **为什么需要分离**：
+  >
+  > - **平台无关性**：React 核心只处理组件逻辑，不涉及具体平台
+  > - **多平台支持**：有 ReactDOM（Web）、React Native（移动端）、React VR/AR 等
+  > - **关注点分离**：组件逻辑与渲染逻辑分离
 
 - ### JSX
 
-  > JSX全程JavaScript XML，是React定义的一种类似于XML的JS的扩展语法：JS + XML。本质上是`React.createElement('h1',{id:'title'},'Hello React!')`的语法糖，简化了创建虚拟DOM的JS代码。
+  JSX 全称为 JavaScript XML，是React定义的一种类似于XML的JS的扩展语法：JS + XML。本质上是`React.createElement('h1',{id:'title'},'Hello React!')`的语法糖，简化了创建虚拟DOM的JS代码。
 
-  ###### JSX的语法规则：
+  ##### JSX的语法规则：
 
-  > 1. JSX的标签结构要更严格，**根标签只能有一个**，且每个**标签必须闭合**。
-  >
-  >    > **为什么根标签只能有一个**：JSX 虽然看起来很像 HTML，但在底层其实被转化为了 JS 对象，你不能在一个函数中返回多个对象，除非用一个数组把他们包装起来。这就是为什么多个 JSX 标签必须要用一个父元素包起来。（也可以用`<></>`包起来，好处是不会多一层HTML结构，且React新版本还提供了`Fragment`组件）
-  >
-  > 2. 由于是XML语法，因此JSX中可以写任意名字的标签。其中小写字母开头的标签会被当作HTML标签解析，**大写字母开头的标签，会被当作组件**去渲染。
-  >
-  > 3. 如果标签要动态化，要用`{}`包起来。当React解析JSX时会立即执行里面的JS表达式。
-  >
-  > 4. 如果`{}`里面的是数组，那么React会自动帮你遍历数组，数组中每个元素都当作虚拟DOM顺序放在`{}`所在位置。
-  >
-  > 5. 和HTML中不同的是，标签的class类名属性叫`className`，因为JSX中包含JS语法，而`class`是JS中的关键字。
-  >
-  > 6. 和HTML中不同的是，标签的`style`样式属性的值不能用字符串，也就是不能这样写：`<span style='margin: 10px'></span>`，值必须是JS中的对象（动态的），如：`<span style={ {backgroundColor:'red',color:'red'} }></span>`，属性名采用小驼峰形式。
-  >
-  > 7. JSX中，**标签的属性必须是小驼峰形式**。因此，事件句柄属性也要写成小驼峰形式，且值为回调函数名：`<div onClick={handleClick}></div>`。注意：不要加小括号。React在解析JSX时会绑定上该函数，而不是调用它。
-  >
-  >    > - 由于历史原因，`aria-*`和`data-*`属性还是以带`-`的 HTML 格式书写的。
-  >    > - 如果是自定义组件，属性名可以自由命名，但建议统一风格（小驼峰）。
-  
-  ###### 小练习：
-  
+  1. JSX的标签结构要更严格，**根标签只能有一个**，且每个**标签必须闭合**。
+
+     > **为什么根标签只能有一个**：JSX 虽然看起来很像 HTML，但在底层其实被转化为了 JS 对象，你不能在一个函数中返回多个对象，除非用一个数组把他们包装起来。这就是为什么多个 JSX 标签必须要用一个父元素包起来。
+     >
+     > 根标签也可以用空标签（`<></>`）、或者用React新版本提供的`<React.Fragment>`组件，这样做的好处是：不会多一层HTML结构。
+     >
+     > 但是要注意：空标签`< />`中不能有任何属性。
+
+  2. 由于是XML语法，因此JSX中可以写任意名字的标签。其中小写字母开头的标签会被当作HTML标签解析，**大写字母开头的标签，会被当作组件**去渲染。
+
+  3. 如果标签要动态化，要用`{}`包起来。当React解析 JSX 时会立即执行里面的JS表达式。
+
+  4. 如果`{}`里面的是数组，那么React会自动帮你遍历数组，数组中每个元素都当作虚拟DOM（JSX的标签）顺序放在`{}`所在的位置。
+
+  5. 和HTML中不同的是，标签的`class`属性改为了`className`。因为JSX中包含JS语法，而`class`是JS中的关键字。
+
+  6. 和HTML中不同的是，标签的`style`样式属性的值不能用字符串，也就是不能这样写：`<span style='margin: 10px'></span>`，值必须是JS中的对象（动态的），如：`<span style={ {backgroundColor:'red',color:'red'} }></span>`，CSS属性名采用小驼峰形式。
+
+  7. **JSX 标签的属性必须写成小驼峰形式**。因此，事件句柄属性也要写成小驼峰形式，且值为回调函数名：`<div onClick={handleClick}></div>`。
+
+     > 注意：
+     >
+     > 1. 函数名后不要加小括号。React在解析 JSX 时会给该事件绑定上该函数的地址，而不是调用它。
+     > 2. 由于历史原因，`aria-*`和`data-*`属性还是以带`-`的 HTML 格式书写的。
+     > 3. 如果是自定义组件，组件标签的属性名（props）可以是任意风格，但建议统一风格用小驼峰格式。
+
+  ##### 小练习：
+
   ```jsx
   <!DOCTYPE html>
   <html lang="en">
@@ -235,89 +248,86 @@
   </body>
   </html>
   ```
-  
-  > 最终效果：
-  >
-  > ![image-20240720231147479](./assets/image-20240720231147479.png)
 
-------
+  最终效果：
+
+  ![image-20240720231147479](./assets/image-20240720231147479.png)
 
 - ### React面向组件编程
 
-  > ###### 关于组件：
-  >
-  > - React 应用程序是由 **组件（UI组件）** 组成的。一个组件是 UI（用户界面）的一部分，它拥有自己的结构和交互。组件可以小到一个按钮，也可以大到整个页面（布局组件）。
-  > - 组件是用来**实现局部功能效果的代码和资源的集合**（html/css/js/imgs等）。作用是：**复用代码，简化项目编码，提高运行效率**。当一个应用是以多组件的方式实现，那么这个应用就是一个**组件化的应用**。
-  
-  ###### React中的组件其实就是类或函数，其中包含了一堆HTML结构和交互（JS）。React中定义组件的2种方式：
-  
-  - ##### 方式1：函数式组件（新版本中主要用这种）
-  
-    > 函数定义的组件就叫**函数式组件**。如：（以下代码都是在babel标签中执行）
-  
-    ```jsx
-    // 1、创建函数式组件（函数名一定要大写字母开头，因为下面要用函数对应的组件标签）
-    function Demo(props){// props形参后面会说
-    	//此处的this是undefined，因为babel编译后开启了严格模式
-    	return <h2>我是用函数定义的组件（适用于简单组件的定义）</h2>
-    }
-    // 2、渲染组件到页面
-    ReactDOM.render(<Demo />, document.getElementById('app'))
-    ```
-  
-    > - 函数式组件的函数名一定要用大写字母开头，因为函数名就是组件标签名，而React组件必须用大写字母开头，小写字母开头会被当做HTML原生标签。
-    > - `ReactDOM.render(<Demo/>, document.getElementById('app'))` 的大致执行流程：
-    >   1. React会去解析组件标签 `<Demo />`，然后找到对应的Demo组件。
-    >   2. 发现是函数式组件于是就调用该函数，将函数返回的虚拟DOM转为真实DOM渲染到页面上。
-  
-    > **Tips**：
-    >
-    > - 函数组件的函数最好是纯函数。也就是不要去修改，组件定义前就已经存在的变量，这可能会产生副作用。
-    > - 在React中，你可以在渲染时读取三种输入：props、state、context。你应该始终将这些输入视为只读，在组件中修改它们会使得组件【不纯】。
-    > - React 提供了 “严格模式”，在严格模式下开发时，它将会调用每个组件函数两次。**通过重复调用组件函数，严格模式有助于找到不纯的组件**。
-    > - 严格模式只在开发环境下有效，因此它不会降低应用程序的速度。如需引入严格模式，你可以用 `<React.StrictMode>` 包裹根组件 `<App>`。
-    > - 使用纯函数编写组件有哪些好处？
-    >   1. 你的组件可以在不同的环境下运行。
-    >   2. 你可以放心的为纯函数组件开启缓存来跳过渲染，以提高性能。
-    >   3. 在渲染深层次组件树时，数据发生变化后，React可以立即停止并重新开始渲染组件树。不必浪费时间完成过时的渲染。
-  
-    > 哪些地方**可能**引发副作用 ？
-    >
-    > 1. 函数式编程在很大程度上依赖于纯函数，但 **某些事物** 在特定情况下不得不发生改变。这是编程的要义！这些变动包括更新屏幕、启动动画、更改数据等，它们被称为 **副作用**。它们是 **“额外”** 发生的事情，与渲染过程无关。
-    > 2. 在 React 中，**副作用通常属于事件处理程序**。事件处理程序是 React 在你执行某些操作（如单击按钮）时运行的函数。即使事件处理程序是在你的组件 **内部** 定义的，它们也不会在渲染期间运行！**因此事件处理函数无需是纯函数**。
-    > 3. 如果你用尽一切办法，仍无法为副作用找到合适的事件处理程序，你还可以调用组件中的 `useEffect()` 方法将其附加到返回的JSX中。这会告诉 React 在渲染结束后执行它。**然而，这种方法应该是你最后的手段**。如果可能，请尝试仅通过渲染过程来表达你的逻辑。你会惊讶于这能带给你多少好处！
-  
-  - ##### 方式2：类式组件（低版本中这种用的多）
-  
-    > 用类定义出来的组件就叫**类式组件**。如：（以下代码都是在babel标签中执行）
-    
-    ```jsx
-    // 1、创建类式组件
-    class Demo extends React.Component {
-        //要求定义的类必须继承React中的React.Component类，且里面必须写render()方法并返回一个虚拟DOM对象
-        render(){
-          //这里的this就是<Demo/>组件实例对象
-          console.log(this)
-        	return <h2>我是用类定义的组件（适用于复杂组件的定义）</h2>
-        }
-    }
-    // 2、渲染组件到页面
-    ReactDOM.render(<Demo/>, document.getElementById('app'))
-    ```
-    
-    > - 一个继承了 `React.Component` 的类才能称得上是React的类组件，该类必须包含一个`render()`方法，该方法要返回一个虚拟DOM对象。
-    > - `ReactDOM.render(<Demo/>, document.getElementById('app'))` 的大致执行流程：
-    >   1. React会去解析虚拟DOM，发现是大写字母开头的组件标签 `<Demo/>`，于是找到对应的Demo组件。
-    >   2. 发现是类式组件于是就`new`出来了Demo类的实例对象（组件实例对象），并通过该实例调用了类中的（Demo原型对象上的）`render()`方法。
-    >   3. 最后将`render()`返回的虚拟DOM转为了真实DOM渲染到页面上。
-  
-  ###### 简单组件和复杂组件的区别就是是否包含状态（state），有状态的组件就是复杂组件。那什么是状态呢？
-  
-  ###### 组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
-  
-  ###### 之前低版本中没有Hooks的时候，简单组件就是函数组件，它无法做到响应式。但随着高版本Hooks的出现，函数组件也可以做到响应式，且由于写起来更简单更优雅，因此React官方推荐全面使用函数组件。（这个后面再说）
+  React 应用程序是由 **组件** 组成的。一个组件是 UI（用户界面）的一部分，它拥有自己的逻辑和外观。组件可以小到一个按钮，也可以大到整个页面。
 
-------
+  组件是用来**实现局部功能效果的代码和资源的集合**（html/css/js/imgs等），使用组件可以**复用代码、简化项目编码、提高运行效率**。当一个应用是以多组件的方式实现，那么这个应用就是一个组件化的应用。
+
+  一个 React 的组件其实就是一个 JS 的函数（或类）。React 中定义组件的2种方式：
+
+  1. ##### 函数式组件：（React 16.8 之后主推）
+
+     用 JS 的函数定义的组件就叫**函数式组件**。如：
+
+     ```jsx
+     // 1、创建函数式组件（函数名一定要大写字母开头，因为下面要用函数对应的组件标签）
+     function Demo(props){// props形参后面会说
+       //此处的this是undefined，因为babel编译后开启了严格模式
+       return <h2>我是用函数定义的组件（适用于简单组件的定义）</h2>
+     }
+     // 2、渲染组件到页面
+     ReactDOM.render(<Demo />, document.getElementById('app'))
+     ```
+
+     注意：函数名一定要用大写字母开头，因为组件标签必须是大驼峰格式时，小写字母开头的标签会被当作原生的HTML元素。
+
+     `ReactDOM.render(<Demo/>, document.getElementById('app'))` 这行代码的（大致）执行流程：
+
+     1. React会去解析组件标签 `<Demo />`，然后找到对应的Demo组件。
+     2. 发现是函数式组件于是就调用该函数，将函数返回的虚拟DOM转为真实DOM渲染到页面上。
+
+     **TIP：**
+
+     - 函数组件的函数最好是纯函数。也就是不要去修改，组件定义前就已经存在的变量，这可能会产生副作用。
+     - 在React中，你可以在渲染时读取三种输入：props、state、context。你应该始终将这些输入视为只读，在组件中修改它们会使得组件【不纯】。
+     - React 提供了 “严格模式”，在严格模式下开发时，它将会调用每个组件函数两次。**通过重复调用组件函数，严格模式有助于找到不纯的组件**。
+     - 严格模式只在开发环境下有效，因此它不会降低应用程序的速度。如需引入严格模式，你可以用 `<React.StrictMode>` 包裹根组件 `<App>`。
+     - 使用纯函数编写组件有哪些好处？
+       1. 你的组件可以在不同的环境下运行。
+       2. 你可以放心的为纯函数组件开启缓存来跳过渲染，以提高性能。
+       3. 在渲染深层次组件树时，数据发生变化后，React可以立即停止并重新开始渲染组件树。不必浪费时间完成过时的渲染。
+
+     > 哪些地方**可能**引发副作用 ？
+     >
+     > 1. 函数式编程在很大程度上依赖于纯函数，但 **某些事物** 在特定情况下不得不发生改变。这是编程的要义！这些变动包括更新屏幕、启动动画、更改数据等，它们被称为 **副作用**。它们是 **“额外”** 发生的事情，与渲染过程无关。
+     > 2. 在 React 中，**副作用通常属于事件处理程序**。事件处理程序是 React 在你执行某些操作（如单击按钮）时运行的函数。即使事件处理程序是在你的组件 **内部** 定义的，它们也不会在渲染期间运行！**因此事件处理函数无需是纯函数**。
+     > 3. 如果你用尽一切办法，仍无法为副作用找到合适的事件处理程序，你还可以调用组件中的 `useEffect()` 方法将其附加到返回的JSX中。这会告诉 React 在渲染结束后执行它。**然而，这种方法应该是你最后的手段**。如果可能，请尝试仅通过渲染过程来表达你的逻辑。你会惊讶于这能带给你多少好处！
+
+  2. ##### 类式组件：（新项目不推荐使用了）
+
+     用类定义出来的组件就叫**类式组件**。如：
+
+     ```jsx
+     // 1、创建类式组件
+     class Demo extends React.Component {
+       // 要求定义的类必须继承React中的React.Component类，且里面必须写render()方法并返回一个虚拟DOM对象
+       render(){
+         //这里的this就是<Demo/>组件实例对象
+         console.log(this)
+         return <h2>我是用类定义的组件（适用于复杂组件的定义）</h2>
+       }
+     }
+     // 2、渲染组件到页面
+     ReactDOM.render(<Demo/>, document.getElementById('app'))
+     ```
+
+     - 一个继承了 `React.Component` 的类才能称得上是React的类组件，该类必须包含一个`render()`方法，该方法要返回一个虚拟DOM对象。
+     - `ReactDOM.render(<Demo/>, document.getElementById('app'))` 的大致执行流程：
+       1. React会去解析虚拟DOM，发现是大写字母开头的组件标签 `<Demo/>`，于是找到对应的Demo组件。
+       2. 发现是类式组件于是就`new`出来了Demo类的实例对象（组件实例对象），并通过该实例调用了类中的（Demo原型对象上的）`render()`方法。
+       3. 最后将`render()`返回的虚拟DOM转为了真实DOM渲染到页面上。
+
+     简单组件和复杂组件的区别就是是否包含状态（state），有状态的组件就是复杂组件。那什么是状态呢？
+
+     组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
+
+     之前低版本中没有Hooks的时候，简单组件就是函数组件，它无法做到响应式。但随着高版本Hooks的出现，函数组件也可以做到响应式，且由于写起来更简单更优雅，因此React官方推荐全面使用函数组件。（这个后面再说）
 
 - ### 组件实例对象的核心属性
 
@@ -506,8 +516,6 @@
        >
        > 当React对组件初始化时，发现ref的值是一个容器，于是就把该真实DOM放在了此容器中。获取：`this.myInput.current`
 
-------
-
 - ### React中的事件处理
 
   > - React中使用的是自定义事件（合成事件）而不是原生的DOM事件，通过给（虚拟DOM）标签加`onXxxx`属性来指定事件处理的回调函数。这样做是为了更好的兼容性。
@@ -539,8 +547,6 @@
   }
   sum(1)(2)(3)
   ```
-
-------
 
 - ### 组件的生命周期
 
@@ -592,7 +598,6 @@
   
       > 其实`componentDidUpdate(preProps, preState, snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
-------
 - ### React脚手架
 
   > - 使用React脚手架可以快速创建基于React的项目，在脚手架环境下开发React项目效率更高。
@@ -648,8 +653,6 @@
   
   > 我们一般只需要写index.html、index.js、App.jsx、App.css即可。并且由于React中编写组件会用JSX语法，所以一般组件文件的扩展名为`.jsx`。除了App外的其他UI组件都放在`src/components`下，每个组件都是单独的目录，目录名就是组件名，目录中存放组件文件：`index.jsx`或`组件名.jsx`，以及组件的样式和组件中用到的所有资源。布局组件放在`src/layouts`目录下。
 
-------
-
 - ### 样式的模块化
 
   > 样式在React脚手架中怎么模块化呢？步骤如下：
@@ -666,8 +669,6 @@
      > 注意：多选框标签的 `defaultChecked` 只能设置复选框在页面初次加载时的默认选中状态。并且如果同时加了 `checked` 属性，那么 `checked` 设置的初始勾选状态更高。
   
   2. 在React脚手架环境下，如果请求了`public/`目录下不存在的资源，脚手架服务器默认会返回`public/index.html`。
-
-------
 
 - ### React脚手架配置代理
 
@@ -704,7 +705,7 @@
 
 - ### 消息订阅与发布
 
-  > React中要想实现任意组件间通信，需要用第三方的消息订阅与发布技术。一般我们用`pubsub-js`（或`mitt`），在`componentDidMount()`中订阅消息，在`componentWillUnmount()`中取消订阅。（Vue中讲过，这里不再细说）
+  React中要想实现任意组件间通信，需要用第三方的消息订阅与发布技术。一般我们用`pubsub-js`（或`mitt`），在`componentDidMount()`中订阅消息，在`componentWillUnmount()`中取消订阅。（Vue中讲过，这里不再细说）
 
 ------
 
