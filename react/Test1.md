@@ -1,6 +1,6 @@
 # React
 
-React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维护。React 的核心理念是组件化，通过将界面拆分成独立的组件，可以更方便地管理和维护界面代码。
+React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按钮、文本和图像等小单元内容构建而成。React 帮助你把它们组合成可重用、可嵌套的 *组件*。从 web 端网站到移动端应用，屏幕上的所有内容都可以被分解成组件。
 
 ##### React 的发展史：
 
@@ -65,7 +65,7 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
   1. `babel.min.js`：我们之前用babel来将ES6语法（实时）转换为ES5，其实它还有一个功能是：将React的**JSX语法**转换成JS。
 
      > 类似Vue中的**模板解析器**，将Vue容器中的模板语法解析为JS。
-  
+
   2. `react.development.js`：它是React的核心库。所有React的功能通过它来实现。
 
   3. `react-dom.development.js`：React的扩展库。用于支持React去操作DOM（以及虚拟DOM）。
@@ -73,9 +73,9 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
      > `react` 提供了 React 的所有核心功能以及API。而`react-dom` 负责把 React 描述的 UI 渲染到浏览器 DOM。
      >
      > 这样的好处是：同一个 React 组件可以渲染到不同平台。比如在移动端使用 react + react-native，react-native 将 React 组件渲染为移动端组件，而不是浏览器中的DOM。
-  
+
   ##### 第一个React程序，`index.html`：
-  
+
   ```jsx
   <!DOCTYPE html>
   <html lang="en">
@@ -102,7 +102,7 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
       ReactDOM.render(vdom, document.getElementById('app'))//参数1是虚拟DOM，参数2是dom容器对象
   </script>
   </body>
-</html>
+  </html>
   ```
 
   ##### 浏览器中运行`index.html`：
@@ -110,21 +110,21 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
   ![image-20240720014134109](./assets/image-20240720014134109.png)
 
   ##### F12打开控制台，发现控制台上有黄色的提示信息：
-  
+
   `You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/`
-  
+
   上面这个提示就是说：你使用 React 的方式不太对，代码一多可能会有问题。
-  
+
   其实浏览器拿到`<script>`，发现`type`属性值非法，因此不会执行里面的JS代码。而Babel在浏览器渲染完毕之后，从DOM树中获取了所有`type='text/babel'`的`<script>`标签，将其中的JSX语法代码解析完毕后，重新生成了新的`<script>`并插入到HTML中。
-  
+
   不过由于这种方式是运行时解析，因此效率较低影响用户体验。我们目前先用这种方式学习 React 的语法，后面通过React脚手架来开发就不存在这个问题了。
-  
+
   下面还有一个提示是说：可以用框架提供的**调试工具**来开发 React 项目（一般框架都会提供它专门的调试工具）。所以我们将这个 React 的 Chrome 调试工具插件下载下来，方便后面代码的调试。
-  
+
   ##### 一个疑问：为什么我们不用 JS 来创建虚拟DOM，而要使用 JSX 来创建虚拟DOM呢？
-  
+
   要说清楚这个问题，首先我们将上面 JSX 创建虚拟DOM的方式，改为用 JS 来写：（由于这里不用 JSX 语法了，因此不需要引入 `@babel/standalone` 了）
-  
+
   ```jsx
   <script>
     // 1、用React对象上的createElement(标签名,标签属性,标签内容)方法来创建虚拟DOM
@@ -133,13 +133,13 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
     ReactDOM.render(vdom, document.getElementById('app'))
   </script>
   ```
-  
+
   ##### 这种方式好像也可以，那为什么还要用JSX语法呢？
-  
+
   因为这种方式，如果元素简单还好，稍微复杂一点代码就无法再看了。例如：要求h1标签中还有个span，span中写“Hello React！”，此时就需要将`createElement()`的第3个参数变为：`React.createElement('span',{}/null,'Hello React!')`
-  
+
   而使用 JSX 语法来创建虚拟DOM（VDOM）就简单多了：
-  
+
   ```jsx
   // 加外层的小括号表示里面的虚拟DOM是一个整体，否则会有JS的语法错误
   const vdom = (
@@ -148,11 +148,11 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
     </h1>
   )
   ```
-  
+
   > 我们引入的 Babel 就为了将 JSX 翻译为上方的JS：`React.createElement('h1',{id:'title'},'Hello React!')`
-  
+
   这就是为什么React要打造JSX语法的原因。总结：
-  
+
   JSX 只为解决一个问题：**JS 创建虚拟DOM太麻烦了，用 JSX 可以让编码人员更加简单的创建虚拟DOM，写起来更流畅**。
 
 - ### 虚拟DOM与真实DOM
@@ -301,13 +301,13 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
 
   2. ##### 类式组件：（新项目不推荐使用了）
 
-     用类定义出来的组件就叫**类式组件**。如：
+     用类定义的组件就叫**类式组件**。如：
 
      ```jsx
      // 1、创建类式组件
      class Demo extends React.Component {
        // 要求定义的类必须继承React中的React.Component类，且里面必须写render()方法并返回一个虚拟DOM对象
-       render(){
+       render() {
          //这里的this就是<Demo/>组件实例对象
          console.log(this)
          return <h2>我是用类定义的组件（适用于复杂组件的定义）</h2>
@@ -317,17 +317,19 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
      ReactDOM.render(<Demo/>, document.getElementById('app'))
      ```
 
-     - 一个继承了 `React.Component` 的类才能称得上是React的类组件，该类必须包含一个`render()`方法，该方法要返回一个虚拟DOM对象。
-     - `ReactDOM.render(<Demo/>, document.getElementById('app'))` 的大致执行流程：
-       1. React会去解析虚拟DOM，发现是大写字母开头的组件标签 `<Demo/>`，于是找到对应的Demo组件。
-       2. 发现是类式组件于是就`new`出来了Demo类的实例对象（组件实例对象），并通过该实例调用了类中的（Demo原型对象上的）`render()`方法。
-       3. 最后将`render()`返回的虚拟DOM转为了真实DOM渲染到页面上。
+     一个继承了 `React.Component` 的类才能称得上是React的类组件，该类必须包含一个`render()`方法，该方法必须返回一个虚拟DOM对象（JSX标签）。
 
-     简单组件和复杂组件的区别就是是否包含状态（state），有状态的组件就是复杂组件。那什么是状态呢？
+     `ReactDOM.render(<Demo/>, document.getElementById('app'))` 的大致执行流程：
 
-     组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
+     1. React会去解析虚拟DOM，发现是大写字母开头的组件标签 `<Demo/>`，于是找到对应的Demo组件。
+     2. 发现是类式组件于是就`new`出来了Demo类的组件实例对象，并通过该实例调用了类中的`render()`方法。
+     3. 最后将`render()`返回的虚拟DOM转为了真实DOM渲染到页面上。
 
-     之前低版本中没有Hooks的时候，简单组件就是函数组件，它无法做到响应式。但随着高版本Hooks的出现，函数组件也可以做到响应式，且由于写起来更简单更优雅，因此React官方推荐全面使用函数组件。（这个后面再说）
+  简单组件和复杂组件的区别就是是否包含状态（state），有状态的组件就是复杂组件。那什么是状态呢？
+
+  组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
+
+  之前低版本中没有Hooks的时候，简单组件就是函数组件，它无法做到响应式。但随着高版本Hooks的出现，函数组件也可以做到响应式，且由于写起来更简单更优雅，因此React官方推荐全面使用函数组件。（这个后面再说）
 
 - ### 组件实例对象的核心属性
 
@@ -391,9 +393,9 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
     >
     
   - #### props（只读的，不能改）
-  
+
     > 组件实例上有 `props` 属性，它是一个对象，可以让组件实例接收外部传过来的数据。只需要使用组件标签时给标签加上属性，React会自动将属性名和属性值以key-value的形式放在组件实例的props属性中。如：
-  
+
     ```jsx
     // 定义Student组件
     class Student extends React.Component {
@@ -411,14 +413,14 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
     // 将Student组件渲染到页面上
     ReactDOM.render(<Student name="艾克" age={15} sex="男"/>, document.getElementById('app'))
     ```
-  
+
     > - **注意：props是只读的，不允许改！**
     > - 还可以**用展开运算符直接将对象中的键值对传到组件的`props`属性中**：`let p = {name:'zs',age:13}`，`<Student {...p}/>`
-  
+
     ###### 通过给类加静态属性`propTypes`和`defaultProps`，来约束传递的`props`数据的类型和默认值：
-  
+
     > React15.5版本后，PropTypes对象被React核心库给分离出来了。如果要对props做类型限制，还需要另外引入`prop-types`依赖包。
-  
+
     ```js
     // 对props标签属性进行类型、必要性的限制。此时如果不按照要求给组件传递数据的话，页面虽然会正常显示但控制台会报错
     Student.propTypes = {
@@ -433,9 +435,9 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
         age: 18
     }
     ```
-  
+
     ###### 其实给类加静态属性还可以这样做，在类体中：
-  
+
     ```js
     class Student extends React.Component {
         static propTypes = {}
@@ -443,9 +445,9 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
         ...
     }
     ```
-  
+
     ###### 关于类式组件的构造器：
-  
+
     > 我们之前在写类式组件时，有一种初始化`state`的方式是通过组件类的构造器：
     >
     > ```js
@@ -464,41 +466,41 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
     > 2. 这个props传给super()和不传有什么区别吗？
     >
     > 在React中，构造器仅用于2种情况，**初始化state**和**解决类中自定义函数的this指向**。而props实参如果不传，那么构造器中通过`this.props`无法访问实例上的`props`。（但这个小bug无关紧要，因为构造器通过实参就可以拿到props）
-  
+
     ###### 函数式组件中也有`props`，是在函数的实参上。要限制props的类型和默认值，就给函数上加那2个静态属性即可。（函数式组件暂时用不了state和refs，后面可以通过Hooks做到）
-  
+
     ##### 关于props的细节：
-  
+
     > - 向props中传数据并非只能用标签属性的方式：`<MyComponent name={name} age={age}/>`，还可以将数据放在标签体中：`<MyComponent>About</MyComponent>`，此时标签体中的About文本会被放在组件实例的`props.children`中。（当然不仅可以放文本，也可以放JSX组件）
     >
     > - `children` 是组件标签中的一个特殊的属性，用于显式的往组件的标签体中写东西。（如果props中传了名为 `children` 的属性，且标签体中也写东西了，那么标签体的优先级更高）
-  
+
   - #### refs（不要过度使用）
-  
+
     > 组件中的虚拟DOM标签上，可以通过定义`ref`属性（值是String）来标识自己。执行时React会将虚拟DOM上的ref收集到组件实例的`refs`对象上，key是ref的值，value是ref所在的元素（真实DOM）。（如果是类组件标签，则收集到的是类组件实例）
-  
+
     ###### 注意：上面String类型的`ref`已经不被React所推荐使用了，并且在之后的新版本中可能会移除。因为这种方式存在效率问题，写多了效率就不高了（但开发中还是有部分人在用，因为简单）。推荐使用下面2种形式的`ref`：
-  
+
     1. ##### 回调函数的`ref`：
-  
+
        ```jsx
        <input ref={ (currentNode) => this.input1 = currentNode } type="text"/>
        ```
     
        > `ref`属性的值如果是一个回调函数，React在解析虚拟DOM时发现ref值是一个函数于是立即执行该回调函数并将**当前真实DOM**作为参数传了进去。通常在该回调中我们将真实DOM放在组件实例对象上，这样来访问：`this.input1`
-  
+
        ###### 关于回调函数被调用的次数：
-  
+
        > - 当每次state变化后重新调用`render()`**更新**页面时，ref指定的回调会被执行2次。并且第1次调用时传的是`null`，第2次才是当前的真实DOM。
        > - 这是因为每次render()渲染时ref的值都是一个新的回调，为了确保新回调能正常执行，它先对旧回调做了清空操作。
        > - 其实**大多数情况下都不会有什么问题**。如果就想**只执行1次该回调**，可以将该回调定义为组件中的方法。
     
     2. ##### `React.createRef()`：（React最推荐的方式）
-  
+
        > `React.createRef()`函数调用后会返回一个容器对象，该容器可以存储被`ref`标识的节点（真实DOM）。
-  
+
        ###### 使用：（一个容器只能存一个真实DOM）
-  
+
        > 组件实例自身上定义固定属性myInput（容器）：
        >
        > ```js
@@ -550,52 +552,52 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
 
 - ### 组件的生命周期
 
-  > 每个组件实例从创建到销毁都会经历一系列过程，在这个过程中会通过组件实例去调用组件实例（原型）上一系列叫做**生命周期钩子**的函数，这给了用户在不同阶段执行自己的代码的机会。这就是组件的生命周期。
+  每个组件实例从创建到销毁都会经历一系列过程，在这个过程中会通过组件实例去调用组件实例（原型）上一系列叫做**生命周期钩子**的函数，这给了用户在不同阶段执行自己的代码的机会。这就是组件的生命周期。
 
   - ###### 关于组件实例的生命周期（16及之前的旧版本）：
-  
+
     ![d1e3f1f0acd0f76b4f13a4ba3924d863](./assets/d1e3f1f0acd0f76b4f13a4ba3924d863.png)
-  
+
     - **初始化阶段（挂载阶段）**：当执行`ReactDOM.render()`之后，也就是组件实例对象初次被创建并挂载到页面上时：
-  
+
       1. React首先new出来对应的组件实例对象，此时组件的**constrator()构造器执行了**。
       2. 然后调用了组件实例的`componentWillMount()`方法，此时组件还没被挂载到页面上。
       3. 紧接着调用组件实例的`render()`方法将组件挂载到页面对应位置上。（组件实例**初始化渲染**、以及**state更新**后重新渲染页面时都会调用`render()`方法）
       4. （常用）挂载完毕后又调用了组件实例的`componentDidMount()`。我们一般在这里做初始化操作，如：开启定时器，发送请求等。
-  
+
     - **更新阶段**：
-  
+
       1. 当调用了`setState()`更新当前组件的state状态后，React首先调用组件实例的`shouldComponentUpdate(newProps, newState)`，它是控制页面更新的阀门，如果该方法返回`false`，那么接下来的更新流程都不会执行，也就是页面并不会重新渲染。（该方法不写的话默认返回`true`）
-  
+
          > 该方法可以接收到2个参数，分别是新的props和新的state。
-  
+
       2. 如果更新阀门打开了，紧接着会调用组件实例的`componentWillUpdate()`。此时页面还没重新渲染。
-  
+
       3. 之后就调用组件实例的`render()`完成对页面的重新渲染。
-  
+
       4. 最后渲染完毕后会调用组件实例的`componentDidUpdate(preProps, preState)`。
-  
+
       > - 有时不想更新state中的数据，也希望通过`render()`将页面重新渲染下。此时可以调用组件实例身上的API：`forceUpdate()`，它直接绕过阀门从更新流程的第2步开始走强制渲染页面。
       > - 当父组件的state**更新**后，重新执行`render()`渲染页面时，其中的子组件不仅会进行更新，还会在每次更新前，也就是`shouldComponentUpdate()`执行之前，去调用`componentWillReceiveProps(newProps)`。也就是子组件收到父组件传递的新的`props`之前，还可以对这个props再处理下。（注意：**初次挂载**时该钩子不会被触发，因为子组件还没有 **接收过** props，所以谈不上 **将要接收新的 `props`**）
-  
+
     - **卸载阶段**：当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`（或其他条件导致组件被卸载）之后，React会将HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用（一般在这里做收尾工作）。此时已经过了更新阶段，在这个钩子中修改state页面不会再变了。
-  
+
   - ###### 关于组件实例的生命周期（17及之后的新版本）：废弃了3个钩子，新增了2个钩子。
-  
+
     ![9271bb7a3c309fd15d33d37178d54919](./assets/9271bb7a3c309fd15d33d37178d54919.png)
-  
+
     > 在新版本React中（17+），`componentWillMount()`、`componentWillUpdate()`、`componentWillReceiveProps(props)`这3个生命周期钩子函数**过时了**，即将被弃用不推荐再用了。如果非要用前面需要加上`UNSAFE_`前缀。因为这3个钩子函数经常会被误解和滥用，尤其是在未来版本启用**异步渲染**之后问题会更严重。
-  
+
     - （了解）初始化挂载和更新阶段新增了 `static getDerivedStateFromProps(props,state)` 钩子（从props得到一个派生的状态）。它是实例上的静态方法，且有返回值。返回值可以是2种：
-  
+
       1. 返回一个对象，该对象会和原来的状态对象state进行合并（覆盖原来的同名属性）。
-  
+
       2. 返回`null`，此时不会对state有任何的影响。
-  
+
          > 派生状态会导致代码很冗余，并使组件难以维护，所以该钩子用的极少，了解即可。（只有state的值在任何情况下都取决于props时才考虑使用该钩子函数）
-  
+
     - （了解）当组件走更新流程 `render()` 执行后，在页面完成更新之前，也就是提交到DOM之前还会执行 `getSnapshotBeforeUpdate(preProps, preState)`。该函数需要返回一个值作为snapshot（快照）。那么这个快照值给谁了呢？
-  
+
       > 其实`componentDidUpdate(preProps, preState, snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
 - ### React脚手架
@@ -635,22 +637,22 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
   >   **注意**：一旦运行了`npm run eject`，你就回不去了，因为你已经接管了所有配置细节。因此在运行此命令前，请确保你确实需要对配置进行深入定制。（之所以React将其隐藏起来就是怕碰坏了导致项目崩溃，一般我们不用动）
 
   ###### 分析脚手架目录：
-  
+
   - `public/`：该目录下存放不参与打包的静态资源。其中包含`index.html`，它是React项目的主页面，将来所有的东西都会打包放在这个文件中（以后我们编写的都是SPA单页面应用）。主页中只有一个`id`为`root`的`<div>`用于存放根组件App的内容。
-  
+
     > 该目录下的其他文件目前还用不到，删除即可。
     >
     > - **robots.txt** 是一个存放在网站根目录的文本文件，用来告诉搜索引擎爬虫（如 Google、百度等）**哪些页面可以抓取，哪些不能抓取**。（该文件是规范性质的，非强制性）
-  
+
   - `src/`：
-  
+
     - `App.js` & `App.css`：分别是App组件和App组件的样式文件。**App组件是所有组件的根组件**，`id`为`root`的`<div>`中只需要引入App组件即可。
     - `index.js` & `index.css`：React项目的**入口文件**和全局样式文件。入口文件中引入了App组件并通过`ReactDOM.render()`将根组件（虚拟DOM）渲染到了`id`为`root`的`<div>`中（至于为什么能找到`index.html`是因为脚手架的Webpack中配置好了）。全局样式文件中存放全局样式，如果样式不想参与打包也可以放在`public/`目录下在`index.html`中进行引入。
-  
+
     > App组件中还用了`reportWebVitals.js`，它是用于记录页面上的性能的，里面用的`web-vitals`库。
     
   - 其他的：App.test.js是专门为App组件做测试的，setupTests.js是用于React项目的整体测试或组件测试的。（这俩几乎不用）
-  
+
   > 我们一般只需要写index.html、index.js、App.jsx、App.css即可。并且由于React中编写组件会用JSX语法，所以一般组件文件的扩展名为`.jsx`。除了App外的其他UI组件都放在`src/components`下，每个组件都是单独的目录，目录名就是组件名，目录中存放组件文件：`index.jsx`或`组件名.jsx`，以及组件的样式和组件中用到的所有资源。布局组件放在`src/layouts`目录下。
 
 - ### 样式的模块化
@@ -665,9 +667,9 @@ React 是一个用于构建用户界面的 JS 库，它由 Facebook 开发并维
 - ### React项目的注意事项
 
   1. JSX中，多选框标签上的`checked`属性，会根据值`true/false`来决定是否勾选。如果加了该属性必须同时加上`onChange`属性（值为回调函数名），指定当多选框发生变化时要做什么。否则多选框就无法取消勾选了。
-  
+
      > 注意：多选框标签的 `defaultChecked` 只能设置复选框在页面初次加载时的默认选中状态。并且如果同时加了 `checked` 属性，那么 `checked` 设置的初始勾选状态更高。
-  
+
   2. 在React脚手架环境下，如果请求了`public/`目录下不存在的资源，脚手架服务器默认会返回`public/index.html`。
 
 - ### React脚手架配置代理
