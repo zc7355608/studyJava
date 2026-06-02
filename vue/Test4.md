@@ -185,7 +185,7 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
       </script>
       ```
 
-      > Tips：
+      > **Tips：**
       >
       > 像`defineOptions`、`defineProps()`、`defineEmits()`..这些以`defineXxx`开头、不需要导入就能在`<script setup>`中直接用的函数，叫做**编译器宏（宏函数）**，它们会随着 `<script setup>` 的处理过程一同被编译掉。 
       >
@@ -200,7 +200,7 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
       ```vue
       <script setup>
       const props = defineProps({
-      foo: String
+        foo: String
       })
       
       const emit = defineEmits(['change', 'delete'])
@@ -208,8 +208,7 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
       </script>
       ```
       
-    
-    `defineProps` 接收与 `props` 选项相同的值，`defineEmits` 接收与 `emits` 选项相同的值。
+      `defineProps` 接收与 `props` 选项相同的值，`defineEmits` 接收与 `emits` 选项相同的值。
 
 
 - ### Vue3常用的组合式API
@@ -476,22 +475,22 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
 
 - ### 其他的组合式API（不常用）
 
-    - #### shallowReactive()与shallowRef()：
+    - ##### shallowReactive()与shallowRef()：
 
         - shallowReactive()：与reactive()不同的是，shallowReactive()只对对象浅层次的数据做响应式。
         - shallowRef()：与ref()不同的是，shallowRef()只对基本类型做响应式，引用类型（对象和数组）只变为ref对象，并不会包装为Proxy对象。
 
-    - #### readonly()与shallowReadonly()：
+    - ##### readonly()与shallowReadonly()：
 
         - readonly()：将一个响应式数据进行包装，返回的新响应式数据是**深层次只读**的。
         - shallowReadonly()：类似与readonly()，只是返回的新响应式数据是**浅层次只读**的。
 
-    - #### toRaw()与markRaw()：
+    - ##### toRaw()与markRaw()：
 
-        - toRaw()：将**reactive()生成的Proxy响应式对象**的目标对象返回。
-        - markRaw()：标记一个对象，使其永远不会变成响应式对象。应用场景：在reactive()生成的对象中添加的任何数据，默认都是响应式的，如果不希望对添加的某个数据做响应式，可以用它标记后再添加。
+        - toRaw()：根据一个 Vue 创建的代理对象，返回其对应的原始对象。它可以返回由 `reactive()`、`readonly()`、`shallowReactive()` 或者 `shallowReadonly()` 创建的代理对应的原始对象。
+        - markRaw()：将一个对象标记为不可被转为代理。返回该对象本身。该方法可以使一个对象永远不会变成响应式对象。应用场景：在`reactive()`生成的对象中添加的任何数据，默认都是响应式的，如果不希望对添加的某个数据做响应式，可以用它标记后再添加。
 
-    - #### customRef()：
+    - ##### customRef()：
 
         通过customRef()可以创建一个自定义的ref对象，并对其依赖项**跟踪（track）**和**更新触发（trigger）**进行显示控制。使用：
 
@@ -533,14 +532,18 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
         </script>
         ```
 
-    - ##### provide和inject：
+    - ##### 祖孙组件通信：
 
-        Vue3中提供了provide和inject，用于支持祖孙组件间通信。它俩都是组合式API函数。使用：
+        Vue3中提供了`provide`和`inject`，用于支持祖孙组件间通信。
 
-        ###### 祖组件App中：
+        一个父组件相对于其所有的后代组件，会作为**依赖提供者**。任何后代的组件树，无论层级有多深，都可以**注入**由父组件提供给整条链路的依赖。
+
+        ![lifecycle_zh-CN.W0MNXI0C](./assets/provide-inject.C0gAIfVn.png)
+
+        用法。在祖组件App中，通过`provide`将一个依赖数据提供出来：
 
         ```js
-        import { provide,ref } from 'vue'
+        import { provide, ref } from 'vue'
         export default {
             name: 'App',
             setup(){
@@ -550,7 +553,9 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
         }
         ```
 
-        ###### 后代组件Child中：
+        `provide()` 函数接收两个参数。第一个参数被称为注入名，可以是一个字符串或是一个 Symbol。后代组件会用注入名来查找期望注入的值。一个组件可以多次调用 `provide()`，使用不同的注入名，注入不同的依赖值。
+
+        后代组件Child中，根据注入名key注入这个依赖数据：
 
         ```js
         import { inject } from 'vue'
@@ -563,7 +568,7 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
         }
         ```
 
-        ###### 注意：`provide()/inject()`方法必须在组件的`setup()`函数中同步调用，不能异步调用。
+        注意：`provide()/inject()`方法必须在放在组件的`setup()`函数中，并且要同步执行。
 
     - ##### 响应式数据的判断：
 
@@ -572,92 +577,177 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
         - isReadonly(v)：检查一个响应式数据是否是只读的。
         - isProxy(v)：检查一个对象是否是由reactive()、readonly()方法创建的代理对象。
 
-- ### Vue3中新内置的全局组件
+- ### Vue3中的全局组件
 
-  - ##### teleport（传送）：
+  - ##### Teleport（传送）：
 
-    `<teleport to="css选择器">`能够将我们的标签结构传送到指定位置。用法：
+    `<Teleport>` 是一个内置组件，它可以将一个组件内部的一部分模板“传送”到该组件的 DOM 结构外层的位置去。用法：
 
-    ```html
-    <!-- 此时会将里面的div结构，追加到body标签内部 -->
-    <teleport to="body">
-        <div>我是内容</div>
+    ```vue
+    <!-- MyComponent.vue -->
+    
+    <!-- 在这个组件中，Teleport内部的内容，实际上会被传送（追加）到body标签内部，而不是当前组件所在的地方 -->
+    <Teleport to="body">
+      <div>我是内容</div>
     </teleport>
     ```
-  
-  - ##### Suspense：（目前还处在试验阶段，以后跟他相关的API可能会改）
-  
-    Suspense组件用于呈现异步组件。
 
-    > **异步组件：**通过Vue3的defineAsyncComponent()函数加载的组件：（React中也有，是通过lazy()函数加载的）
+    `<Teleport>` 接收一个 `to` prop 来指定传送的目标。`to` 的值可以是一个 CSS 选择器字符串，也可以是一个 DOM 元素对象。这段代码的作用就是告诉 Vue“把以下模板片段**传送到 `body`** 标签下”。
+
+    > TIP：
     >
-    > ```js
-    > // 静态引入
-    > import { defineAsyncComponent } from 'vue' // 它不是宏函数
-    > // 动态引入，import()语句【可能】会发送网络请求
-    > const Child = defineAsyncComponent( ()=>import('./components/Child') )
-    > export default { name: 'App' }
-    >    ```
-    >    
-    > 和同步组件不同的是，异步组件不会阻塞渲染，当异步组件通过网络请求回来时再渲染到页面上。
-  
-    ##### 但是当网络环境差，请求发生了错误时，如果页面上什么都不没有，用户还以为压根就没这个组件呢。可以使用Suspense组件来解决：
-  
-    `<Suspense>`组件会等待异步组件的渲染，当异步组件还没渲染到页面上时展示一些默认内容，提升用户体验（React也有）。使用：
-  
+    > `<Teleport>` 挂载时，传送的 `to` 目标必须已经存在于 DOM 中。理想情况下，这应该是整个 Vue 应用 DOM 树外部的一个元素。如果目标元素也是由 Vue 渲染的，你需要确保在挂载 `<Teleport>` 之前先挂载该元素。
+
+    `<Teleport>` 只改变了渲染的 DOM 结构，它不会影响组件间的逻辑关系。
+
+    在某些场景下可能需要视情况禁用 `<Teleport>`。举例来说，我们想要在桌面端将一个组件当做浮层来渲染，但在移动端则当作行内组件。我们可以通过对 `<Teleport>` 动态地传入一个 `disabled` prop 来处理这两种不同情况：
+
+    ```vue
+    <Teleport :disabled="isMobile">
+      ...
+    </Teleport>
+    ```
+
+    多个 `<Teleport>` 组件可以将其内容挂载在同一个目标元素上，而顺序就是简单的顺次追加，后挂载的将排在目标元素下更后面的位置上，但都在目标元素中。
+
+  - ##### Suspense：
+
+    > `<Suspense>` 是一项实验性功能。它不一定会最终成为稳定功能，并且在稳定之前相关 API 也可能会发生变化。
+
+    Suspense组件（React也有）用于呈现Vue的异步组件。
+    
+    **异步组件**：通过Vue3的`defineAsyncComponent()`加载的组件：（React中的异步组件是通过`lazy()`函数加载的）
+    
+    ```js
+    // defineAsyncComponent不是宏函数，需要导入
+    import { defineAsyncComponent } from 'vue'
+    
+    // 动态引入，import()语句【可能】会发送网络请求
+    const Child = defineAsyncComponent(() => import('./components/Child'))
+    ```
+
+    最后得到的 `AsyncComp` 是一个外层包装过的组件，仅在页面需要它渲染时才会调用加载内部实际组件的函数。它会将接收到的 props 和插槽传给内部组件，所以你可以使用这个异步的包装组件无缝地替换原始组件，同时实现延迟加载。
+
+    但是当网络环境差，请求发生了错误时，如果页面上什么都不没有，用户还以为压根就没这个组件呢。此时可以用`<Suspense>`组件。
+
+    `<Suspense>`组件会等待异步组件的渲染，当异步组件还没渲染到页面上时展示一些默认内容，提升用户体验。使用：
+    
     ```vue
     <!-- 用Suspense组件包住异步组件 -->
-    <Suspense fallback={<h1>loading...</h1>}>
-    	<template v-slot:default>
-    		<Child/>
-    	</template>
-    	<template v-slot:fallback>
-    		<h3>loading....</h3>
-    	</template>
-    </Suspense>
+    <Suspense>
+      <template #default>
+        <AsyncChild />
+      </template>
+      <template #fallback>
+        <h3>loading....</h3>
+      </template>
+  </Suspense>
     ```
-  
-    > - Suspense底层是通过插槽来实现的，因此需要将异步组件、请求错误时的组件放到对应的插槽中。
-    > - Suspense内部有2个插槽：异步组件要放到default插槽中，组件请求回来时展示；异步组件请求失败或未完成时，展示fallback插槽中的内容。
-  
-    ##### 当`<Suspense>`和异步组件配合使用时，组件的setup()就可以返回Promise对象了（Promise对象成功状态的结果值可以是JS对象或渲染函数）。如果`<script setup>`中写了await关键字，那么对应的setup()函数自动就加上了async关键字。
+    
+  `<Suspense>`内部有2个插槽，异步组件要放到`default`默认插槽中，异步组件请求成功后展示；请求失败或未完成时，展示`fallback`备用插槽的内容。
+    
+    ###### `async setup()`：
+    
+    组合式 API 中组件的 `setup()` 钩子可以是异步的：
+    
+    ```js
+    export default {
+      async setup() {
+        const res = await fetch(...)
+        const posts = await res.json()
+        return {
+          posts
+        }
+      }
+    }
+    ```
+    
+    如果使用 `<script setup>`，那么顶层 `await` 表达式会自动让该组件成为一个异步组件，此时`setup()`钩子返回的是一个Promise对象，其中保存的是一个JS对象或渲染函数：
+    
+    ```vue
+    <script setup>
+    const res = await fetch(...)
+    const posts = await res.json()
+    </script>
+    
+    <template>
+      {{ posts }}
+    </template>
+    ```
+    
+    > 严格上来说，异步组件是被`defineAsyncComponent()`包装后的组件，而顶层 `await` 的`setup()`只是让该组件变成了一个可以被`<Suspense>`处理的异步依赖。异步依赖和异步组件本质上不是同一个东西。
 
 - ### Vue3中的其他变化
 
   - ##### 全局API的转移：
 
-    Vue2中我们可以使用Vue构造器上的全局API和配置：`Vue.component()`。但是Vue3中没有了Vue构造函数，因此这些全局API都放在了vm实例上。原来的`Vue.xxx`都变成了`vm.xxx`，其中：Vue.config.productionTip移除了，原来的`Vue.prototype`变成了`app.config.globalProperties`。
+    Vue2中我们可以使用Vue构造器上的全局API和配置：`Vue.component()`。但是Vue3中没有了Vue构造函数，因此这些全局API都放在了应用实例对象`app`上。原来的`Vue.xxx`都变成了`app.xxx`。比如，原来的`Vue.prototype`变成了`app.config.globalProperties`。并且移除了`Vue.config.productionTip`。
   
   - ##### Vue3的ref：
   
-    - Vue3中不能用`vc.refs`来获取ref标记的DOM了，因为组件实例拿不到了。就算有办法拿到了，Vue3中将组件实例保护起来了，变成了Proxy对象，之前Vue2的API在里面都看不到。
-    - Vue3中**ref的值必须是一个ref容器对象**，此时会将ref标记的DOM元素放到ref容器对象的value属性中。
+    Vue3中不能用`vm.refs`来获取ref标记的DOM了，因为组合式API中拿不到组件实例了。就算有办法拿到了，Vue3中将组件实例保护起来了，变成了Proxy对象，之前Vue2的API同样是拿不到的。
   
-    1. 给标签加ref属性，值是一个**ref容器/ref对象**：`<div ref="container"/>`
+    Vue3中**ref的值必须是一个Ref的容器对象**，此时Vue会将ref标记的元素放到Ref容器对象的`value`属性中。用法：
   
-    2. 创建一个ref容器，用于存储ref标记的DOM元素：（就是我们之前用的ref()函数，不要传值，空出来value）
+    1. 创建一个ref容器，用于存储ref标记的DOM元素：（就是我们之前用的ref()函数，不要传值，空出来value）
   
        ```js
        import { ref } from 'vue'
-       let container = ref()  // 注意：容器名必须和ref属性值一样
+       let container = ref()
+       ```
+  
+    2. 给标签加`ref`属性，值是创建的这个**Ref对象**：
+  
+       ```html
+       <div ref="container"></div>
        ```
   
   - ##### expose：
   
-    可以在子组件中定义，想让外部看到的、公开的属性和方法，通过`expose: ['属性名',..]`配置项或`defineExpose()`宏函数：
+    Vue3中，父组件默认是拿不到子组件中的任何数据的，数据必须在子组件中导出之后、父组件才能访问到。通过`setup()`钩子的第二个参数`context`可以解构出`expose`函数，通过该函数导出数据：
   
     ```js
-    let name = ref('张三')
-    defineExpose({name})
+    export default {
+      setup(props, { expose }) {
+        // 让组件实例处于 “关闭状态”
+        // 即不向父组件暴露任何东西
+        expose()
+    
+        const publicCount = ref(0)
+        const privateCount = ref(0)
+        // 有选择地暴露局部状态
+        expose({ count: publicCount })
+      }
+    }
     ```
   
-    此时父组件通过ref拿到子组件实例之后，就可以看到导出的name属性了。
+    如果是在`<script setup>`中，则可以通过 `defineExpose()` 编译器宏来显式指定要导出的内容：
   
-  - ##### emits：
+    ```vue
+    <script setup>
+    import { ref } from 'vue'
+    
+    const a = 1
+    const b = ref(2)
+    
+    defineExpose({
+      a,
+      b
+    })
+    </script>
+    ```
   
-    Vue3中给组件绑定了自定义事件后，必须在组件中用emits配置项去声明接收该自定义事件：`emits:['事件名',..]`，否则会有警告。并且**移除了v-on的.native修饰符**，只要通过emits配置项声明的事件都是自定义事件，否则就当做原生事件。（在script setup中推荐直接用宏函数`defineEmits(['事件名',..])`去声明，并且可以用该方法的`emit`函数去触发自定义事件）
+    这样父组件拿到子组件实例之后，就可以访问其导出的内容了：`childRef.a`
   
-  - ##### v-model指令：
+  - ##### emit：
+  
+    Vue3中给组件绑定了自定义事件后，必须在组件中声明该事件：`context.emit(['事件名',..])`，否则会有警告。
+  
+    因为Vue3中*移除了v-on的.native修饰符*，只要通过`emit()`声明的事件都是自定义事件，否则就当做原生事件。
+  
+    如果是在`<script setup>`中，则可以通过 `defineExpose()` 编译器宏来声明自定义事件。
+  
+  - ##### （Vue 3中的）`v-model`：
   
     - Vue2中，`v-model`的原理：（自定义组件和HTML元素都是如此）
   
@@ -677,12 +767,13 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
   
       上面的代码相当于：`<MyComponent v-model="username"/>`，其中`update:modelValue`就是一个普通的自定义事件名。
   
-      ##### 注意：如果觉得modelValue有点烦，其实也可以自定义：`v-model:qwe="username"`，此时modelValue就变成了qwe，update:modelValue变成了update:qwe。这样做的好处是：组件标签上可以写多个v-model。
+      > 如果觉得modelValue有点烦，其实也可以自定义：`v-model:qwe="username"`，此时modelValue就变成了qwe，update:modelValue变成了update:qwe。这样做的好处是：组件标签上可以写多个v-model。
   
-  - ##### （Vue 3中的）`v-bind`指令：
+  - ##### （Vue 3中的）`v-bind`：
   
-    - 其实`v-bind`可以不绑定任何属性，此时值必须是一个对象：`<h1 v-bind="{x:100,y:200}"/>`，此时就相当于：`<h1 :x="100" :y="200"/>`。
-    - 因此`<Child v-bind="$attrs"/>`其实就是：当前组件的$attrs对象的所有K-V，都以props的形式传给了Child组件。
+    `v-bind`可以不绑定任何属性，此时值必须是一个对象：`<h1 v-bind="{x:100,y:200}"/>`，此时就相当于：`<h1 :x="100" :y="200"/>`。
+  
+    因此`<Child v-bind="$attrs"/>`其实就是：当前组件的`$attrs`中（没有声明接收的props）的所有K-V，都以`props`的形式透传给了Child组件。
   
   - ##### 其他：
   
@@ -690,13 +781,12 @@ Vue (发音为 /vjuː/，类似 **view**) 是一款用于构建用户界面的 J
     
     - 移除了过滤器filter。
     
-    - Vue2中要求组件模版中只能有一个根标签。而Vue3中组件模版可以没有根标签，此时内部会将多个标签自动包含在一个Fragment虚拟DOM中。这样就减少不必要的标签结构，理论上来说减少了内存占用。
+    - Vue2中要求组件模版中只能有一个根标签，而Vue3并不强制要求这样做，此时它自动会将多个标签自动包含在一个`Fragment`虚拟DOM中。这样就减少不必要的标签结构，理论上来说减少了内存占用。
     
     - 过渡类名v-enter和v-leave变成了`v-enter-from`和`v-leave-from`，和结束类名看起来更配了。
     
-    - 不再支持按键值的任何写法了。
-    
       ...
+    
 
 # Pinia
 
