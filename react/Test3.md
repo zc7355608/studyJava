@@ -38,40 +38,16 @@
 
   ##### 3个常用的Hook：
 
-  - State Hook：
-
-    > 通过调用`React.useState(initValue)`可以返回一个数组，数组第1个元素就是state中的状态，第2个元素是更新该状态的函数。`useState()` 函数的参数用于设置状态的初值。
-    >
-    > 如果初值需要通过复杂计算获得，则可以给 `useState()` 传入一个函数，在函数中计算并返回初值。此函数只会在初始渲染时被调用，也就是该组件重新挂载时，这个函数不会被再次调用了。
-  
-    ```jsx
-    function Demo(){ // 该方法调用1+n次
-        const [count,setCount] = React.useState(0)
-        const [name,setCount] = React.useState('张三')
-        function add(){
-            setCount(newCount)
-        }
-        return (
-            <div>
-                <h2>当前求和为：{count}</h2>
-                <button onclick={add}>点我加1</button>
-            </div>
-        )
-    }
-    ```
-
-    > 其中更新state的方法setCount也可以传一个函数：`setXxx( preValue => newValue )`，接收原来的value，返回新的value。
-
   - Ref Hook：
 
     > 函数式组件中，通过调用`React.useRef()`来返回一个容器对象，使用方式和之前的`React.createRef()`类似。
 
   - Effect Hook：
-  
+
     > - `React.useEffect(()=>{ return ()=>{} },[])`可以让我们在函数式组件里使用生命周期钩子。
     > - 该方法调用时传入2个参数。第1个函数参数相当于`componentDidmount()`和`componentDidUpdate()`的结合体。第2个数组参数里面写要监视的state中的状态（变量）。如果不指定第2个参数表示监视整个state。
     > - 并且第1个函数参数中，如果返回了一个函数，那么这个函数还相当于`componentWillUnmount()`
-  
+
   ##### React Hooks的注意事项：所有内置的Hooks函数只能在函数组件或自定义Hook函数的顶层作用域中使用，不能在if、for或内部的其他函数中使用。（类组件中用不了Hooks）
 
 ------

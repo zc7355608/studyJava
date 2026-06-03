@@ -302,7 +302,7 @@
     
     上面示例中，实例属性`_count`定义在`constructor()`方法里面的`this`上面。
     
-    现在的新写法是，这个属性也可以定义在类的最顶层，其他都不变。
+    现在的新写法是，实例属性可以定义在类的最顶层，其他都不变。
     
     ```js
     class IncreasingCounter {
@@ -513,52 +513,51 @@
     
     上面代码中，父类`Foo`有一个静态方法，子类`Bar`可以调用这个方法。
     
-  当然，静态方法也是可以从`super`对象上调用的。
+    当然，静态方法也是可以从`super`对象上调用的。
     
-  ```js
+    ```js
     class Foo {
       static classMethod() {
         return 'hello';
       }
     }
     
-  class Bar extends Foo {
+    class Bar extends Foo {
       static classMethod() {
-      return super.classMethod() + ', too';
+        return super.classMethod() + ', too';
       }
-  }
+    }
     
     Bar.classMethod() // "hello, too"
     ```
-    
+  
   - #### 静态属性
   
     [ES2022](https://github.com/tc39/proposal-class-fields) 之前，Class 内部只有静态方法，没有静态属性。静态属性指的是 Class 本身的属性，即`Class.propName`，而不是定义在实例对象（`this`）上的属性。也就是说之前只能这样写：
   
     ```js
   class Foo {}
-    
-  Foo.prop = 1;
+    Foo.prop = 1;
     Foo.prop // 1
     ```
-  
+    
     上面的写法为`Foo`类定义了一个静态属性`prop`。
-  
+    
     ES2022 之后正式支持了类的静态属性，写法是在实例属性的前面，加上`static`关键字。
-  
+    
     ```js
     class MyClass {
       static myStaticProp = 42;
     
       constructor() {
-      console.log(MyClass.myStaticProp); // 42
+        console.log(MyClass.myStaticProp); // 42
       }
-  }
+    }
     ```
-
-    这个新写法大大方便了静态属性的表达。
-
-    ```js
+    
+  这个新写法大大方便了静态属性的表达。
+    
+  ```js
     // 老写法
     class Foo {
       // ...
@@ -570,7 +569,7 @@
       static prop = 1;
     }
     ```
-  
+    
     上面代码中，老写法的静态属性定义在类的外部。整个类生成以后，再生成静态属性。这样让人很容易忽略这个静态属性，也不符合相关代码应该放在一起的代码组织原则。另外，新写法是显式声明（declarative），而不是赋值处理，语义更好。
   
   - #### 私有方法和私有属性
