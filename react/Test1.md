@@ -111,7 +111,9 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
   ##### F12打开控制台，发现控制台上有黄色的提示信息：
 
-  `You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/`
+  ```tex
+  You are using the in-browser Babel transformer. Be sure to precompile your scripts for production - https://babeljs.io/docs/setup/
+  ```
 
   上面这个提示就是说：你使用 React 的方式不太对，代码一多可能会有问题。
 
@@ -327,12 +329,6 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
      2. 发现是类式组件于是就`new`出来了Demo类的组件实例对象，并通过该实例调用了类中的`render()`方法。
      3. 最后将`render()`返回的虚拟DOM转为了真实DOM渲染到页面上。
 
-  简单组件和复杂组件的区别就是是否包含状态（state），有状态的组件就是复杂组件。那什么是状态呢？
-
-  组件的状态驱动着页面，状态中保存着响应式的数据，如果数据变化了组件所对应的HTML页面也会随之更新。所谓组件的状态就是**组件实例对象上的`state`属性**，它是组件实例对象的三大核心属性之一。
-
-  之前低版本中没有Hooks的时候，简单组件就是函数组件，它无法做到响应式。但随着高版本Hooks的出现，函数组件也可以做到响应式，且由于写起来更简单更优雅，因此React官方推荐全面使用函数组件。（这个后面再说）
-
 - ### state（状态）
 
   React 最重要的核心概念之一，就是“状态”（State）。通过更新组件的状态可以触发页面的重新渲染。所以组件也被称作**状态机**。
@@ -381,9 +377,7 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
     `setState()` 的执行时机：React 会等到事件处理函数中的**所有**代码都运行完毕再处理你的 **state** 更新。这让你可以更新多个状态变量——甚至来自多个组件的状态变量——而不会触发太多的重新渲染。
 
-    `setState()` 函数的第1个参数还可以是函数，该函数接收2个参数 `state` 和 `props`（用于获取旧的状态），函数返回的对象用于更新 `state` 属性。
-
-    > 其实对象式的 `state` 是函数式 `state` 的语法糖。如果新 `state` 依赖于原 `state`，那么推荐使用 `setState()` 的函数式写法。
+    `setState()` 函数的第1个参数还可以是函数，该函数接收2个参数 `state` 和 `props`（用于获取旧的状态），函数返回的对象用于更新 `state` 属性。其实对象式的 `state` 是函数式 `state` 的语法糖。如果新 `state` 依赖于原 `state`，那么推荐使用 `setState()` 的函数式写法。
 
     注意：组件中的 `state` 被认为是**只读的**，也就是不能修改原来的 `state`，而是用新的 `state` 整个替换掉旧 `state`。即被修改的部分必须产生新的引用。
 
@@ -392,7 +386,7 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
     1. 通过类的构造器来初始化state：
 
        ```js
-       class MyComponent {
+     class MyComponent {
          constructor(props) {
            super(props)
            // 初始化类式组件中的状态（state属性）
@@ -400,16 +394,16 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
          }
        }
        ```
-
+    
     2. （**推荐**）通过在类中定义固定的实例属性：
 
        ```js
-       class MyComponent {
+     class MyComponent {
          // 初始化state状态
          state = { isHot: true }
        }
        ```
-
+    
     注意：在类组件中，JSX 中的回调函数不能是类的方法。因为这个方法是通过事件回调的方式调用而不是通过实例对象调用的。由于类开启了严格模式，所以此时方法中的 `this` 不是组件实例对象且不能指向 `window`，所以是 `undefined`。
 
     那么 JSX 中的回调函数要怎么定义呢？
@@ -417,17 +411,17 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
     你可能会想到，在类组件的构造器中，手动更改每个类方法的 `this`，生成的新方法放在类的实例上：
 
     ```js
-    this.changeWeather = this.changeWeather.bind(this)
+  this.changeWeather = this.changeWeather.bind(this)
     ```
-
+    
     但这样的话，每一个类的方法都需要手动写代码在构造函数中做更正，并且原型上还有一个用不到的方法 `changeWeather()`。
 
-    实际开发中，我们会这样做：将类组件中的方法定义为实例属性的形式：
+    实际开发中，我们会这样做：将类组件中的方法定义为实例属性的形式。
 
     ```js
-    changeWeather = () => {/* 里面的this是组件实例对象 */}
+  changeWeather = () => {/* 里面的this是组件实例对象 */}
     ```
-
+    
     由于是箭头函数，所以函数中的 `this`是类作用域的 `this`，`this` 永远指向当前的类组件实例。
 
 - ### props
@@ -688,29 +682,31 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
 - ### 受控组件和非受控组件
 
-  > 页面中所有输入类的DOM的值，如果是现用现取，这种就是**非受控组件**。页面中所有输入类的DOM的值，随着用户的输入数据能实时维护到`state`中去，等到用的时候直接去`state`中取，这种就是**受控组件**。（推荐使用受控组件，因为这种写法不用写很多ref）
+  页面中所有输入类的DOM的值，如果是现用现取，这种就是**非受控组件**。页面中所有输入类的DOM的值，随着用户的输入数据能实时维护到`state`中去，等到用的时候直接去`state`中取，这种就是**受控组件**。
+
+  > 推荐使用受控组件，因为这种写法不用写很多ref。
 
 - ### 函数的柯里化&高阶组件
 
-  > 符合以下条件之一的函数称为**高阶函数**：
-  >
-  > 1. 函数的形参是一个函数。
-  > 1. 函数的返回值是一个函数。
+  符合以下条件之一的函数称为**高阶函数**：
+  
+  1. 函数的形参是一个函数。
+  1. 函数的返回值是一个函数。
 
-  ###### 函数的柯里化：通过函数调用继续返回函数的方式，实现多次接收参数，最终统一处理的函数编码形式。如：
+  函数的柯里化：通过函数调用继续返回函数的方式，实现多次接收参数，最终统一处理的函数编码形式。如：
 
   ```js
   // 没用函数的柯里化
   // function sum(a,b,c){ return a+b+c }
   // 采用函数的柯里化
-  function sum(a){
-      return (b)=>{
-          return (c)=>{
-              return a+b+c
-          }
+  function sum(a) {
+    return (b)=>{
+      return (c)=>{
+        return a+b+c
       }
+    }
   }
-  sum(1)(2)(3)
+  sum(1)(2)(3);
   ```
 
 - ### React 组件的生命周期
@@ -763,7 +759,7 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
       > 其实`componentDidUpdate(preProps, preState, snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
-- ### 使用React脚手架
+- ### 使用React脚手架进行开发
 
   使用React脚手架可以快速创建基于React的项目，在脚手架环境下开发React项目效率更高。
 
