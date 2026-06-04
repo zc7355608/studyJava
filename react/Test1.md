@@ -678,11 +678,38 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
   ##### 事件委托：
 
-  React中的事件是通过**事件委托**的方式来处理的。事件委托就是将事件委托给最外层的元素（为了高效）。此时通过`event.target`就可以拿到真正发生该事件的DOM元素。（在 React 中所有事件都会传播，除了 `onScroll`）
+  React中的事件是通过**事件委托**的方式来处理的。事件委托就是将事件委托给最外层的元素`#root`（为了高效）。此时通过`event.target`就可以拿到真正发生该事件的DOM元素。
+
+  ##### React 中的事件冒泡/捕获：
+
+  和 HTML 中的事件传播方式类似，React 中的事件默认也是冒泡的，事件处理函数将捕获任何来自子组件的事件。
+
+  > 极少数情况下，你可能需要捕获子元素上的所有事件。可以通过在事件名末尾加 `Capture` 来实现这一点。
+  >
+  > ```jsx
+  > <div onClickCapture={() => { /* 这会首先执行 */ }}>
+  >   <button onClick={e => e.stopPropagation()} />
+  >   <button onClick={e => e.stopPropagation()} />
+  > </div>
+  > ```
+  >
+  > 注意：只有 HTML 的原生元素才可以这样做。
+
+  ##### 关于多选框标签的`onChange`：
+
+  JSX中，多选框标签上的`checked`属性，会根据值`true/false`来决定是否勾选。如果加了该属性必须同时加上`onChange`属性（值为回调函数名），指定当多选框发生变化时要做什么。否则多选框就无法取消勾选了。
+
+  并且要注意，多选框标签的 `defaultChecked` 只能设置复选框在页面初次加载时的默认选中状态。并且如果同时加了 `checked` 属性，那么 `checked` 设置的初始勾选状态更高。
 
 - ### 受控组件和非受控组件
 
-  页面中所有输入类的DOM的值，如果是现用现取，这种就是**非受控组件**。页面中所有输入类的DOM的值，随着用户的输入数据能实时维护到`state`中去，等到用的时候直接去`state`中取，这种就是**受控组件**。
+  在 React 中，**受控组件（Controlled Component）** 和 **非受控组件（Uncontrolled Component）** 的区别，本质上是：
+
+  **表单元素的数据由 React 管理，还是由 DOM 自己管理。**
+
+  表单的值存放在 React state 里，可以实时获取用户的输入，这种就是**非受控组件**。
+
+  表单的值保存在 DOM 元素自己内部，React 不管理它，而是等提交时通过 ref 去获取值，这种就是**受控组件**。
 
   > 推荐使用受控组件，因为这种写法不用写很多ref。
 
@@ -713,7 +740,7 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
   每个组件实例从创建到销毁都会经历一系列过程，在这个过程中会通过组件实例去调用组件实例（原型）上一系列叫做**生命周期钩子**的函数，这给了用户在不同阶段执行自己的代码的机会。这就是组件的生命周期。
 
-  - ###### 关于组件实例的生命周期（16及之前的旧版本）：
+  - ##### 关于组件实例的生命周期（16及之前的旧版本）：
 
     ![d1e3f1f0acd0f76b4f13a4ba3924d863](./assets/d1e3f1f0acd0f76b4f13a4ba3924d863.png)
 
@@ -741,11 +768,11 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
     - **卸载阶段**：当执行了`ReactDOM.unmountComponentAtNode(document.querySelector('#app'))`（或其他条件导致组件被卸载）之后，React会将HTML节点上挂载的组件卸载掉。在卸载前，组件实例的`componentWillUnmount()`会被调用（一般在这里做收尾工作）。此时已经过了更新阶段，在这个钩子中修改state页面不会再变了。
 
-  - ###### 关于组件实例的生命周期（17及之后的新版本）：废弃了3个钩子，新增了2个钩子。
+  - ##### 关于组件实例的生命周期（17及之后的新版本）：废弃了3个钩子，新增了2个钩子。
 
     ![9271bb7a3c309fd15d33d37178d54919](./assets/9271bb7a3c309fd15d33d37178d54919.png)
 
-    > 在新版本React中（17+），`componentWillMount()`、`componentWillUpdate()`、`componentWillReceiveProps(props)`这3个生命周期钩子函数**过时了**，即将被弃用不推荐再用了。如果非要用前面需要加上`UNSAFE_`前缀。因为这3个钩子函数经常会被误解和滥用，尤其是在未来版本启用**异步渲染**之后问题会更严重。
+    在新版本React中（17+），`componentWillMount()`、`componentWillUpdate()`、`componentWillReceiveProps(props)`这3个生命周期钩子函数**过时了**，即将被弃用不推荐再用了。如果非要用前面需要加上`UNSAFE_`前缀。因为这3个钩子函数经常会被误解和滥用，尤其是在未来版本启用**异步渲染**之后问题会更严重。
 
     - （了解）初始化挂载和更新阶段新增了 `static getDerivedStateFromProps(props,state)` 钩子（从props得到一个派生的状态）。它是实例上的静态方法，且有返回值。返回值可以是2种：
 
@@ -759,19 +786,183 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
 
       > 其实`componentDidUpdate(preProps, preState, snapshotValue)`钩子函数可以接收3个参数。第1个参数是先前的props，第2个参数是先前的state，第3个参数就是返回的快照值。
 
-- ### 使用React脚手架进行开发
+- ### 使用Vite搭建一个React应用
+
+  [Vite](https://vite.dev/) 是一个构建工具，旨在为现代网络项目提供更快更简洁的开发体验。
+
+  Vite 采用约定式设计，开箱即提供合理的默认配置。它拥有丰富的插件生态系统，能够支持快速热更新、JSX、Babel/SWC 等常见功能。你可以查看 Vite 的 [React 插件](https://vite.dev/plugins/#vitejs-plugin-react) 或 [React SWC 插件](https://vite.dev/plugins/#vitejs-plugin-react-swc) 和 [React 服务器端渲染示例项目](https://vite.dev/guide/ssr.html#example-projects) 来开始使用。
+
+  Vite 已经作为构建工具在我们 [推荐的框架](https://zh-hans.react.dev/learn/creating-a-react-app) 之一 [React Router](https://reactrouter.com/start/framework/installation) 中使用。
+
+  使用 Vite 创建一个 React 应用：
+
+  ```bash
+  npm create vite@latest my-app -- --template react-ts
+  ```
+
+  执行成功后会自动启动该项目，打开浏览器访问这个地址`http://localhost:5173/`，可以看到如下页面。
+
+  ![9271bb7a3c309fd15d33d37178d54919](./assets/image-20240811215103832.png)
+
+  这是脚手架为我们提供的 Demo 应用。接下来我们看下这个 React 项目的结构。
+
+  - `package.json`：
+
+    ```json
+    {
+      "name": "my-react-app",
+      "private": true,
+      "version": "0.0.0",
+      "type": "module",
+      "scripts": {
+        "dev": "vite",
+        "build": "tsc -b && vite build",
+        "lint": "eslint .",
+        "preview": "vite preview"
+      },
+      "dependencies": {
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6"
+      },
+      "devDependencies": {
+        "@eslint/js": "^10.0.1",
+        "@types/node": "^24.12.3",
+        "@types/react": "^19.2.14",
+        "@types/react-dom": "^19.2.3",
+        "@vitejs/plugin-react": "^6.0.1",
+        "eslint": "^10.3.0",
+        "eslint-plugin-react-hooks": "^7.1.1",
+        "eslint-plugin-react-refresh": "^0.5.2",
+        "globals": "^17.6.0",
+        "typescript": "~6.0.2",
+        "typescript-eslint": "^8.59.2",
+        "vite": "^8.0.12"
+      }
+    }
+    ```
+
+    `dependencies`、`devDependencies`分别是项目的生产依赖和开发依赖，`scripts`是项目的运行脚本。其中：
+
+    - `npm run dev`：启动一个开发服务器，我们开发阶段就在这个开发服务器提供的脚手架环境进行编码和开发。
+    - `npm run build`：进行类型检查和编译，如果检查、编译通过了，则会在`dist`目录下生成静态资源，这些就是最终部署到服务器上的文件。
+    - `npm run lint`：通过 ESLint 进行代码的规范检查，有助于项目组成员都使用相同的风格进行编码。
+    - `npm run preview`：它会构建一个生产环境的预览，相当于先`build`打包，然后将`dist`中的内容部署到一个临时的服务器上。方便我们查看。
+
+  - `public/`：该目录下存放**不参与打包**的**静态资源**。如果某个静态资源不需要经过 Vite 打包、或需要固定 URL 访问，那么就可以放在这里。
+
+    > 通常这里会放一些图片、SVG、字体文件、网站的页签图标、robots.txt ...
+    >
+    > **robots.txt** 是一个存放在网站根目录的文本文件，用来告诉搜索引擎爬虫（如 Google、百度等）**哪些页面可以抓取，哪些不能抓取**。该文件是规范性质的，非强制性。
+
+  - `index.html`：它是 React 应用的主页面，将来所有的东西都会打包放在这个文件中。
+
+    ```html
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>my-react-app</title>
+      </head>
+      <body>
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+      </body>
+    </html>
+    ```
+
+    里面有一个`id`为`root`的`<div>`，将来根组件 `<App>` 中的内容会填充到这里面。
+
+    `<script>`标签使用 ESM 的语法导入了项目的入口文件`src/main.tsx`，这是因为 Vite 的开发模式的处理和 Webpack 不同。
+
+    > Webpack 在开发模式下，其实是启动了一个开发服务器，在不断地计算、编译 JS 模块，并通知浏览器刷新。而 Vite 在开发模式下，利用浏览器支持 ESM 这个特性，让浏览器去加载这些 JS 模块，Vite 只是做编译，依赖分析交给浏览器了，因此速度要快很多，尤其是在冷启动时差距更明显。
+
+    注意：如果请求了`public/`目录下不存在的资源，脚手架服务器默认会返回`index.html`。
+
+  - `src/`：存放项目源代码。
+
+    - `assets/`：存放源代码依赖的静态资源。和`public/`不同的是，放在这里的内容会经过 Vite 的处理。
+
+    - `index.css`：全局的 CSS 样式文件，该文件在`main.tsx`中进行了导入。
+
+    - `main.tsx`：它是 React 应用的启动入口文件，负责导入全局资源、创建 React 根节点，并将根组件 `App` 挂载到 HTML 中的 `#root` 元素上。浏览器加载 React 应用时，最先执行的通常就是这个文件。后续配置 React 的路由、状态、国际化等这些全局的操作，都会放在这个文件中执行。
+
+      ```tsx
+      import { StrictMode } from 'react'
+      import { createRoot } from 'react-dom/client'
+      import './index.css'
+      import App from './App.tsx'
+      
+      createRoot(document.getElementById('root')!).render(
+        <StrictMode>
+          <App />
+        </StrictMode>,
+      )
+      ```
+
+      `createRoot` 允许在浏览器的 DOM 节点中创建根节点，用于 React 组件。然后调用 `root.render` 以将一段 [JSX](https://zh-hans.react.dev/learn/writing-markup-with-jsx)（“React 节点”）在 React 的根节点中渲染为真实 DOM 并显示。
+
+    - `App.tsx/App.css`：`App`组件是所有其他 React 组件的根组件，它里面直接或间接导入了项目中其他的组件。`App.css`是根组件的CSS样式文件。
+
+      > 由于 React 中使用 JSX 语法，因此通常用到 JSX 的文件，文件名都是`.jsx`。如果是 TS 项目的话，文件名则是 `.tsx`。这样 Vite 就知道用何种方式编译我们的源文件了。
+
+    未来`src/`下还会新建其他目录，比如`components/`中存放（除了 `App` 之外的）**UI 组件**，`layout/`存放**布局组件**。其中每个组件都是一个单独的目录，目录中的`index.jsx/组件名.jsx`就是组件文件，处此之外还有组件的样式`index.css/组件名.css`、组件依赖的资源文件等。
+
+  - `vite.config.ts`：Vite 的配置文件，我们的应用需要用 Vite 进行编译和打包，以及运行一个开发服务器（脚手架）环境。
+
+    ```ts
+    import { defineConfig } from 'vite'
+    import react from '@vitejs/plugin-react'
+    
+    // https://vite.dev/config/
+    export default defineConfig({
+      plugins: [react()],
+    })
+    ```
+
+  - `eslint.config.js`：ESLint 是一个帮我们在开发阶段找到 JS/TS 代码问题的工具，其目的是使代码风格更加一致并避免错误。这是它的配置文件。
+
+    ```js
+    import js from '@eslint/js'
+    import globals from 'globals'
+    import reactHooks from 'eslint-plugin-react-hooks'
+    import reactRefresh from 'eslint-plugin-react-refresh'
+    import tseslint from 'typescript-eslint'
+    import { defineConfig, globalIgnores } from 'eslint/config'
+    
+    export default defineConfig([
+      globalIgnores(['dist']),
+      {
+        files: ['**/*.{ts,tsx}'],
+        extends: [
+          js.configs.recommended,
+          tseslint.configs.recommended,
+          reactHooks.configs.flat.recommended,
+          reactRefresh.configs.vite,
+        ],
+        languageOptions: {
+          globals: globals.browser,
+        },
+      },
+    ])
+    ```
+
+  该项目是一个TS项目，`tsconfig.xx.json`这几个配置文件都是TS的配置文件。其他的文件我们暂时不需要关心。
+
+- ### ~~使用React脚手架进行开发——Create React App（旧版）~~
 
   使用React脚手架可以快速创建基于React的项目，在脚手架环境下开发React项目效率更高。
 
   React官方提供了一个用于快速创建React项目的工具：`create-react-app`，通过它提供的命令可以快速创建React项目（node项目）。
 
-  ###### 安装`create-react-app`工具并通过该工具创建React模版项目（React脚手架环境）：
+  ##### 安装`create-react-app`工具并通过该工具创建React模版项目（React脚手架环境）：
 
   1. 安装create-react-app工具：`npm i -g create-react-app`（也可以用yarn，yarn和React是同一家公司的配合使用更好）
   2. 切换到你存放React项目的目录下执行：`create-react-app 项目名`
   3. 等待React项目创建成功后，cd进入项目目录中执行`npm start`即可启动React脚手架中自带的Hello Word项目。
 
-  ###### React项目创建成功后，查看`package.json`的scripts配置项目：
+  ##### React项目创建成功后，查看`package.json`的scripts配置项目：
 
   ```json
   "scripts": {
@@ -782,59 +973,119 @@ React 是一个用于构建用户界面（UI）的 JS 库。用户界面由按�
   },
   ```
 
-  > - 其中`npm start`可以启动一台开发者服务器，帮助我们开发和调试React项目。
-  >
-  > - `npm run build`可以将前端开发完毕的项目，打包生成静态资源文件，由后端部署在服务器上运行。
-  >
-  > - `npm run test`是做前端测试的，目前用不到。
-  >
-  > - `npm run eject`命令可以将React脚手架隐藏起来的、所有Webpack相关的命令及配置文件都暴露出来，方便我们更底层的配置React脚手架。运行之后项目根目录下会新增两个文件夹`config`和`scripts`。
-  >
-  >   - `config` 文件夹包含了项目构建过程中使用的各种配置文件，包括不同环境下的Webpack配置文件。这些文件允许你自定义构建过程中的行为。
-  >   - `scripts`文件夹包含了脚手架中原本封装的脚本逻辑，比如启动开发服务器、构建生产版本等。现在你可以直接修改这些脚本来满足特定的需求。
-  >   - 此外，运行该命令还会更新`package.json`文件中的脚本部分，以便指向你项目中的自定义脚本而不是原来的脚本。
-  >   
-  >   **注意**：一旦运行了`npm run eject`，你就回不去了，因为你已经接管了所有配置细节。因此在运行此命令前，请确保你确实需要对配置进行深入定制。（之所以React将其隐藏起来就是怕碰坏了导致项目崩溃，一般我们不用动）
+  - 其中`npm start`可以启动一台开发者服务器，帮助我们开发和调试React项目。
 
-  ###### 分析脚手架目录：
+  - `npm run build`可以将前端开发完毕的项目，打包生成静态资源文件，由后端部署在服务器上运行。
+
+  - `npm run test`是做前端测试的，目前用不到。
+
+  - `npm run eject`命令可以将React脚手架隐藏起来的、所有Webpack相关的命令及配置文件都暴露出来，方便我们更底层的配置React脚手架。运行之后项目根目录下会新增两个文件夹`config`和`scripts`。
+
+    - `config` 文件夹包含了项目构建过程中使用的各种配置文件，包括不同环境下的Webpack配置文件。这些文件允许你自定义构建过程中的行为。
+    - `scripts`文件夹包含了脚手架中原本封装的脚本逻辑，比如启动开发服务器、构建生产版本等。现在你可以直接修改这些脚本来满足特定的需求。
+    - 此外，运行该命令还会更新`package.json`文件中的脚本部分，以便指向你项目中的自定义脚本而不是原来的脚本。
+    
+    **注意**：一旦运行了`npm run eject`，你就回不去了，因为你已经接管了所有配置细节。因此在运行此命令前，请确保你确实需要对配置进行深入定制。（之所以React将其隐藏起来就是怕碰坏了导致项目崩溃，一般我们不用动）
+
+  ##### 分析脚手架目录：
 
   - `public/`：该目录下存放不参与打包的静态资源。其中包含`index.html`，它是React项目的主页面，将来所有的东西都会打包放在这个文件中（以后我们编写的都是SPA单页面应用）。主页中只有一个`id`为`root`的`<div>`用于存放根组件App的内容。
 
     > 该目录下的其他文件目前还用不到，删除即可。
     >
-    > - **robots.txt** 是一个存放在网站根目录的文本文件，用来告诉搜索引擎爬虫（如 Google、百度等）**哪些页面可以抓取，哪些不能抓取**。（该文件是规范性质的，非强制性）
 
   - `src/`：
 
     - `App.js` & `App.css`：分别是App组件和App组件的样式文件。**App组件是所有组件的根组件**，`id`为`root`的`<div>`中只需要引入App组件即可。
     - `index.js` & `index.css`：React项目的**入口文件**和全局样式文件。入口文件中引入了App组件并通过`ReactDOM.render()`将根组件（虚拟DOM）渲染到了`id`为`root`的`<div>`中（至于为什么能找到`index.html`是因为脚手架的Webpack中配置好了）。全局样式文件中存放全局样式，如果样式不想参与打包也可以放在`public/`目录下在`index.html`中进行引入。
 
-    > App组件中还用了`reportWebVitals.js`，它是用于记录页面上的性能的，里面用的`web-vitals`库。
+    App组件中还用了`reportWebVitals.js`，它是用于记录页面上的性能的，里面用的`web-vitals`库。
     
   - 其他的：App.test.js是专门为App组件做测试的，setupTests.js是用于React项目的整体测试或组件测试的。（这俩几乎不用）
 
-  > 我们一般只需要写index.html、index.js、App.jsx、App.css即可。并且由于React中编写组件会用JSX语法，所以一般组件文件的扩展名为`.jsx`。除了App外的其他UI组件都放在`src/components`下，每个组件都是单独的目录，目录名就是组件名，目录中存放组件文件：`index.jsx`或`组件名.jsx`，以及组件的样式和组件中用到的所有资源。布局组件放在`src/layouts`目录下。
+  我们一般只需要写index.html、index.js、App.jsx、App.css即可。并且由于React中编写组件会用JSX语法，所以一般组件文件的扩展名为`.jsx`。除了App外的其他UI组件都放在`src/components`下，每个组件都是单独的目录，目录名就是组件名，目录中存放组件文件：`index.jsx`或`组件名.jsx`，以及组件的样式和组件中用到的所有资源。布局组件放在`src/layouts`目录下。
 
-- ### 样式的模块化
+- ### CSS Modules
 
-  > 样式在React脚手架中怎么模块化呢？步骤如下：
+  当我们我们在不同的组件中，导入组件的样式文件时：`import 'xx.css';`，不同组件中的样式会发生相互污染/影响，样式如何进行模块化呢？
 
-  1. 将`.css`文件的后缀名改成`.module.css`
-  2. 引入时：`import hello from './hello.module.css'`，此时样式就保存在了hello对象中。使用时通过`hello.类名`，它是一个JS表达式。
+  Vite（Webpack中的`css-loader`）中支持 CSS Modules。任何以 `.module.css` 为后缀名的 CSS 文件都被认为是一个 [CSS modules 文件](https://github.com/css-modules/css-modules)。导入这样的文件会返回一个相应的模块对象：
 
-  > 不过我们一般用Less写样式，外层嵌套个组件名后，不同组件的样式的类名不同，所以不会产生冲突。
+  > `example.module.css`：
 
-- ### React项目的注意事项
+  ```css
+  .btn {
+    color: red;
+  }
+  
+  .fs {
+    font-size: 18px;
+  }
+  ```
 
-  1. JSX中，多选框标签上的`checked`属性，会根据值`true/false`来决定是否勾选。如果加了该属性必须同时加上`onChange`属性（值为回调函数名），指定当多选框发生变化时要做什么。否则多选框就无法取消勾选了。
+  > `Example.jsx`：
 
-     > 注意：多选框标签的 `defaultChecked` 只能设置复选框在页面初次加载时的默认选中状态。并且如果同时加了 `checked` 属性，那么 `checked` 设置的初始勾选状态更高。
+  ```jsx
+  import styles from './example.module.css';
+  
+  <div className={`${styles.btn} ${styles.fs}`}></div>
+  ```
 
-  2. 在React脚手架环境下，如果请求了`public/`目录下不存在的资源，脚手架服务器默认会返回`public/index.html`。
+  这背后的原理是，Vite 把 CSS 编译成了两部分：
+
+  1. 处理 CSS 类名：
+
+     ```css
+     .btn_a1b2c3 {
+       color: red;
+     }
+     ```
+
+  2. JS 模块：
+
+     ```js
+     export default {
+       btn: 'btn_a1b2c3'
+     }
+     ```
+
+     > 实际上导入的是这个默认导出的 JS 对象。
+
+  CSS Modules 的核心工作就是“局部化 class 名（以及可选的动画名）”，其它 CSS 选择器语法基本保持不变。
 
 - ### React脚手架配置代理
 
-  > React脚手架也是一个Node项目，所以脚手架项目发送AJAX请求会跨域。可以在脚手架中通过配置代理解决。React脚手架配置代理：（底层基于`http-proxy-middleware`）
+  React 脚手架也是一个Node服务，在脚手架中通过 JS 的 XHR 请求后端会跨域。可以在 React 脚手架中通过配置代理来解决。
+
+  在 `vite.config.ts` 中通过 `server.proxy` 配置脚手架代理：（底层基于`http-proxy`）
+
+  ```ts
+  import { defineConfig } from 'vite'
+  import react from '@vitejs/plugin-react'
+  
+  // https://vite.dev/config/
+  export default defineConfig({
+    plugins: [react()],
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+        },
+      },
+    },
+  })
+  ```
+
+  这是标准的配置代理方式，只要请求URL以`/api`开头就转发给5000服务器，不管`public`目录下有没有这个资源。
+
+  注意：开发时在脚手架中配置的代理，不会包含在最后打包的代码中。（但是打包前需要改代码中的请求路径，端口号需要改成服务器的）
+
+  这样需要的所有资源都向本地服务器发送请求。如果是**public目录下没有的资源**，本地代理服务器会继续请求目标服务器。
+
+- ### ~~React脚手架配置代理——Create React App（旧版）~~
+
+  React 脚手架也是一个Node服务，在脚手架中通过 JS 的 XHR 请求后端会跨域。可以在 React 脚手架中通过配置代理来解决。配置脚手架代理：（底层基于`http-proxy-middleware`）
 
   - 方式1：在`package.json`中，加配置项：`"proxy": "http://localhost:5000"`，这是方式2的简写形式。
 
