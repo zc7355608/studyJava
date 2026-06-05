@@ -1,4 +1,4 @@
-# React路由（前端路由）
+# ~~React Router（v5）~~
 
 > - **路由（Route）**就是一组K-V的对应关系。多个路由需要经过**路由器（Router）**的管理。
 >
@@ -247,28 +247,22 @@
   export default withRouter(Header)
   ```
 
-# React UI组件库
+# ~~Redux~~
 
-所谓的UI组件库就是：将我们常用的元素、样式及交互，封装成各种组件供我们使用。只需要将组件拿过来即可使用。React常用的UI组件库是Ant Design。
+Redux是一个专门用于做状态管理的JS库。作用：集中式管理应用中多个组件共享的状态（state）。（它不是专门用于React的插件库，还可以在Vue、Angular中用，但一般都与React配合使用）
 
-UI组件库分为两大类：移动端和PC端。移动端常用的UI组件库：Vant、Cube UI、Mint UI..，PC端常用的UI组件库：Element UI、IView UI..
+##### 什么时候使用Redux？
 
-# Redux
+1. 多个组件依赖同一状态。
+2. 多个组件要变更同一状态。
 
-> Redux是一个专门用于做状态管理的JS库。作用：集中式管理应用中多个组件共享的状态（state）。（它不是专门用于React的插件库，还可以在Vue、Angular中用，但一般都与React配合使用）
+此时这个状态（数据）就应该放在Redux中。
 
-###### 什么时候使用Redux？
-
-> 1. 多个组件依赖同一状态。
-> 2. 多个组件要变更同一状态。
->
-> 此时这个状态（数据）就应该放在Redux中。
-
-###### Redux的工作原理图：
+##### Redux的工作原理图：
 
 ![06211f8b0271dd7d56175899e6376c2d](./assets/06211f8b0271dd7d56175899e6376c2d.png)
 
-###### Redux的工作原理：
+##### Redux的工作原理：
 
 > - 当某个组件的数据需要多个组件共享时，最好的方式就是将其放在Redux中，让它帮我们维护需要多个组件共享的数据（状态），类型通常是一个对象，这样可以保存多个数据。此时数据不在自身了，当组件要操作数据（状态）时，需要通知Redux让它来调度以完成对state的操作。
 >
@@ -290,7 +284,7 @@ UI组件库分为两大类：移动端和PC端。移动端常用的UI组件库�
 >
 > - 注意：Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。因此Redux提供了一个API，只要state发生变化（浅层次），就会帮你调指定的函数：`store.subscribe(func)`。因此我们只要将重新渲染页面的代码订阅到func中，当state变化React就会重新渲染页面了。
 
-###### 搭建Redux环境：
+##### 搭建Redux环境：
 
 1. 安装Redux：`npm i redux`，并在src/下新建redux/目录，用于存放Redux中的所有文件。
 
@@ -329,7 +323,7 @@ UI组件库分为两大类：移动端和PC端。移动端常用的UI组件库�
    
    > 目前我们只需要Redux管理Count组件的一个count数据（状态），所以state类型为Number即可。
 
-###### 使用Redux：
+##### 使用Redux：
 
 - 组件中通过`store.getState()`获取state：
 
@@ -341,9 +335,9 @@ UI组件库分为两大类：移动端和PC端。移动端常用的UI组件库�
   
 - 通知Redux去修改state：`store.dispatch({type:'increment',data:100})`。dispatch只要调用，就会执行Store关联的Reducer。
 
-###### 但是这里有一个问题：
+##### 但是这里有一个问题：
 
-> Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。也就是说：state变化后，Redux并没有去重新渲染页面，所以页面还是旧的。怎么办呢？需要用Redux的`store.subscribe(func)`：
+Redux只负责管理状态，至于状态的改变驱动着页面的展示，需要我们自己写。也就是说：state变化后，Redux并没有去重新渲染页面，所以页面还是旧的。怎么办呢？需要用Redux的`store.subscribe(func)`：
 
 ```js
 export default class Count extends Component {
@@ -359,9 +353,9 @@ export default class Count extends Component {
 }
 ```
 
-> 但还不行。如果有多个组件，难不成在每个组件挂载完毕时都去subscribe订阅一下吗？
->
-> 后面用`react-redux`就没这个问题了。目前先这样做，在入口文件index.js中给根组件App订阅下：（每次state变了直接重新渲染整个应用）
+但还不行。如果有多个组件，难不成在每个组件挂载完毕时都去subscribe订阅一下吗？
+
+后面用`react-redux`就没这个问题了。目前先这样做，在入口文件index.js中给根组件App订阅下：（每次state变了直接重新渲染整个应用）
 
 ```jsx
 import React from 'react'
@@ -378,7 +372,7 @@ store.subscribe(()=>{
 })
 ```
 
-###### 再做些优化：
+##### 再做些优化：
 
 - 我们每次还得手动写action对象很麻烦，而且后面还会用函数类型的**异步action**，每次调用dispatch还得自己写个函数传进去太麻烦了。所以我们一般会通过ActionCreator函数为count数据生成action。新建`redux/count_action_creator.js`：
 
@@ -404,7 +398,8 @@ store.subscribe(()=>{
   ```
 
   > 以后所有的Reducer和ActionCreator中的操作名都用这些常量。
-###### 以上是Redux的基本使用，接下来我们学习Redux的高阶用法。
+
+以上是Redux的基本使用，接下来我们学习Redux的高阶用法。
 
 - #### 异步Action和同步Action
 
@@ -669,19 +664,6 @@ store.subscribe(()=>{
   > 安装配置好之后，启动React项目并打开Redux选项卡：
   >
   > ![image-20240811033320071](./assets/image-20240811033320071.png)
-
-# 项目打包运行
-
-> 项目写完了，如何将我们写的React应用真正部署在服务器上。步骤：
-
-1. 打包：`npm run build`，该命令可以将React项目代码，打包为纯粹的静态资源文件，让其可以直接放在服务器上运行。
-
-2. 通过第三方工具，模拟一个服务器环境，将我们打包后的代码放上面测试下：
-
-   1. 安装serve工具：`npm i -g serve`，该工具可以让我们，以指定目录为服务器根目录，快速开启一台（处理静态资源的）服务器。
-   2. 执行命令：`serve 目录名`
-
-   > ![image-20240811215103861](./assets/image-20240811215103861.png)
 
 ------
 
