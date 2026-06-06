@@ -305,7 +305,7 @@
   Try/catch块无法捕获React渲染过程中发生的错误。呈现方法或钩子中抛出的错误会在组件树中冒泡。只有[Error Boundary](https://zh-hans.react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary)才能捕获这些错误。
   
   ```jsx
-// ❌ Try/catch块无法捕获React渲染过程中发生的错误。
+  // ❌ Try/catch块无法捕获React渲染过程中发生的错误。
   function Parent() {
     try {
       return <ChildComponent />; // 如果组件的render()或钩子中抛出了错误，这里的catch无法捕获到
@@ -338,144 +338,477 @@
   
   ##### 注意：错误边界只适用于生产环境，开发环境下页面还是会报错的。
 
-# React Router（V6）
+# React Router（V7）
 
-> 之前的 React Router（V5）是旧版本的路由，基本不会再用了。现在我们学习它的新版本 React Router（V6）。
+> 之前的 React Router（V5）是旧版本的路由，基本不会再用了。现在我们学习它的新版本 React Router（V7）。
 >
 > 注意：React Router（V6.3）以前，它还只是一个简单的路由组件的库，只负责根据路径渲染相应的组件。但是到React Router（V6.4）之后，它除了路由的功能，还添加了**数据加载**的功能，是**一个支持数据加载（Data Loading）的客户端路由框架**。
 >
 > React Router（V6.4）提出了**Data Router**的概念。这是一套新的路由系统，用一句话概括：Data Router = 路由（Routing）+ 数据加载（Data Loading）+ 数据提交（Data Mutation）。它的目标是让**路由负责数据生命周期**，而不是让组件自己在 `useEffect` 里请求数据。
 >
-> 而最新的 React Router（V7）已经变成了一个全栈框架了，它合并了 Remix 框架，提供了3种使用模式：声明式、数据、框架。分别对应*前端路由*、*Data Router*、*全栈能力*。其实就是在 React Router（V6）的基础上，又提供了 SSR、SSG等功能（类似Next.js），彻底整合为了一个全栈框架。其他的Data Router、API等基本没变。
+> 而最新的 React Router（V7）已经变成了一个全栈框架了，它合并了 Remix 框架，提供了3种使用模式：声明式、数据、框架。分别对应*前端路由*、*Data Router*、*全栈能力*。其实就是在 React Router（V6）的基础上，通过React Router Vite 插件为React Router增加了框架的特新（SSR、SSG等），使其成为了一个全栈框架。其他的Data Router、API等基本没变。
 >
-> 因此我们这里学习的其实是React Router（V7）的路由、以及Data Router，框架的其他能力我们暂时不讲。所以对应标题还是React Router（V6）。
+> 因此我们这里学习的其实是React Router（V7）中的前端路由以及Data Router，框架的能力我们目前不关心。
 
+- ### 前端路由（声明式）
 
+  声明式模式只启用了基本的路由功能，如将 URL 匹配到组件、在应用中导航以及通过 `<Link>`、`useNavigate` 和 `useLocation` 等 API 提供活动状态。
 
-# React Router 6
+  我们仍使用之前用Vite搭建的React的TS项目作为开始，为我们的项目添加React Router的路由功能。
 
-> 2021.11月份时ReactRouter6已经成为了默认版本。它与5版本相比，改变了什么？
->
-> 1. 内置组件的变化：移除了`<Switch/>`，新增了`<Routes/>`等。
->
-> 2. 语法的变化：`<Route component={About} />`变为`<Route element={<About/>} />`等。
->
-> 3. 新增多个Hook：useParams、useNavigate、useMatch等。
->
->    ....
->
-> **官方明确推荐使用函数式组件了！！**
+  1. 安装 React Router：`npm i react-router`。
 
-- 之前可以给多个`<Route>`组件包一个`<Switch>`，新版本Switch换成了Routes，且它是必须的（功能和Switch一样的）。
-
-  > - `<Route>`还可以加`caseSensitive`属性，用于指定匹配时是否区分大小写。默认不区分大小写。
-  > - `<Route/>`也可以嵌套使用，且可以配合路由表使用，但需要通过`<Outlet/>`组件来指定子路由的渲染位置。（看完后面在理解）
-
-- 之前的`<Redirect to='/about'>`被移除了，取而代之的是：`<Route path='/' element={<Navigate to='/about'/>} />`
-
-  > `<Navigate>`的作用：只要Navigate组件被渲染，就会重定向切换路由。因此它也可以加`replace`属性设置路由的跳转模式。
-
-- 之前`<NavLink>`中可以通过`activeClassName`属性指定激活时的类名，新版本中该属性被移除了。如果想写自定义类名，React Router 6中需要将`className`属性的值写成函数：
-
-  ```jsx
-  <NavLink className={ isActive => isActive ? 'link active' : 'link' } to="/home">Home</NavLink>
-  ```
-
-  > 该函数在页面初次渲染、以及每次点击路由导航时被调用。参数是布尔型表示导航是否激活，返回的字符串类名会被添加到该路由导航（a标签）上。
-
-- 路由表的使用：
-
-  > 观察下下面的结构：
-
-  ```jsx
-  <Routes>
-  	<Route path="/about" element={<About/>}/>
-  	<Route path="/home" element={<Home/>}/>
-  	<Route path='/' element={<Navigate to='/about'/>}
-  </Routes>
-  ```
-
-  > 有没有发现它们的格式是一致的，不同的是path和element。我们能不能只写不同的地方（路由表），由Hook拿着我们写的路由表去生成该结构，可以：
-
-  ###### 使用`useRoutes` Hook：（路由中的Hook都是从`react-router-dom`中分别导入的）
-
-  1. 调用`useRoutes()`函数，传进去路由表：（返回值为上面的一堆路由组件结构）
+  2. 使用路由组件`<BrowserRouter>`包裹住根组件：
 
      ```jsx
-     import {useRoutes} from 'react-router-dom'
-     const ele = useRoutes([
-       {
-         path: '/about',
-         element: <About/>
-       },
-       {
-         path: '/home',
-         element: <Home/>,
-         // 如果有子级路由就通过children配置项来配置，不用写一层层的路径了
-         children: [{path:'message',element:<Message/>},]
-       },
-       {
-         path: '/',
-         element: <Navigate to='/about'/>
-       },
-     ])
+     import { StrictMode } from 'react'
+     import { createRoot } from 'react-dom/client'
+     import './index.css'
+     import App from './App.tsx'
+     import { BrowserRouter } from 'react-router'
+     
+     createRoot(document.getElementById('root')!).render(
+       <StrictMode>
+         <BrowserRouter>
+           <App />
+         </BrowserRouter>
+       </StrictMode>,
+     )
      ```
-  
-  2. 然后将以上结构替换为`{ele}`即可。
-  
-     > 开发中我们会单独建一个文件`src/routes/index.js`存放路由表（数组）并默认导出。
-  
-  ###### 但是现在有一个问题：子级路由放哪里？
-  
-  > - 我们之前没用路由表时，子级路由注册在哪里就放在哪。而现在子级路由在路由表中注册，路由表生成的结构放在了*使用最外层父级路由组件*的地方。那路由表中配置的子级路由怎么指定存放的位置呢？用`<Outlet/>`标签指定路由组件存放的位置。
-  > - 若`to`指定的是子级路由，那么除了写完整路径之外，还可以（在父级路由path的基础上）使用相对路径，不用非得写完整路径。
-  > - 默认子级路由激活时，父级路由也是激活状态所以会显示激活时的样式。可以通过给父级路由导航加`end`属性来去掉激活时样式。
 
-- ##### 函数式组件中，接收路由组件传的参数：
+  3. 通过 `<Routes>` 和 `<Route>` 组件配置**路由规则**：
 
-  > 函数式路由组件没有this，也就无法访问到路由组件实例身上的location、match，那怎么接收传过来的参数呢？通过新的Hook：
+     ```jsx
+     <BrowserRouter>
+       <Routes>
+         <Route path="/" element={<App />} />
+       </Routes>
+     </BrowserRouter>
+     ```
 
-  - **useParams()**：该Hook可以获取到传过来的params参数。
+     其中`<Route>` 负责描述路由规则，`<Routes>` 负责执行路由的匹配。
 
-  - **useMatch('路由表中注册的路径path')**：返回this.match对象。
+     - `path="/"`：表示当浏览器地址为根路径 `/` 时，渲染`element`中的路由组件。
+     - `element={<App />}`：匹配成功后渲染的组件（`<App />`）。
+     
+     > `<Route>`还可以加`caseSensitive`属性，表示路径是否区分大小写。默认为 `false`。
 
-  - **useSearchParams()**：该Hook可以获取一个数组。数组第1个元素是传过来的search参数对象，需要通过get()方法传进去字符串K才能获取到search参数的V。第2个元素是setSearch函数，用于更新search参数对象，更新时需要将新的查询字符串传进去（不带?）。
+  以上就是最基础的前端路由的配置方式。接下来我们看下路由规则的其他配置方式：
 
-  - **useLocation()**：返回this.location对象。该Hook可以用于在函数式组件中接收state参数。
+  - ##### 嵌套路由（子路由）：
 
-    > 和5版本不同的是，6版本中传state参数可以通过`<Link/>`标签的`state`属性（值是对象），`to`中只写路径即可。
+    父路由规则内部可以继续配置路由规则，构成嵌套路由。
 
-- ##### （重要）函数式组件中，使用编程式路由导航：
+    ```jsx
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />}>
+          <Route path="home" element={<Home />} />
+          <Route path="school" element={<School />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+    ```
 
-  > 函数式路由组件没有this，也就无法访问到路由组件实例身上的history，那怎么使用编程式路由导航呢？也是通过新的Hook：
+    由于`<Home>`和`<School>`都是`<App>`的子路由，要在其内部进行展示，因此父路由`<App>`中要用 `<Outlet/>` 组件，指定子路由组件要展示的位置。
 
-  **useNavigate()**：该Hook返回一个函数，编程式路由导航通过这个函数就可以完成。该函数第1个参数是跳转的url，第2个参数传一个配置对象。配置对象中可以这样写：
+    ```jsx
+    // App组件中
+    <div>
+      App
+      {/*指定子路由组件要展示的位置*/}
+      <Outlet />
+    </div>
+    ```
 
-  ```js
-  import {useNavigate} from 'react-router-dom'
-  const navigage = useNavigate()
-  navigate('/about',{
-      replace: true, // 指定路由跳转的模式，默认false是push模式
-      state: {} // 携带state参数
-  })// navigate()函数的参数还可以是Number型
-  ```
+    ###### 路由嵌套时，`<Route>`可以只指定`element`不指定`path`。
 
-  > 注意：在6版本中删除了`withRouter()`函数。所以history对象上的go(n)/goBack()/goForward()都变成了：`React.useNavigate(n)`
+    ```jsx
+    <BrowserRouter>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="address" element={<Address />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+    ```
 
-- ##### 其他几个Hook：（不常用，了解即可）
+    无 `path` 的 Route 会为其所有子路由提供一个共同的父组件。这个父组件既可以渲染公共 UI，也可以提供公共逻辑、Context、权限控制等能力。无论哪个子路由匹配成功，这个父组件都会先被渲染，然后通过 `<Outlet />` 显示对应的子路由内容。
 
-  - **useInRouterContext()**：如果组件被`<Router/>`组件包裹，则返回true。（常用于判断，当前组件是否在路由的上下文环境中）
-  - **useNavigationType()**：返回3个值POP/PUSH/REPLACE，用于确定用户是通过哪种跳转方式来到（当前）页面中的。（POP表示直接在地址栏中输入路径跳转）
-  - **useOutlet()**：用于呈现**当前组件中渲染的子级路由**。如果路由组件还没挂载，那么获取的是null，挂载后则获取的是该路由实例。
-  - **useResolvedPath()**：该Hook可以帮我们解析一个URL路径（随便哪个URL），解析其中的path、search、hash值。返回一个对象。
+    ###### 一个没有 `element` 属性的 `<Route path="xxx">` 会为其子路由添加一个路径前缀，而不会引入任何的父组件。
+
+    ```jsx
+    <Route path="projects">
+      <Route path="home" element={<Home />} />
+      <Route path="school" element={<School />} />
+    </Route>
+    ```
+
+    > `path`和`element`可以都不指定，但这没有任何实际意义。
+
+  - ##### 索引路由：
+
+    索引路由用于指定，在其父路由路径被完全精确匹配时，显示哪个子路由组件。
+
+    ```jsx
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<App />}>
+          {/* 相当于：<Route path="" element={<Index />} /> */}
+          <Route index element={<Index />} />
+          <Route path="home" element={<Home />} />
+          <Route path="school" element={<School />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+    ```
+
+    当路径为`/`时，显示`<App>`组件，它里面的`<Outlet>`会渲染为索引路由`<Index>`。
+
+    > 因为`path`的值不能为空串，因此出现了索引路由。
+
+    索引路由（`index`）是某个父路由的“默认子路由”。当父路由路径被精确匹配，而没有匹配到其他子路径时，React Router 会渲染这个索引路由对应的组件。
+
+    请注意，**索引路由不能有子路由**。
+
+  - ##### 动态段：
+
+    如果路径段以 `:` 开头，那么它就变成了一个“动态段”。当路由匹配 URL 时，动态段将从 URL 中解析出来，并作为 `params` 提供给其他路由器 API，如 `useParams`。
+
+    ```jsx
+    <Route path="teams/:teamId" element={<Team />} />
+    ```
+
+    ```jsx
+    // app/team.tsx
+    import { useParams } from "react-router";
+    
+    export default function Team() {
+      let params = useParams();
+      // params.teamId
+    }
+    ```
+
+    此路径能够匹配`teams/xxx`的URL，`teams/`和`teams/a/b`都匹配不上。
+
+    可以在一个路由路径中拥有多个动态段。
+
+    ```jsx
+    <Route
+      path="/c/:categoryId/p/:productId"
+      element={<Product />}
+    />
+    ```
+
+    ```jsx
+    // app/category-product.tsx
+    import { useParams } from "react-router";
+    
+    export default function CategoryProduct() {
+      let { categoryId, productId } = useParams();
+      // ...
+    }
+    ```
+
+    您应该确保给定路径中的所有动态段都是**唯一的**。否则，在填充 `params` 对象时，后面的动态段值将**覆盖**前面的值。
+
+  - ##### 可选段：
+
+    你可以通过在段的末尾添加 `?` 来使路由段变为可选。
+
+    ```jsx
+    <Route path=":lang?/categories" element={<Categories />} />
+    ```
+
+    你也可以有可选的静态段。
+
+    ```jsx
+    <Route path="users/:userId/edit?" element={<User />} />
+    ```
+
+  - ##### Splat 路由：
+
+    也称为“catchall”（捕获所有）和“star”（星号）段。如果路由路径模式以 `/*` 结尾，它将匹配 `/` 之后的任何字符，包括其他的 `/` 字符。
+
+    ```jsx
+    <Route path="files/*" element={<File />} />
+    ```
+    
+    ```tsx
+    let params = useParams();
+    // params["*"] will contain the remaining URL after files/
+    let filePath = params["*"];
+    ```
+    
+    你可以解构 `*`，只需要给它分配一个新名称。一个常见的名称是 `splat`。
+    
+    ```js
+    let { "*": splat } = useParams();
+    ```
+
+  路由规则和路由组件配置好之后，接下来看下如何导航到对应的路由组件。
+
+  `<Link>`、`<NavLink>`组件用于导航到路由组件，它们是`<a>`标签的封装，当用户点击时会修改地址栏的URL，从而实现路由的跳转。而`useNavigate`则是编程式路由导航，用于自定义跳转方式。
+
+  > 注意：它们都不会发送任何请求到后端，一切都发生在前端的JS中。
+  >
+
+  - `<Link>`：
+
+    当链接**不需要激活样式**时，请使用 `<Link>`。
+
+    ```jsx
+    import { Link } from "react-router";
+    
+    export function LoggedOutMessage() {
+      return (
+        <p>
+          You've been logged out.{" "}
+          <Link to="/login">Login again</Link>
+        </p>
+      );
+    }
+    ```
+
+  - `<NavLink>`：
+
+    当链接**需要激活样式**时，请使用 `<NavLink>`。
+
+    ```jsx
+    import { NavLink } from "react-router";
+    
+    export function MyAppNav() {
+      return (
+        <nav>
+          <NavLink to="/" end>
+            Home
+          </NavLink>
+          <NavLink to="/trending" end>
+            Trending Concerts
+          </NavLink>
+          <NavLink to="/concerts">All Concerts</NavLink>
+          <NavLink to="/account">Account</NavLink>
+        </nav>
+      );
+    }
+    ```
+
+    每当 `NavLink` 处于激活状态时，它都会自动获得一个 `.active` 的类名，以便使用 CSS 轻松设置样式。
+
+    ```css
+    a.active {
+      color: red;
+    }
+    ```
+
+    其中`end`属性会影响`NavLink`对激活状态的判断，即是否添加激活的类名。如果加了`end`，则路径只有完全精确匹配上，才视为激活。
+
+    `NavLink`还在 `className`、`style` 和 `children` 上有回调 props，带有激活状态，用于内联样式或条件渲染。
+
+    ```jsx
+    // className
+    <NavLink
+      to="/messages"
+      className={({ isActive }) =>
+        isActive ? "text-red-500" : "text-black"
+      }
+    >
+      Messages
+    </NavLink>
+    // style
+    <NavLink
+      to="/messages"
+      style={({ isActive }) => ({
+        color: isActive ? "red" : "black",
+      })}
+    >
+      Messages
+    </NavLink>
+    // children
+    <NavLink to="/message">
+      {({ isActive }) => (
+        <span className={isActive ? "active" : ""}>
+          {isActive ? "👉" : ""} Tasks
+        </span>
+      )}
+    </NavLink>
+    ```
+
+    > 由于`<Link>`和`<NavLink>`组件都是`<a>`标签的封装，因此你可以像处理`<a>`标签那样处理它们。比如设置`style`和`className`属性来更改它们的样式。
+
+  - `useNavigate`：
+
+    此钩子允许程序员在没有用户交互的情况下将用户导航到新页面。用于编程式路由导航。
+
+    对于正常的导航，最好使用 `Link` 或 `NavLink`。它们提供了更好的默认用户体验，如键盘事件、可访问性标签、“在新窗口中打开”、右键上下文菜单等。
+
+    将 `useNavigate` 的使用保留在用户*没有*交互但您需要导航的情况下，例如：
+
+    - 表单提交完成后。
+    - 在用户不活动后将其登出。
+    - 定时的用户界面，如测验等。
+
+    ```jsx
+    import { useNavigate } from "react-router";
+    
+    export function LoginPage() {
+      let navigate = useNavigate();
+    
+      return (
+        <>
+          <MyHeader />
+          <MyLoginForm
+            onSuccess={() => {
+              navigate("/dashboard");
+            }}
+          />
+          <MyFooter />
+        </>
+      );
+    }
+    ```
+
+  接下来看下如何从URL中获取值。
+
+  - ##### 路由参数：
+
+    路由参数是从动态段解析出来的值。
+
+    ```jsx
+    <Route path="/concerts/:city" element={<City />} />
+    ```
+
+    在这种情况下，`:city` 是动态段。该城市的解析值将从 `useParams` 中获取。
+
+    ```jsx
+    import { useParams } from "react-router";
+    
+    function City() {
+      let { city } = useParams();
+      let data = useFakeDataLibrary(`/api/v2/cities/${city}`);
+      // ...
+    }
+    ```
+
+  - ##### URL 搜索参数：
+
+    搜索参数是 URL 中 `?` 之后的值。它们可以通过 `useSearchParams` 访问，该钩子返回一个 [`URLSearchParams`](https://mdn.org.cn/en-US/docs/Web/API/URLSearchParams) 的实例。
+
+    ```jsx
+    function SearchResults() {
+      let [searchParams] = useSearchParams();
+      return (
+        <div>
+          <p>
+            You searched for <i>{searchParams.get("q")}</i>
+          </p>
+          <FakeSearchResults />
+        </div>
+      );
+    }
+    ```
+
+  - ##### Location 对象：
+
+    React Router 创建一个自定义的 `location` 对象，其中包含一些有用的信息，可通过 `useLocation` 访问。
+
+    ```jsx
+    function useAnalytics() {
+      let location = useLocation();
+      useEffect(() => {
+        sendFakeAnalytics(location.pathname);
+      }, [location]);
+    }
+    
+    function useScrollRestoration() {
+      let location = useLocation();
+      useEffect(() => {
+        fakeRestoreScroll(location.key);
+      }, [location]);
+    }
+    ```
+
+  还有几个常用的组件和Hooks：
+
+  - `<Navigate>`：它是 `useNavigate` 的基于组件的版本，用于无法使用 hook 的 React 类组件。建议避免使用此组件，而应使用`useNavigate`。
+
+    实现路由的重定向：
+
+    ```jsx
+    <Route path='/' element={<Navigate to='/about' replace />} />
+    ```
+
+    `<Navigate>`的作用：只要Navigate组件被渲染，就会重定向切换路由。它也可以加`replace`属性设置路由的跳转模式。
+
+    它本质上就是一个组件版的`useNavigate`：
+
+    ```jsx
+    const navigate = useNavigate();
+    
+    useEffect(() => {
+      navigate("/about", { replace: true });
+    }, []);
+    ```
+
+  - `useRoutes()`：`useRoutes` 允许你**用 JS 对象配置路由，而不是写 JSX 的 `<Routes>` 和 `<Route>`**。
+
+    观察下下面的结构：
+
+    ```jsx
+    <Routes>
+    	<Route path="/about" element={<About/>}/>
+    	<Route path="/" element={<Home/>}/>
+    </Routes>
+    ```
+
+    有没有发现它们的格式是一致的，不同的是path和element。我们能不能只写不同的地方（路由表），由Hook拿着我们写的路由表去生成该结构，可以，使用 `useRoutes` Hook：
+
+    1. `src/routes/index.js`：
+
+       ```js
+       // routes.js
+       
+       export default [
+         {
+           path: "/",
+           element: <Home />,
+         },
+         {
+           path: "/about",
+           element: <About />,
+         },
+       ];
+       ```
+
+    2. `App.jsx`中使用 `useRoutes`：
+
+       ```jsx
+       // App.jsx
+       
+       import routes from "./routes";
+       
+       function App() {
+         return useRoutes(routes);
+       }
+       ```
+
+       其中 `useRoutes()` 的返回值就是上面的一堆`<Routes>`中的组件。
+
+  以上就是React Router前端路由的基础用法。
+
+- ### Data Router（todo）
+
+
 
 # Zustand（todo）
 
 # Redux Toolkit（todo）
 
-### TanStack Query（todo）
+# TanStack Query（todo）
 
-### useDeferredValue\useTransitio（todo）
+# useDeferredValue\useTransitio（todo）
 
 ------
 
